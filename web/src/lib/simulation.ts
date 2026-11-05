@@ -23,16 +23,20 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
   const age = Math.max(0, Math.min(90, Math.round(startAge)));
   const profile = pick(COUNTRIES, random);
   const gender: Gender = pick(['male','female','non-binary'] as const, random);
-  const name = `${pick(profile.names[gender], random)} ${pick(profile.surnames, random)}`;
+  const namePool = gender === 'non-binary' ? profile.names.neutral : profile.names[gender];
+  const name = `${pick(namePool, random)} ${pick(profile.surnames, random)}`;
   const background = pick(FAMILY_BACKGROUNDS, random);
   const backgroundIndex = FAMILY_BACKGROUNDS.indexOf(background);
   const moneyBase = age < 16 ? 0 : age < 18 ? 120 : 850;
   const moneyMultiplier = [0.65, 0.9, 1.15, 1.55][backgroundIndex];
-  const traits = [...PERSONALITY_TRAITS].sort(() => random() - 0.5).slice(0, 2);
+  const traitPool = [...PERSONALITY_TRAITS];
+  for (let i = traitPool.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [traitPool[i], traitPool[j]] = [traitPool[j], traitPool[i]]; }
+  const traits = traitPool.slice(0, 2);
+  const appearance = { height: pick(['Short','Average height','Tall'], random), build: pick(['Slim','Average build','Broad build','Athletic build'], random), hair: pick(['Black','Brown','Blond','Red','Auburn','Gray'], random), eyes: pick(['Brown','Blue','Green','Hazel','Gray'], random) };
   const character: Character = {
     name, age, year: 2026, gender, nationality: profile.nationality, country: profile.country,
     birthplace: pick(profile.cities, random), currency: profile.currency, currencyScale: profile.scale,
-    familyBackground: background, personality: traits,
+    familyBackground: background, personality: traits, appearance,
     education: age < 6 ? 'Not started' : age < 16 ? 'Primary education' : age < 22 ? 'Secondary education' : 'General education',
     health: stat(random), happiness: stat(random), intelligence: stat(random), fitness: stat(random),
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), actionsRemaining: ACTIONS_PER_YEAR, history: []
@@ -45,9 +49,85 @@ export function createCharacter(name: string, startAge = 18): Character {
   character.name = name.trim().slice(0, 28) || character.name;
   return character;
 }
-export function formatCharacterMoney(character: Character): string {
-  const currency = character.currency ?? 'USD';
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(character.money);
+export function formatCharacterMoney(character: Character, amount = character.money): string {
+  const symbols: Record<string, string> = { BDT: '৳', INR: '₹', USD: '
+export function performActivity(character: Character, activity: ActivityId): Character {
+  if (character.actionsRemaining <= 0) return character;
+  const next = { ...character, history: [...character.history], actionsRemaining: character.actionsRemaining - 1 };
+  const scale = character.currencyScale ?? 1;
+  switch (activity) {
+    case 'study': next.intelligence = clamp(next.intelligence + 5); next.happiness = clamp(next.happiness - 1); if (next.age >= 16) next.money = Math.max(0, next.money - 35 * scale); next.history.unshift(event(next, 'Made time to study', 'You invested in learning. It may open doors later.')); break;
+    case 'exercise': next.fitness = clamp(next.fitness + 6); next.health = clamp(next.health + 2); next.happiness = clamp(next.happiness + 2); next.history.unshift(event(next, 'Focused on fitness', 'A good session improved your fitness and lifted your mood.')); break;
+    case 'socialize': next.happiness = clamp(next.happiness + 7); if (next.age >= 16) next.money = Math.max(0, next.money - 20 * scale); next.history.unshift(event(next, 'Spent time with friends', 'You made space for people who matter.')); break;
+    case 'work': if (next.age < 16) return character; next.money += 180 * scale; next.happiness = clamp(next.happiness - 2); next.history.unshift(event(next, 'Picked up extra work', 'You earned some money, although it took time and energy.')); break;
+  }
+  return next;
+}
+export function advanceYear(character: Character): Character {
+  const next = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
+  next.history.unshift(event(next, 'Another year, another chapter', `You turned ${next.age}. Your choices continue to shape what comes next.`, 'milestone'));
+  if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
+  return next;
+}
+, GBP: '£', CAD: 'CA
+export function performActivity(character: Character, activity: ActivityId): Character {
+  if (character.actionsRemaining <= 0) return character;
+  const next = { ...character, history: [...character.history], actionsRemaining: character.actionsRemaining - 1 };
+  const scale = character.currencyScale ?? 1;
+  switch (activity) {
+    case 'study': next.intelligence = clamp(next.intelligence + 5); next.happiness = clamp(next.happiness - 1); if (next.age >= 16) next.money = Math.max(0, next.money - 35 * scale); next.history.unshift(event(next, 'Made time to study', 'You invested in learning. It may open doors later.')); break;
+    case 'exercise': next.fitness = clamp(next.fitness + 6); next.health = clamp(next.health + 2); next.happiness = clamp(next.happiness + 2); next.history.unshift(event(next, 'Focused on fitness', 'A good session improved your fitness and lifted your mood.')); break;
+    case 'socialize': next.happiness = clamp(next.happiness + 7); if (next.age >= 16) next.money = Math.max(0, next.money - 20 * scale); next.history.unshift(event(next, 'Spent time with friends', 'You made space for people who matter.')); break;
+    case 'work': if (next.age < 16) return character; next.money += 180 * scale; next.happiness = clamp(next.happiness - 2); next.history.unshift(event(next, 'Picked up extra work', 'You earned some money, although it took time and energy.')); break;
+  }
+  return next;
+}
+export function advanceYear(character: Character): Character {
+  const next = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
+  next.history.unshift(event(next, 'Another year, another chapter', `You turned ${next.age}. Your choices continue to shape what comes next.`, 'milestone'));
+  if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
+  return next;
+}
+, AUD: 'A
+export function performActivity(character: Character, activity: ActivityId): Character {
+  if (character.actionsRemaining <= 0) return character;
+  const next = { ...character, history: [...character.history], actionsRemaining: character.actionsRemaining - 1 };
+  const scale = character.currencyScale ?? 1;
+  switch (activity) {
+    case 'study': next.intelligence = clamp(next.intelligence + 5); next.happiness = clamp(next.happiness - 1); if (next.age >= 16) next.money = Math.max(0, next.money - 35 * scale); next.history.unshift(event(next, 'Made time to study', 'You invested in learning. It may open doors later.')); break;
+    case 'exercise': next.fitness = clamp(next.fitness + 6); next.health = clamp(next.health + 2); next.happiness = clamp(next.happiness + 2); next.history.unshift(event(next, 'Focused on fitness', 'A good session improved your fitness and lifted your mood.')); break;
+    case 'socialize': next.happiness = clamp(next.happiness + 7); if (next.age >= 16) next.money = Math.max(0, next.money - 20 * scale); next.history.unshift(event(next, 'Spent time with friends', 'You made space for people who matter.')); break;
+    case 'work': if (next.age < 16) return character; next.money += 180 * scale; next.happiness = clamp(next.happiness - 2); next.history.unshift(event(next, 'Picked up extra work', 'You earned some money, although it took time and energy.')); break;
+  }
+  return next;
+}
+export function advanceYear(character: Character): Character {
+  const next = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
+  next.history.unshift(event(next, 'Another year, another chapter', `You turned ${next.age}. Your choices continue to shape what comes next.`, 'milestone'));
+  if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
+  return next;
+}
+, JPY: '¥', NGN: '₦', BRL: 'R
+export function performActivity(character: Character, activity: ActivityId): Character {
+  if (character.actionsRemaining <= 0) return character;
+  const next = { ...character, history: [...character.history], actionsRemaining: character.actionsRemaining - 1 };
+  const scale = character.currencyScale ?? 1;
+  switch (activity) {
+    case 'study': next.intelligence = clamp(next.intelligence + 5); next.happiness = clamp(next.happiness - 1); if (next.age >= 16) next.money = Math.max(0, next.money - 35 * scale); next.history.unshift(event(next, 'Made time to study', 'You invested in learning. It may open doors later.')); break;
+    case 'exercise': next.fitness = clamp(next.fitness + 6); next.health = clamp(next.health + 2); next.happiness = clamp(next.happiness + 2); next.history.unshift(event(next, 'Focused on fitness', 'A good session improved your fitness and lifted your mood.')); break;
+    case 'socialize': next.happiness = clamp(next.happiness + 7); if (next.age >= 16) next.money = Math.max(0, next.money - 20 * scale); next.history.unshift(event(next, 'Spent time with friends', 'You made space for people who matter.')); break;
+    case 'work': if (next.age < 16) return character; next.money += 180 * scale; next.happiness = clamp(next.happiness - 2); next.history.unshift(event(next, 'Picked up extra work', 'You earned some money, although it took time and energy.')); break;
+  }
+  return next;
+}
+export function advanceYear(character: Character): Character {
+  const next = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
+  next.history.unshift(event(next, 'Another year, another chapter', `You turned ${next.age}. Your choices continue to shape what comes next.`, 'milestone'));
+  if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
+  return next;
+}
+, EUR: '€' };
+  return `${symbols[character.currency ?? 'USD'] ?? `${character.currency ?? 'USD'} `}${Math.round(amount).toLocaleString('en-US')}`;
 }
 export function performActivity(character: Character, activity: ActivityId): Character {
   if (character.actionsRemaining <= 0) return character;
