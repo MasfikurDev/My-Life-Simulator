@@ -4,7 +4,7 @@ export interface LifeEvent { id: string; year: number; age: number; title: strin
 export interface Character {
   name: string; age: number; year: number; health: number; happiness: number;
   intelligence: number; fitness: number; money: number; actionsRemaining: number;
-  gender?: Gender; nationality?: string; country?: string; birthplace?: string; currency?: string;
+  gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
   appearance?: { height: string; build: string; hair: string; eyes: string };
   history: LifeEvent[];
