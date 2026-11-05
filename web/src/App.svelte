@@ -3,13 +3,27 @@
   import { advanceYear, createCharacter, performActivity } from './lib/simulation';
   import { clearSave, loadSave, saveCharacter } from './lib/storage';
   import type { ActivityId, Character } from './lib/types';
+  declare global {
+    interface Window {
+      AndroidApp?: {
+        isFullscreen: () => boolean;
+        setFullscreen: (enabled: boolean) => void;
+        reloadLatest: () => void;
+      };
+    }
+  }
 
   let character = $state<Character | null>(null);
   let name = $state('');
   let activeTab = $state('home');
   let showNewLife = $state(false);
   let toast = $state('');
-  onMount(() => { character = loadSave(); });
+  let fullscreen = $state(false);
+  let showRestartConfirm = $state(false);
+  onMount(() => {
+    character = loadSave();
+    fullscreen = window.AndroidApp?.isFullscreen() ?? Boolean(document.fullscreenElement);
+  });
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
   function persist(next: Character) { character = next; saveCharacter(next); }
   function startLife() { persist(createCharacter(name)); showNewLife = false; notify('Your story starts here.'); }
@@ -19,7 +33,27 @@
     persist(performActivity(character, id));
   }
   function nextYear() { if (character) { persist(advanceYear(character)); notify('A new year begins.'); } }
-  function restart() { clearSave(); character = null; name = ''; showNewLife = false; }
+  function restart() {
+    clearSave(); character = null; name = ''; showNewLife = false;
+    showRestartConfirm = false; activeTab = 'home'; notify('Your save was reset. Start a new life whenever you are ready.');
+  }
+  function reloadLatest() {
+    if (window.AndroidApp) window.AndroidApp.reloadLatest();
+    else refreshGame();
+  }
+  async function toggleFullscreen() {
+    const next = !fullscreen;
+    if (window.AndroidApp) {
+      window.AndroidApp.setFullscreen(next);
+      fullscreen = next;
+      return;
+    }
+    try {
+      if (next) await document.documentElement.requestFullscreen?.();
+      else if (document.fullscreenElement) await document.exitFullscreen();
+      fullscreen = Boolean(document.fullscreenElement);
+    } catch { notify('Fullscreen is not available in this browser.'); }
+  }
   function refreshGame() { const url = new URL(window.location.href); url.searchParams.set('refresh', Date.now().toString()); window.location.replace(url.toString()); }
   const activities: {id:ActivityId;title:string;detail:string;icon:string;cost:string}[] = [
     {id:'study',title:'Study',detail:'Build knowledge for future opportunities.',icon:'↗',cost:'35'},
@@ -32,9 +66,9 @@
 <div class="app-shell">
   <header class="topbar">
     <a class="brand" href="#home" onclick={() => activeTab='home'}><span class="brand-mark">L</span><span>life<span class="brand-light">story</span></span></a>
-    <div class="topbar-right"><span class="live-dot"></span><span class="topbar-label">YOUR STORY, YOUR PACE</span><button class="icon-button" aria-label="Refresh game" title="Check for the latest game update" onclick={refreshGame}>↻</button><button class="icon-button" aria-label="Start a new life" onclick={() => showNewLife=true}>＋</button></div>
+    <div class="topbar-right"><span class="live-dot"></span><span class="topbar-label">YOUR STORY, YOUR PACE</span><button class="icon-button" aria-label="Open settings" title="Settings" onclick={() => activeTab='settings'}>⚙</button><button class="icon-button" aria-label="Start a new life" title="Start a new life" onclick={() => showNewLife=true}>＋</button></div>
   </header>
-  {#if !character}
+  {#if !character && activeTab !== 'settings'}
     <main class="welcome"><div class="welcome-orb orb-one"></div><div class="welcome-orb orb-two"></div>
       <div class="welcome-content"><div class="eyebrow"><span class="eyebrow-line"></span> EVERY LIFE IS DIFFERENT</div>
         <h1>A whole life.<br/><span>One choice at a time.</span></h1>
@@ -45,13 +79,30 @@
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
-        {#each [{id:'home',label:'Overview',icon:'⌂'},{id:'activities',label:'Activities',icon:'✳'},{id:'people',label:'People',icon:'◎'},{id:'finances',label:'Finances',icon:'◈'},{id:'history',label:'Life history',icon:'↗'}] as item}
+        {#each [{id:'home',label:'Overview',icon:'⌂'},{id:'activities',label:'Activities',icon:'✳'},{id:'people',label:'People',icon:'◎'},{id:'finances',label:'Finances',icon:'◈'},{id:'history',label:'Life history',icon:'↗'},{id:'settings',label:'Settings',icon:'⚙'}] as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => activeTab=item.id}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
-        <div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>{character.name}</strong><small>Age {character.age}</small></div></div>
+        {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>{character.name}</strong><small>Age {character.age}</small></div></div>{/if}
       </aside>
       <section class="content">
-        {#if activeTab==='home'}
+        {#if activeTab==='settings'}
+          <div class="page-heading"><div><div class="eyebrow">PREFERENCES & CONTROLS</div><h1>Game <em>settings.</em></h1><p>Adjust how the game appears and manage your saved story.</p></div></div>
+          <section class="settings-section">
+            <div class="settings-section-heading"><span class="section-index">01</span><div><h3>Display</h3><p>Choose how the game uses your screen.</p></div></div>
+            <div class="setting-row"><div><strong>Immersive fullscreen</strong><p>Hide the status and navigation bars for a distraction-free view. Swipe from an edge to reveal system controls.</p></div><button class:setting-enabled={fullscreen} class="setting-toggle" role="switch" aria-checked={fullscreen} onclick={toggleFullscreen}><span></span><small>{fullscreen ? 'ON' : 'OFF'}</small></button></div>
+            <div class="setting-note">Fullscreen can place content behind the camera cutout on some devices. Turn it off to keep the game inside the safe screen area.</div>
+          </section>
+          <section class="settings-section">
+            <div class="settings-section-heading"><span class="section-index">02</span><div><h3>Game controls</h3><p>Reload the hosted game or check for the newest version.</p></div></div>
+            <div class="setting-action-row"><div><strong>Reload game</strong><p>Refresh the current page without changing your saved life.</p></div><button class="secondary-button" onclick={() => window.location.reload()}>Reload</button></div>
+            <div class="setting-action-row"><div><strong>Check for updates</strong><p>Fetch the latest published game files and restart the game view. Your save is preserved.</p></div><button class="secondary-button" onclick={reloadLatest}>Check now</button></div>
+          </section>
+          <section class="settings-section danger-section">
+            <div class="settings-section-heading"><span class="section-index">03</span><div><h3>Saved game</h3><p>Start over by deleting the life currently saved on this device.</p></div></div>
+            <div class="setting-action-row"><div><strong>Restart your life</strong><p>Erase the current character and return to character creation. This cannot be undone.</p></div><button class="danger-button" onclick={() => showRestartConfirm=true}>Restart</button></div>
+          </section>
+          <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
+        {:else if activeTab==='home'}
           <div class="page-heading"><div><div class="eyebrow">YOUR LIFE AT A GLANCE</div><h1>Good things take <em>time.</em></h1><p>Make this year count, {character.name}.</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
           <section class="hero-card"><div class="hero-copy"><div class="hero-kicker">THE STORY SO FAR</div><h2>Chapter {character.age-17}<br/><span>Finding your own way.</span></h2><p>You’re {character.age}. There’s no fixed path ahead — just the next decision.</p><button class="hero-button" onclick={() => activeTab='activities'}>Explore your options <span>→</span></button></div><div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="hill hill-back"></div><div class="hill hill-front"></div><div class="art-caption">YOUR NEXT<br/>CHAPTER AWAITS</div></div></section>
           <div class="section-heading"><div><span class="section-index">01</span><h3>Your wellbeing</h3></div><span class="section-hint">A little balance goes a long way</span></div>
@@ -83,6 +134,9 @@
         {/if}
       </section>
     </main>
+  {/if}
+  {#if showRestartConfirm}
+    <div class="modal-backdrop" role="presentation" onclick={(e) => e.target===e.currentTarget && (showRestartConfirm=false)}><section class="modal" role="dialog" aria-modal="true" aria-labelledby="restart-title"><button class="modal-close" onclick={() => showRestartConfirm=false} aria-label="Close">×</button><div class="eyebrow">THIS CANNOT BE UNDONE</div><h2 id="restart-title">Erase this life?</h2><p>Your character and life history saved on this device will be permanently deleted. This does not affect other apps or files.</p><button class="danger-button danger-confirm" onclick={restart}>Delete save and restart</button><button class="text-button cancel-button" onclick={() => showRestartConfirm=false}>Cancel</button></section></div>
   {/if}
   {#if showNewLife}
     <div class="modal-backdrop" role="presentation" onclick={(e) => e.target===e.currentTarget && (showNewLife=false)}><section class="modal" role="dialog" aria-modal="true" aria-labelledby="new-life-title"><button class="modal-close" onclick={() => showNewLife=false} aria-label="Close">×</button><div class="eyebrow">A FRESH START</div><h2 id="new-life-title">Begin another story?</h2><p>Your current life is saved on this device. Starting over replaces that save.</p><label for="new-name">Character name</label><input id="new-name" bind:value={name} maxlength="28" placeholder="A new name"/><button class="primary-button" onclick={startLife}>Start a new life <span>→</span></button><button class="text-button cancel-button" onclick={() => showNewLife=false}>Keep my current life</button></section></div>
