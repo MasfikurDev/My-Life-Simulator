@@ -50,6 +50,7 @@ Current action eligibility: learning/study becomes available at age 3; one-off e
 - From age 18, a successful application creates an operations role; higher education unlocks a higher-paid professional role. At 65+, new applications offer flexible work. Existing jobs can continue.
 - Application outcomes use education, intelligence, and selected personality traits. Randomness is injectable for deterministic tests.
 - Career development consumes an action and raises job performance. After at least two years of experience, performance of 85 or more can trigger a promotion, increasing salary by 20%. Promotions are capped at three in this first implementation.
+- Paid activities must be affordable before they can be selected or applied. The simulation is authoritative: an unaffordable action changes neither money nor stats and does not consume an action. Costs use the character's currency scale.
 - Salary is credited when the player advances a year. Estimated living costs are deducted at 20% of part-time pay, 55% of full-time pay, and 45% of flexible-work pay. These are intentionally simple game-balance values; they are not real-world wage or cost-of-living data.
 - One-off extra work remains a separate action. Unemployed characters currently have no modeled household expenses; household support, unemployment benefits, debt, taxes, and assets are not implemented yet.
 - New employment and finance fields are optional on Character so existing local saves remain readable without a schema migration.
