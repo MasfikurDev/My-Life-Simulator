@@ -63,4 +63,7 @@ The detailed implementation rules live in `.github/skills/ui-engineering/SKILL.m
 A UI change is not complete merely because it compiles. Verify alignment, spacing, clipping, overflow, safe areas, and touch targets at representative phone and desktop widths. If visual preview is unavailable, state that visual verification remains outstanding rather than claiming the screen was checked.
 
 ## Content and accessibility
-Use natural, concise, context-aware language. Communicate costs, risks, eligibility, and known consequences. Do not imply certainty for probabilistic outcomes. Use semantic controls, keyboard support, visible focus, accessible names, readable scaling, and never rely on color alone.
+Use concise, factual, context-aware language. Every message must communicate useful game state, an available action, a cost, eligibility, a consequence, or a clear limitation. Remove generic motivational slogans, inspirational filler, and decorative copy that does not help the player decide or understand. Use semantic controls, keyboard support, visible focus, accessible names, readable scaling, and never rely on color alone.
+
+## Avoid duplicate functionality
+Do not render multiple controls or components for the same action or destination on one screen. Before adding a shortcut, inspect the current screen and navigation for an existing equivalent. Keep one clear primary control; remove redundant summaries that repeat the same actions already available as interactive cards. Responsive navigation may provide alternate layouts for different viewport modes, but do not show redundant desktop controls alongside the same navigation destination.
