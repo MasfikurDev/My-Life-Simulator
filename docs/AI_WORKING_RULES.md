@@ -9,6 +9,7 @@ Before planning, coding, reviewing, or changing direction, read:
 3. `docs/VISUAL_DESIGN.md`
 4. `docs/TECHNICAL_ARCHITECTURE.md`
 5. `docs/ROADMAP.md`
+6. For any UI, layout, styling, component, or responsive-behavior task, also read `.github/skills/ui-engineering/SKILL.md` and follow its verification checklist.
 
 Then inspect relevant source and recent Git history. The repository, not an ephemeral chat, is the source of truth.
 
@@ -23,6 +24,7 @@ Then inspect relevant source and recent Git history. The repository, not an ephe
 8. Keep core simulation independent from UI and Android shell.
 9. Compact, action-first UX is mandatory: use screen space efficiently, surface frequent actions, and keep related information easy to scan and reach. Do not create oversized whitespace or decorative blocks that push useful gameplay below the fold.
 10. Compactness must never come at the cost of readability, accessibility, clear labels, or comfortable touch targets. Use progressive disclosure for secondary details and test narrow Android screens.
+10a. UI implementation must follow `.github/skills/ui-engineering/SKILL.md`: use measured layout constraints, consistent spacing, reusable existing patterns, responsive checks, and visual verification. Do not rely on intuition alone for centering, spacing, or sizing.
 11. Every new screen/component must justify its space and make a user task or useful information easier to access.
 12. No mandatory backend, account, or AI dependency. Core game remains single-player and offline-capable as it evolves.
 13. Never advance time automatically.
