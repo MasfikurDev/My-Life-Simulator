@@ -17,7 +17,7 @@ The game generates a complete character in one coherent pass. The generated prof
 
 ### Random generation rules
 - Generate nationality/country first; birthplace, name pools and currency must come from that same country profile.
-- Generate gender identity, then choose a culturally plausible name pool for that identity and nationality. Non-binary characters use curated neutral-name pools.
+- Generate gender identity using an explicit gameplay weighting (currently 49.5% male, 49.5% female, 1% non-binary), then choose a culturally plausible name pool for that identity and nationality. This is a game distribution, not a demographic claim. Non-binary characters use curated neutral-name pools.
 - Gender and nationality must not be used as proxies for intelligence, health, happiness, fitness, personality, morality or ambition.
 - Personality traits and ability stats are generated independently of gender and nationality.
 - Age determines education status and starting financial eligibility. Children do not receive adult personal income; paid work remains unavailable before 16.
@@ -27,7 +27,7 @@ The game generates a complete character in one coherent pass. The generated prof
 - Country and name datasets are curated starter coverage, not a claim to represent every nationality or naming tradition. Expand with reviewed country packs.
 - Random generation accepts an injectable random source in tests so consistency and bounds are reproducible.
 
-Current country packs: Bangladesh, India, United States, United Kingdom, Canada, Australia, Japan, Nigeria, Brazil and Germany. Currency is stored with the character and all money UI must format using that currency.
+Current country packs: Bangladesh, India, United States, United Kingdom, Canada, Australia, Japan, Nigeria, Brazil and Germany. Countries are currently selected evenly for gameplay variety, not by global population share. Currency is stored with the character and all money UI must format using that currency.
 
 ## Current implementation boundaries
 Selectable stages and generated identity do not imply complete life-stage simulation. Childhood, education pathways, retirement, family relationships and local economic systems still need gameplay implementation. Starting financial values are a lightweight foundation, not a realistic national economic model.
