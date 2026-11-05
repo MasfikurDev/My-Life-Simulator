@@ -56,5 +56,11 @@ Every screen must use space deliberately and make common actions easy to reach. 
 - Sound effects are optional, subtle, generated locally, and independently switchable. Do not autoplay background music.
 - Clearly explain that local saves are tied to the current app/browser storage and are not cloud-backed.
 
+## Component and layout engineering
+
+The detailed implementation rules live in `.github/skills/ui-engineering/SKILL.md` and are mandatory for every UI change. The current interface is Svelte 5 with shared global CSS, not a pre-existing component framework. Reuse the established semantic class patterns and existing components before introducing new abstractions. Keep shared layout, spacing, control sizing, and responsive behavior consistent across screens.
+
+A UI change is not complete merely because it compiles. Verify alignment, spacing, clipping, overflow, safe areas, and touch targets at representative phone and desktop widths. If visual preview is unavailable, state that visual verification remains outstanding rather than claiming the screen was checked.
+
 ## Content and accessibility
 Use natural, concise, context-aware language. Communicate costs, risks, eligibility, and known consequences. Do not imply certainty for probabilistic outcomes. Use semantic controls, keyboard support, visible focus, accessible names, readable scaling, and never rely on color alone.
