@@ -95,7 +95,7 @@
     if (age < 16 && activity.id === 'study') return 'Learn & explore';
     if (age < 13 && activity.id === 'exercise') return 'Play & explore';
     if (age < 16 && activity.id === 'socialize') return 'Family & friends';
-    if (age >= 16 && age < 18 && activity.id === 'work') return 'Part-time work';
+    if (age >= 16 && age < 18 && activity.id === 'work') return 'One-off work';
     if (age >= 65 && activity.id === 'work') return 'Flexible work';
     if (age >= 65 && activity.id === 'study') return 'Lifelong learning';
     if (age >= 65 && activity.id === 'exercise') return 'Stay active';
@@ -127,7 +127,7 @@
       if (age < 65) return 'Maintain friendships and social connections.';
       return 'Stay connected with family and community.';
     }
-    if (age < 18) return 'Take age-appropriate part-time work for extra money.';
+    if (age < 18) return 'Take a one-off paid shift for extra money.';
     if (age < 65) return 'Take extra work for additional earnings.';
     return 'Choose flexible work if it suits your circumstances.';
   }
@@ -252,7 +252,7 @@
           </section></div>
         {:else if character && activeTab==='activities'}
           <div class="page-heading"><div><div class="eyebrow">AVAILABLE ACTIONS</div><h1>Activities</h1><p>Choose from the actions available at this age.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => getAvailableActivityIds(character!.age).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
+          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
         {:else if character && activeTab==='history'}
           <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h1>Life history</h1><p>Events and decisions recorded during this life.</p></div></div>
