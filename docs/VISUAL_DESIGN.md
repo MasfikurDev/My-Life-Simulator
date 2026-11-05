@@ -50,7 +50,7 @@ Every screen must use space deliberately and make common actions easy to reach. 
 - Every new screen or component must justify its vertical space and provide a clear user task or useful information.
 
 ## Character creation and game settings
-- Character creation makes the starting point explicit, with compact choices from birth through later life (0, 6, 13, 16, 18, 25, 40, and 60).
+- Character creation makes the starting point explicit, with quick choices from birth through later life (0, 6, 13, 16, 18, 25, 40, and 60) plus an exact-age slider spanning 0–90.
 - Show the selected age and life-stage context before starting. Do not imply that unimplemented childhood, career, or retirement systems are already simulated.
 - Settings provide accessible management for three local save slots, including load, create in an empty slot, and delete with confirmation.
 - Sound effects are optional, subtle, generated locally, and independently switchable. Do not autoplay background music.
