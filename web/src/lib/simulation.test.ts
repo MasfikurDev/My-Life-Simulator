@@ -44,6 +44,66 @@ describe('life simulation', () => {
     const toddler = createCharacter('Sam', 2);
     expect(performActivity(toddler, 'study')).toBe(toddler); expect(performActivity(toddler, 'work')).toBe(toddler);
   });
+  it('unlocks school stages, part-time work and adult jobs at the right ages', () => {
+    expect(performActivity(createCharacter('Child', 15), 'apply-job', () => 0).employment).toBeNull();
+    const teen = { ...createCharacter('Teen', 16), currencyScale: 1 };
+    const partTime = performActivity(teen, 'apply-job', () => 0);
+    expect(partTime.employment?.type).toBe('part-time');
+    expect(partTime.employment?.annualSalary).toBe(5000);
+    expect(getAvailableActivityIds(16, partTime.employment)).toContain('career');
+    expect(getAvailableActivityIds(16, partTime.employment)).not.toContain('apply-job');
+    const adult = { ...createCharacter('Adult', 18), currencyScale: 1 };
+    const fullTime = performActivity(adult, 'apply-job', () => 0);
+    expect(fullTime.employment?.type).toBe('full-time');
+    expect(fullTime.employment?.annualSalary).toBe(18000);
+    expect(getAvailableActivityIds(18, fullTime.employment)).toContain('apply-job');
+  });
+  it('allows higher education to unlock a better-qualified role', () => {
+    const learner = { ...createCharacter('Learner', 18), education: 'Secondary education completed', educationProgress: 80, currencyScale: 1, money: 1000 };
+    const graduate = performActivity(learner, 'study');
+    expect(graduate.education).toBe('Higher education');
+    expect(graduate.educationProgress).toBe(0);
+    const hired = performActivity(graduate, 'apply-job', () => 0);
+    expect(hired.employment?.title).toBe('Professional associate');
+    expect(hired.employment?.annualSalary).toBe(28000);
+  });
+  it('credits annual salary and living costs when the year advances', () => {
+    const worker = {
+      ...createCharacter('Worker', 30),
+      money: 100,
+      employment: { title: 'Operations associate', type: 'full-time' as const, annualSalary: 10000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 }
+    };
+    const next = advanceYear(worker);
+    expect(next.money).toBe(4600);
+    expect(next.lastYearIncome).toBe(10000);
+    expect(next.lastYearExpenses).toBe(5500);
+    expect(next.history.some((item) => item.title === 'Annual pay received')).toBe(true);
+  });
+  it('promotes experienced employees after sustained high performance', () => {
+    const worker = {
+      ...createCharacter('Worker', 30),
+      employment: { title: 'Operations associate', type: 'full-time' as const, annualSalary: 10000, experienceYears: 1, performance: 90, promotions: 0, startedAtAge: 30 }
+    };
+    const next = advanceYear(worker);
+    expect(next.employment?.title).toBe('Senior Operations associate');
+    expect(next.employment?.annualSalary).toBe(12000);
+    expect(next.employment?.promotions).toBe(1);
+    expect(next.history.some((item) => item.title === 'Promoted at work')).toBe(true);
+  });
+  it('improves job performance through career development', () => {
+    const worker = {
+      ...createCharacter('Worker', 30),
+      employment: { title: 'Operations associate', type: 'full-time' as const, annualSalary: 10000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 }
+    };
+    const next = performActivity(worker, 'career');
+    expect(next.employment?.performance).toBe(72);
+    expect(next.actionsRemaining).toBe(2);
+  });
+  it('updates education status when a character crosses school-age boundaries', () => {
+    expect(advanceYear(createCharacter('Child', 5)).education).toBe('Primary education');
+    expect(advanceYear(createCharacter('Teen', 12)).education).toBe('Secondary education');
+    expect(advanceYear(createCharacter('Teen', 17)).education).toBe('Secondary education completed');
+  });
   it('creates a portable debug snapshot with full gameplay history', () => {
     const character = createCharacter('Sam', 18);
     const snapshot = createGameDebugSnapshot(character, 'slot-2', new Date('2026-11-06T00:00:00.000Z'));

@@ -456,3 +456,18 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .life-stage-strip>div{display:flex;flex-direction:column;gap:2px;min-width:110px}.life-stage-strip strong{font-size:11px;color:var(--accent)}.life-stage-strip span,.life-stage-strip small{font-size:9px;color:var(--muted)}.life-stage-strip p{font-size:10px;line-height:1.4;color:var(--muted);margin:0}.life-stage-strip small{grid-column:2}
 .debug-export-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.debug-export-row>div{min-width:0}.debug-export-row strong{font-size:11px}.debug-export-row p{font-size:9px;line-height:1.45;color:var(--muted);margin:4px 0 0}.debug-export-row button{flex:none;min-height:42px}.settings-log-list{display:grid;gap:0;padding-top:5px}.settings-log-item{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--line)}.settings-log-item>div{min-width:0}.settings-log-item strong{font-size:10px}.settings-log-item p{font-size:9px;line-height:1.4;color:var(--muted);margin:3px 0}.settings-log-item small{font-size:8px;color:var(--subtle)}.settings-log-link{margin-top:10px}.settings-empty-log{font-size:10px;color:var(--muted);padding:8px 0}
 @media(max-width:620px){.life-stage-strip{gap:4px 9px;padding:9px 10px}.life-stage-strip>div{min-width:96px}.life-stage-strip p{font-size:9px}.debug-export-row{align-items:flex-start;flex-direction:column}.debug-export-row button{width:100%}}
+
+
+/* Education and employment summary. */
+.career-finance-panel{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.career-status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.career-status-grid>div,.employment-pay-grid>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.career-status-grid small,.employment-pay-grid small{font-size:8px;letter-spacing:.8px;color:var(--muted)}
+.career-status-grid strong{font-size:12px;overflow-wrap:anywhere}.career-status-grid span{font-size:9px;line-height:1.4;color:var(--muted)}
+.career-status-grid .meter{margin-top:2px}
+.employment-pay-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.employment-pay-grid strong{font-size:12px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.career-performance-meter{height:4px;border-radius:9px;background:var(--surface-raised);overflow:hidden;margin-top:10px}
+.career-performance-meter span{display:block;height:100%;background:var(--accent);border-radius:inherit}
+.finance-footnote{font-size:9px;line-height:1.5;color:var(--muted);margin:12px 0 0}
+@media(max-width:620px){.career-finance-panel{padding:11px}.career-status-grid{gap:9px}.employment-pay-grid{gap:10px}.employment-pay-grid strong{font-size:10px}}

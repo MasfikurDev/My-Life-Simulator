@@ -37,7 +37,22 @@ Every system, activity, event, responsibility, and financial mechanic must decla
 
 Current life-stage bands are 0–2 early childhood, 3–5 preschool, 6–12 childhood, 13–15 early teens, 16–17 later teens, 18–24 young adulthood, 25–44 adulthood, 45–64 midlife, and 65+ later life. These are game-design bands, not claims that every person follows the same life path.
 
-Current action eligibility: learning/study becomes available at age 3; work-like earning becomes available at age 16 and is presented as part-time work through age 17; adult employment and career progression must not be exposed before age 18. Exercise/play and social/family time remain age-adapted across stages. Later-life work remains optional; age 65 does not automatically disable it. The current work action is only a small extra-earning activity, not a full job or salary system.
+Current action eligibility: learning/study becomes available at age 3; one-off earning and part-time job applications become available at age 16; full-time employment and higher education become available at age 18; flexible employment is available as a new option from age 65. Existing jobs do not automatically end at 65. Career development is available only while employed. Adult job applications remain available for job changes. Exercise/play and social/family time remain age-adapted across stages.
+
+### Education progression
+- Education status follows the age bands: not started (0–2), early learning (3–5), primary education (6–12), secondary education (13–17), and secondary education completed at 18.
+- Study consumes an annual action, improves intelligence, and advances learning progress. Progress resets at the next school-stage boundary.
+- From age 18, five study actions (20 progress each) can complete the higher-education qualification. Higher education improves access to professional roles and application odds.
+- Education is a game progression model, not a detailed curriculum, school attendance simulation, or real qualification equivalency.
+
+### Employment and recurring finances
+- At ages 16–17, a successful application creates a part-time assistant role. Adult full-time employment is not available before age 18.
+- From age 18, a successful application creates an operations role; higher education unlocks a higher-paid professional role. At 65+, new applications offer flexible work. Existing jobs can continue.
+- Application outcomes use education, intelligence, and selected personality traits. Randomness is injectable for deterministic tests.
+- Career development consumes an action and raises job performance. After at least two years of experience, performance of 85 or more can trigger a promotion, increasing salary by 20%. Promotions are capped at three in this first implementation.
+- Salary is credited when the player advances a year. Estimated living costs are deducted at 20% of part-time pay, 55% of full-time pay, and 45% of flexible-work pay. These are intentionally simple game-balance values; they are not real-world wage or cost-of-living data.
+- One-off extra work remains a separate action. Unemployed characters currently have no modeled household expenses; household support, unemployment benefits, debt, taxes, and assets are not implemented yet.
+- New employment and finance fields are optional on Character so existing local saves remain readable without a schema migration.
 
 Build progression in connected layers: early development and schooling; teen education/interests and limited earning; adult employment and recurring finances from 18; career growth and household responsibilities as prerequisites and age permit; midlife health/financial planning; later-life retirement and flexible work. Unlock only mechanics that are implemented and eligible. Hide unavailable actions instead of showing dead controls. Explain an unlock only when it helps the player understand the next stage.
 

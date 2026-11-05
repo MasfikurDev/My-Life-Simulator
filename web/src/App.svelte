@@ -3,6 +3,7 @@
   import { advanceYear, formatCharacterMoney, performActivity } from './lib/simulation';
   import { getAvailableActivityIds, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
+  import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
   import type { ActivityId, Character, SaveSlot, SaveSlotId } from './lib/types';
@@ -25,6 +26,7 @@
   let soundEnabled = $state(true);
   let slotToDelete = $state<SaveSlotId | null>(null);
   let pendingSlotId = $state<SaveSlotId | null>(null);
+  let debugCopying = $state(false);
   onMount(() => {
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
@@ -63,19 +65,14 @@
   }
   function toggleSounds(enabled: boolean) { soundEnabled = enabled; setSoundEnabled(enabled); }
   async function copyDebugSnapshot() {
-    if (!character) { notify('Start a life before exporting gameplay data.'); return; }
-    const payload = JSON.stringify(createGameDebugSnapshot(character, activeSlotId), null, 2);
+    if (!character || debugCopying) return;
+    debugCopying = true;
     try {
-      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(payload);
-      else {
-        const field = document.createElement('textarea'); field.value = payload;
-        field.setAttribute('readonly', ''); field.style.position = 'fixed'; field.style.opacity = '0';
-        document.body.appendChild(field); field.select();
-        const copied = document.execCommand('copy'); field.remove();
-        if (!copied) throw new Error('Clipboard unavailable');
-      }
-      notify('Gameplay snapshot copied.');
-    } catch { notify('Could not copy. Check clipboard permission and try again.'); }
+      const payload = JSON.stringify(createGameDebugSnapshot(character, activeSlotId), null, 2);
+      const copied = await copyTextToClipboard(payload);
+      notify(copied ? 'Gameplay snapshot copied to clipboard.' : 'Clipboard access failed. Try again or use a browser with clipboard access.');
+    } catch { notify('Could not copy the gameplay snapshot.'); }
+    finally { debugCopying = false; }
   }
   function playSound(kind: 'tap' | 'action' | 'year' | 'start' = 'tap') {
     if (!soundEnabled) return;
@@ -98,14 +95,17 @@
     if (age < 16 && activity.id === 'study') return 'Learn & explore';
     if (age < 13 && activity.id === 'exercise') return 'Play & explore';
     if (age < 16 && activity.id === 'socialize') return 'Family & friends';
-    if (age >= 16 && age < 18 && activity.id === 'work') return 'Part-time work';
-    if (age >= 65 && activity.id === 'work') return 'Flexible work';
+    if (age >= 16 && age < 18 && activity.id === 'work') return 'One-off work';
     if (age >= 65 && activity.id === 'study') return 'Lifelong learning';
     if (age >= 65 && activity.id === 'exercise') return 'Stay active';
     if (age >= 45 && age < 65 && activity.id === 'socialize') return 'Social connections';
+    if (activity.id === 'apply-job') return age < 18 ? 'Find part-time work' : age >= 65 ? 'Find flexible work' : 'Apply for a job';
+    if (activity.id === 'career') return 'Career development';
     return activity.title;
   }
   function activityDetail(activity: {id: ActivityId; detail: string}, age: number) {
+    if (activity.id === 'apply-job') return age < 18 ? 'Apply for an age-appropriate part-time role.' : age >= 65 ? 'Look for flexible work that fits later life.' : 'Apply for paid employment and build a career.';
+    if (activity.id === 'career') return 'Improve work performance and qualify for promotions.';
     if (activity.id === 'study') {
       if (age < 6) return 'Explore letters, numbers and new ideas.';
       if (age < 13) return 'Build school knowledge and learning habits.';
@@ -126,11 +126,12 @@
       if (age < 65) return 'Maintain friendships and social connections.';
       return 'Stay connected with family and community.';
     }
-    if (age < 18) return 'Take age-appropriate part-time work for extra money.';
+    if (age < 18) return 'Take a one-off paid shift for extra money.';
     if (age < 65) return 'Take extra work for additional earnings.';
-    return 'Choose flexible work if it suits your circumstances.';
+    return 'Take an extra paid shift if it suits your circumstances.';
   }
   function activityCost(activity: {id: ActivityId; cost: string}, current: Character) {
+    if (activity.id === 'apply-job' || activity.id === 'career') return 'Time';
     if (current.age < 16 && (activity.id === 'study' || activity.id === 'socialize')) return 'Time';
     const scale = current.currencyScale ?? 1;
     if (activity.id === 'work') return '+' + formatCharacterMoney(current, 180 * scale);
@@ -172,7 +173,9 @@
     {id:'study',title:'Study',detail:'Build knowledge for future opportunities.',icon:'↗',cost:'35'},
     {id:'exercise',title:'Exercise',detail:'Improve fitness, health, and mood.',icon:'⌁',cost:'Time'},
     {id:'socialize',title:'Socialize',detail:'Make time for the people around you.',icon:'◎',cost:'20'},
-    {id:'work',title:'Extra work',detail:'Earn a little more this year.',icon:'＋',cost:'+180'}
+    {id:'work',title:'Extra work',detail:'Earn a little more this year.',icon:'＋',cost:'+180'},
+    {id:'apply-job',title:'Apply for a job',detail:'Find paid work suited to your age and education.',icon:'↗',cost:'Time'},
+    {id:'career',title:'Career development',detail:'Improve performance and work toward a promotion.',icon:'◆',cost:'Time'}
   ];
 </script>
 <svelte:head><title>{character ? character.name + ' · My Life Simulator' : 'My Life Simulator'}</title></svelte:head>
@@ -208,7 +211,7 @@
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">03</span><div><h3>Game log & debug</h3><p>Review recent gameplay records or copy the complete simulation state for testing.</p></div></div>
             {#if character}
-              <div class="debug-export-row"><div><strong>Gameplay snapshot</strong><p>Includes the character, current stats, finances, save slot and complete life history. It excludes device identifiers and browser data.</p></div><button class="secondary-button" onclick={copyDebugSnapshot}>Copy snapshot</button></div>
+              <div class="debug-export-row"><div><strong>Gameplay snapshot</strong><p>Includes the character, current stats, finances, save slot and complete life history. It excludes device identifiers and browser data.</p></div><button class="secondary-button" onclick={copyDebugSnapshot} disabled={debugCopying}>{debugCopying ? 'Copying…' : 'Copy snapshot'}</button></div>
               <div class="settings-log-list">{#each character.history.slice(0,6) as item}<div class="settings-log-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</div>
               <button class="text-button settings-log-link" onclick={() => activeTab='history'}>Open complete life history →</button>
             {:else}
@@ -236,7 +239,7 @@
           <div class="life-stage-strip"><div><strong>{getLifeStage(character.age).label}</strong><span>Age {character.age} · {getLifeStage(character.age).ageRange}</span></div><p>{getLifeStage(character.age).description}</p>{#if getLifeStage(character.age).nextAge !== null}<small>Next stage at age {getLifeStage(character.age).nextAge}</small>{/if}</div>
 
           <div class="section-heading"><div><span class="section-index">01</span><h3>Available actions</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
-          <div class="activity-grid">{#each activities.filter((activity) => getAvailableActivityIds(character!.age).includes(activity.id)) as activity}
+          <div class="activity-grid">{#each activities.filter((activity) => getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}
             <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
           {/each}</div>
           <div class="section-heading"><div><span class="section-index">02</span><h3>Life stats</h3></div></div>
@@ -248,15 +251,27 @@
           </section></div>
         {:else if character && activeTab==='activities'}
           <div class="page-heading"><div><div class="eyebrow">AVAILABLE ACTIONS</div><h1>Activities</h1><p>Choose from the actions available at this age.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => getAvailableActivityIds(character!.age).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
+          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
         {:else if character && activeTab==='history'}
           <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h1>Life history</h1><p>Events and decisions recorded during this life.</p></div></div>
           <section class="history-card full-history">{#each character.history as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</section>
         {:else if character && activeTab==='finances'}
           <div class="page-heading"><div><div class="eyebrow">FINANCES</div><h1>Balance & activity</h1><p>Available savings and the costs or earnings of current activities.</p></div></div>
-          <section class="money-card finance-wide"><div class="money-label">AVAILABLE SAVINGS</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Your current balance. Work adds income; some activities have a cost.</p></section>
-          <section class="finance-actions"><div class="section-heading"><div><span class="section-index">01</span><h3>How you can change your balance</h3></div></div><div class="finance-action-list"><div><span class="finance-action-icon positive">↗</span><span><strong>Extra work</strong><small>{character.age < 16 ? 'Available from age 16.' : 'Earn money at the cost of time and a little happiness.'}</small></span><b class="positive-text">{character.age < 16 ? 'Locked' : '+' + formatCharacterMoney(character, 180 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">＋</span><span><strong>Study</strong><small>Invest in future opportunities.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 35 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">◎</span><span><strong>Socialize</strong><small>Spend time with people who matter.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 20 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon">⌁</span><span><strong>Exercise</strong><small>Improves health and fitness without a direct money cost.</small></span><b class="neutral-text">{formatCharacterMoney(character, 0)}</b></div></div></section><div class="info-panel"><strong>Financial systems will grow with the game.</strong><p>Employment, recurring income and expenses, savings goals, debt, and assets are planned. This screen currently reflects the money changes the playable build actually simulates.</p></div>
+          <section class="money-card finance-wide"><div class="money-label">AVAILABLE SAVINGS</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Current cash balance after recorded earnings and costs.</p></section>
+          <section class="career-finance-panel">
+            <div class="section-heading"><div><span class="section-index">01</span><h3>Education & employment</h3></div></div>
+            <div class="career-status-grid">
+              <div><small>EDUCATION</small><strong>{character.education ?? 'Not recorded'}</strong>{#if character.education === 'Higher education'}<span>Higher education completed.</span>{:else}<span>{character.educationProgress ?? 0}% progress toward the next learning milestone</span><div class="meter"><span style="width:{character.educationProgress ?? 0}%"></span></div>{/if}</div>
+              <div><small>EMPLOYMENT</small>{#if character.employment}<strong>{character.employment.title}</strong><span>{character.employment.type === 'part-time' ? 'Part-time' : character.employment.type === 'flexible' ? 'Flexible' : 'Full-time'} · {character.employment.experienceYears} years experience</span>{:else}<strong>Not employed</strong><span>{character.age < 16 ? 'Work unlocks at age 16.' : character.age < 18 ? 'Part-time roles are available.' : 'Apply for a job from Activities.'}</span>{/if}</div>
+            </div>
+            {#if character.employment}
+              <div class="employment-pay-grid"><div><small>ANNUAL PAY</small><strong>{formatCharacterMoney(character, character.employment.annualSalary)}</strong></div><div><small>LAST YEAR'S LIVING COSTS</small><strong>{formatCharacterMoney(character, character.lastYearExpenses ?? 0)}</strong></div><div><small>LAST YEAR'S EARNINGS</small><strong>{formatCharacterMoney(character, character.lastYearIncome ?? 0)}</strong></div><div><small>PERFORMANCE</small><strong>{character.employment.performance}/100</strong></div></div>
+              <div class="career-performance-meter"><span style="width:{character.employment.performance}%"></span></div>
+            {/if}
+            <p class="finance-footnote">Earnings are credited annually when you advance the year. Living costs are estimated from job type; these are simplified game values, not real-world salary data.</p>
+          </section>
+          <section class="finance-actions"><div class="section-heading"><div><span class="section-index">02</span><h3>Other money changes</h3></div></div><div class="finance-action-list"><div><span class="finance-action-icon positive">↗</span><span><strong>Extra work</strong><small>One-time earning action; separate from a regular job.</small></span><b class="positive-text">+{formatCharacterMoney(character, 180 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">＋</span><span><strong>Study</strong><small>Build knowledge; costs money from age 16.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 35 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">◎</span><span><strong>Socialize</strong><small>Spend time with people who matter.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 20 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon">⌁</span><span><strong>Exercise</strong><small>Improves health and fitness without a direct money cost.</small></span><b class="neutral-text">{formatCharacterMoney(character, 0)}</b></div></div></section>
         {/if}
       </section>
     </main>

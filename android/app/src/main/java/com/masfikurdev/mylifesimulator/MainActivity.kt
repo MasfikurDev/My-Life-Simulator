@@ -2,6 +2,8 @@ package com.masfikurdev.mylifesimulator
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -15,6 +17,9 @@ import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -149,6 +154,29 @@ class MainActivity : Activity() {
             runOnUiThread {
                 preferences.edit().putBoolean(KEY_FULLSCREEN, enabled).apply()
                 applyFullscreen(enabled)
+            }
+        }
+
+        @JavascriptInterface
+        fun copyToClipboard(text: String): Boolean {
+            val copied = AtomicBoolean(false)
+            val completed = CountDownLatch(1)
+            runOnUiThread {
+                try {
+                    val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                    clipboard.setPrimaryClip(ClipData.newPlainText("Gameplay snapshot", text))
+                    copied.set(true)
+                } catch (_: Exception) {
+                    copied.set(false)
+                } finally {
+                    completed.countDown()
+                }
+            }
+            return try {
+                completed.await(3, TimeUnit.SECONDS) && copied.get()
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+                false
             }
         }
 
