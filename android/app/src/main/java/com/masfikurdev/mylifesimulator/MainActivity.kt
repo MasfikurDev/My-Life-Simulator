@@ -99,10 +99,15 @@ class MainActivity : Activity() {
         // Android 15 enforces edge-to-edge for target SDK 35. Apply system-bar and
         // display-cutout insets to the app container unless immersive mode is enabled.
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val safe = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
-            )
             val immersive = preferences.getBoolean(KEY_FULLSCREEN, false)
+            // Keep camera/notch cutouts protected even while system bars are hidden.
+            val safe = if (immersive) {
+                insets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            } else {
+                insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+                )
+            }
             view.setPadding(
                 if (immersive) 0 else safe.left,
                 if (immersive) 0 else safe.top,
