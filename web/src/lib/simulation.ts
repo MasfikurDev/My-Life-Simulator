@@ -8,7 +8,7 @@ function event(character: Character, title: string, description: string, kind: L
 export function createCharacter(name: string, startAge = 18): Character {
   const cleanName = name.trim().slice(0, 28) || 'Alex';
   const age = Math.max(0, Math.min(90, Math.round(startAge)));
-  const startingMoney = age < 16 ? 0 : age < 18 ? 120 : age < 30 ? 850 : 1200;
+  const startingMoney = age < 16 ? 0 : age < 18 ? 120 : 850;
   const character: Character = { name: cleanName, age, year: 2026, health: 86, happiness: 72, intelligence: 58, fitness: 55, money: startingMoney, actionsRemaining: ACTIONS_PER_YEAR, history: [] };
   character.history.push(event(character, 'A new chapter begins', `${cleanName} begins this life at age ${age}. Their story is shaped by the choices ahead.`, 'milestone'));
   return character;
