@@ -96,7 +96,6 @@
     if (age < 13 && activity.id === 'exercise') return 'Play & explore';
     if (age < 16 && activity.id === 'socialize') return 'Family & friends';
     if (age >= 16 && age < 18 && activity.id === 'work') return 'One-off work';
-    if (age >= 65 && activity.id === 'work') return 'Flexible work';
     if (age >= 65 && activity.id === 'study') return 'Lifelong learning';
     if (age >= 65 && activity.id === 'exercise') return 'Stay active';
     if (age >= 45 && age < 65 && activity.id === 'socialize') return 'Social connections';
@@ -129,7 +128,7 @@
     }
     if (age < 18) return 'Take a one-off paid shift for extra money.';
     if (age < 65) return 'Take extra work for additional earnings.';
-    return 'Choose flexible work if it suits your circumstances.';
+    return 'Take an extra paid shift if it suits your circumstances.';
   }
   function activityCost(activity: {id: ActivityId; cost: string}, current: Character) {
     if (activity.id === 'apply-job' || activity.id === 'career') return 'Time';
@@ -263,7 +262,7 @@
           <section class="career-finance-panel">
             <div class="section-heading"><div><span class="section-index">01</span><h3>Education & employment</h3></div></div>
             <div class="career-status-grid">
-              <div><small>EDUCATION</small><strong>{character.education ?? 'Not recorded'}</strong><span>{character.educationProgress ?? 0}% progress toward the next learning milestone</span><div class="meter"><span style="width:{character.educationProgress ?? 0}%"></span></div></div>
+              <div><small>EDUCATION</small><strong>{character.education ?? 'Not recorded'}</strong>{#if character.education === 'Higher education'}<span>Higher education completed.</span>{:else}<span>{character.educationProgress ?? 0}% progress toward the next learning milestone</span><div class="meter"><span style="width:{character.educationProgress ?? 0}%"></span></div>{/if}</div>
               <div><small>EMPLOYMENT</small>{#if character.employment}<strong>{character.employment.title}</strong><span>{character.employment.type === 'part-time' ? 'Part-time' : character.employment.type === 'flexible' ? 'Flexible' : 'Full-time'} · {character.employment.experienceYears} years experience</span>{:else}<strong>Not employed</strong><span>{character.age < 16 ? 'Work unlocks at age 16.' : character.age < 18 ? 'Part-time roles are available.' : 'Apply for a job from Activities.'}</span>{/if}</div>
             </div>
             {#if character.employment}
