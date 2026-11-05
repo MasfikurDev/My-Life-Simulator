@@ -37,7 +37,7 @@ describe('life simulation', () => {
     expect(c.name).toBe('Aarav Ahmed'); expect(c.gender).toBe('male');
   });
   it('uses non-binary name pools without changing ability distributions', () => {
-    const values = [0, 0, 0.99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    const values = [0, 0.99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let i = 0; const c = generateRandomCharacter(18, () => values[i++ % values.length]);
     expect(c.gender).toBe('non-binary'); expect(c.name).toBe('Ari Ahmed'); expect(c.personality).toHaveLength(2);
     for (const key of ['health','happiness','intelligence','fitness'] as const) expect(c[key]).toBeGreaterThanOrEqual(25);
