@@ -20,6 +20,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add age-stage education, study progress, and higher-education qualification.
 - [x] Add teen part-time applications, adult full-time employment, later-life flexible-work offers, and adult job changes.
 - [x] Add annual salary, estimated living costs, career performance, and promotion progression.
+- [x] Enforce affordability for paid activities in both the UI and simulation, with currency-scaled costs and no free effects when funds are insufficient.
 - [x] Add a settings game log and portable debug snapshot for reproducible testing.
 - [ ] Expand age/prerequisite eligibility to contextual events, household responsibilities, and relationships.
 - [ ] Add household budgets, unemployment/benefits, taxes, debt, savings goals, and assets with country-aware balancing.
