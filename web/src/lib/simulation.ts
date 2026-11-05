@@ -22,7 +22,9 @@ function event(character: Character, title: string, description: string, kind: L
 export function generateRandomCharacter(startAge = 18, random: () => number = Math.random): Character {
   const age = Math.max(0, Math.min(90, Math.round(startAge)));
   const profile = pick(COUNTRIES, random);
-  const gender: Gender = pick(['male','female','non-binary'] as const, random);
+  const genderRoll = random();
+  // A gameplay weighting, not a claim about real-world population statistics.
+  const gender: Gender = genderRoll < 0.495 ? 'male' : genderRoll < 0.99 ? 'female' : 'non-binary';
   const namePool = gender === 'non-binary' ? profile.names.neutral : profile.names[gender];
   const name = `${pick(namePool, random)} ${pick(profile.surnames, random)}`;
   const background = pick(FAMILY_BACKGROUNDS, random);
