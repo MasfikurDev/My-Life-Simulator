@@ -32,7 +32,7 @@ A modern, polished, calm, business-like life-management interface. It should fee
 - A contextual action area keeps common actions close. Avoid deep navigation for routine choices.
 
 ## Dashboard priorities
-Money is the primary dashboard focus. Put the current balance and useful financial context near the top, followed by practical money-related choices and activities that change the balance. The Finances destination should clearly explain actual income and costs implemented in the current build; never imply that planned systems already exist. Life stats (health, happiness, intelligence, fitness, and future attributes) are secondary: keep them compact and easy to scan without letting them compete with the financial summary. Preserve access to meaningful activities, current situation, recent events, and deliberate time advancement. Do not invent financial metrics such as net worth, recurring income, or expenses until the simulation models them.
+Money is the primary dashboard focus. Put the current balance and useful financial context near the top, followed by practical money-related choices and activities that change the balance. The Finances destination may show implemented annual pay, estimated living costs, employment, and education progression; clearly label simplified assumptions and never imply unimplemented debt, tax, benefits, assets, or household budgets. Life stats (health, happiness, intelligence, fitness, and future attributes) are secondary: keep them compact and easy to scan without letting them compete with the financial summary. Preserve access to meaningful activities, current situation, recent events, and deliberate time advancement. Never fabricate financial metrics.
 
 ## Compactness and usability are mandatory requirements
 
@@ -52,7 +52,7 @@ Every screen must use space deliberately and make common actions easy to reach. 
 ## Character creation and game settings
 - Character creation makes the starting point explicit, with quick choices from birth through later life (0, 6, 13, 16, 18, 25, 40, and 60) plus an exact-age slider spanning 0–90.
 - Show the selected age and life-stage context before starting. Do not imply that unimplemented childhood, career, or retirement systems are already simulated.
-- Settings provide accessible management for three local save slots, including load, create in an empty slot, and delete with confirmation.
+- Settings provide accessible management for three local save slots, including load, create in an empty slot, and delete with confirmation. The gameplay snapshot export must work through the native Android clipboard bridge and supported browser clipboard fallback.
 - Sound effects are optional, subtle, generated locally, and independently switchable. Do not autoplay background music.
 - Clearly explain that local saves are tied to the current app/browser storage and are not cloud-backed.
 
