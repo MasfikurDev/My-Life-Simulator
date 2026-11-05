@@ -1,4 +1,4 @@
-import type { ActivityId } from './types';
+import type { ActivityId, Employment } from './types';
 
 export interface LifeStage { id: string; label: string; ageRange: string; description: string; nextAge: number | null; }
 
@@ -21,12 +21,23 @@ export function getLifeStage(age: number): LifeStage {
   return publicStage;
 }
 
-export function isActivityAvailable(age: number, activity: ActivityId): boolean {
+export function getEducationStage(age: number): string {
+  if (age < 3) return 'Not started';
+  if (age < 6) return 'Early learning';
+  if (age < 13) return 'Primary education';
+  if (age < 18) return 'Secondary education';
+  return 'Secondary education completed';
+}
+
+export function isActivityAvailable(age: number, activity: ActivityId, employment?: Employment | null): boolean {
   if (activity === 'study') return age >= 3;
   if (activity === 'work') return age >= 16;
+  if (activity === 'apply-job') return age >= 16 && (!employment || (age >= 18 && employment.type === 'part-time'));
+  if (activity === 'career') return age >= 16 && Boolean(employment);
   return true;
 }
 
-export function getAvailableActivityIds(age: number): ActivityId[] {
-  return (['study', 'exercise', 'socialize', 'work'] as ActivityId[]).filter((activity) => isActivityAvailable(age, activity));
+export function getAvailableActivityIds(age: number, employment?: Employment | null): ActivityId[] {
+  return (['study', 'exercise', 'socialize', 'work', 'apply-job', 'career'] as ActivityId[])
+    .filter((activity) => isActivityAvailable(age, activity, employment));
 }
