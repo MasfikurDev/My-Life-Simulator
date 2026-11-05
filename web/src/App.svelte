@@ -146,7 +146,7 @@
           <div class="age-choice-grid">{#each [{age:0,label:'Birth',detail:'A life from day one'},{age:6,label:'Childhood',detail:'Growing and learning'},{age:13,label:'Teenager',detail:'Finding your path'},{age:16,label:'Age 16',detail:'Choices start opening'},{age:18,label:'Age 18',detail:'Begin adult life'},{age:25,label:'Age 25',detail:'A fresh adult chapter'},{age:40,label:'Age 40',detail:'Midlife beginnings'},{age:60,label:'Age 60',detail:'Later-life journey'}] as option}
             <button class:age-choice-active={selectedAge===option.age} class="age-choice" onclick={() => selectedAge=option.age}><strong>{option.label}</strong><span>{option.detail}</span></button>
           {/each}</div>
-          <div class="selected-age-note">Starting at age <strong>{selectedAge}</strong> · {lifeStage(selectedAge)}</div>
+          <label class="age-slider-label" for="starting-age">Or choose any age <strong>{selectedAge}</strong></label><input class="age-slider" id="starting-age" type="range" min="0" max="90" step="1" bind:value={selectedAge}/><label class="age-slider-label" for="create-starting-age">Or choose any age <strong>{selectedAge}</strong></label><input class="age-slider" id="create-starting-age" type="range" min="0" max="90" step="1" bind:value={selectedAge}/><div class="selected-age-note">Starting at age <strong>{selectedAge}</strong> · {lifeStage(selectedAge)}</div>
           <button class="primary-button" onclick={startLife}>Begin your life <span>→</span></button>
           <div class="start-note">✦ Saved locally in {pendingSlotId ?? activeSlotId}.</div>
         </div>
