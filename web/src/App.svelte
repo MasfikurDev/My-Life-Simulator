@@ -102,7 +102,7 @@
             <div class="setting-action-row"><div><strong>Restart your life</strong><p>Erase the current character and return to character creation. This cannot be undone.</p></div><button class="danger-button" onclick={() => showRestartConfirm=true}>Restart</button></div>
           </section>
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
-        {:else if activeTab==='home'}
+        {:else if character && activeTab==='home'}
           <div class="page-heading"><div><div class="eyebrow">YOUR LIFE AT A GLANCE</div><h1>Good things take <em>time.</em></h1><p>Make this year count, {character.name}.</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
           <section class="hero-card"><div class="hero-copy"><div class="hero-kicker">THE STORY SO FAR</div><h2>Chapter {character.age-17}<br/><span>Finding your own way.</span></h2><p>You’re {character.age}. There’s no fixed path ahead — just the next decision.</p><button class="hero-button" onclick={() => activeTab='activities'}>Explore your options <span>→</span></button></div><div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="hill hill-back"></div><div class="hill hill-front"></div><div class="art-caption">YOUR NEXT<br/>CHAPTER AWAITS</div></div></section>
           <div class="section-heading"><div><span class="section-index">01</span><h3>Your wellbeing</h3></div><span class="section-hint">A little balance goes a long way</span></div>
@@ -117,18 +117,18 @@
             {#each character.history.slice(0,3) as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}
           </section><section class="money-card"><div class="money-label">YOUR MONEY</div><div class="money-value">${character.money.toLocaleString('en-US')}</div><p>Available savings</p><div class="money-foot">◇ Keep an eye on your future</div></section></div>
           <div class="advance-row"><div><strong>Ready for what’s next?</strong><span>Advancing time starts a new year and refreshes your available actions.</span></div><button class="primary-button" onclick={nextYear}>Advance one year <span>→</span></button></div>
-        {:else if activeTab==='activities'}
+        {:else if character && activeTab==='activities'}
           <div class="page-heading"><div><div class="eyebrow">MAKE YOUR MOVE</div><h1>Time well <em>spent.</em></h1><p>Every choice uses a little of this year's time.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
           <div class="activity-grid activity-grid-large">{#each activities as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activity.cost} <span>→</span></span></button>{/each}</div>
           <div class="info-panel"><strong>Your time is limited — by design.</strong><p>You can take three meaningful actions each year. When ready, return to Overview and advance time. Your age and circumstances change as your story moves forward.</p></div>
-        {:else if activeTab==='history'}
+        {:else if character && activeTab==='history'}
           <div class="page-heading"><div><div class="eyebrow">EVERY CHOICE LEAVES A MARK</div><h1>Your life, <em>so far.</em></h1><p>A record of the moments that brought you here.</p></div></div>
           <section class="history-card full-history">{#each character.history as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</section>
-        {:else if activeTab==='finances'}
+        {:else if character && activeTab==='finances'}
           <div class="page-heading"><div><div class="eyebrow">MONEY & POSSIBILITY</div><h1>Your financial <em>picture.</em></h1><p>Small decisions shape your financial future.</p></div></div>
           <section class="money-card finance-wide"><div class="money-label">AVAILABLE SAVINGS</div><div class="money-value">${character.money.toLocaleString('en-US')}</div><p>Your current balance. Work adds income; some activities have a cost.</p></section>
           <div class="info-panel"><strong>Finance simulation is being built in stages.</strong><p>Future updates will add employment, recurring income and expenses, savings goals, debt, and assets. Existing balances will be preserved as those systems arrive.</p></div>
-        {:else}
+        {:else if character}
           <div class="page-heading"><div><div class="eyebrow">THE PEOPLE IN YOUR LIFE</div><h1>Life is better <em>together.</em></h1><p>Relationships will become part of your story.</p></div></div>
           <div class="info-panel"><strong>Your social circle is still ahead.</strong><p>Family, friendships, romance, and the people who influence your life are planned as connected gameplay systems — not isolated meters.</p></div>
         {/if}
