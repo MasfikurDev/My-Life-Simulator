@@ -1,5 +1,5 @@
-import type { ActivityId, Character, LifeEvent, Gender } from './types';
-import { isActivityAvailable } from './progression';
+import type { ActivityId, Character, LifeEvent, Gender, Employment } from './types';
+import { getEducationStage, isActivityAvailable } from './progression';
 
 export const ACTIONS_PER_YEAR = 3;
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
@@ -79,7 +79,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     name, age, year: 2026, gender, nationality: profile.nationality, country: profile.country,
     birthplace: pick(profile.cities, random), language, currency: profile.currency, currencyScale: profile.scale,
     familyBackground: background, personality: traits, appearance,
-    education: age < 6 ? 'Not started' : age < 16 ? 'Primary education' : age < 22 ? 'Secondary education' : 'General education',
+    education: getEducationStage(age), educationProgress: 0, employment: null, lastYearIncome: 0, lastYearExpenses: 0,
     health: stat(random), happiness: stat(random), intelligence: stat(random), fitness: stat(random),
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), actionsRemaining: ACTIONS_PER_YEAR, history: []
   };
@@ -102,8 +102,24 @@ export function formatCharacterMoney(character: Character, amount = character.mo
   return (symbols[currency] ?? currency + ' ') + Math.round(amount).toLocaleString('en-US');
 }
 
-export function performActivity(character: Character, activity: ActivityId): Character {
-  if (character.actionsRemaining <= 0 || !isActivityAvailable(character.age, activity)) return character;
+function createEmployment(character: Character): Employment {
+  const scale = character.currencyScale ?? 1;
+  if (character.age < 18) {
+    return { title: 'Part-time assistant', type: 'part-time', annualSalary: 5000 * scale, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: character.age };
+  }
+  const qualified = character.education === 'Higher education';
+  const flexible = character.age >= 65;
+  const baseSalary = qualified ? 28000 : 18000;
+  return {
+    title: flexible ? 'Flexible associate' : qualified ? 'Professional associate' : 'Operations associate',
+    type: flexible ? 'flexible' : 'full-time',
+    annualSalary: Math.round(baseSalary * scale * (flexible ? 0.65 : 1)),
+    experienceYears: 0, performance: 60, promotions: 0, startedAtAge: character.age
+  };
+}
+
+export function performActivity(character: Character, activity: ActivityId, random: () => number = Math.random): Character {
+  if (character.actionsRemaining <= 0 || !isActivityAvailable(character.age, activity, character.employment)) return character;
   const next = { ...character, history: [...character.history], actionsRemaining: character.actionsRemaining - 1 };
   const scale = character.currencyScale ?? 1;
   switch (activity) {
@@ -111,7 +127,17 @@ export function performActivity(character: Character, activity: ActivityId): Cha
       next.intelligence = clamp(next.intelligence + 5);
       next.happiness = clamp(next.happiness - 1);
       if (next.age >= 16) next.money = Math.max(0, next.money - 35 * scale);
-      next.history.unshift(event(next, 'Made time to study', 'You invested in learning. It may open doors later.'));
+      next.educationProgress = Math.min(100, (next.educationProgress ?? 0) + (next.age < 6 ? 25 : next.age < 13 ? 15 : next.age < 18 ? 12 : 20));
+      if (next.age >= 18 && next.educationProgress >= 100 && next.education !== 'Higher education') {
+        next.education = 'Higher education';
+        next.educationProgress = 0;
+        next.history.unshift(event(next, 'Completed higher education', 'Your qualification has improved and more skilled roles are now available.', 'milestone'));
+      } else if (next.educationProgress >= 100) {
+        next.educationProgress = 0;
+        next.history.unshift(event(next, 'Learning milestone', 'Consistent study strengthened your education and knowledge.', 'milestone'));
+      } else {
+        next.history.unshift(event(next, 'Made time to study', 'You invested time in education and improved your knowledge.'));
+      }
       break;
     case 'exercise':
       next.fitness = clamp(next.fitness + 6);
@@ -130,13 +156,64 @@ export function performActivity(character: Character, activity: ActivityId): Cha
       next.happiness = clamp(next.happiness - 2);
       next.history.unshift(event(next, 'Picked up extra work', 'You earned some money, although it took time and energy.'));
       break;
+    case 'apply-job': {
+      const offeredJob = createEmployment(next);
+      const personalityBonus = (next.personality ?? []).some((trait) => trait === 'Ambitious' || trait === 'Disciplined') ? 0.06 : 0;
+      const qualificationBonus = next.education === 'Higher education' ? 0.16 : 0;
+      const skillBonus = (next.intelligence - 50) / 300;
+      const successChance = next.age < 18 ? 0.86 : Math.max(0.35, Math.min(0.92, 0.62 + qualificationBonus + skillBonus + personalityBonus));
+      if (random() < successChance) {
+        const previous = next.employment?.title;
+        next.employment = offeredJob;
+        next.history.unshift(event(next, previous ? 'Moved into a new role' : 'Started a new job', (previous ? 'You left ' + previous + ' for ' : 'You secured ') + offeredJob.title + '. Annual pay is ' + Math.round(offeredJob.annualSalary).toLocaleString('en-US') + ' in your local currency.', 'milestone'));
+      } else {
+        next.history.unshift(event(next, 'Job application unsuccessful', 'The application did not lead to an offer. You can build experience or qualifications and try again.'));
+      }
+      break;
+    }
+    case 'career':
+      if (!next.employment) return character;
+      next.employment = { ...next.employment, performance: clamp(next.employment.performance + 12) };
+      next.happiness = clamp(next.happiness + 1);
+      next.history.unshift(event(next, 'Invested in career development', 'Your performance improved. Sustained results can lead to a promotion.'));
+      break;
   }
   return next;
 }
 
 export function advanceYear(character: Character): Character {
-  const next = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
+  const next: Character = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
+  const educationStage = getEducationStage(next.age);
+  if ([3, 6, 13, 18].includes(next.age) && next.education !== 'Higher education' && next.education !== educationStage) {
+    next.education = educationStage;
+    next.educationProgress = 0;
+    next.history.unshift(event(next, 'Education stage changed', 'You entered ' + educationStage.toLowerCase() + '.', 'milestone'));
+  }
+  if (next.employment) {
+    const job = { ...next.employment };
+    const income = Math.round(job.annualSalary);
+    const expenseRate = job.type === 'part-time' ? 0.2 : job.type === 'flexible' ? 0.45 : 0.55;
+    const expenses = Math.round(income * expenseRate);
+    next.money = Math.max(0, next.money + income - expenses);
+    next.lastYearIncome = income;
+    next.lastYearExpenses = expenses;
+    job.experienceYears += 1;
+    next.history.unshift(event(next, 'Annual pay received', 'You received ' + income.toLocaleString('en-US') + ' in earnings. Living costs were ' + expenses.toLocaleString('en-US') + '.', 'event'));
+    if (job.experienceYears >= 2 && job.performance >= 85 && job.promotions < 3) {
+      const oldTitle = job.title;
+      job.title = 'Senior ' + oldTitle.replace(/^Senior /, '');
+      job.annualSalary = Math.round(job.annualSalary * 1.2);
+      job.performance = 60;
+      job.promotions += 1;
+      next.history.unshift(event(next, 'Promoted at work', 'Your results earned a promotion from ' + oldTitle + ' to ' + job.title + '. Pay increased by 20%.', 'milestone'));
+    }
+    next.employment = job;
+  } else {
+    next.lastYearIncome = 0;
+    next.lastYearExpenses = 0;
+  }
   next.history.unshift(event(next, 'Another year, another chapter', 'You turned ' + next.age + '. Your choices continue to shape what comes next.', 'milestone'));
+  if (next.age === 18) next.history.unshift(event(next, 'Adult opportunities unlocked', 'Full-time employment and higher education are now available.', 'milestone'));
   if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
   return next;
 }
