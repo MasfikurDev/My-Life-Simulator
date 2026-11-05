@@ -18,6 +18,7 @@
   function reroll() { character = generateRandomCharacter(selectedAge); }
 </script>
 <section class="creation-experience">
+  <div class="creation-artwork"><img src="/My-Life-Simulator/artwork/life-progression.png" alt="Illustration of life progression through education, career, money, home and family" /></div>
   <div class="creation-heading">
     <div class="eyebrow">NEW CHARACTER</div>
     <h1>Create a character</h1>
