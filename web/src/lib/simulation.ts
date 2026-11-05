@@ -14,7 +14,7 @@ type CountryProfile = {
 };
 
 const COUNTRIES: CountryProfile[] = [
-  { nationality: 'Bangladeshi', country: 'Bangladesh', cities: ['Dhaka','Chattogram','Rajshahi','Sylhet','Khulna'], currency: 'BDT', scale: 100, names: { male: ['Aarav','Adnan','Arif','Farhan','Hasan','Imran','Mahin','Nabil','Rafi','Tanvir'], female: ['Aisha','Anika','Farah','Ishita','Jannat','Maliha','Nusrat','Raisa','Sadia','Zara'], neutral: ['Ari','Noor','Rumi','Sami','Tarin'] }, surnames: ['Ahmed','Akter','Chowdhury','Hasan','Hossain','Islam','Khan','Rahman','Sarker'] },
+  { nationality: 'Bangladeshi', country: 'Bangladesh', cities: ['Dhaka','Chattogram','Rajshahi','Sylhet','Khulna'], currency: 'BDT', scale: 100, names: { male: ['Adnan','Afnan','Ahsan','Arif','Fahim','Farhan','Hasan','Imran','Mahin','Nabil','Rafi','Tanvir'], female: ['Aisha','Anika','Arisha','Farah','Ishrat','Jannat','Maliha','Nusrat','Raisa','Sadia','Samira','Zara'], neutral: ['Ari','Noor','Rumi','Sami','Tarin'] }, surnames: ['Ahmed','Akter','Chowdhury','Hasan','Hossain','Islam','Khan','Rahman','Sarker'] },
   { nationality: 'Indian', country: 'India', cities: ['Delhi','Mumbai','Kolkata','Bengaluru','Chennai','Hyderabad'], currency: 'INR', scale: 100, names: { male: ['Aarav','Arjun','Dev','Ishaan','Kabir','Karan','Rohan','Rahul','Vihaan','Yash'], female: ['Aanya','Diya','Isha','Kavya','Meera','Priya','Riya','Saanvi','Tara','Zoya'], neutral: ['Aadi','Kiran','Neel','Ravi','Samar'] }, surnames: ['Das','Gupta','Iyer','Khan','Mehta','Patel','Rao','Sharma','Singh'] },
   { nationality: 'American', country: 'United States', cities: ['New York','Chicago','Austin','Seattle','Atlanta','Los Angeles'], currency: 'USD', scale: 1, names: { male: ['Alexander','Benjamin','Caleb','Ethan','James','Liam','Noah','Oliver','Theodore','William'], female: ['Amelia','Ava','Charlotte','Emma','Harper','Isabella','Mia','Olivia','Sophia','Violet'], neutral: ['Avery','Casey','Jordan','Morgan','Riley'] }, surnames: ['Bennett','Brooks','Carter','Collins','Davis','Garcia','Johnson','Miller','Reed'] },
   { nationality: 'British', country: 'United Kingdom', cities: ['London','Manchester','Birmingham','Bristol','Leeds','Glasgow'], currency: 'GBP', scale: 1, names: { male: ['Arthur','Charlie','Freddie','George','Harry','Jack','Leo','Oliver','Oscar','Thomas'], female: ['Amelia','Daisy','Ella','Freya','Isla','Lily','Maya','Olivia','Poppy','Sophie'], neutral: ['Alex','Ellis','Jamie','Robin','Taylor'] }, surnames: ['Bennett','Clarke','Davies','Evans','Morgan','Patel','Robinson','Taylor','Wilson'] },
@@ -28,6 +28,13 @@ const COUNTRIES: CountryProfile[] = [
 
 const PERSONALITY_TRAITS = ['Curious','Patient','Ambitious','Creative','Practical','Outgoing','Reserved','Optimistic','Thoughtful','Adventurous','Disciplined','Adaptable'];
 const FAMILY_BACKGROUNDS = ['Working-class','Modest','Comfortable','Affluent'] as const;
+const COUNTRY_LANGUAGES: Record<string, string[]> = {
+  Bangladesh: ['Bengali'], India: ['Bengali','Gujarati','Hindi','Kannada','Malayalam','Marathi','Punjabi','Tamil','Telugu'],
+  'United States': ['English','Spanish'], 'United Kingdom': ['English','Welsh'], Canada: ['English','French'],
+  Australia: ['English'], Japan: ['Japanese'], Nigeria: ['English','Hausa','Igbo','Yoruba'],
+  Brazil: ['Portuguese'], Germany: ['German']
+};
+const FAMILY_NAME_FIRST = new Set(['Japan']);
 
 function pick<T>(items: readonly T[], random: () => number): T {
   return items[Math.min(items.length - 1, Math.floor(random() * items.length))];
@@ -47,7 +54,10 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
   // Gameplay weighting only; this is not a demographic estimate.
   const gender: Gender = genderRoll < 0.495 ? 'male' : genderRoll < 0.99 ? 'female' : 'non-binary';
   const namePool = gender === 'non-binary' ? profile.names.neutral : profile.names[gender];
-  const name = pick(namePool, random) + ' ' + pick(profile.surnames, random);
+  const givenName = pick(namePool, random);
+  const familyName = pick(profile.surnames, random);
+  const name = FAMILY_NAME_FIRST.has(profile.country) ? familyName + ' ' + givenName : givenName + ' ' + familyName;
+  const language = pick(COUNTRY_LANGUAGES[profile.country] ?? ['Local language'], random);
   const background = pick(FAMILY_BACKGROUNDS, random);
   const backgroundIndex = FAMILY_BACKGROUNDS.indexOf(background);
   const moneyBase = age < 16 ? 0 : age < 18 ? 120 : 850;
@@ -59,14 +69,14 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
   }
   const traits = traitPool.slice(0, 2);
   const appearance = {
-    height: pick(['Short','Average height','Tall'], random),
-    build: pick(['Slim','Average build','Broad build','Athletic build'], random),
+    height: age < 2 ? 'Infant' : age < 6 ? 'Young child' : age < 13 ? 'Child' : age < 18 ? pick(['Short for age','Average for age','Tall for age'], random) : pick(['Short','Average height','Tall'], random),
+    build: age < 2 ? 'Infant build' : pick(['Slim','Average build','Broad build','Athletic build'], random),
     hair: pick(['Black','Brown','Blond','Red','Auburn','Gray'], random),
     eyes: pick(['Brown','Blue','Green','Hazel','Gray'], random)
   };
   const character: Character = {
     name, age, year: 2026, gender, nationality: profile.nationality, country: profile.country,
-    birthplace: pick(profile.cities, random), currency: profile.currency, currencyScale: profile.scale,
+    birthplace: pick(profile.cities, random), language, currency: profile.currency, currencyScale: profile.scale,
     familyBackground: background, personality: traits, appearance,
     education: age < 6 ? 'Not started' : age < 16 ? 'Primary education' : age < 22 ? 'Secondary education' : 'General education',
     health: stat(random), happiness: stat(random), intelligence: stat(random), fitness: stat(random),
