@@ -60,3 +60,8 @@ Read canonical docs and inspect implementation; state the smallest intended chan
 ## Document authority
 Product scope: `PRODUCT_VISION.md`; mechanics: `GAMEPLAY_DESIGN.md`; UI: `VISUAL_DESIGN.md`; implementation: `TECHNICAL_ARCHITECTURE.md`; sequencing: `ROADMAP.md`; agent conduct and decision preservation: this file.
 If code and docs disagree, identify the discrepancy and reconcile it without losing user-approved behavior.
+
+33. Education and employment mechanics must remain age-gated in both UI and simulation. Ages 16–17 may access part-time roles only; full-time employment and higher education unlock at 18; later-life flexible work is optional from 65. Existing employment may continue beyond 65.
+34. Recurring finance values must be calculated by the simulation and recorded in life history. Clearly label simplified salary and living-cost assumptions as game-balance values; do not imply real-world country salary accuracy. Do not invent debt, taxes, benefits, assets, or household expenses until implemented.
+35. Add new character/save fields as optional or safely defaulted. Existing local saves must continue to load without destructive schema changes.
+36. Clipboard export must use the native Android clipboard bridge in WebView when available, then browser clipboard APIs and a user-gesture fallback. Never display a success message unless a clipboard method confirms success.
