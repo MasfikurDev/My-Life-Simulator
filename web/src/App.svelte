@@ -106,18 +106,17 @@
         {:else if character && activeTab==='home'}
           <div class="page-heading"><div><div class="eyebrow">YOUR LIFE AT A GLANCE</div><h1>Good things take <em>time.</em></h1><p>Make this year count, {character.name}.</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
           <section class="hero-card"><div class="hero-copy"><div class="hero-kicker">THE STORY SO FAR</div><h2>Chapter {character.age-17}<br/><span>Finding your own way.</span></h2><p>You’re {character.age}. There’s no fixed path ahead — just the next decision.</p><button class="hero-button" onclick={() => activeTab='activities'}>Explore your options <span>→</span></button></div><div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="hill hill-back"></div><div class="hill hill-front"></div><div class="art-caption">YOUR NEXT<br/>CHAPTER AWAITS</div></div></section>
-          <div class="section-heading"><div><span class="section-index">01</span><h3>Your wellbeing</h3></div><span class="section-hint">A little balance goes a long way</span></div>
-          <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
-            <article class="stat-card"><div class="stat-top"><span class="stat-icon {stat.color}">{stat.icon}</span><span class="stat-label">{stat.label}</span></div><div class="stat-value">{stat.value}<small>/100</small></div><div class="meter"><span class={stat.color} style="width:{stat.value}%"></span></div></article>
-          {/each}</div>
-          <div class="section-heading"><div><span class="section-index">02</span><h3>Make this year yours</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
+          <div class="section-heading"><div><span class="section-index">01</span><h3>Make this year yours</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
           <div class="activity-grid">{#each activities as activity}
             <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activity.cost} <span>→</span></span></button>
+          {/each}</div>
+          <div class="section-heading"><div><span class="section-index">02</span><h3>Your wellbeing</h3></div><span class="section-hint">A little balance goes a long way</span></div>
+          <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
+            <article class="stat-card"><div class="stat-top"><span class="stat-icon {stat.color}">{stat.icon}</span><span class="stat-label">{stat.label}</span></div><div class="stat-value">{stat.value}<small>/100</small></div><div class="meter"><span class={stat.color} style="width:{stat.value}%"></span></div></article>
           {/each}</div>
           <div class="bottom-row"><section class="history-card"><div class="card-heading"><div><span class="section-index">03</span><h3>Recent moments</h3></div><button class="text-button" onclick={() => activeTab='history'}>View all →</button></div>
             {#each character.history.slice(0,3) as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}
           </section><section class="money-card"><div class="money-label">YOUR MONEY</div><div class="money-value">${character.money.toLocaleString('en-US')}</div><p>Available savings</p><div class="money-foot">◇ Keep an eye on your future</div></section></div>
-          <div class="advance-row"><div><strong>Ready for what’s next?</strong><span>Advancing time starts a new year and refreshes your available actions.</span></div><button class="primary-button" onclick={nextYear}>Advance one year <span>→</span></button></div>
         {:else if character && activeTab==='activities'}
           <div class="page-heading"><div><div class="eyebrow">MAKE YOUR MOVE</div><h1>Time well <em>spent.</em></h1><p>Every choice uses a little of this year's time.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
           <div class="activity-grid activity-grid-large">{#each activities as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activity.cost} <span>→</span></span></button>{/each}</div>
@@ -135,6 +134,11 @@
         {/if}
       </section>
     </main>
+  {/if}
+  {#if character && activeTab !== 'settings'}
+    <button class="advance-fab" onclick={nextYear} aria-label="Advance one year" title="Advance one year">
+      <span class="fab-arrow" aria-hidden="true">→</span><span class="fab-label">Advance year</span><span class="fab-count">{character.actionsRemaining}/3</span>
+    </button>
   {/if}
   {#if showRestartConfirm}
     <div class="modal-backdrop" role="presentation" onclick={(e) => e.target===e.currentTarget && (showRestartConfirm=false)}><section class="modal" role="dialog" aria-modal="true" aria-labelledby="restart-title"><button class="modal-close" onclick={() => showRestartConfirm=false} aria-label="Close">×</button><div class="eyebrow">THIS CANNOT BE UNDONE</div><h2 id="restart-title">Erase this life?</h2><p>Your character and life history saved on this device will be permanently deleted. This does not affect other apps or files.</p><button class="danger-button danger-confirm" onclick={restart}>Delete save and restart</button><button class="text-button cancel-button" onclick={() => showRestartConfirm=false}>Cancel</button></section></div>
