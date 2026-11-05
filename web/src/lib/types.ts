@@ -6,6 +6,7 @@ export interface Character {
   intelligence: number; fitness: number; money: number; actionsRemaining: number;
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
+  appearance?: { height: string; build: string; hair: string; eyes: string };
   history: LifeEvent[];
 }
 export type SaveSlotId = 'slot-1' | 'slot-2' | 'slot-3';
