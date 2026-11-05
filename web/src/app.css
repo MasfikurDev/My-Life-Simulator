@@ -379,3 +379,45 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
  .finance-action-list b{font-size:10px}
  .finance-action-icon{width:25px;height:25px}
 }
+
+
+/* Life creation, save slots, and optional sound feedback. */
+.creation-card{max-width:520px;margin-top:22px;padding:18px}
+.creation-label{font-size:10px;color:var(--muted);font-weight:800;margin:7px 0 9px}
+.age-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:0 0 12px}
+.age-choice{min-height:58px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised);color:var(--text)}
+.age-choice strong{font-size:11px}
+.age-choice span{font-size:9px;line-height:1.35;color:var(--muted)}
+.age-choice:hover{border-color:var(--line-strong)}
+.age-choice.age-choice-active{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px #72d69a24}
+.selected-age-note{font-size:10px;color:var(--muted);margin:4px 0 12px}
+.selected-age-note strong{color:var(--accent)}
+.creation-card .primary-button{width:100%;min-height:44px}
+.creation-panel{max-width:600px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:18px}
+.creation-panel>label{display:block;font-size:10px;color:var(--muted);font-weight:700;margin-bottom:8px}
+.creation-panel>input{width:100%;height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;background:#050705;color:var(--text);margin-bottom:15px}
+.creation-panel>.primary-button{width:100%;min-height:44px}
+.save-slot-list{display:flex;flex-direction:column}
+.save-slot-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.save-slot-row:last-child{border-bottom:0}
+.save-slot-meta{display:flex;flex-direction:column;gap:4px;min-width:0}
+.save-slot-meta strong{font-size:12px}
+.save-slot-meta>span{font-size:10px;color:var(--text);overflow-wrap:anywhere}
+.save-slot-meta small{font-size:8px;letter-spacing:1px;color:var(--accent)}
+.save-slot-meta .empty-slot-label{color:var(--subtle)}
+.save-slot-actions{display:flex;align-items:center;gap:7px;flex:none}
+.save-slot-actions button{min-height:38px;padding:8px 11px}
+@media(max-width:620px){
+ .welcome{min-height:0;padding:22px 0 26px;align-items:flex-start}
+ .welcome h1{font-size:39px;margin:13px 0 10px}
+ .welcome-content>p{font-size:11px;line-height:1.55}
+ .creation-card{margin-top:15px;padding:13px}
+ .age-choice-grid{gap:6px}
+ .age-choice{min-height:54px;padding:8px}
+ .age-choice strong{font-size:10px}
+ .age-choice span{font-size:8px}
+ .creation-panel{padding:13px}
+ .save-slot-row{align-items:flex-start}
+ .save-slot-actions{gap:5px}
+ .save-slot-actions button{font-size:9px;padding:7px 8px;min-height:38px}
+}
