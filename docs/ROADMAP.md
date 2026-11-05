@@ -16,10 +16,13 @@ Scenario-led character creation with coherent randomized identities; three indep
 Selectable starting ages are an entry point, not a claim that full childhood, education, retirement, or generational systems are complete.
 
 ## Milestone 2 — Age-specific progression and connected systems
-- [ ] Enforce age and prerequisite gates in both UI and simulation rules for every activity, event, and system.
-- [ ] Build age-appropriate education progression, teen part-time earning, and adult employment from age 18.
-- [ ] Add recurring income/expenses, career progression, family and relationships as eligible systems.
-- [ ] Add a settings game log and portable debug snapshot for reproducible testing.
+- [x] Establish life-stage bands and enforce initial activity eligibility in both UI and simulation.
+- [x] Add age-stage education, study progress, and higher-education qualification.
+- [x] Add teen part-time applications, adult full-time employment, later-life flexible-work offers, and adult job changes.
+- [x] Add annual salary, estimated living costs, career performance, and promotion progression.
+- [x] Add a settings game log and portable debug snapshot for reproducible testing.
+- [ ] Expand age/prerequisite eligibility to contextual events, household responsibilities, and relationships.
+- [ ] Add household budgets, unemployment/benefits, taxes, debt, savings goals, and assets with country-aware balancing.
 
 ## Milestone 3 — Connected systems
 Education and career eligibility/progression; income, recurring expenses, savings, debt; family and relationships; events that respond to circumstances; feedback explaining outcomes.
