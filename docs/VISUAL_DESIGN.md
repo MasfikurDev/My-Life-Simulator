@@ -49,5 +49,12 @@ Every screen must use space deliberately and make common actions easy to reach. 
 - Test narrow phone widths, typical Android viewport sizes, and desktop layouts; account for bottom navigation, floating actions, and system safe areas.
 - Every new screen or component must justify its vertical space and provide a clear user task or useful information.
 
+## Character creation and game settings
+- Character creation makes the starting point explicit, with compact choices from birth through later life (0, 6, 13, 16, 18, 25, 40, and 60).
+- Show the selected age and life-stage context before starting. Do not imply that unimplemented childhood, career, or retirement systems are already simulated.
+- Settings provide accessible management for three local save slots, including load, create in an empty slot, and delete with confirmation.
+- Sound effects are optional, subtle, generated locally, and independently switchable. Do not autoplay background music.
+- Clearly explain that local saves are tied to the current app/browser storage and are not cloud-backed.
+
 ## Content and accessibility
 Use natural, concise, context-aware language. Communicate costs, risks, eligibility, and known consequences. Do not imply certainty for probabilistic outcomes. Use semantic controls, keyboard support, visible focus, accessible names, readable scaling, and never rely on color alone.
