@@ -66,4 +66,4 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 35. Add new character/save fields as optional or safely defaulted. Existing local saves must continue to load without destructive schema changes.
 36. Clipboard export must use the native Android clipboard bridge in WebView when available, then browser clipboard APIs and a user-gesture fallback. Never display a success message unless a clipboard method confirms success.
 
-34. Paid gameplay actions must enforce affordability in both UI and simulation. Never grant an action's benefits for free when its cost cannot be paid; unaffordable actions must not consume an action or mutate state.
+37. Paid gameplay actions must enforce affordability in both UI and simulation. Never grant an action's benefits for free when its cost cannot be paid; unaffordable actions must not consume an action or mutate state.
