@@ -36,7 +36,7 @@
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
     try {
       persist(nextCharacter);
-      activeTab = 'home'; notify('Your story starts here.'); playSound('start');
+      activeTab = 'home'; notify('Life saved.'); playSound('start');
     } catch { notify('The save could not be written. Check available device storage and try again.'); }
   }
   function openCreation(slotId: SaveSlotId) {
@@ -75,10 +75,6 @@
       oscillator.connect(gain); gain.connect(context.destination); oscillator.start(); oscillator.stop(context.currentTime + 0.17);
       oscillator.onended = () => { void context.close(); };
     } catch { /* Audio is optional and may be unavailable in a WebView. */ }
-  }
-  function lifeStage(age: number) {
-    if (age < 2) return 'early childhood'; if (age < 6) return 'childhood'; if (age < 13) return 'school years';
-    if (age < 18) return 'teenage years'; if (age < 30) return 'young adulthood'; if (age < 60) return 'adulthood'; return 'later life';
   }
   function activityTitle(activity: {id: ActivityId; title: string}, age: number) {
     if (age < 6 && activity.id === 'study') return 'Discover & learn';
@@ -136,7 +132,7 @@
 <div class="app-shell">
   <header class="topbar">
     <a class="brand" href="#home" onclick={() => activeTab=character ? 'home' : 'create'}><span class="brand-mark">L</span><span>life<span class="brand-light">story</span></span></a>
-    <div class="topbar-right"><span class="live-dot"></span><span class="topbar-label">YOUR STORY, YOUR PACE</span><button class="icon-button" aria-label="Open settings" title="Settings" onclick={() => activeTab='settings'}>⚙</button><button class="icon-button" aria-label="Start a new life" title="Start a new life" onclick={startNewLife}>＋</button></div>
+    <div class="topbar-right">{#if activeTab !== 'settings'}<button class="icon-button" aria-label="Start a new life" title="Start a new life" onclick={startNewLife}>＋</button>{/if}</div>
   </header>
   {#if !character && activeTab !== 'settings' && activeTab !== 'create'}
     <main class="welcome"><CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='settings'} /></main>
@@ -178,34 +174,33 @@
           </section>
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
         {:else if character && activeTab==='home'}
-          <div class="page-heading"><div><div class="eyebrow">YOUR LIFE AT A GLANCE</div><h1>Good things take <em>time.</em></h1><p>Make this year count, {character.name}.</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
-          <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Your money shapes the choices ahead.</p></div><button class="money-link" onclick={() => activeTab='finances'}>Money details →</button></div><div class="money-activity">{#if character.age >= 16}<span><strong>+{formatCharacterMoney(character, 180 * (character.currencyScale ?? 1))}</strong> Extra work</span>{/if}<span><strong>{character.age >= 16 ? '−' + formatCharacterMoney(character, 35 * (character.currencyScale ?? 1)) : 'Time'}</strong> Study</span><span><strong>{character.age >= 16 ? '−' + formatCharacterMoney(character, 20 * (character.currencyScale ?? 1)) : 'Time'}</strong> Socialize</span></div></section>
-          <section class="hero-card"><div class="hero-copy"><div class="hero-kicker">THE STORY SO FAR</div><h2>{lifeStage(character.age)}<br/><span>Finding your own way.</span></h2><p>You’re {character.age}. There’s no fixed path ahead — just the next decision.</p><button class="hero-button" onclick={() => activeTab='activities'}>Explore your options <span>→</span></button></div><div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="hill hill-back"></div><div class="hill hill-front"></div><div class="art-caption">YOUR NEXT<br/>CHAPTER AWAITS</div></div></section>
-          <div class="section-heading"><div><span class="section-index">01</span><h3>Make this year yours</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
+          <div class="page-heading"><div><div class="eyebrow">OVERVIEW</div><h1>{character.name}</h1><p>Age {character.age}</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
+          <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div></div> </div></section>
+
+          <div class="section-heading"><div><span class="section-index">01</span><h3>Available actions</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
           <div class="activity-grid">{#each activities.filter((activity) => (character!.age >= 3 || activity.id !== 'study') && (character!.age >= 16 || activity.id !== 'work')) as activity}
             <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
           {/each}</div>
-          <div class="section-heading"><div><span class="section-index">03</span><h3>Life stats</h3></div><span class="section-hint">A little balance goes a long way</span></div>
+          <div class="section-heading"><div><span class="section-index">02</span><h3>Life stats</h3></div></div>
           <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
             <article class="stat-card"><div class="stat-top"><span class="stat-icon {stat.color}">{stat.icon}</span><span class="stat-label">{stat.label}</span></div><div class="stat-value">{stat.value}<small>/100</small></div><div class="meter"><span class={stat.color} style="width:{stat.value}%"></span></div></article>
           {/each}</div>
-          <div class="bottom-row"><section class="history-card"><div class="card-heading"><div><span class="section-index">04</span><h3>Recent moments</h3></div><button class="text-button" onclick={() => activeTab='history'}>View all →</button></div>
+          <div class="bottom-row"><section class="history-card"><div class="card-heading"><div><span class="section-index">03</span><h3>Recent activity</h3></div><button class="text-button" onclick={() => activeTab='history'}>View all →</button></div>
             {#each character.history.slice(0,3) as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}
           </section></div>
         {:else if character && activeTab==='activities'}
-          <div class="page-heading"><div><div class="eyebrow">MAKE YOUR MOVE</div><h1>Time well <em>spent.</em></h1><p>Every choice uses a little of this year's time.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
+          <div class="page-heading"><div><div class="eyebrow">AVAILABLE ACTIONS</div><h1>Activities</h1><p>Choose from the actions available at this age.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
           <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => (character!.age >= 3 || activity.id !== 'study') && (character!.age >= 16 || activity.id !== 'work')) as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
-          <div class="info-panel"><strong>Your time is limited — by design.</strong><p>You can take three meaningful actions each year. When ready, return to Overview and advance time. Your age and circumstances change as your story moves forward.</p></div>
+
         {:else if character && activeTab==='history'}
-          <div class="page-heading"><div><div class="eyebrow">EVERY CHOICE LEAVES A MARK</div><h1>Your life, <em>so far.</em></h1><p>A record of the moments that brought you here.</p></div></div>
+          <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h1>Life history</h1><p>Events and decisions recorded during this life.</p></div></div>
           <section class="history-card full-history">{#each character.history as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</section>
         {:else if character && activeTab==='finances'}
-          <div class="page-heading"><div><div class="eyebrow">YOUR FINANCIAL LIFE</div><h1>Money & <em>choices.</em></h1><p>Track your balance and understand what each decision costs or earns.</p></div></div>
+          <div class="page-heading"><div><div class="eyebrow">FINANCES</div><h1>Balance & activity</h1><p>Available savings and the costs or earnings of current activities.</p></div></div>
           <section class="money-card finance-wide"><div class="money-label">AVAILABLE SAVINGS</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Your current balance. Work adds income; some activities have a cost.</p></section>
           <section class="finance-actions"><div class="section-heading"><div><span class="section-index">01</span><h3>How you can change your balance</h3></div></div><div class="finance-action-list"><div><span class="finance-action-icon positive">↗</span><span><strong>Extra work</strong><small>{character.age < 16 ? 'Available from age 16.' : 'Earn money at the cost of time and a little happiness.'}</small></span><b class="positive-text">{character.age < 16 ? 'Locked' : '+' + formatCharacterMoney(character, 180 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">＋</span><span><strong>Study</strong><small>Invest in future opportunities.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 35 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">◎</span><span><strong>Socialize</strong><small>Spend time with people who matter.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 20 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon">⌁</span><span><strong>Exercise</strong><small>Improves health and fitness without a direct money cost.</small></span><b class="neutral-text">{formatCharacterMoney(character, 0)}</b></div></div></section><div class="info-panel"><strong>Financial systems will grow with the game.</strong><p>Employment, recurring income and expenses, savings goals, debt, and assets are planned. This screen currently reflects the money changes the playable build actually simulates.</p></div>
         {:else if character}
-          <div class="page-heading"><div><div class="eyebrow">THE PEOPLE IN YOUR LIFE</div><h1>Life is better <em>together.</em></h1><p>Relationships will become part of your story.</p></div></div>
-          <div class="info-panel"><strong>Your social circle is still ahead.</strong><p>Family, friendships, romance, and the people who influence your life are planned as connected gameplay systems — not isolated meters.</p></div>
+          <div class="page-heading"><div><div class="eyebrow">PEOPLE</div><h1>Relationships</h1><p>Family, friendship and romance are not implemented yet.</p></div></div>
         {/if}
       </section>
     </main>

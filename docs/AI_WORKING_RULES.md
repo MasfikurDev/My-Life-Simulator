@@ -26,6 +26,8 @@ Then inspect relevant source and recent Git history. The repository, not an ephe
 10. Compactness must never come at the cost of readability, accessibility, clear labels, or comfortable touch targets. Use progressive disclosure for secondary details and test narrow Android screens.
 10a. UI implementation must follow `.github/skills/ui-engineering/SKILL.md`: use measured layout constraints, consistent spacing, reusable existing patterns, responsive checks, and visual verification. Do not rely on intuition alone for centering, spacing, or sizing.
 11. Every new screen/component must justify its space and make a user task or useful information easier to access.
+11a. UI copy must be useful and factual: remove generic motivational slogans, inspirational filler, and decorative messages. Keep copy only when it explains game state, an action, a cost, eligibility, a consequence, or a limitation.
+11b. Do not duplicate the same action, shortcut, summary, or destination control on one screen. Check existing components and navigation before adding another; keep one clear primary control for each function.
 12. No mandatory backend, account, or AI dependency. Core game remains single-player and offline-capable as it evolves.
 13. Never advance time automatically.
 14. Do not add persistent caching that can pin an old deployed game. No service worker/Cache API shell unless the user approves a revised freshness strategy.
