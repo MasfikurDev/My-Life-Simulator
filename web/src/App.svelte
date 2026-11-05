@@ -15,7 +15,6 @@
   let character = $state<Character | null>(null);
   let name = $state('');
   let activeTab = $state('home');
-  let showNewLife = $state(false);
   let toast = $state('');
   let fullscreen = $state(false);
   let showRestartConfirm = $state(false);
@@ -36,13 +35,16 @@
   function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
   function startLife() {
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
-    persist(createCharacter(name, selectedAge));
-    showNewLife = false; activeTab = 'home'; notify('Your story starts here.'); playSound('start');
+    try {
+      activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
+      persist(createCharacter(name, selectedAge));
+      activeTab = 'home'; notify('Your story starts here.'); playSound('start');
+    } catch { notify('The save could not be written. Check available device storage and try again.'); }
   }
   function openCreation(slotId: SaveSlotId) {
     if (slots.find((slot) => slot.id === slotId)?.character) { notify('Delete or switch that save slot before starting another life.'); return; }
     pendingSlotId = slotId;
-    name = ''; selectedAge = 18; showNewLife = false; activeTab = 'create';
+    name = ''; selectedAge = 18; activeTab = 'create';
   }
   function startNewLife() {
     const empty = slots.find((slot) => !slot.character);
@@ -231,9 +233,6 @@
   {/if}
   {#if showRestartConfirm}
     <div class="modal-backdrop" role="presentation" onclick={(e) => e.target===e.currentTarget && (showRestartConfirm=false)}><section class="modal" role="dialog" aria-modal="true" aria-labelledby="restart-title"><button class="modal-close" onclick={() => showRestartConfirm=false} aria-label="Close">×</button><div class="eyebrow">THIS CANNOT BE UNDONE</div><h2 id="restart-title">Erase this life?</h2><p>Your character and life history saved on this device will be permanently deleted. This does not affect other apps or files.</p><button class="danger-button danger-confirm" onclick={restart}>Delete save and restart</button><button class="text-button cancel-button" onclick={() => showRestartConfirm=false}>Cancel</button></section></div>
-  {/if}
-  {#if showNewLife}
-    <div class="modal-backdrop" role="presentation" onclick={(e) => e.target===e.currentTarget && (showNewLife=false)}><section class="modal" role="dialog" aria-modal="true" aria-labelledby="new-life-title"><button class="modal-close" onclick={() => showNewLife=false} aria-label="Close">×</button><div class="eyebrow">A FRESH START</div><h2 id="new-life-title">Begin another story?</h2><p>Your current life is saved on this device. Starting over replaces that save.</p><label for="new-name">Character name</label><input id="new-name" bind:value={name} maxlength="28" placeholder="A new name"/><button class="primary-button" onclick={startLife}>Start a new life <span>→</span></button><button class="text-button cancel-button" onclick={() => showNewLife=false}>Keep my current life</button></section></div>
   {/if}
   {#if toast}<div class="toast" role="status">{toast}</div>{/if}
   <footer class="footer"><span>life<span class="brand-light">story</span></span><span>YOUR LIFE. YOUR STORY.</span><span>v0.1 · EARLY PLAYABLE</span></footer>
