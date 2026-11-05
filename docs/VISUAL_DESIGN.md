@@ -34,5 +34,20 @@ A modern, polished, calm, business-like life-management interface. It should fee
 ## Dashboard priorities
 At a glance: who the character is and their age; current situation; relevant wellbeing/financial indicators; recent events; meaningful available actions; how/when time advances. Do not overwhelm the dashboard with every statistic.
 
+## Compactness and usability are mandatory requirements
+
+Every screen must use space deliberately and make common actions easy to reach. Compact does not mean cramped or tiny.
+
+- Prefer concise headings, short supporting copy, compact cards, and useful information grouped together.
+- Show the most decision-relevant information first; avoid oversized decorative hero areas and empty spacing that pushes gameplay below the fold.
+- Keep related information visible together where practical. Use responsive grids on wider screens and efficient two-column layouts on phones when content remains readable.
+- Keep frequent actions close to the information they affect; avoid unnecessary navigation depth and duplicate action placements.
+- Navigation must remain obvious, reachable, and usable on small screens. Labels may be concise, but destinations must remain understandable.
+- Preserve readable typography, sufficient contrast, clear grouping, and comfortable touch targets (aim for at least 44 CSS px for primary interactive controls).
+- Do not solve density by hiding important information, shrinking text excessively, removing labels, or making controls difficult to tap.
+- Use progressive disclosure for secondary detail rather than filling the first view with every available statistic.
+- Test narrow phone widths, typical Android viewport sizes, and desktop layouts; account for bottom navigation, floating actions, and system safe areas.
+- Every new screen or component must justify its vertical space and provide a clear user task or useful information.
+
 ## Content and accessibility
 Use natural, concise, context-aware language. Communicate costs, risks, eligibility, and known consequences. Do not imply certainty for probabilistic outcomes. Use semantic controls, keyboard support, visible focus, accessible names, readable scaling, and never rely on color alone.
