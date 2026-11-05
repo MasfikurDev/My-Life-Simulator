@@ -63,12 +63,12 @@ class MainActivity : Activity() {
         setContentView(root)
         // Force a fresh Pages check on cold launch, but allow normal HTTP cache behavior during this session.
         webView.clearCache(true)
-        if (savedInstanceState == null) loadGame() else webView.restoreState(savedInstanceState)
+        // Always request the current hosted build on Activity creation; do not restore a stale WebView page.
+        loadGame()
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
     }
     private fun loadGame() { retry.visibility = View.GONE; webView.loadUrl(gameUrl) }
     @Deprecated("Deprecated in Android API")
     override fun onBackPressed() { if (::webView.isInitialized && webView.canGoBack()) webView.goBack() else super.onBackPressed() }
-    override fun onSaveInstanceState(outState: Bundle) { if (::webView.isInitialized) webView.saveState(outState); super.onSaveInstanceState(outState) }
     override fun onDestroy() { if (::webView.isInitialized) { webView.stopLoading(); webView.destroy() }; super.onDestroy() }
 }
