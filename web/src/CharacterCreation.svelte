@@ -39,6 +39,7 @@
       <div><small>Nationality</small><strong>{character.nationality}</strong></div>
       <div><small>Country</small><strong>{character.country}</strong></div>
       <div><small>Birthplace</small><strong>{character.birthplace}</strong></div>
+      <div><small>Primary language</small><strong>{character.language}</strong></div>
       <div><small>Family background</small><strong>{character.familyBackground}</strong></div>
       <div><small>Education</small><strong>{character.education}</strong></div>
       <div><small>Starting money</small><strong>{formatCharacterMoney(character)}</strong></div>
