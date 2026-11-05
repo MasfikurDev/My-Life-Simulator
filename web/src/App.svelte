@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { advanceYear, createCharacter, performActivity } from './lib/simulation';
+  import { advanceYear, formatCharacterMoney, performActivity } from './lib/simulation';
+  import CharacterCreation from './CharacterCreation.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
   import type { ActivityId, Character, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
@@ -13,12 +14,10 @@
   }
 
   let character = $state<Character | null>(null);
-  let name = $state('');
   let activeTab = $state('home');
   let toast = $state('');
   let fullscreen = $state(false);
   let showRestartConfirm = $state(false);
-  let selectedAge = $state(18);
   let activeSlotId = $state<SaveSlotId>('slot-1');
   let slots = $state<SaveSlot[]>([]);
   let soundEnabled = $state(true);
@@ -33,18 +32,17 @@
   });
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
   function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
-  function startLife() {
+  function startLife(nextCharacter: Character) {
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
     try {
-      activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
-      persist(createCharacter(name, selectedAge));
+      persist(nextCharacter);
       activeTab = 'home'; notify('Your story starts here.'); playSound('start');
     } catch { notify('The save could not be written. Check available device storage and try again.'); }
   }
   function openCreation(slotId: SaveSlotId) {
     if (slots.find((slot) => slot.id === slotId)?.character) { notify('Delete or switch that save slot before starting another life.'); return; }
     pendingSlotId = slotId;
-    name = ''; selectedAge = 18; activeTab = 'create';
+    activeTab = 'create';
   }
   function startNewLife() {
     const empty = slots.find((slot) => !slot.character);
@@ -99,7 +97,7 @@
   }
   function nextYear() { if (character) { persist(advanceYear(character)); notify('A new year begins.'); playSound('year'); } }
   function restart() {
-    clearSave(activeSlotId); slots = getSaveSlots(); character = null; name = '';
+    clearSave(activeSlotId); slots = getSaveSlots(); character = null;
     showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.'); pendingSlotId = activeSlotId;
   }
   function reloadLatest() {
@@ -136,22 +134,7 @@
     <div class="topbar-right"><span class="live-dot"></span><span class="topbar-label">YOUR STORY, YOUR PACE</span><button class="icon-button" aria-label="Open settings" title="Settings" onclick={() => activeTab='settings'}>⚙</button><button class="icon-button" aria-label="Start a new life" title="Start a new life" onclick={startNewLife}>＋</button></div>
   </header>
   {#if !character && activeTab !== 'settings' && activeTab !== 'create'}
-    <main class="welcome"><div class="welcome-orb orb-one"></div><div class="welcome-orb orb-two"></div>
-      <div class="welcome-content"><div class="eyebrow"><span class="eyebrow-line"></span> EVERY LIFE IS DIFFERENT</div>
-        <h1>Your life.<br/><span>Your starting point.</span></h1>
-        <p>Choose when your story begins. Grow up from the very beginning or step into a life already in motion.</p>
-        <div class="start-card creation-card">
-          <label for="character-name">Character name</label><input id="character-name" maxlength="28" bind:value={name} placeholder="What should we call you?"/>
-          <div class="creation-label">Choose your starting age</div>
-          <div class="age-choice-grid">{#each [{age:0,label:'Birth',detail:'A life from day one'},{age:6,label:'Childhood',detail:'Growing and learning'},{age:13,label:'Teenager',detail:'Finding your path'},{age:16,label:'Age 16',detail:'Choices start opening'},{age:18,label:'Age 18',detail:'Begin adult life'},{age:25,label:'Age 25',detail:'A fresh adult chapter'},{age:40,label:'Age 40',detail:'Midlife beginnings'},{age:60,label:'Age 60',detail:'Later-life journey'}] as option}
-            <button class:age-choice-active={selectedAge===option.age} class="age-choice" onclick={() => selectedAge=option.age}><strong>{option.label}</strong><span>{option.detail}</span></button>
-          {/each}</div>
-          <label class="age-slider-label" for="starting-age">Or choose any age <strong>{selectedAge}</strong></label><input class="age-slider" id="starting-age" type="range" min="0" max="90" step="1" bind:value={selectedAge}/><label class="age-slider-label" for="create-starting-age">Or choose any age <strong>{selectedAge}</strong></label><input class="age-slider" id="create-starting-age" type="range" min="0" max="90" step="1" bind:value={selectedAge}/><div class="selected-age-note">Starting at age <strong>{selectedAge}</strong> · {lifeStage(selectedAge)}</div>
-          <button class="primary-button" onclick={startLife}>Begin your life <span>→</span></button>
-          <div class="start-note">✦ Saved locally in {pendingSlotId ?? activeSlotId}.</div>
-        </div>
-      </div><div class="welcome-side-note">A LIFE SIMULATION<br/>BUILT AROUND YOU</div>
-    </main>
+    <main class="welcome"><CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='settings'} /></main>
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
@@ -162,8 +145,7 @@
       </aside>
       <section class="content">
         {#if activeTab==='create'}
-          <div class="page-heading"><div><div class="eyebrow">A NEW STORY</div><h1>Choose your <em>beginning.</em></h1><p>Every starting age creates a different set of circumstances.</p></div></div>
-          <section class="creation-panel"><label for="create-name">Character name</label><input id="create-name" maxlength="28" bind:value={name} placeholder="What should we call you?"/><div class="creation-label">Starting point</div><div class="age-choice-grid">{#each [{age:0,label:'Birth',detail:'From the very beginning'},{age:6,label:'Childhood',detail:'Learn and grow'},{age:13,label:'Teenager',detail:'Discover independence'},{age:16,label:'Age 16',detail:'New choices and paths'},{age:18,label:'Age 18',detail:'Young adulthood'},{age:25,label:'Age 25',detail:'A fresh adult chapter'},{age:40,label:'Age 40',detail:'Midlife beginnings'},{age:60,label:'Age 60',detail:'Later-life journey'}] as option}<button class:age-choice-active={selectedAge===option.age} class="age-choice" onclick={() => selectedAge=option.age}><strong>{option.label}</strong><span>{option.detail}</span></button>{/each}</div><div class="selected-age-note">Starting at age <strong>{selectedAge}</strong> · {lifeStage(selectedAge)}</div><button class="primary-button" onclick={startLife}>Create this life <span>→</span></button><button class="text-button cancel-button" onclick={() => activeTab=character ? 'home' : 'settings'}>Cancel</button></section>
+          <CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='home'} />
         {:else if activeTab==='settings'}
           <div class="page-heading"><div><div class="eyebrow">PREFERENCES & CONTROLS</div><h1>Game <em>settings.</em></h1><p>Adjust how the game appears and manage your saved story.</p></div></div>
           <section class="settings-section">
@@ -172,7 +154,7 @@
           </section>
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">02</span><div><h3>Save slots</h3><p>Keep up to three separate lives on this device.</p></div></div>
-            <div class="save-slot-list">{#each slots as slot, index}<div class="save-slot-row"><div class="save-slot-meta"><strong>Slot {index + 1}</strong>{#if slot.character}<span>{slot.character.name} · Age {slot.character.age} · ${slot.character.money.toLocaleString('en-US')}</span><small>{slot.id === activeSlotId ? 'CURRENT SLOT' : 'SAVED LIFE'}</small>{:else}<span class="empty-slot-label">Empty slot</span>{/if}</div><div class="save-slot-actions">{#if slot.character}<button class="secondary-button" onclick={() => loadSlot(slot)} disabled={slot.id===activeSlotId}>Load</button><button class="danger-button" onclick={() => slotToDelete=slot.id}>Delete</button>{:else}<button class="secondary-button" onclick={() => openCreation(slot.id)}>New life</button>{/if}</div></div>{/each}</div>
+            <div class="save-slot-list">{#each slots as slot, index}<div class="save-slot-row"><div class="save-slot-meta"><strong>Slot {index + 1}</strong>{#if slot.character}<span>{slot.character.name} · Age {slot.character.age} · {formatCharacterMoney(slot.character)}</span><small>{slot.id === activeSlotId ? 'CURRENT SLOT' : 'SAVED LIFE'}</small>{:else}<span class="empty-slot-label">Empty slot</span>{/if}</div><div class="save-slot-actions">{#if slot.character}<button class="secondary-button" onclick={() => loadSlot(slot)} disabled={slot.id===activeSlotId}>Load</button><button class="danger-button" onclick={() => slotToDelete=slot.id}>Delete</button>{:else}<button class="secondary-button" onclick={() => openCreation(slot.id)}>New life</button>{/if}</div></div>{/each}</div>
             <div class="setting-note">Saves stay in this browser or app on this device. Clearing app data or browser storage can remove them. Cloud backup is not available yet.</div>
           </section>
           <section class="settings-section">
@@ -192,7 +174,7 @@
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
         {:else if character && activeTab==='home'}
           <div class="page-heading"><div><div class="eyebrow">YOUR LIFE AT A GLANCE</div><h1>Good things take <em>time.</em></h1><p>Make this year count, {character.name}.</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
-          <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">${character.money.toLocaleString('en-US')}</div><p>Your money shapes the choices ahead.</p></div><button class="money-link" onclick={() => activeTab='finances'}>Money details →</button></div><div class="money-activity"><span><strong>+$180</strong> Extra work</span><span><strong>−$35</strong> Study</span><span><strong>−$20</strong> Socialize</span></div></section>
+          <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Your money shapes the choices ahead.</p></div><button class="money-link" onclick={() => activeTab='finances'}>Money details →</button></div><div class="money-activity"><span><strong>+$180</strong> Extra work</span><span><strong>−$35</strong> Study</span><span><strong>−$20</strong> Socialize</span></div></section>
           <section class="hero-card"><div class="hero-copy"><div class="hero-kicker">THE STORY SO FAR</div><h2>{lifeStage(character.age)}<br/><span>Finding your own way.</span></h2><p>You’re {character.age}. There’s no fixed path ahead — just the next decision.</p><button class="hero-button" onclick={() => activeTab='activities'}>Explore your options <span>→</span></button></div><div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="hill hill-back"></div><div class="hill hill-front"></div><div class="art-caption">YOUR NEXT<br/>CHAPTER AWAITS</div></div></section>
           <div class="section-heading"><div><span class="section-index">01</span><h3>Make this year yours</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
           <div class="activity-grid">{#each activities.filter((activity) => (character!.age >= 3 || activity.id !== 'study') && (character!.age >= 16 || activity.id !== 'work')) as activity}
