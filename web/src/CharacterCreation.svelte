@@ -19,9 +19,9 @@
 </script>
 <section class="creation-experience">
   <div class="creation-heading">
-    <div class="eyebrow">A LIFE OF YOUR OWN</div>
-    <h1>Meet your <em>character.</em></h1>
-    <p>Choose a life stage. We'll create a complete, believable starting character.</p>
+    <div class="eyebrow">NEW CHARACTER</div>
+    <h1>Create a character</h1>
+    <p>Choose a starting stage. A complete character is generated automatically.</p>
   </div>
   <div class="life-path-picker" aria-label="Choose a starting life stage">
     {#each lifePaths as path}
@@ -54,12 +54,12 @@
         <div class="generated-stat"><div><span>{stat.label}</span><strong>{stat.value}</strong></div><div class="meter"><span style="width:{stat.value}%"></span></div></div>
       {/each}
     </div>
-    <p class="generation-note">Nationality controls the name pool, birthplace and currency. Age and family circumstances shape starting education and finances. Personality and ability stats are independent of nationality and gender.</p>
+    <p class="generation-note">Country determines the name pool, birthplace, language and currency. Ability and personality are generated independently of gender and nationality.</p>
   </article>
   <div class="creation-actions">
     <button class="primary-button" onclick={() => onStart(character)}>Start this life <span>→</span></button>
     <button class="text-button" onclick={reroll}>Generate another</button>
     <button class="text-button" onclick={onCancel}>Cancel</button>
   </div>
-  <div class="start-note">✦ This life will be saved in {slotLabel}. Reroll until you're ready.</div>
+  <div class="start-note">This life will be saved in {slotLabel}.</div>
 </section>
