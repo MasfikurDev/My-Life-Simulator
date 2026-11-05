@@ -42,6 +42,13 @@ Current implementation:
 - Compact does not mean cramped: retain readable line height, clear grouping, and at least 44 CSS px for primary interactive touch targets.
 - Responsive spacing must solve a real readability or density problem, not be arbitrary.
 
+## Content and functional duplication
+- Prefer concise, factual, task-oriented copy. Remove generic motivational slogans, inspirational filler, and decorative messages that do not explain game state or help a player decide.
+- Keep a message only when it communicates a useful state, action, cost, eligibility rule, consequence, or limitation.
+- Before adding a control, shortcut, summary, or navigation item, search the current screen for an existing control with the same function.
+- Do not repeat the same action list in multiple components on one screen. A summary must add distinct information, not mirror the actions already available below it.
+- Responsive navigation may change presentation by viewport, but should not expose redundant copies simultaneously.
+
 ## Component consistency
 - Search for an existing component/class before creating another button, card, heading, field, badge, navigation item, dialog, or action pattern.
 - Keep variants explicit and limited; avoid near-duplicate classes with slightly different padding/alignment.
