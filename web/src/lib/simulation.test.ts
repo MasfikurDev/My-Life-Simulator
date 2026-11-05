@@ -42,6 +42,24 @@ describe('life simulation', () => {
     expect(c.gender).toBe('non-binary'); expect(c.name).toBe('Ari Ahmed'); expect(c.personality).toHaveLength(2);
     for (const key of ['health','happiness','intelligence','fitness'] as const) expect(c[key]).toBeGreaterThanOrEqual(25);
   });
+  it('does not derive ability or personality from gender identity', () => {
+    const maleValues = Array(48).fill(0);
+    const neutralValues = Array(48).fill(0); neutralValues[1] = 0.99;
+    const male = generateRandomCharacter(30, () => maleValues.shift() ?? 0);
+    const nonBinary = generateRandomCharacter(30, () => neutralValues.shift() ?? 0);
+    expect(male.gender).toBe('male'); expect(nonBinary.gender).toBe('non-binary');
+    expect([nonBinary.health, nonBinary.happiness, nonBinary.intelligence, nonBinary.fitness, nonBinary.personality])
+      .toEqual([male.health, male.happiness, male.intelligence, male.fitness, male.personality]);
+  });
+  it('does not derive ability or personality from nationality', () => {
+    const localValues = Array(48).fill(0);
+    const otherCountryValues = Array(48).fill(0); otherCountryValues[0] = 0.99;
+    const local = generateRandomCharacter(30, () => localValues.shift() ?? 0);
+    const otherCountry = generateRandomCharacter(30, () => otherCountryValues.shift() ?? 0);
+    expect(local.nationality).not.toBe(otherCountry.nationality);
+    expect([otherCountry.health, otherCountry.happiness, otherCountry.intelligence, otherCountry.fitness, otherCountry.personality])
+      .toEqual([local.health, local.happiness, local.intelligence, local.fitness, local.personality]);
+  });
   it('keeps children without personal money and scales money with local currency', () => {
     const child = generateRandomCharacter(6, () => 0);
     expect(child.money).toBe(0); expect(child.currency).toBe('BDT');
