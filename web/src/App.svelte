@@ -105,6 +105,31 @@
     if (age >= 45 && age < 65 && activity.id === 'socialize') return 'Social connections';
     return activity.title;
   }
+  function activityDetail(activity: {id: ActivityId; detail: string}, age: number) {
+    if (activity.id === 'study') {
+      if (age < 6) return 'Explore letters, numbers and new ideas.';
+      if (age < 13) return 'Build school knowledge and learning habits.';
+      if (age < 18) return 'Strengthen school subjects and prepare for next steps.';
+      if (age < 65) return 'Develop skills for work and personal goals.';
+      return 'Keep learning at your own pace.';
+    }
+    if (activity.id === 'exercise') {
+      if (age < 6) return 'Play and move to build coordination.';
+      if (age < 13) return 'Build coordination, strength and healthy habits.';
+      if (age < 65) return 'Support fitness, health and mood.';
+      return 'Maintain mobility and wellbeing.';
+    }
+    if (activity.id === 'socialize') {
+      if (age < 6) return 'Spend time with family and familiar people.';
+      if (age < 13) return 'Build friendships and family connections.';
+      if (age < 18) return 'Spend time with friends and strengthen relationships.';
+      if (age < 65) return 'Maintain friendships and social connections.';
+      return 'Stay connected with family and community.';
+    }
+    if (age < 18) return 'Take age-appropriate part-time work for extra money.';
+    if (age < 65) return 'Take extra work for additional earnings.';
+    return 'Choose flexible work if it suits your circumstances.';
+  }
   function activityCost(activity: {id: ActivityId; cost: string}, current: Character) {
     if (current.age < 16 && (activity.id === 'study' || activity.id === 'socialize')) return 'Time';
     const scale = current.currencyScale ?? 1;
@@ -161,7 +186,7 @@
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
-        {#each [{id:'home',label:'Overview',icon:'⌂'},{id:'activities',label:'Activities',icon:'✳'},{id:'people',label:'People',icon:'◎'},{id:'finances',label:'Finances',icon:'◈'},{id:'history',label:'Life history',icon:'↗'},{id:'settings',label:'Settings',icon:'⚙'}] as item}
+        {#each [{id:'home',label:'Overview',icon:'⌂'},{id:'activities',label:'Activities',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'history',label:'Life history',icon:'↗'},{id:'settings',label:'Settings',icon:'⚙'}] as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => activeTab=item.id}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>{character.name}</strong><small>Age {character.age}</small></div></div>{/if}
@@ -212,7 +237,7 @@
 
           <div class="section-heading"><div><span class="section-index">01</span><h3>Available actions</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
           <div class="activity-grid">{#each activities.filter((activity) => getAvailableActivityIds(character!.age).includes(activity.id)) as activity}
-            <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
+            <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
           {/each}</div>
           <div class="section-heading"><div><span class="section-index">02</span><h3>Life stats</h3></div></div>
           <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
@@ -232,8 +257,6 @@
           <div class="page-heading"><div><div class="eyebrow">FINANCES</div><h1>Balance & activity</h1><p>Available savings and the costs or earnings of current activities.</p></div></div>
           <section class="money-card finance-wide"><div class="money-label">AVAILABLE SAVINGS</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Your current balance. Work adds income; some activities have a cost.</p></section>
           <section class="finance-actions"><div class="section-heading"><div><span class="section-index">01</span><h3>How you can change your balance</h3></div></div><div class="finance-action-list"><div><span class="finance-action-icon positive">↗</span><span><strong>Extra work</strong><small>{character.age < 16 ? 'Available from age 16.' : 'Earn money at the cost of time and a little happiness.'}</small></span><b class="positive-text">{character.age < 16 ? 'Locked' : '+' + formatCharacterMoney(character, 180 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">＋</span><span><strong>Study</strong><small>Invest in future opportunities.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 35 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">◎</span><span><strong>Socialize</strong><small>Spend time with people who matter.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 20 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon">⌁</span><span><strong>Exercise</strong><small>Improves health and fitness without a direct money cost.</small></span><b class="neutral-text">{formatCharacterMoney(character, 0)}</b></div></div></section><div class="info-panel"><strong>Financial systems will grow with the game.</strong><p>Employment, recurring income and expenses, savings goals, debt, and assets are planned. This screen currently reflects the money changes the playable build actually simulates.</p></div>
-        {:else if character}
-          <div class="page-heading"><div><div class="eyebrow">PEOPLE</div><h1>Relationships</h1><p>Family, friendship and romance are not implemented yet.</p></div></div>
         {/if}
       </section>
     </main>
