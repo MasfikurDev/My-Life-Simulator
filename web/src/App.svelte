@@ -35,12 +35,13 @@
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
   function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
   function startLife() {
+    activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
     persist(createCharacter(name, selectedAge));
     showNewLife = false; activeTab = 'home'; notify('Your story starts here.'); playSound('start');
   }
   function openCreation(slotId: SaveSlotId) {
     if (slots.find((slot) => slot.id === slotId)?.character) { notify('Delete or switch that save slot before starting another life.'); return; }
-    activeSlotId = slotId; setActiveSlotId(slotId); pendingSlotId = slotId;
+    pendingSlotId = slotId;
     name = ''; selectedAge = 18; showNewLife = false; activeTab = 'create';
   }
   function startNewLife() {
@@ -192,7 +193,7 @@
           <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">${character.money.toLocaleString('en-US')}</div><p>Your money shapes the choices ahead.</p></div><button class="money-link" onclick={() => activeTab='finances'}>Money details →</button></div><div class="money-activity"><span><strong>+$180</strong> Extra work</span><span><strong>−$35</strong> Study</span><span><strong>−$20</strong> Socialize</span></div></section>
           <section class="hero-card"><div class="hero-copy"><div class="hero-kicker">THE STORY SO FAR</div><h2>{lifeStage(character.age)}<br/><span>Finding your own way.</span></h2><p>You’re {character.age}. There’s no fixed path ahead — just the next decision.</p><button class="hero-button" onclick={() => activeTab='activities'}>Explore your options <span>→</span></button></div><div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="hill hill-back"></div><div class="hill hill-front"></div><div class="art-caption">YOUR NEXT<br/>CHAPTER AWAITS</div></div></section>
           <div class="section-heading"><div><span class="section-index">01</span><h3>Make this year yours</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
-          <div class="activity-grid">{#each activities.filter((activity) => character.age >= 16 || activity.id !== 'work') as activity}
+          <div class="activity-grid">{#each activities.filter((activity) => (character.age >= 3 || activity.id !== 'study') && (character.age >= 16 || activity.id !== 'work')) as activity}
             <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character.age)} <span>→</span></span></button>
           {/each}</div>
           <div class="section-heading"><div><span class="section-index">03</span><h3>Life stats</h3></div><span class="section-hint">A little balance goes a long way</span></div>
