@@ -118,15 +118,26 @@ function createEmployment(character: Character): Employment {
   };
 }
 
+export function getActivityCost(character: Character, activity: ActivityId): number {
+  const scale = character.currencyScale ?? 1;
+  if (character.age >= 16 && activity === 'study') return 35 * scale;
+  if (character.age >= 16 && activity === 'socialize') return 20 * scale;
+  return 0;
+}
+
+export function canAffordActivity(character: Character, activity: ActivityId): boolean {
+  return character.money >= getActivityCost(character, activity);
+}
+
 export function performActivity(character: Character, activity: ActivityId, random: () => number = Math.random): Character {
-  if (character.actionsRemaining <= 0 || !isActivityAvailable(character.age, activity, character.employment)) return character;
+  if (character.actionsRemaining <= 0 || !isActivityAvailable(character.age, activity, character.employment) || !canAffordActivity(character, activity)) return character;
   const next = { ...character, history: [...character.history], actionsRemaining: character.actionsRemaining - 1 };
   const scale = character.currencyScale ?? 1;
   switch (activity) {
     case 'study':
       next.intelligence = clamp(next.intelligence + 5);
       next.happiness = clamp(next.happiness - 1);
-      if (next.age >= 16) next.money = Math.max(0, next.money - 35 * scale);
+      if (next.age >= 16) next.money -= getActivityCost(next, 'study');
       next.educationProgress = Math.min(100, (next.educationProgress ?? 0) + (next.age < 6 ? 25 : next.age < 13 ? 15 : next.age < 18 ? 12 : 20));
       if (next.age >= 18 && next.educationProgress >= 100 && next.education !== 'Higher education') {
         next.education = 'Higher education';
@@ -147,7 +158,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       break;
     case 'socialize':
       next.happiness = clamp(next.happiness + 7);
-      if (next.age >= 16) next.money = Math.max(0, next.money - 20 * scale);
+      if (next.age >= 16) next.money -= getActivityCost(next, 'socialize');
       next.history.unshift(event(next, 'Spent time with friends', 'You made space for people who matter.'));
       break;
     case 'work':
