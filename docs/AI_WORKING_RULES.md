@@ -35,6 +35,9 @@ Then inspect relevant source and recent Git history. The repository, not an ephe
 20. Do not publish a new APK for web-only changes.
 21. When an approved decision changes, update the relevant canonical doc and this rules file in the same change.
 22. Money is the primary dashboard focus; life stats are secondary. Lead the overview with the real financial state and decisions supported by the simulation. Never fabricate financial metrics or present planned finance systems as implemented.
+23. Character creation supports starting ages across the life span, but do not claim every life-stage system is implemented merely because a start age is selectable.
+24. Save slots are independent and device-local. Never overwrite another slot, delete a slot without explicit confirmation, or bypass the versioned migration path. Preserve legacy single-save data during migrations.
+25. Sound effects must remain optional, user-controllable, lightweight, and safe when browser/WebView audio APIs are unavailable. No unsolicited autoplay music.
 
 ## Conflict resolution
 Latest explicit user instruction wins for the changed requirement; preserve all other decisions. If ambiguity materially affects architecture, ask one focused question. Record approved changes and consequences in canonical docs/ADRs.
