@@ -10,9 +10,12 @@
 5. Review the updated life and history.
 6. Advance time deliberately when ready.
 
-## Character and life stages
-Character data may include identity, age/life stage, health, happiness, intelligence, fitness, personality traits, education, skills, occupation, income, savings, debt, assets, family, friends, partners, dependants, and chronological history.
-Planned stages: childhood, teenage years, young adulthood, adulthood, middle age, old age. Age restrictions emerge naturally; impossible actions are not shown.
+## Character creation and life stages
+Players can begin a life at birth, childhood (6), teenage years (13 or 16), young adulthood (18 or 25), midlife (40), or later life (60). These are starting points into one continuous life simulation, not separate game modes. The chosen age is the character's actual starting age; time advances only through the explicit year action.
+
+Character data may include identity, age/life stage, health, happiness, intelligence, fitness, personality traits, education, skills, occupation, income, savings, debt, assets, family, friends, partners, dependants, and chronological history. Age restrictions emerge naturally; impossible actions are not shown.
+
+Current implementation supports the age choices, age-appropriate activity labels, and work eligibility from age 16. It does not yet simulate a complete childhood, education pathway, retirement, or age-specific family system. Do not imply those deeper systems are complete.
 
 ## Candidate systems
 Health; family; education; career; finance; relationships; lifestyle; contextual/scheduled/random/player-created events. Build incrementally and connect systems. Do not implement every system at once.
