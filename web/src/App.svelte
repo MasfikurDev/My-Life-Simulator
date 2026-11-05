@@ -20,6 +20,7 @@
   }
   function nextYear() { if (character) { persist(advanceYear(character)); notify('A new year begins.'); } }
   function restart() { clearSave(); character = null; name = ''; showNewLife = false; }
+  function refreshGame() { const url = new URL(window.location.href); url.searchParams.set('refresh', Date.now().toString()); window.location.replace(url.toString()); }
   const activities: {id:ActivityId;title:string;detail:string;icon:string;cost:string}[] = [
     {id:'study',title:'Study',detail:'Build knowledge for future opportunities.',icon:'↗',cost:'35'},
     {id:'exercise',title:'Exercise',detail:'Improve fitness, health, and mood.',icon:'⌁',cost:'Time'},
@@ -31,7 +32,7 @@
 <div class="app-shell">
   <header class="topbar">
     <a class="brand" href="#home" onclick={() => activeTab='home'}><span class="brand-mark">L</span><span>life<span class="brand-light">story</span></span></a>
-    <div class="topbar-right"><span class="live-dot"></span><span class="topbar-label">YOUR STORY, YOUR PACE</span><button class="icon-button" aria-label="Start a new life" onclick={() => showNewLife=true}>＋</button></div>
+    <div class="topbar-right"><span class="live-dot"></span><span class="topbar-label">YOUR STORY, YOUR PACE</span><button class="icon-button" aria-label="Refresh game" title="Check for the latest game update" onclick={refreshGame}>↻</button><button class="icon-button" aria-label="Start a new life" onclick={() => showNewLife=true}>＋</button></div>
   </header>
   {#if !character}
     <main class="welcome"><div class="welcome-orb orb-one"></div><div class="welcome-orb orb-two"></div>
