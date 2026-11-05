@@ -26,7 +26,7 @@
   });
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
   function persist(next: Character) { character = next; saveCharacter(next); }
-  function startLife() { persist(createCharacter(name)); showNewLife = false; notify('Your story starts here.'); }
+  function startLife() { persist(createCharacter(name)); showNewLife = false; activeTab = 'home'; notify('Your story starts here.'); }
   function act(id: ActivityId) {
     if (!character) return;
     if (!character.actionsRemaining) { notify('You have used this year’s available time.'); return; }
