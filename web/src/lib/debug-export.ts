@@ -1,0 +1,20 @@
+import type { Character, SaveSlotId } from './types';
+
+export interface GameDebugSnapshot {
+  format: 'my-life-simulator-debug';
+  formatVersion: 1;
+  exportedAt: string;
+  saveSlotId: SaveSlotId;
+  character: Character;
+}
+
+/** A portable, device-independent snapshot for bug reports and repeatable testing. */
+export function createGameDebugSnapshot(character: Character, saveSlotId: SaveSlotId, now = new Date()): GameDebugSnapshot {
+  return {
+    format: 'my-life-simulator-debug',
+    formatVersion: 1,
+    exportedAt: now.toISOString(),
+    saveSlotId,
+    character: structuredClone(character)
+  };
+}

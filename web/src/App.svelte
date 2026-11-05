@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { advanceYear, formatCharacterMoney, performActivity } from './lib/simulation';
+  import { getAvailableActivityIds, getLifeStage } from './lib/progression';
+  import { createGameDebugSnapshot } from './lib/debug-export';
   import CharacterCreation from './CharacterCreation.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
   import type { ActivityId, Character, SaveSlot, SaveSlotId } from './lib/types';
@@ -60,6 +62,21 @@
     notify('Save slot deleted.');
   }
   function toggleSounds(enabled: boolean) { soundEnabled = enabled; setSoundEnabled(enabled); }
+  async function copyDebugSnapshot() {
+    if (!character) { notify('Start a life before exporting gameplay data.'); return; }
+    const payload = JSON.stringify(createGameDebugSnapshot(character, activeSlotId), null, 2);
+    try {
+      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(payload);
+      else {
+        const field = document.createElement('textarea'); field.value = payload;
+        field.setAttribute('readonly', ''); field.style.position = 'fixed'; field.style.opacity = '0';
+        document.body.appendChild(field); field.select();
+        const copied = document.execCommand('copy'); field.remove();
+        if (!copied) throw new Error('Clipboard unavailable');
+      }
+      notify('Gameplay snapshot copied.');
+    } catch { notify('Could not copy. Check clipboard permission and try again.'); }
+  }
   function playSound(kind: 'tap' | 'action' | 'year' | 'start' = 'tap') {
     if (!soundEnabled) return;
     try {
@@ -81,7 +98,37 @@
     if (age < 16 && activity.id === 'study') return 'Learn & explore';
     if (age < 13 && activity.id === 'exercise') return 'Play & explore';
     if (age < 16 && activity.id === 'socialize') return 'Family & friends';
+    if (age >= 16 && age < 18 && activity.id === 'work') return 'Part-time work';
+    if (age >= 65 && activity.id === 'work') return 'Flexible work';
+    if (age >= 65 && activity.id === 'study') return 'Lifelong learning';
+    if (age >= 65 && activity.id === 'exercise') return 'Stay active';
+    if (age >= 45 && age < 65 && activity.id === 'socialize') return 'Social connections';
     return activity.title;
+  }
+  function activityDetail(activity: {id: ActivityId; detail: string}, age: number) {
+    if (activity.id === 'study') {
+      if (age < 6) return 'Explore letters, numbers and new ideas.';
+      if (age < 13) return 'Build school knowledge and learning habits.';
+      if (age < 18) return 'Strengthen school subjects and prepare for next steps.';
+      if (age < 65) return 'Develop skills for work and personal goals.';
+      return 'Keep learning at your own pace.';
+    }
+    if (activity.id === 'exercise') {
+      if (age < 6) return 'Play and move to build coordination.';
+      if (age < 13) return 'Build coordination, strength and healthy habits.';
+      if (age < 65) return 'Support fitness, health and mood.';
+      return 'Maintain mobility and wellbeing.';
+    }
+    if (activity.id === 'socialize') {
+      if (age < 6) return 'Spend time with family and familiar people.';
+      if (age < 13) return 'Build friendships and family connections.';
+      if (age < 18) return 'Spend time with friends and strengthen relationships.';
+      if (age < 65) return 'Maintain friendships and social connections.';
+      return 'Stay connected with family and community.';
+    }
+    if (age < 18) return 'Take age-appropriate part-time work for extra money.';
+    if (age < 65) return 'Take extra work for additional earnings.';
+    return 'Choose flexible work if it suits your circumstances.';
   }
   function activityCost(activity: {id: ActivityId; cost: string}, current: Character) {
     if (current.age < 16 && (activity.id === 'study' || activity.id === 'socialize')) return 'Time';
@@ -139,7 +186,7 @@
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
-        {#each [{id:'home',label:'Overview',icon:'⌂'},{id:'activities',label:'Activities',icon:'✳'},{id:'people',label:'People',icon:'◎'},{id:'finances',label:'Finances',icon:'◈'},{id:'history',label:'Life history',icon:'↗'},{id:'settings',label:'Settings',icon:'⚙'}] as item}
+        {#each [{id:'home',label:'Overview',icon:'⌂'},{id:'activities',label:'Activities',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'history',label:'Life history',icon:'↗'},{id:'settings',label:'Settings',icon:'⚙'}] as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => activeTab=item.id}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>{character.name}</strong><small>Age {character.age}</small></div></div>{/if}
@@ -159,27 +206,38 @@
             <div class="setting-note">Saves stay in this browser or app on this device. Clearing app data or browser storage can remove them. Cloud backup is not available yet.</div>
           </section>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">03</span><div><h3>Display</h3><p>Choose how the game uses your screen.</p></div></div>
+            <div class="settings-section-heading"><span class="section-index">03</span><div><h3>Game log & debug</h3><p>Review recent gameplay records or copy the complete simulation state for testing.</p></div></div>
+            {#if character}
+              <div class="debug-export-row"><div><strong>Gameplay snapshot</strong><p>Includes the character, current stats, finances, save slot and complete life history. It excludes device identifiers and browser data.</p></div><button class="secondary-button" onclick={copyDebugSnapshot}>Copy snapshot</button></div>
+              <div class="settings-log-list">{#each character.history.slice(0,6) as item}<div class="settings-log-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</div>
+              <button class="text-button settings-log-link" onclick={() => activeTab='history'}>Open complete life history →</button>
+            {:else}
+              <p class="settings-empty-log">The game log will appear here after a life is started.</p>
+            {/if}
+          </section>
+          <section class="settings-section">
+            <div class="settings-section-heading"><span class="section-index">04</span><div><h3>Display</h3><p>Choose how the game uses your screen.</p></div></div>
             <div class="setting-row"><div><strong>Immersive fullscreen</strong><p>Hide the status and navigation bars for a distraction-free view. Swipe from an edge to reveal system controls.</p></div><button class:setting-enabled={fullscreen} class="setting-toggle" role="switch" aria-checked={fullscreen} onclick={toggleFullscreen}><span></span><small>{fullscreen ? 'ON' : 'OFF'}</small></button></div>
             <div class="setting-note">Fullscreen can place content behind the camera cutout on some devices. Turn it off to keep the game inside the safe screen area.</div>
           </section>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">04</span><div><h3>Game controls</h3><p>Reload the hosted game or check for the newest version.</p></div></div>
+            <div class="settings-section-heading"><span class="section-index">05</span><div><h3>Game controls</h3><p>Reload the hosted game or check for the newest version.</p></div></div>
             <div class="setting-action-row"><div><strong>Reload game</strong><p>Refresh the current page without changing your saved life.</p></div><button class="secondary-button" onclick={() => window.location.reload()}>Reload</button></div>
             <div class="setting-action-row"><div><strong>Check for updates</strong><p>Fetch the latest published game files and restart the game view. Your save is preserved.</p></div><button class="secondary-button" onclick={reloadLatest}>Check now</button></div>
           </section>
           <section class="settings-section danger-section">
-            <div class="settings-section-heading"><span class="section-index">05</span><div><h3>Saved game</h3><p>Start over by deleting the life currently saved on this device.</p></div></div>
+            <div class="settings-section-heading"><span class="section-index">06</span><div><h3>Saved game</h3><p>Start over by deleting the life currently saved on this device.</p></div></div>
             <div class="setting-action-row"><div><strong>Restart current life</strong><p>Delete only the active save slot and create a new life in that slot.</p></div><button class="danger-button" onclick={() => showRestartConfirm=true} disabled={!character}>Restart</button></div>
           </section>
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
         {:else if character && activeTab==='home'}
           <div class="page-heading"><div><div class="eyebrow">OVERVIEW</div><h1>{character.name}</h1><p>Age {character.age}</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
           <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div></div> </div></section>
+          <div class="life-stage-strip"><div><strong>{getLifeStage(character.age).label}</strong><span>Age {character.age} · {getLifeStage(character.age).ageRange}</span></div><p>{getLifeStage(character.age).description}</p>{#if getLifeStage(character.age).nextAge !== null}<small>Next stage at age {getLifeStage(character.age).nextAge}</small>{/if}</div>
 
           <div class="section-heading"><div><span class="section-index">01</span><h3>Available actions</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
-          <div class="activity-grid">{#each activities.filter((activity) => (character!.age >= 3 || activity.id !== 'study') && (character!.age >= 16 || activity.id !== 'work')) as activity}
-            <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
+          <div class="activity-grid">{#each activities.filter((activity) => getAvailableActivityIds(character!.age).includes(activity.id)) as activity}
+            <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
           {/each}</div>
           <div class="section-heading"><div><span class="section-index">02</span><h3>Life stats</h3></div></div>
           <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
@@ -190,7 +248,7 @@
           </section></div>
         {:else if character && activeTab==='activities'}
           <div class="page-heading"><div><div class="eyebrow">AVAILABLE ACTIONS</div><h1>Activities</h1><p>Choose from the actions available at this age.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => (character!.age >= 3 || activity.id !== 'study') && (character!.age >= 16 || activity.id !== 'work')) as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
+          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => getAvailableActivityIds(character!.age).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
         {:else if character && activeTab==='history'}
           <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h1>Life history</h1><p>Events and decisions recorded during this life.</p></div></div>
@@ -199,8 +257,6 @@
           <div class="page-heading"><div><div class="eyebrow">FINANCES</div><h1>Balance & activity</h1><p>Available savings and the costs or earnings of current activities.</p></div></div>
           <section class="money-card finance-wide"><div class="money-label">AVAILABLE SAVINGS</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Your current balance. Work adds income; some activities have a cost.</p></section>
           <section class="finance-actions"><div class="section-heading"><div><span class="section-index">01</span><h3>How you can change your balance</h3></div></div><div class="finance-action-list"><div><span class="finance-action-icon positive">↗</span><span><strong>Extra work</strong><small>{character.age < 16 ? 'Available from age 16.' : 'Earn money at the cost of time and a little happiness.'}</small></span><b class="positive-text">{character.age < 16 ? 'Locked' : '+' + formatCharacterMoney(character, 180 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">＋</span><span><strong>Study</strong><small>Invest in future opportunities.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 35 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">◎</span><span><strong>Socialize</strong><small>Spend time with people who matter.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 20 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon">⌁</span><span><strong>Exercise</strong><small>Improves health and fitness without a direct money cost.</small></span><b class="neutral-text">{formatCharacterMoney(character, 0)}</b></div></div></section><div class="info-panel"><strong>Financial systems will grow with the game.</strong><p>Employment, recurring income and expenses, savings goals, debt, and assets are planned. This screen currently reflects the money changes the playable build actually simulates.</p></div>
-        {:else if character}
-          <div class="page-heading"><div><div class="eyebrow">PEOPLE</div><h1>Relationships</h1><p>Family, friendship and romance are not implemented yet.</p></div></div>
         {/if}
       </section>
     </main>

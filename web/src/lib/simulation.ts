@@ -1,4 +1,5 @@
 import type { ActivityId, Character, LifeEvent, Gender } from './types';
+import { isActivityAvailable } from './progression';
 
 export const ACTIONS_PER_YEAR = 3;
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
@@ -102,7 +103,7 @@ export function formatCharacterMoney(character: Character, amount = character.mo
 }
 
 export function performActivity(character: Character, activity: ActivityId): Character {
-  if (character.actionsRemaining <= 0) return character;
+  if (character.actionsRemaining <= 0 || !isActivityAvailable(character.age, activity)) return character;
   const next = { ...character, history: [...character.history], actionsRemaining: character.actionsRemaining - 1 };
   const scale = character.currencyScale ?? 1;
   switch (activity) {

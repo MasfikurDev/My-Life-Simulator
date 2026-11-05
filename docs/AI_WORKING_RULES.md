@@ -47,6 +47,10 @@ Then inspect relevant source and recent Git history. The repository, not an ephe
 28. Family background may influence starting financial circumstances only through explicit gameplay rules; it must not predetermine ability or future outcomes. Country-specific economy values are provisional game balance, not real-world claims.
 29. New character identity fields must be optional or safely defaulted when loading legacy saves. All currency displays and costs must respect the character's currency scale.
 
+30. Every gameplay mechanic must declare age eligibility and prerequisites, and enforce them in the simulation layer as well as the UI. Never expose adult systems prematurely; hide unavailable actions and unlock them gradually at the appropriate life stage.
+31. Use the canonical life-stage bands in GAMEPLAY_DESIGN.md; age bands are progression rules, not assumptions about an individual's worth or inevitable life path.
+32. Settings must expose a concise chronological game log and a portable, versioned debug snapshot. Export only game state and history required to reproduce a report; never include device identifiers, browser data, credentials, or unrelated settings.
+
 ## Conflict resolution
 Latest explicit user instruction wins for the changed requirement; preserve all other decisions. If ambiguity materially affects architecture, ask one focused question. Record approved changes and consequences in canonical docs/ADRs.
 
