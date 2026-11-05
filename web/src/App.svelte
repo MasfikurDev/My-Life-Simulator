@@ -76,10 +76,6 @@
       oscillator.onended = () => { void context.close(); };
     } catch { /* Audio is optional and may be unavailable in a WebView. */ }
   }
-  function lifeStage(age: number) {
-    if (age < 2) return 'early childhood'; if (age < 6) return 'childhood'; if (age < 13) return 'school years';
-    if (age < 18) return 'teenage years'; if (age < 30) return 'young adulthood'; if (age < 60) return 'adulthood'; return 'later life';
-  }
   function activityTitle(activity: {id: ActivityId; title: string}, age: number) {
     if (age < 6 && activity.id === 'study') return 'Discover & learn';
     if (age < 16 && activity.id === 'study') return 'Learn & explore';
@@ -179,7 +175,7 @@
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
         {:else if character && activeTab==='home'}
           <div class="page-heading"><div><div class="eyebrow">OVERVIEW</div><h1>{character.name}</h1><p>Age {character.age}</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
-          <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Current available balance.</p></div> </div></section>
+          <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div></div> </div></section>
 
           <div class="section-heading"><div><span class="section-index">01</span><h3>Available actions</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
           <div class="activity-grid">{#each activities.filter((activity) => (character!.age >= 3 || activity.id !== 'study') && (character!.age >= 16 || activity.id !== 'work')) as activity}
@@ -189,7 +185,7 @@
           <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
             <article class="stat-card"><div class="stat-top"><span class="stat-icon {stat.color}">{stat.icon}</span><span class="stat-label">{stat.label}</span></div><div class="stat-value">{stat.value}<small>/100</small></div><div class="meter"><span class={stat.color} style="width:{stat.value}%"></span></div></article>
           {/each}</div>
-          <div class="bottom-row"><section class="history-card"><div class="card-heading"><div><span class="section-index">04</span><h3>Recent activity</h3></div><button class="text-button" onclick={() => activeTab='history'}>View all →</button></div>
+          <div class="bottom-row"><section class="history-card"><div class="card-heading"><div><span class="section-index">03</span><h3>Recent activity</h3></div><button class="text-button" onclick={() => activeTab='history'}>View all →</button></div>
             {#each character.history.slice(0,3) as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}
           </section></div>
         {:else if character && activeTab==='activities'}
