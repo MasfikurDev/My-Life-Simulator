@@ -32,7 +32,7 @@ A modern, polished, calm, business-like life-management interface. It should fee
 - A contextual action area keeps common actions close. Avoid deep navigation for routine choices.
 
 ## Dashboard priorities
-At a glance: who the character is and their age; current situation; relevant wellbeing/financial indicators; recent events; meaningful available actions; how/when time advances. Do not overwhelm the dashboard with every statistic.
+Money is the primary dashboard focus. Put the current balance and useful financial context near the top, followed by practical money-related choices and activities that change the balance. The Finances destination should clearly explain actual income and costs implemented in the current build; never imply that planned systems already exist. Life stats (health, happiness, intelligence, fitness, and future attributes) are secondary: keep them compact and easy to scan without letting them compete with the financial summary. Preserve access to meaningful activities, current situation, recent events, and deliberate time advancement. Do not invent financial metrics such as net worth, recurring income, or expenses until the simulation models them.
 
 ## Compactness and usability are mandatory requirements
 
