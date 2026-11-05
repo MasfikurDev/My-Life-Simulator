@@ -5,4 +5,6 @@ export interface Character {
   intelligence: number; fitness: number; money: number; actionsRemaining: number;
   history: LifeEvent[];
 }
-export interface SaveData { schemaVersion: number; character: Character; }
+export type SaveSlotId = 'slot-1' | 'slot-2' | 'slot-3';
+export interface SaveSlot { id: SaveSlotId; character: Character | null; updatedAt: number | null; }
+export interface SaveData { schemaVersion: number; activeSlotId: SaveSlotId; slots: SaveSlot[]; }
