@@ -6,28 +6,48 @@ on:
     branches: [main]
     paths: ["web/**", ".github/workflows/web.yml"]
   workflow_dispatch:
-permissions: { contents: read }
+permissions:
+  contents: read
 concurrency:
   group: web-pages-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   validate:
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: web } }
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      - run: npm install --no-audit --no-fund
-      - run: npm run build
+        with:
+          node-version: 22
+      # Cache npm's package tarballs without requiring a lockfile.
+      - name: Cache npm packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('web/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+      - name: Install dependencies
+        run: npm install --prefer-offline --no-audit --no-fund --no-progress
+      # The build script already runs type checks and tests before Vite.
+      - name: Check, test, and build
+        run: npm run build
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'
-        with: { path: web/dist }
+        with:
+          path: web/dist
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: validate
     runs-on: ubuntu-latest
-    permissions: { pages: write, id-token: write }
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
