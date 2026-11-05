@@ -38,6 +38,10 @@ Then inspect relevant source and recent Git history. The repository, not an ephe
 23. Character creation supports starting ages across the life span, but do not claim every life-stage system is implemented merely because a start age is selectable.
 24. Save slots are independent and device-local. Never overwrite another slot, delete a slot without explicit confirmation, or bypass the versioned migration path. Preserve legacy single-save data during migrations.
 25. Sound effects must remain optional, user-controllable, lightweight, and safe when browser/WebView audio APIs are unavailable. No unsolicited autoplay music.
+26. Character creation is scenario-led, not a free-form age/stat sandbox. Use curated life-stage starts and coherent whole-character generation; do not add arbitrary sliders or isolated stat rerolls.
+27. Random identity generation must keep nationality, country, birthplace, currency, and culturally appropriate name pools internally consistent. Gender may influence name/pronoun selection, but gender and nationality must never determine ability, health, personality, morality, wealth, or other personal-worth metrics.
+28. Family background may influence starting financial circumstances only through explicit gameplay rules; it must not predetermine ability or future outcomes. Country-specific economy values are provisional game balance, not real-world claims.
+29. New character identity fields must be optional or safely defaulted when loading legacy saves. All currency displays and costs must respect the character's currency scale.
 
 ## Conflict resolution
 Latest explicit user instruction wins for the changed requirement; preserve all other decisions. If ambiguity materially affects architecture, ask one focused question. Record approved changes and consequences in canonical docs/ADRs.
