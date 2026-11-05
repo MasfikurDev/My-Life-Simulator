@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { advanceYear, createCharacter, formatCharacterMoney, generateRandomCharacter, performActivity } from './simulation';
+import { getAvailableActivityIds, getLifeStage } from './progression';
+import { createGameDebugSnapshot } from './debug-export';
 
 describe('life simulation', () => {
   it('creates a character with a starting history', () => {
@@ -29,6 +31,24 @@ describe('life simulation', () => {
   it('advances age and refreshes actions only when requested', () => {
     const next = advanceYear(createCharacter('Sam'));
     expect(next.age).toBe(19); expect(next.year).toBe(2027); expect(next.actionsRemaining).toBe(3);
+  });
+  it('maps each age into a gradual life stage', () => {
+    expect(getLifeStage(0).id).toBe('infant'); expect(getLifeStage(3).id).toBe('preschool');
+    expect(getLifeStage(6).id).toBe('childhood'); expect(getLifeStage(13).id).toBe('early-teen');
+    expect(getLifeStage(16).id).toBe('older-teen'); expect(getLifeStage(18).id).toBe('young-adult');
+    expect(getLifeStage(25).id).toBe('adult'); expect(getLifeStage(45).id).toBe('midlife'); expect(getLifeStage(65).id).toBe('senior');
+  });
+  it('enforces activity age gates in the catalogue and simulation', () => {
+    expect(getAvailableActivityIds(2)).toEqual(['exercise', 'socialize']);
+    expect(getAvailableActivityIds(15)).not.toContain('work'); expect(getAvailableActivityIds(16)).toContain('work');
+    const toddler = createCharacter('Sam', 2);
+    expect(performActivity(toddler, 'study')).toBe(toddler); expect(performActivity(toddler, 'work')).toBe(toddler);
+  });
+  it('creates a portable debug snapshot with full gameplay history', () => {
+    const character = createCharacter('Sam', 18);
+    const snapshot = createGameDebugSnapshot(character, 'slot-2', new Date('2026-11-06T00:00:00.000Z'));
+    expect(snapshot.format).toBe('my-life-simulator-debug'); expect(snapshot.saveSlotId).toBe('slot-2');
+    expect(snapshot.character.history).toEqual(character.history); expect(snapshot).not.toHaveProperty('deviceId');
   });
   it('generates a coherent identity and matching currency from the same country profile', () => {
     const c = generateRandomCharacter(18, () => 0);
