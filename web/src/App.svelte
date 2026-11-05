@@ -136,7 +136,7 @@
 <div class="app-shell">
   <header class="topbar">
     <a class="brand" href="#home" onclick={() => activeTab=character ? 'home' : 'create'}><span class="brand-mark">L</span><span>life<span class="brand-light">story</span></span></a>
-    <div class="topbar-right"><button class="icon-button" aria-label="Start a new life" title="Start a new life" onclick={startNewLife}>＋</button></div>
+    <div class="topbar-right">{#if activeTab !== 'settings'}<button class="icon-button" aria-label="Start a new life" title="Start a new life" onclick={startNewLife}>＋</button>{/if}</div>
   </header>
   {#if !character && activeTab !== 'settings' && activeTab !== 'create'}
     <main class="welcome"><CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='settings'} /></main>
@@ -178,10 +178,10 @@
           </section>
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
         {:else if character && activeTab==='home'}
-          <div class="page-heading"><div><div class="eyebrow">OVERVIEW</div><h1>{character.name}</h1><p>Age {character.age} · Year {character.year}</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
-          <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Current available balance.</p></div><button class="money-link" onclick={() => activeTab='finances'}>Money details →</button></div></section>
-          
-          <div class="section-heading"><div><span class="section-index">01</span><h3>Make this year yours</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
+          <div class="page-heading"><div><div class="eyebrow">OVERVIEW</div><h1>{character.name}</h1><p>Age {character.age}</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
+          <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Current available balance.</p></div> </div></section>
+
+          <div class="section-heading"><div><span class="section-index">01</span><h3>Available actions</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
           <div class="activity-grid">{#each activities.filter((activity) => (character!.age >= 3 || activity.id !== 'study') && (character!.age >= 16 || activity.id !== 'work')) as activity}
             <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
           {/each}</div>
@@ -189,18 +189,18 @@
           <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
             <article class="stat-card"><div class="stat-top"><span class="stat-icon {stat.color}">{stat.icon}</span><span class="stat-label">{stat.label}</span></div><div class="stat-value">{stat.value}<small>/100</small></div><div class="meter"><span class={stat.color} style="width:{stat.value}%"></span></div></article>
           {/each}</div>
-          <div class="bottom-row"><section class="history-card"><div class="card-heading"><div><span class="section-index">04</span><h3>Recent moments</h3></div><button class="text-button" onclick={() => activeTab='history'}>View all →</button></div>
+          <div class="bottom-row"><section class="history-card"><div class="card-heading"><div><span class="section-index">04</span><h3>Recent activity</h3></div><button class="text-button" onclick={() => activeTab='history'}>View all →</button></div>
             {#each character.history.slice(0,3) as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}
           </section></div>
         {:else if character && activeTab==='activities'}
           <div class="page-heading"><div><div class="eyebrow">AVAILABLE ACTIONS</div><h1>Activities</h1><p>Choose from the actions available at this age.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
           <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => (character!.age >= 3 || activity.id !== 'study') && (character!.age >= 16 || activity.id !== 'work')) as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
-          
+
         {:else if character && activeTab==='history'}
           <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h1>Life history</h1><p>Events and decisions recorded during this life.</p></div></div>
           <section class="history-card full-history">{#each character.history as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</section>
         {:else if character && activeTab==='finances'}
-          <div class="page-heading"><div><div class="eyebrow">CURRENT BALANCE</div><h1>Finances</h1><p>Available savings and the costs or earnings of current activities.</p></div></div>
+          <div class="page-heading"><div><div class="eyebrow">FINANCES</div><h1>Balance & activity</h1><p>Available savings and the costs or earnings of current activities.</p></div></div>
           <section class="money-card finance-wide"><div class="money-label">AVAILABLE SAVINGS</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Your current balance. Work adds income; some activities have a cost.</p></section>
           <section class="finance-actions"><div class="section-heading"><div><span class="section-index">01</span><h3>How you can change your balance</h3></div></div><div class="finance-action-list"><div><span class="finance-action-icon positive">↗</span><span><strong>Extra work</strong><small>{character.age < 16 ? 'Available from age 16.' : 'Earn money at the cost of time and a little happiness.'}</small></span><b class="positive-text">{character.age < 16 ? 'Locked' : '+' + formatCharacterMoney(character, 180 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">＋</span><span><strong>Study</strong><small>Invest in future opportunities.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 35 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">◎</span><span><strong>Socialize</strong><small>Spend time with people who matter.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 20 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon">⌁</span><span><strong>Exercise</strong><small>Improves health and fitness without a direct money cost.</small></span><b class="neutral-text">{formatCharacterMoney(character, 0)}</b></div></div></section><div class="info-panel"><strong>Financial systems will grow with the game.</strong><p>Employment, recurring income and expenses, savings goals, debt, and assets are planned. This screen currently reflects the money changes the playable build actually simulates.</p></div>
         {:else if character}
