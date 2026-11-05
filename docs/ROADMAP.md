@@ -11,7 +11,7 @@
 - [ ] Verify web updates reach the installed app after fresh launch.
 
 ## Milestone 1 — First enjoyable life loop
-Character creation with selectable life starting ages; three independent local save slots; readable dashboard; meaningful age-appropriate activities with costs/consequences; deliberate year progression; contextual events and life-history entries; reliable save recovery/migration tests; optional sound feedback.
+Scenario-led character creation with coherent randomized identities; three independent local save slots; readable dashboard; meaningful age-appropriate activities with costs/consequences; deliberate year progression; contextual events and life-history entries; reliable save recovery/migration tests; optional sound feedback.
 
 Selectable starting ages are an entry point, not a claim that full childhood, education, retirement, or generational systems are complete.
 
