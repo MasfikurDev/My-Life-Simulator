@@ -10,7 +10,8 @@ describe('life simulation', () => {
   it('supports birth, teen, adult and later-life starts', () => {
     expect(createCharacter('Newborn', 0).age).toBe(0);
     expect(createCharacter('Teen', 16).money).toBe(120);
-    expect(createCharacter('Older', 60).age).toBe(60);\n    expect(createCharacter('Older', 60).money).toBe(850);
+    expect(createCharacter('Older', 60).age).toBe(60);
+    expect(createCharacter('Older', 60).money).toBe(850);
   });
   it('keeps paid work unavailable before age 16', () => {
     const child = createCharacter('Sam', 10);
