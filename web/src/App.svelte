@@ -185,7 +185,7 @@
     <div class="topbar-right">{#if activeTab !== 'settings'}<button class="icon-button" aria-label="Start a new life" title="Start a new life" onclick={startNewLife}>＋</button>{/if}</div>
   </header>
   {#if !character && activeTab !== 'settings' && activeTab !== 'create'}
-    <main class="welcome"><CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='settings'} /></main>
+    <main class="welcome"><div class="welcome-artwork"><img src="/My-Life-Simulator/artwork/my-life-simulator-title.png" alt="My Life Simulator — a journey through life" /></div><CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='settings'} /></main>
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
