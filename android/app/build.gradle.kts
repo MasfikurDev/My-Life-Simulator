@@ -5,6 +5,7 @@ plugins {
 android {
     namespace = "com.masfikurdev.mylifesimulator"
     compileSdk = 35
+    buildFeatures { buildConfig = true }
     defaultConfig { applicationId = "com.masfikurdev.mylifesimulator"; minSdk = 24; targetSdk = 35; versionCode = 1; versionName = "0.1.0" }
     buildTypes {
         debug { applicationIdSuffix = ".debug"; versionNameSuffix = "-debug" }
