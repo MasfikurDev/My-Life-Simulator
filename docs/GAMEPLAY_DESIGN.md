@@ -1,6 +1,6 @@
 # Gameplay Design
 
-**Canonical gameplay direction · Reviewed 2026-11-05**
+**Canonical gameplay direction · Updated 2026-11-06**
 
 ## Core loop
 1. Review the character's life and circumstances.
@@ -10,12 +10,27 @@
 5. Review the updated life and history.
 6. Advance time deliberately when ready.
 
-## Character creation and life stages
-Players can begin a life at birth, childhood (6), teenage years (13 or 16), young adulthood (18 or 25), midlife (40), or later life (60). These are starting points into one continuous life simulation, not separate game modes. The chosen age is the character's actual starting age; time advances only through the explicit year action.
+## Character creation and starting lives
+Character creation is scenario-led, not a free-form stat editor. The player chooses one of seven curated starting stages: birth (0), childhood (6), teen years (13), young adulthood (18), established adulthood (30), midlife (45), or later life (65). No arbitrary age slider or manual stat allocation.
 
-Character data may include identity, age/life stage, health, happiness, intelligence, fitness, personality traits, education, skills, occupation, income, savings, debt, assets, family, friends, partners, dependants, and chronological history. Age restrictions emerge naturally; impossible actions are not shown.
+The game generates a complete character in one coherent pass. The generated profile includes name, gender identity, nationality, country, birthplace, currency, family economic background, age-appropriate education status, health, happiness, intelligence, fitness, and two personality traits.
 
-Current implementation supports the age choices, age-appropriate activity labels, and work eligibility from age 16. It does not yet simulate a complete childhood, education pathway, retirement, or age-specific family system. Do not imply those deeper systems are complete.
+### Random generation rules
+- Generate nationality/country first; birthplace, name pools and currency must come from that same country profile.
+- Generate gender identity, then choose a culturally plausible name pool for that identity and nationality. Non-binary characters use curated neutral-name pools.
+- Gender and nationality must not be used as proxies for intelligence, health, happiness, fitness, personality, morality or ambition.
+- Personality traits and ability stats are generated independently of gender and nationality.
+- Age determines education status and starting financial eligibility. Children do not receive adult personal income; paid work remains unavailable before 16.
+- Family economic background can affect starting money, but does not predetermine ability or future outcomes.
+- Reroll regenerates the entire character. No isolated stat rerolls or manual stat editing in the creation flow.
+- The player may choose a life stage and reroll the generated person. Name, identity, birthplace and stats are not individually edited in the creation screen.
+- Country and name datasets are curated starter coverage, not a claim to represent every nationality or naming tradition. Expand with reviewed country packs.
+- Random generation accepts an injectable random source in tests so consistency and bounds are reproducible.
+
+Current country packs: Bangladesh, India, United States, United Kingdom, Canada, Australia, Japan, Nigeria, Brazil and Germany. Currency is stored with the character and all money UI must format using that currency.
+
+## Current implementation boundaries
+Selectable stages and generated identity do not imply complete life-stage simulation. Childhood, education pathways, retirement, family relationships and local economic systems still need gameplay implementation. Starting financial values are a lightweight foundation, not a realistic national economic model.
 
 ## Candidate systems
 Health; family; education; career; finance; relationships; lifestyle; contextual/scheduled/random/player-created events. Build incrementally and connect systems. Do not implement every system at once.
@@ -37,7 +52,7 @@ Randomness adds uncertainty but never overrides plausibility or eligibility. Avo
 - Never silently discard a save.
 
 ## First playable slice
-Character creation, a modern dashboard, several meaningful activities, a limited number of actions per year, deliberate year advancement, a few contextual events, basic stats/finances, persistent save, and life history. Keep the slice coherent rather than broad.
+Scenario-led character creation with coherent randomized profiles, a modern dashboard, several meaningful activities, a limited number of actions per year, deliberate year advancement, contextual events, basic finances, persistent save, and life history.
 
 ## Later, not MVP blockers
 Marriage/children, richer family trees, deeper education/career, property/assets, generational play, achievements, expanded event packs, cloud backup, online features. Prioritize based on demonstrated fun and player feedback.
