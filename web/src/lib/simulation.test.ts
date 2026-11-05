@@ -34,7 +34,17 @@ describe('life simulation', () => {
     const c = generateRandomCharacter(18, () => 0);
     expect(c.nationality).toBe('Bangladeshi'); expect(c.country).toBe('Bangladesh');
     expect(c.birthplace).toBe('Dhaka'); expect(c.currency).toBe('BDT');
-    expect(c.name).toBe('Aarav Ahmed'); expect(c.gender).toBe('male');
+    expect(c.name).toBe('Adnan Ahmed'); expect(c.gender).toBe('male');
+  });
+  it('uses local family-name order and language for Japanese characters', () => {
+    const values = Array(48).fill(0); values[0] = 0.66;
+    const c = generateRandomCharacter(18, () => values.shift() ?? 0);
+    expect(c.nationality).toBe('Japanese');
+    expect(c.country).toBe('Japan');
+    expect(c.birthplace).toBe('Tokyo');
+    expect(c.language).toBe('Japanese');
+    expect(c.name).toBe('Aoki Akira');
+    expect(c.currency).toBe('JPY');
   });
   it('uses non-binary name pools without changing ability distributions', () => {
     const values = [0, 0.99, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
