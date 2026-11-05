@@ -110,7 +110,7 @@
           <div class="activity-grid">{#each activities as activity}
             <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activity.cost} <span>→</span></span></button>
           {/each}</div>
-          <div class="section-heading"><div><span class="section-index">01</span><h3>Your wellbeing</h3></div><span class="section-hint">A little balance goes a long way</span></div>
+          <div class="section-heading"><div><span class="section-index">02</span><h3>Your wellbeing</h3></div><span class="section-hint">A little balance goes a long way</span></div>
           <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
             <article class="stat-card"><div class="stat-top"><span class="stat-icon {stat.color}">{stat.icon}</span><span class="stat-label">{stat.label}</span></div><div class="stat-value">{stat.value}<small>/100</small></div><div class="meter"><span class={stat.color} style="width:{stat.value}%"></span></div></article>
           {/each}</div>
