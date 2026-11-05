@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { advanceYear, createCharacter, performActivity } from './lib/simulation';
+  import { advanceYear, formatCharacterMoney, performActivity } from './lib/simulation';
+  import CharacterCreation from './CharacterCreation.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
   import type { ActivityId, Character, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
@@ -13,12 +14,10 @@
   }
 
   let character = $state<Character | null>(null);
-  let name = $state('');
   let activeTab = $state('home');
   let toast = $state('');
   let fullscreen = $state(false);
   let showRestartConfirm = $state(false);
-  let selectedAge = $state(18);
   let activeSlotId = $state<SaveSlotId>('slot-1');
   let slots = $state<SaveSlot[]>([]);
   let soundEnabled = $state(true);
@@ -33,18 +32,17 @@
   });
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
   function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
-  function startLife() {
+  function startLife(nextCharacter: Character) {
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
     try {
-      activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
-      persist(createCharacter(name, selectedAge));
+      persist(nextCharacter);
       activeTab = 'home'; notify('Your story starts here.'); playSound('start');
     } catch { notify('The save could not be written. Check available device storage and try again.'); }
   }
   function openCreation(slotId: SaveSlotId) {
     if (slots.find((slot) => slot.id === slotId)?.character) { notify('Delete or switch that save slot before starting another life.'); return; }
     pendingSlotId = slotId;
-    name = ''; selectedAge = 18; activeTab = 'create';
+    activeTab = 'create';
   }
   function startNewLife() {
     const empty = slots.find((slot) => !slot.character);
@@ -89,8 +87,13 @@
     if (age < 16 && activity.id === 'socialize') return 'Family & friends';
     return activity.title;
   }
-  function activityCost(activity: {id: ActivityId; cost: string}, age: number) {
-    return age < 16 && (activity.id === 'study' || activity.id === 'socialize') ? 'Time' : activity.cost;
+  function activityCost(activity: {id: ActivityId; cost: string}, current: Character) {
+    if (current.age < 16 && (activity.id === 'study' || activity.id === 'socialize')) return 'Time';
+    const scale = current.currencyScale ?? 1;
+    if (activity.id === 'work') return '+' + formatCharacterMoney(current, 180 * scale);
+    if (activity.id === 'study') return formatCharacterMoney(current, 35 * scale);
+    if (activity.id === 'socialize') return formatCharacterMoney(current, 20 * scale);
+    return activity.cost;
   }
   function act(id: ActivityId) {
     if (!character) return;
@@ -99,7 +102,7 @@
   }
   function nextYear() { if (character) { persist(advanceYear(character)); notify('A new year begins.'); playSound('year'); } }
   function restart() {
-    clearSave(activeSlotId); slots = getSaveSlots(); character = null; name = '';
+    clearSave(activeSlotId); slots = getSaveSlots(); character = null;
     showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.'); pendingSlotId = activeSlotId;
   }
   function reloadLatest() {
@@ -136,22 +139,7 @@
     <div class="topbar-right"><span class="live-dot"></span><span class="topbar-label">YOUR STORY, YOUR PACE</span><button class="icon-button" aria-label="Open settings" title="Settings" onclick={() => activeTab='settings'}>⚙</button><button class="icon-button" aria-label="Start a new life" title="Start a new life" onclick={startNewLife}>＋</button></div>
   </header>
   {#if !character && activeTab !== 'settings' && activeTab !== 'create'}
-    <main class="welcome"><div class="welcome-orb orb-one"></div><div class="welcome-orb orb-two"></div>
-      <div class="welcome-content"><div class="eyebrow"><span class="eyebrow-line"></span> EVERY LIFE IS DIFFERENT</div>
-        <h1>Your life.<br/><span>Your starting point.</span></h1>
-        <p>Choose when your story begins. Grow up from the very beginning or step into a life already in motion.</p>
-        <div class="start-card creation-card">
-          <label for="character-name">Character name</label><input id="character-name" maxlength="28" bind:value={name} placeholder="What should we call you?"/>
-          <div class="creation-label">Choose your starting age</div>
-          <div class="age-choice-grid">{#each [{age:0,label:'Birth',detail:'A life from day one'},{age:6,label:'Childhood',detail:'Growing and learning'},{age:13,label:'Teenager',detail:'Finding your path'},{age:16,label:'Age 16',detail:'Choices start opening'},{age:18,label:'Age 18',detail:'Begin adult life'},{age:25,label:'Age 25',detail:'A fresh adult chapter'},{age:40,label:'Age 40',detail:'Midlife beginnings'},{age:60,label:'Age 60',detail:'Later-life journey'}] as option}
-            <button class:age-choice-active={selectedAge===option.age} class="age-choice" onclick={() => selectedAge=option.age}><strong>{option.label}</strong><span>{option.detail}</span></button>
-          {/each}</div>
-          <label class="age-slider-label" for="starting-age">Or choose any age <strong>{selectedAge}</strong></label><input class="age-slider" id="starting-age" type="range" min="0" max="90" step="1" bind:value={selectedAge}/><label class="age-slider-label" for="create-starting-age">Or choose any age <strong>{selectedAge}</strong></label><input class="age-slider" id="create-starting-age" type="range" min="0" max="90" step="1" bind:value={selectedAge}/><div class="selected-age-note">Starting at age <strong>{selectedAge}</strong> · {lifeStage(selectedAge)}</div>
-          <button class="primary-button" onclick={startLife}>Begin your life <span>→</span></button>
-          <div class="start-note">✦ Saved locally in {pendingSlotId ?? activeSlotId}.</div>
-        </div>
-      </div><div class="welcome-side-note">A LIFE SIMULATION<br/>BUILT AROUND YOU</div>
-    </main>
+    <main class="welcome"><CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='settings'} /></main>
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
@@ -162,8 +150,7 @@
       </aside>
       <section class="content">
         {#if activeTab==='create'}
-          <div class="page-heading"><div><div class="eyebrow">A NEW STORY</div><h1>Choose your <em>beginning.</em></h1><p>Every starting age creates a different set of circumstances.</p></div></div>
-          <section class="creation-panel"><label for="create-name">Character name</label><input id="create-name" maxlength="28" bind:value={name} placeholder="What should we call you?"/><div class="creation-label">Starting point</div><div class="age-choice-grid">{#each [{age:0,label:'Birth',detail:'From the very beginning'},{age:6,label:'Childhood',detail:'Learn and grow'},{age:13,label:'Teenager',detail:'Discover independence'},{age:16,label:'Age 16',detail:'New choices and paths'},{age:18,label:'Age 18',detail:'Young adulthood'},{age:25,label:'Age 25',detail:'A fresh adult chapter'},{age:40,label:'Age 40',detail:'Midlife beginnings'},{age:60,label:'Age 60',detail:'Later-life journey'}] as option}<button class:age-choice-active={selectedAge===option.age} class="age-choice" onclick={() => selectedAge=option.age}><strong>{option.label}</strong><span>{option.detail}</span></button>{/each}</div><div class="selected-age-note">Starting at age <strong>{selectedAge}</strong> · {lifeStage(selectedAge)}</div><button class="primary-button" onclick={startLife}>Create this life <span>→</span></button><button class="text-button cancel-button" onclick={() => activeTab=character ? 'home' : 'settings'}>Cancel</button></section>
+          <CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='home'} />
         {:else if activeTab==='settings'}
           <div class="page-heading"><div><div class="eyebrow">PREFERENCES & CONTROLS</div><h1>Game <em>settings.</em></h1><p>Adjust how the game appears and manage your saved story.</p></div></div>
           <section class="settings-section">
@@ -172,7 +159,7 @@
           </section>
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">02</span><div><h3>Save slots</h3><p>Keep up to three separate lives on this device.</p></div></div>
-            <div class="save-slot-list">{#each slots as slot, index}<div class="save-slot-row"><div class="save-slot-meta"><strong>Slot {index + 1}</strong>{#if slot.character}<span>{slot.character.name} · Age {slot.character.age} · ${slot.character.money.toLocaleString('en-US')}</span><small>{slot.id === activeSlotId ? 'CURRENT SLOT' : 'SAVED LIFE'}</small>{:else}<span class="empty-slot-label">Empty slot</span>{/if}</div><div class="save-slot-actions">{#if slot.character}<button class="secondary-button" onclick={() => loadSlot(slot)} disabled={slot.id===activeSlotId}>Load</button><button class="danger-button" onclick={() => slotToDelete=slot.id}>Delete</button>{:else}<button class="secondary-button" onclick={() => openCreation(slot.id)}>New life</button>{/if}</div></div>{/each}</div>
+            <div class="save-slot-list">{#each slots as slot, index}<div class="save-slot-row"><div class="save-slot-meta"><strong>Slot {index + 1}</strong>{#if slot.character}<span>{slot.character.name} · Age {slot.character.age} · {formatCharacterMoney(slot.character)}</span><small>{slot.id === activeSlotId ? 'CURRENT SLOT' : 'SAVED LIFE'}</small>{:else}<span class="empty-slot-label">Empty slot</span>{/if}</div><div class="save-slot-actions">{#if slot.character}<button class="secondary-button" onclick={() => loadSlot(slot)} disabled={slot.id===activeSlotId}>Load</button><button class="danger-button" onclick={() => slotToDelete=slot.id}>Delete</button>{:else}<button class="secondary-button" onclick={() => openCreation(slot.id)}>New life</button>{/if}</div></div>{/each}</div>
             <div class="setting-note">Saves stay in this browser or app on this device. Clearing app data or browser storage can remove them. Cloud backup is not available yet.</div>
           </section>
           <section class="settings-section">
@@ -192,11 +179,11 @@
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
         {:else if character && activeTab==='home'}
           <div class="page-heading"><div><div class="eyebrow">YOUR LIFE AT A GLANCE</div><h1>Good things take <em>time.</em></h1><p>Make this year count, {character.name}.</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
-          <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">${character.money.toLocaleString('en-US')}</div><p>Your money shapes the choices ahead.</p></div><button class="money-link" onclick={() => activeTab='finances'}>Money details →</button></div><div class="money-activity"><span><strong>+$180</strong> Extra work</span><span><strong>−$35</strong> Study</span><span><strong>−$20</strong> Socialize</span></div></section>
+          <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Your money shapes the choices ahead.</p></div><button class="money-link" onclick={() => activeTab='finances'}>Money details →</button></div><div class="money-activity">{#if character.age >= 16}<span><strong>+{formatCharacterMoney(character, 180 * (character.currencyScale ?? 1))}</strong> Extra work</span>{/if}<span><strong>{character.age >= 16 ? '−' + formatCharacterMoney(character, 35 * (character.currencyScale ?? 1)) : 'Time'}</strong> Study</span><span><strong>{character.age >= 16 ? '−' + formatCharacterMoney(character, 20 * (character.currencyScale ?? 1)) : 'Time'}</strong> Socialize</span></div></section>
           <section class="hero-card"><div class="hero-copy"><div class="hero-kicker">THE STORY SO FAR</div><h2>{lifeStage(character.age)}<br/><span>Finding your own way.</span></h2><p>You’re {character.age}. There’s no fixed path ahead — just the next decision.</p><button class="hero-button" onclick={() => activeTab='activities'}>Explore your options <span>→</span></button></div><div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="hill hill-back"></div><div class="hill hill-front"></div><div class="art-caption">YOUR NEXT<br/>CHAPTER AWAITS</div></div></section>
           <div class="section-heading"><div><span class="section-index">01</span><h3>Make this year yours</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
           <div class="activity-grid">{#each activities.filter((activity) => (character!.age >= 3 || activity.id !== 'study') && (character!.age >= 16 || activity.id !== 'work')) as activity}
-            <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character.age)} <span>→</span></span></button>
+            <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
           {/each}</div>
           <div class="section-heading"><div><span class="section-index">03</span><h3>Life stats</h3></div><span class="section-hint">A little balance goes a long way</span></div>
           <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
@@ -207,15 +194,15 @@
           </section></div>
         {:else if character && activeTab==='activities'}
           <div class="page-heading"><div><div class="eyebrow">MAKE YOUR MOVE</div><h1>Time well <em>spent.</em></h1><p>Every choice uses a little of this year's time.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => (character!.age >= 3 || activity.id !== 'study') && (character!.age >= 16 || activity.id !== 'work')) as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character.age)} <span>→</span></span></button>{/each}</div>
+          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => (character!.age >= 3 || activity.id !== 'study') && (character!.age >= 16 || activity.id !== 'work')) as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
           <div class="info-panel"><strong>Your time is limited — by design.</strong><p>You can take three meaningful actions each year. When ready, return to Overview and advance time. Your age and circumstances change as your story moves forward.</p></div>
         {:else if character && activeTab==='history'}
           <div class="page-heading"><div><div class="eyebrow">EVERY CHOICE LEAVES A MARK</div><h1>Your life, <em>so far.</em></h1><p>A record of the moments that brought you here.</p></div></div>
           <section class="history-card full-history">{#each character.history as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</section>
         {:else if character && activeTab==='finances'}
           <div class="page-heading"><div><div class="eyebrow">YOUR FINANCIAL LIFE</div><h1>Money & <em>choices.</em></h1><p>Track your balance and understand what each decision costs or earns.</p></div></div>
-          <section class="money-card finance-wide"><div class="money-label">AVAILABLE SAVINGS</div><div class="money-value">${character.money.toLocaleString('en-US')}</div><p>Your current balance. Work adds income; some activities have a cost.</p></section>
-          <section class="finance-actions"><div class="section-heading"><div><span class="section-index">01</span><h3>How you can change your balance</h3></div></div><div class="finance-action-list"><div><span class="finance-action-icon positive">↗</span><span><strong>Extra work</strong><small>Earn money at the cost of time and a little happiness.</small></span><b class="positive-text">+$180</b></div><div><span class="finance-action-icon negative">＋</span><span><strong>Study</strong><small>Invest in future opportunities.</small></span><b>−$35</b></div><div><span class="finance-action-icon negative">◎</span><span><strong>Socialize</strong><small>Spend time with people who matter.</small></span><b>−$20</b></div><div><span class="finance-action-icon">⌁</span><span><strong>Exercise</strong><small>Improves health and fitness without a direct money cost.</small></span><b class="neutral-text">$0</b></div></div></section><div class="info-panel"><strong>Financial systems will grow with the game.</strong><p>Employment, recurring income and expenses, savings goals, debt, and assets are planned. This screen currently reflects the money changes the playable build actually simulates.</p></div>
+          <section class="money-card finance-wide"><div class="money-label">AVAILABLE SAVINGS</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Your current balance. Work adds income; some activities have a cost.</p></section>
+          <section class="finance-actions"><div class="section-heading"><div><span class="section-index">01</span><h3>How you can change your balance</h3></div></div><div class="finance-action-list"><div><span class="finance-action-icon positive">↗</span><span><strong>Extra work</strong><small>{character.age < 16 ? 'Available from age 16.' : 'Earn money at the cost of time and a little happiness.'}</small></span><b class="positive-text">{character.age < 16 ? 'Locked' : '+' + formatCharacterMoney(character, 180 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">＋</span><span><strong>Study</strong><small>Invest in future opportunities.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 35 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">◎</span><span><strong>Socialize</strong><small>Spend time with people who matter.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 20 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon">⌁</span><span><strong>Exercise</strong><small>Improves health and fitness without a direct money cost.</small></span><b class="neutral-text">{formatCharacterMoney(character, 0)}</b></div></div></section><div class="info-panel"><strong>Financial systems will grow with the game.</strong><p>Employment, recurring income and expenses, savings goals, debt, and assets are planned. This screen currently reflects the money changes the playable build actually simulates.</p></div>
         {:else if character}
           <div class="page-heading"><div><div class="eyebrow">THE PEOPLE IN YOUR LIFE</div><h1>Life is better <em>together.</em></h1><p>Relationships will become part of your story.</p></div></div>
           <div class="info-panel"><strong>Your social circle is still ahead.</strong><p>Family, friendships, romance, and the people who influence your life are planned as connected gameplay systems — not isolated meters.</p></div>
