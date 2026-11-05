@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { advanceYear, formatCharacterMoney, performActivity } from './lib/simulation';
+  import { advanceYear, canAffordActivity, formatCharacterMoney, performActivity } from './lib/simulation';
   import { getAvailableActivityIds, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
@@ -132,6 +132,7 @@
   }
   function activityCost(activity: {id: ActivityId; cost: string}, current: Character) {
     if (activity.id === 'apply-job' || activity.id === 'career') return 'Time';
+    if (!canAffordActivity(current, activity.id)) return 'Insufficient funds';
     if (current.age < 16 && (activity.id === 'study' || activity.id === 'socialize')) return 'Time';
     const scale = current.currencyScale ?? 1;
     if (activity.id === 'work') return '+' + formatCharacterMoney(current, 180 * scale);
@@ -240,7 +241,7 @@
 
           <div class="section-heading"><div><span class="section-index">01</span><h3>Available actions</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
           <div class="activity-grid">{#each activities.filter((activity) => getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}
-            <button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
+            <button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
           {/each}</div>
           <div class="section-heading"><div><span class="section-index">02</span><h3>Life stats</h3></div></div>
           <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
@@ -251,7 +252,7 @@
           </section></div>
         {:else if character && activeTab==='activities'}
           <div class="page-heading"><div><div class="eyebrow">AVAILABLE ACTIONS</div><h1>Activities</h1><p>Choose from the actions available at this age.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
+          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
         {:else if character && activeTab==='history'}
           <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h1>Life history</h1><p>Events and decisions recorded during this life.</p></div></div>
