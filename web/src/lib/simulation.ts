@@ -165,7 +165,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       if (random() < successChance) {
         const previous = next.employment?.title;
         next.employment = offeredJob;
-        next.history.unshift(event(next, previous ? 'Moved into a new role' : 'Started a new job', (previous ? 'You left ' + previous + ' for ' : 'You secured ') + offeredJob.title + '. Annual pay is ' + Math.round(offeredJob.annualSalary).toLocaleString('en-US') + ' in your local currency.', 'milestone'));
+        next.history.unshift(event(next, previous ? 'Moved into a new role' : 'Started a new job', (previous ? 'You left ' + previous + ' for ' : 'You secured ') + offeredJob.title + '. Annual pay is ' + formatCharacterMoney(next, offeredJob.annualSalary) + ' per year.', 'milestone'));
       } else {
         next.history.unshift(event(next, 'Job application unsuccessful', 'The application did not lead to an offer. You can build experience or qualifications and try again.'));
       }
@@ -198,7 +198,7 @@ export function advanceYear(character: Character): Character {
     next.lastYearIncome = income;
     next.lastYearExpenses = expenses;
     job.experienceYears += 1;
-    next.history.unshift(event(next, 'Annual pay received', 'You received ' + income.toLocaleString('en-US') + ' in earnings. Living costs were ' + expenses.toLocaleString('en-US') + '.', 'event'));
+    next.history.unshift(event(next, 'Annual pay received', 'You received ' + formatCharacterMoney(next, income) + ' in earnings. Living costs were ' + formatCharacterMoney(next, expenses) + '.', 'event'));
     if (job.experienceYears >= 2 && job.performance >= 85 && job.promotions < 3) {
       const oldTitle = job.title;
       job.title = 'Senior ' + oldTitle.replace(/^Senior /, '');
