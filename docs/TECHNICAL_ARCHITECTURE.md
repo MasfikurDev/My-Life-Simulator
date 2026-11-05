@@ -39,7 +39,7 @@ flowchart TD
 - Clear WebView disk cache at a fresh app launch, then allow normal HTTP caching during that session. This checks for a fresh deployment without disabling caching for every asset request.
 - Do not register a service worker or persistent Cache API shell in the initial implementation.
 - Vite production assets use content hashes, so changed files have new URLs.
-- Entry HTML and runtime version metadata must be checked at each fresh launch.
+- The entry HTML is requested afresh on each cold launch; do not restore a previously rendered WebView page after process recreation.
 - Provide a refresh/retry path for a user who leaves the app open during a deployment.
 - Never treat mutable content or save data as immutable assets.
 - Never use HTTP, disable TLS checks, or enable mixed content to work around hosting.
