@@ -34,6 +34,7 @@ Then inspect relevant source and recent Git history. The repository, not an ephe
 19. Keep CI lean, event-driven, path-filtered, and non-duplicative. No emulator requirement for normal builds.
 20. Do not publish a new APK for web-only changes.
 21. When an approved decision changes, update the relevant canonical doc and this rules file in the same change.
+22. Money is the primary dashboard focus; life stats are secondary. Lead the overview with the real financial state and decisions supported by the simulation. Never fabricate financial metrics or present planned finance systems as implemented.
 
 ## Conflict resolution
 Latest explicit user instruction wins for the changed requirement; preserve all other decisions. If ambiguity materially affects architecture, ask one focused question. Record approved changes and consequences in canonical docs/ADRs.
