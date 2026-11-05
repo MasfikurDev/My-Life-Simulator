@@ -13,10 +13,10 @@
 ## Character creation and starting lives
 Character creation is scenario-led, not a free-form stat editor. The player chooses one of seven curated starting stages: birth (0), childhood (6), teen years (13), young adulthood (18), established adulthood (30), midlife (45), or later life (65). No arbitrary age slider or manual stat allocation.
 
-The game generates a complete character in one coherent pass. The generated profile includes name, gender identity, nationality, country, birthplace, currency, family economic background, age-appropriate education status, health, happiness, intelligence, fitness, and two personality traits.
+The game generates a complete character in one coherent pass. The generated profile includes name, gender identity, nationality, country, birthplace, primary language, currency, family economic background, age-appropriate education status, health, happiness, intelligence, fitness, and two personality traits.
 
 ### Random generation rules
-- Generate nationality/country first; birthplace, name pools and currency must come from that same country profile.
+- Generate nationality/country first; birthplace, primary language, culturally appropriate name pools, local name order and currency must come from that same country profile.
 - Generate gender identity using an explicit gameplay weighting (currently 49.5% male, 49.5% female, 1% non-binary), then choose a culturally plausible name pool for that identity and nationality. This is a game distribution, not a demographic claim. Non-binary characters use curated neutral-name pools.
 - Gender and nationality must not be used as proxies for intelligence, health, happiness, fitness, personality, morality or ambition.
 - Personality traits and ability stats are generated independently of gender and nationality.
