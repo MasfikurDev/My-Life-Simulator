@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { generateRandomCharacter } from './lib/simulation';
+  import { formatCharacterMoney, generateRandomCharacter } from './lib/simulation';
   import type { Character } from './lib/types';
   type Props = { slotLabel: string; onStart: (character: Character) => void; onCancel: () => void };
   let { slotLabel, onStart, onCancel }: Props = $props();
@@ -41,7 +41,11 @@
       <div><small>Birthplace</small><strong>{character.birthplace}</strong></div>
       <div><small>Family background</small><strong>{character.familyBackground}</strong></div>
       <div><small>Education</small><strong>{character.education}</strong></div>
-      <div><small>Starting money</small><strong>{new Intl.NumberFormat('en-US',{style:'currency',currency:character.currency ?? 'USD',maximumFractionDigits:0}).format(character.money)}</strong></div>
+      <div><small>Starting money</small><strong>{formatCharacterMoney(character)}</strong></div>
+      <div><small>Height</small><strong>{character.appearance?.height}</strong></div>
+      <div><small>Build</small><strong>{character.appearance?.build}</strong></div>
+      <div><small>Hair</small><strong>{character.appearance?.hair}</strong></div>
+      <div><small>Eyes</small><strong>{character.appearance?.eyes}</strong></div>
     </div>
     <div class="traits-row"><span>Personality</span>{#each character.personality ?? [] as trait}<b>{trait}</b>{/each}</div>
     <div class="generated-stats">
