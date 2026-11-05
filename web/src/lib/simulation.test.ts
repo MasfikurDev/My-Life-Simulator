@@ -45,7 +45,7 @@ describe('life simulation', () => {
     expect(performActivity(toddler, 'study')).toBe(toddler); expect(performActivity(toddler, 'work')).toBe(toddler);
   });
   it('unlocks school stages, part-time work and adult jobs at the right ages', () => {
-    expect(performActivity(createCharacter('Child', 15), 'apply-job', () => 0).employment).toBeUndefined();
+    expect(performActivity(createCharacter('Child', 15), 'apply-job', () => 0).employment).toBeNull();
     const teen = { ...createCharacter('Teen', 16), currencyScale: 1 };
     const partTime = performActivity(teen, 'apply-job', () => 0);
     expect(partTime.employment?.type).toBe('part-time');
