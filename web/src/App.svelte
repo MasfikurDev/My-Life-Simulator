@@ -3,14 +3,13 @@
   import { advanceYear, createCharacter, performActivity } from './lib/simulation';
   import { clearSave, loadSave, saveCharacter } from './lib/storage';
   import type { ActivityId, Character } from './lib/types';
-  declare global {
-    interface Window {
-      AndroidApp?: {
-        isFullscreen: () => boolean;
-        setFullscreen: (enabled: boolean) => void;
-        reloadLatest: () => void;
-      };
-    }
+  type AndroidBridge = {
+    isFullscreen: () => boolean;
+    setFullscreen: (enabled: boolean) => void;
+    reloadLatest: () => void;
+  };
+  function getAndroidBridge(): AndroidBridge | undefined {
+    return (window as Window & { AndroidApp?: AndroidBridge }).AndroidApp;
   }
 
   let character = $state<Character | null>(null);
@@ -22,7 +21,7 @@
   let showRestartConfirm = $state(false);
   onMount(() => {
     character = loadSave();
-    fullscreen = window.AndroidApp?.isFullscreen() ?? Boolean(document.fullscreenElement);
+    fullscreen = getAndroidBridge()?.isFullscreen() ?? Boolean(document.fullscreenElement);
   });
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
   function persist(next: Character) { character = next; saveCharacter(next); }
@@ -38,13 +37,15 @@
     showRestartConfirm = false; activeTab = 'home'; notify('Your save was reset. Start a new life whenever you are ready.');
   }
   function reloadLatest() {
-    if (window.AndroidApp) window.AndroidApp.reloadLatest();
+    const bridge = getAndroidBridge();
+    if (bridge) bridge.reloadLatest();
     else refreshGame();
   }
   async function toggleFullscreen() {
     const next = !fullscreen;
-    if (window.AndroidApp) {
-      window.AndroidApp.setFullscreen(next);
+    const bridge = getAndroidBridge();
+    if (bridge) {
+      bridge.setFullscreen(next);
       fullscreen = next;
       return;
     }
