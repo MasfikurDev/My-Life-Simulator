@@ -99,7 +99,7 @@
   }
   function nextYear() { if (character) { persist(advanceYear(character)); notify('A new year begins.'); playSound('year'); } }
   function restart() {
-    clearSave(activeSlotId); slots = getSaveSlots(); character = null; name = ''; showNewLife = false;
+    clearSave(activeSlotId); slots = getSaveSlots(); character = null; name = '';
     showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.'); pendingSlotId = activeSlotId;
   }
   function reloadLatest() {
