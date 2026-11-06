@@ -24,7 +24,12 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add a settings game log and portable debug snapshot for reproducible testing.
 - [ ] Expand age/prerequisite eligibility to contextual events, household responsibilities, and relationships.
 - [x] Add age-18+ household budgets with family-supported/shared/independent living, recurring expense categories, unemployment shortfall pressure, and emergency savings targets.
-- [ ] Add benefits and taxes only after the household budget is balanced and tested; debt and assets remain later systems.
+- [x] Add a unified money ledger and age-gated personal bank accounts with cash deposits, withdrawals, transfers, simple savings interest, and a net-worth summary.
+- [ ] Add configurable automatic deposits, cards, recurring bills, subscriptions, and payment scheduling.
+- [ ] Add credit products and loans with repayment schedules and creditworthiness.
+- [ ] Add housing/property ownership and rental choices.
+- [ ] Add investments and gold, then businesses and economic conditions.
+- [ ] Add benefits and taxes after household budgets and financial flows are balanced.
 
 ## Milestone 3 — Connected systems
 Education and career eligibility/progression; validate and balance household income, recurring expenses, and savings; then family and relationships; events that respond to circumstances; feedback explaining outcomes.
