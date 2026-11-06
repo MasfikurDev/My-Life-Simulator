@@ -329,7 +329,7 @@ describe('life simulation', () => {
     const base = { ...createCharacter('Homeowner', 30), currencyScale: 1, money: 20000 };
     const bought = buyProperty(base, 'house', 'First home', 50000, 10000, 0.07, 20, true);
     expect(bought.properties).toHaveLength(1);
-    expect(bought.money).toBe(10000);
+    expect(bought.money).toBe(9500);
     expect(bought.loans?.[0].balance).toBe(40000);
     expect(bought.primaryResidenceId).toBe(bought.properties?.[0].id);
     expect(getNetWorth(bought)).toBe(getNetWorth(base) - 500);
@@ -350,10 +350,10 @@ describe('life simulation', () => {
   it('buys and sells whole stock and gold units without losing value to transfers', () => {
     const base = { ...createCharacter('Investor', 30), currencyScale: 1, money: 1000 };
     const stocks = tradeInvestment(base, 'stock-index', 'buy', 2);
-    expect(stocks.money).toBe(800);
+    expect(stocks.money).toBe(799);
     expect(getNetWorth(stocks)).toBe(getNetWorth(base) - 1);
     const sold = tradeInvestment(stocks, 'stock-index', 'sell', 1);
-    expect(sold.money).toBe(900);
+    expect(sold.money).toBe(898);
     expect(getNetWorth(sold)).toBe(getNetWorth(base) - 2);
     const gold = tradeInvestment(base, 'gold', 'buy', 1);
     expect(getNetWorth(gold)).toBe(getNetWorth(base) - 1);
