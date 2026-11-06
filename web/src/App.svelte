@@ -375,8 +375,8 @@
     </main>
   {/if}
   {#if character && activeTab !== 'settings'}
-    <button class="advance-fab" onclick={openYearReview} aria-label="Review this year" title="Review this year">
-      <span class="fab-arrow" aria-hidden="true">→</span><span class="fab-label">Start next week</span><span class="fab-count">{character.weeklySchedule?.activities.length ?? 0} planned</span>
+    <button class="advance-fab" onclick={openYearReview} aria-label="Advance" title="Advance">
+      <span class="fab-arrow" aria-hidden="true">→</span><span class="fab-label">Advance</span>
     </button>
   {/if}
   {#if slotToDelete}
