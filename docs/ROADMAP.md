@@ -52,10 +52,10 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add a visible Life → Schedule planner with a seven-day, 21-period grid, age-available activity planning, duration-based reservations, conflict prevention, and removal. Planned activities are saved; they are not yet resolved or marked complete.
 - [x] Centralize per-activity time requirements and validate planned activities in the simulation: life-stage eligibility, current-week boundaries, duration fit, overlaps, and aggregate planned cash costs.
 - [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, and business management.
-- [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once.
+- [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once; reject and preserve a turn if a reservation becomes stale before resolution.
 - [x] Add deterministic, exactly-once weekly resolution with history, recap, and seven-day calendar advancement.
 - [ ] Adapt contextual events, deadlines, and delayed consequences to date/week boundaries.
-- [ ] Move recurring payments and payroll to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries.
+- [ ] Move recurring payments, employment payroll, and business operating cash flow to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries. Until then, salary and household settlement remain annual and are a known pacing limitation of the weekly loop.
 - [ ] Prevent duplicate or skipped financial settlement across month/year boundaries; document rounding and payment-failure behavior.
 - [ ] Add safe migration for existing annual-action saves across all three slots; preserve balances, ledger, liabilities, assets, employment/education, history, pending events, and completed choices.
 - [ ] Add multi-week advancement only after single-week resolution is reliable; it must stop before important decisions, deadlines, events, birthdays, and payment failures.
