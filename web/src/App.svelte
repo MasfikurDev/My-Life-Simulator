@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { advanceYear, canAffordActivity, formatCharacterMoney, performActivity } from './lib/simulation';
+  import { advanceYear, canAffordActivity, formatCharacterMoney, getAnnualReview, performActivity } from './lib/simulation';
   import { resolveGameEvent } from './lib/events';
   import { getAvailableActivityIds, getEducationStage, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
@@ -30,6 +30,7 @@
   let slotToDelete = $state<SaveSlotId | null>(null);
   let pendingSlotId = $state<SaveSlotId | null>(null);
   let debugCopying = $state(false);
+  let yearReviewOpen = $state(false);
   onMount(() => {
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
@@ -154,7 +155,9 @@
     if (next === character) { notify('You need more time or money for that choice.'); return; }
     persist(next); playSound('action'); notify('Decision recorded.');
   }
-  function nextYear() { if (character) { const letEventPass = Boolean(character.pendingGameEvent); persist(advanceYear(character)); notify(letEventPass ? 'A new year begins. The situation was left behind.' : 'A new year begins.'); playSound('year'); } }
+  function openYearReview() { if (!character) return; activeTab = 'home'; yearReviewOpen = true; }
+  function closeYearReview() { yearReviewOpen = false; }
+  function nextYear() { if (character) { const letEventPass = Boolean(character.pendingGameEvent); persist(advanceYear(character)); yearReviewOpen = false; notify(letEventPass ? 'A new year begins. The situation was left behind.' : 'A new year begins.'); playSound('year'); } }
   function restart() {
     clearSave(activeSlotId); slots = getSaveSlots(); character = null;
     showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.'); pendingSlotId = activeSlotId;
@@ -309,6 +312,28 @@
               <p class="game-event-footnote">Your decision is recorded in Life History. You can also advance the year and let this situation pass.</p>
             </section>
           {/if}
+          {#if yearReviewOpen}
+            {@const review = getAnnualReview(character)}
+            <section class="year-review-panel" aria-label="Year-end review">
+              <div class="game-event-top"><span class="eyebrow">YEAR {review.currentYear} · REVIEW</span><span class="game-event-status">BEFORE ADVANCING</span></div>
+              <h2>Review this year</h2>
+              <p class="game-event-description">You are {character.age}. Advancing will move the life forward to age {review.nextAge} and settle the year's finances and simulation changes.</p>
+              <div class="year-review-grid">
+                <div><span>Actions unused</span><strong>{review.actionsRemaining} / 3</strong></div>
+                <div><span>Annual income</span><strong>{formatCharacterMoney(character, review.annualIncome)}</strong></div>
+                <div><span>Estimated living costs</span><strong>{formatCharacterMoney(character, review.estimatedLivingCosts)}</strong></div>
+                <div><span>Cash after these items</span><strong>{formatCharacterMoney(character, review.projectedCashBeforeOtherSettlements)}</strong></div>
+              </div>
+              {#if review.estimatedShortfall > 0}
+                <p class="year-review-warning">Estimated living-cost shortfall: {formatCharacterMoney(character, review.estimatedShortfall)}. The simulation will record the amount it cannot cover.</p>
+              {/if}
+              {#if review.pendingEventTitle}
+                <p class="year-review-warning">Unresolved situation: {review.pendingEventTitle}. It will pass if you advance without choosing.</p>
+              {/if}
+              <p class="year-review-note">This is a partial forecast. Taxes, subscriptions, loans, interest, property, investments, and market changes settle separately and may change the final balance.</p>
+              <div class="year-review-actions"><button class="secondary-button" onclick={closeYearReview}>Back to this year</button><button class="primary-button" onclick={nextYear}>Confirm and advance to age {review.nextAge}</button></div>
+            </section>
+          {/if}
         {:else if character && activeTab==='school' && character.age >= 3}
           <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div><div class="year-pill">AGE {character.age}</div></div>
           <section class="domain-panel">
@@ -342,8 +367,8 @@
     </main>
   {/if}
   {#if character && activeTab !== 'settings'}
-    <button class="advance-fab" onclick={nextYear} aria-label="Advance one year" title="Advance one year">
-      <span class="fab-arrow" aria-hidden="true">→</span><span class="fab-label">Advance year</span><span class="fab-count">{character.actionsRemaining}/3</span>
+    <button class="advance-fab" onclick={openYearReview} aria-label="Review this year" title="Review this year">
+      <span class="fab-arrow" aria-hidden="true">→</span><span class="fab-label">Review year</span><span class="fab-count">{character.actionsRemaining}/3</span>
     </button>
   {/if}
   {#if slotToDelete}
