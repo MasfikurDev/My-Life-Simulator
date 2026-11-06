@@ -347,7 +347,7 @@ describe('life simulation', () => {
     expect(moved.rentalHome).toBeNull();
     expect(getHouseholdBudget(moved).housing).toBe(100);
   });
-  it('buys and sells whole stock and gold units without losing value to transfers', () => {
+  it('buys and sells whole stock and gold units while accounting for brokerage fees', () => {
     const base = { ...createCharacter('Investor', 30), currencyScale: 1, money: 1000 };
     const stocks = tradeInvestment(base, 'stock-index', 'buy', 2);
     expect(stocks.money).toBe(799);
