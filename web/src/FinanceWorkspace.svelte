@@ -14,14 +14,16 @@
     { id: 'loans', label: 'Loans', available: character.age >= 18 },
     { id: 'bills', label: 'Bills & subscriptions', available: character.age >= 16 },
     { id: 'savings', label: 'Savings & vault', available: character.age >= 16 },
-    { id: 'assets', label: 'Assets', available: character.age >= 18 },
+    { id: 'property', label: 'Property', available: character.age >= 18 },
+    { id: 'investments', label: 'Investments', available: character.age >= 18 },
+    { id: 'business', label: 'Business', available: character.age >= 18 },
     { id: 'living', label: 'Living costs', available: character.age >= 18 }
   ]);
   const title = $derived(views.find((item) => item.id === activeView)?.label ?? 'Overview');
   const accountCount = $derived((character.bankAccounts ?? []).length);
   const cardCount = $derived((character.cards ?? []).filter((item) => item.active).length);
   const loanCount = $derived((character.loans ?? []).filter((item) => item.active).length);
-  const assetCount = $derived((character.properties ?? []).length + (character.investments ?? []).length + (character.businesses ?? []).length);
+
   function openView(id: string) { if (views.find((item) => item.id === id)?.available) activeView = id; }
 </script>
 
@@ -48,7 +50,9 @@
       <button onclick={() => openView('loans')} disabled={character.age<18}><span class="shortcut-icon">↗</span><strong>Loans</strong><small>{loanCount} active loans</small><b>Manage credit →</b></button>
       <button onclick={() => openView('bills')} disabled={character.age<16}><span class="shortcut-icon">↻</span><strong>Bills & subscriptions</strong><small>{(character.recurringPayments ?? []).length} recurring payments</small><b>Manage payments →</b></button>
       <button onclick={() => openView('savings')} disabled={character.age<16}><span class="shortcut-icon">▣</span><strong>Savings & vault</strong><small>Automatic deposits and stored cash</small><b>Open savings →</b></button>
-      <button onclick={() => openView('assets')} disabled={character.age<18}><span class="shortcut-icon">⌂</span><strong>Assets</strong><small>{assetCount} property, investment or business holdings</small><b>Manage assets →</b></button>
+      <button onclick={() => openView('property')} disabled={character.age<18}><span class="shortcut-icon">⌂</span><strong>Property</strong><small>Rent, buy, manage or sell a home</small><b>Manage property →</b></button>
+      <button onclick={() => openView('investments')} disabled={character.age<18}><span class="shortcut-icon">↗</span><strong>Investments</strong><small>Trade index funds and gold</small><b>Open portfolio →</b></button>
+      <button onclick={() => openView('business')} disabled={character.age<18}><span class="shortcut-icon">▦</span><strong>Business</strong><small>Start and operate a business</small><b>Manage business →</b></button>
       <button onclick={() => openView('living')} disabled={character.age<18}><span class="shortcut-icon">⌂</span><strong>Living costs</strong><small>Housing arrangement and household budget</small><b>Plan living costs →</b></button>
     </div>
   {:else if activeView === 'banking'}
@@ -61,8 +65,12 @@
     <FinanceProducts {character} onChange={onChange} view="bills" />
   {:else if activeView === 'savings'}
     <FinanceProducts {character} onChange={onChange} view="savings" />
-  {:else if activeView === 'assets'}
-    <FinanceAssets {character} onChange={onChange} />
+  {:else if activeView === 'property'}
+    <FinanceAssets {character} onChange={onChange} view="property" />
+  {:else if activeView === 'investments'}
+    <FinanceAssets {character} onChange={onChange} view="investments" />
+  {:else if activeView === 'business'}
+    <FinanceAssets {character} onChange={onChange} view="business" />
   {:else if activeView === 'living'}
     <FinanceLivingCosts {character} onChange={onChange} />
   {/if}
