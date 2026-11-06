@@ -31,7 +31,8 @@ function makeName(character: Pick<Character, 'name' | 'country'>, gender: Gender
   return country === 'Japan' ? surname + ' ' + first : first + ' ' + surname;
 }
 function personAge(person: FamilyPerson, year: number): number {
-  return Math.max(0, year - person.birthYear);
+  const referenceYear = person.deathYear !== undefined && person.deathYear <= year ? person.deathYear : year;
+  return Math.max(0, referenceYear - person.birthYear);
 }
 function makeBond(personId: string, random: () => number, close = false): FamilyBond {
   return {
