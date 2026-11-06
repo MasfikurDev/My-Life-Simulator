@@ -694,12 +694,14 @@ export interface ActivityPlanningResult {
 export function getPlannedActivityCost(character: Character, item: PlannedActivity): number {
   if (item.action?.kind === 'family' && item.action.interaction === 'provide-support') return item.action.supportAmount ?? 0;
   if (item.action?.kind === 'business') {
-    const business = (character.businesses ?? []).find((entry) => entry.id === item.action!.businessId);
+    const businessId = item.action.businessId;
+    const business = (character.businesses ?? []).find((entry) => entry.id === businessId);
     return business ? Math.max(1, Math.round(business.investedCapital * 0.01)) : 0;
   }
   if (item.action?.kind === 'event') {
-    const choice = character.pendingGameEvent?.id === item.action.eventId
-      ? character.pendingGameEvent.choices.find((entry) => entry.id === item.action!.choiceId) : null;
+    const eventAction = item.action;
+    const choice = character.pendingGameEvent?.id === eventAction.eventId
+      ? character.pendingGameEvent.choices.find((entry) => entry.id === eventAction.choiceId) : null;
     return choice?.moneyCost ?? 0;
   }
   return getActivityCost(character, item.activityId as ActivityId);
@@ -759,6 +761,7 @@ export function planEventChoice(character: Character, choiceId: string, date?: s
   const choice = pending?.choices.find((entry) => entry.id === choiceId);
   if (!pending || !choice) return { character, issue: 'unavailable', message: 'That event is no longer available.' };
   if (choice.moneyCost > character.money) return { character, issue: 'insufficient-funds', message: 'You do not have enough cash for that decision.' };
+  if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'event' && item.action.eventId === pending.id)) return { character, issue: 'unavailable', message: 'A decision for this situation is already scheduled.' };
   if (choice.timeBlocks === 0) {
     const next = resolveGameEvent(character, choiceId);
     return { character: next, issue: null, message: null };
@@ -775,7 +778,7 @@ export function planActivityInNextFreeTime(character: Character, activity: Activ
   for (const block of grid.blocks) {
     if (!block.entryId) {
       const result = planActivity(character, activity, block.date, block.period);
-      if (!result.issue || result.issue !== 'invalid-time-slot') return result;
+      if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
     }
   }
   return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
@@ -787,7 +790,7 @@ export function planFamilyInteractionInNextFreeTime(character: Character, person
   if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
   for (const block of grid.blocks.filter((entry) => !entry.entryId)) {
     const result = planFamilyInteraction(character, personId, interaction, supportAmount, block.date, block.period);
-    if (!result.issue || result.issue !== 'invalid-time-slot') return result;
+    if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
   }
   return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
 }
