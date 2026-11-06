@@ -45,6 +45,20 @@ describe('save slots', () => {
     expect(loadSave('slot-1')?.calendar).toBeDefined();
     expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(3);
   });
+  it('migrates pending event action costs into weekly time blocks', () => {
+    const values = installStorage();
+    const character = createCharacter('Legacy event', 12);
+    const legacyCharacter = JSON.parse(JSON.stringify(character));
+    legacyCharacter.actionsRemaining = 2;
+    legacyCharacter.pendingGameEvent.choices = legacyCharacter.pendingGameEvent.choices.map((choice: { timeBlocks?: number; [key: string]: unknown }) => {
+      const { timeBlocks, ...legacyChoice } = choice;
+      return { ...legacyChoice, actionCost: timeBlocks };
+    });
+    values.set('my-life-simulator.save', JSON.stringify({ schemaVersion: 1, character: legacyCharacter }));
+    const migrated = loadSave('slot-1')!;
+    expect(migrated.pendingGameEvent?.choices[0].timeBlocks).toBe(1);
+    expect('actionCost' in migrated.pendingGameEvent!.choices[0]).toBe(false);
+  });
   it('keeps the original save payload as a recovery copy before migration', () => {
     const values = installStorage();
     const character = createCharacter('Recovery');
