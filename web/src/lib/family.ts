@@ -27,7 +27,7 @@ function makeName(character: Pick<Character, 'name' | 'country'>, gender: Gender
   const pools = GIVEN_NAMES[country] ?? GIVEN_NAMES['United States'];
   const first = pick(pools[gender === 'non-binary' ? 'neutral' : gender], random);
   const parts = character.name.trim().split(/\s+/);
-  const surname = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+  const surname = parts.length > 1 ? (country === 'Japan' ? parts[0] : parts[parts.length - 1]) : parts[0];
   return country === 'Japan' ? surname + ' ' + first : first + ' ' + surname;
 }
 function personAge(person: FamilyPerson, year: number): number {
@@ -64,7 +64,7 @@ export function createFamilyState(character: Pick<Character, 'name' | 'age' | 'y
   const parents: FamilyPerson[] = [];
   for (let index = 0; index < parentCount; index++) {
     const gender: Gender = random() < 0.5 ? 'female' : 'male';
-    const ageAtBirth = 20 + Math.floor(random() * 19);
+    const ageAtBirth = 26 + Math.floor(random() * 15);
     const birthYear = player.birthYear - ageAtBirth;
     const ageNow = character.year - birthYear;
     const deathAge = 72 + Math.floor(random() * 23);
@@ -99,8 +99,9 @@ export function createFamilyState(character: Pick<Character, 'name' | 'age' | 'y
 
   const siblingCount = Math.floor(random() * 4);
   for (let index = 0; index < siblingCount; index++) {
-    const ageOffset = Math.floor(random() * 17) - 8;
-    const siblingAge = Math.max(0, character.age + ageOffset);
+    const ageOffset = pick([-8, -6, -4, -2, 2, 4, 6, 8], random);
+    const siblingAge = character.age + ageOffset;
+    if (siblingAge < 0) continue;
     const gender: Gender = random() < 0.5 ? 'female' : 'male';
     const sibling: FamilyPerson = {
       id: 'family-sibling-' + (index + 1),
@@ -157,7 +158,10 @@ export function createFamilyState(character: Pick<Character, 'name' | 'age' | 'y
       if (living(sibling, character.year) && random() < 0.7) family.householdMemberIds.push(sibling.id);
     }
   }
+  const bondedPeople = new Set<string>();
   for (const bond of family.bonds) {
+    if (bondedPeople.has(bond.personId)) errors.push('Each family member must have only one player relationship bond.');
+    bondedPeople.add(bond.personId);
     if (family.householdMemberIds.includes(bond.personId)) bond.lastInteractionYear = character.year;
   }
   return family;
@@ -174,12 +178,21 @@ export function validateFamilyState(family: FamilyState): string[] {
     if (person.deathYear !== undefined && (!Number.isInteger(person.deathYear) || person.deathYear < person.birthYear)) errors.push('A family member death year cannot precede their birth year.');
   }
   const activeKeys = new Set<string>();
+  const relationshipIds = new Set<string>();
   const parentEdges = new Map<string, string[]>();
   for (const relation of family.relationships) {
+    if (!relation.id || relationshipIds.has(relation.id)) errors.push('Family relationship IDs must be unique.');
+    relationshipIds.add(relation.id);
     if (!idSet.has(relation.fromPersonId) || !idSet.has(relation.toPersonId)) errors.push('Family relationships must reference existing people.');
     if (relation.fromPersonId === relation.toPersonId) errors.push('A person cannot have a relationship with themselves.');
-    if (!Number.isInteger(relation.startedAtYear)) errors.push('Family relationship start years must be integers.');
-    if (relation.endedAtYear !== undefined && relation.endedAtYear < relation.startedAtYear) errors.push('A relationship cannot end before it starts.');
+    if (!Number.isInteger(relation.startedAtYear) || relation.startedAtYear > family.lastSimulatedYear) errors.push('Family relationship start years must be valid simulated years.');
+    const fromPerson = family.people.find((person) => person.id === relation.fromPersonId);
+    const toPerson = family.people.find((person) => person.id === relation.toPersonId);
+    if (fromPerson && toPerson && relation.startedAtYear < Math.max(fromPerson.birthYear, toPerson.birthYear)) errors.push('A relationship cannot begin before both people exist.');
+    if (fromPerson && toPerson && relation.type === 'parent' && relation.startedAtYear - fromPerson.birthYear < 18) errors.push('A parent must be at least 18 when the parent relationship begins.');
+    if (fromPerson && toPerson && relation.type === 'guardian' && relation.startedAtYear - fromPerson.birthYear < 18) errors.push('A guardian must be an adult when guardianship begins.');
+    if (fromPerson && toPerson && relation.type === 'partner' && (relation.startedAtYear - fromPerson.birthYear < 18 || relation.startedAtYear - toPerson.birthYear < 18)) errors.push('A partnership can only begin between adults.');
+    if (relation.endedAtYear !== undefined && (relation.endedAtYear < relation.startedAtYear || relation.endedAtYear > family.lastSimulatedYear)) errors.push('A relationship end year must follow its start and not exceed the current simulation year.');
     const pair = relation.type === 'sibling' || relation.type === 'partner'
       ? [relation.fromPersonId, relation.toPersonId].sort().join(':')
       : relation.fromPersonId + ':' + relation.toPersonId;
@@ -210,7 +223,19 @@ export function validateFamilyState(family: FamilyState): string[] {
       if (!Number.isInteger(value) || value < 0 || value > 100) errors.push('Family bond values must be integers from 0 to 100.');
     }
     if (!Number.isSafeInteger(bond.supportProvidedTotal) || bond.supportProvidedTotal < 0) errors.push('Family support totals must be non-negative safe integers.');
+    if (bond.lastInteractionYear !== null && (!Number.isInteger(bond.lastInteractionYear) || bond.lastInteractionYear > family.lastSimulatedYear)) errors.push('Family interaction dates must be valid simulated years.');
   }
+  for (const person of family.people) if (person.id !== family.playerPersonId && !bondedPeople.has(person.id)) errors.push('Every family member needs a relationship bond to the player.');
+  for (const person of family.people) if (person.deathYear !== undefined && person.deathYear > family.lastSimulatedYear) errors.push('Historical family deaths cannot be in the future.');
+  const historyIds = new Set<string>();
+  for (const entry of family.history) {
+    if (!entry.id || historyIds.has(entry.id)) errors.push('Family history IDs must be unique.');
+    historyIds.add(entry.id);
+    if (!Number.isInteger(entry.year) || entry.year > family.lastSimulatedYear) errors.push('Family history must use valid simulated years.');
+    if (entry.personIds.some((id) => !idSet.has(id))) errors.push('Family history must reference existing people.');
+  }
+  if (new Set(family.householdMemberIds).size !== family.householdMemberIds.length) errors.push('Household membership cannot contain duplicate people.');
+  if (new Set(family.dependentPersonIds).size !== family.dependentPersonIds.length) errors.push('Dependency records cannot contain duplicate people.');
   for (const id of [...family.householdMemberIds, ...family.dependentPersonIds]) if (!idSet.has(id)) errors.push('Household and dependency records must reference existing people.');
   if (!family.householdMemberIds.includes(family.playerPersonId)) errors.push('The player must be included in their household membership record.');
   if (family.primaryGuardianId && !idSet.has(family.primaryGuardianId)) errors.push('The primary guardian must exist in the family graph.');
@@ -290,7 +315,7 @@ export function interactWithFamily(character: Character, personId: string, inter
     family: nextFamily,
     money,
     actionsRemaining: character.actionsRemaining - 1,
-    history: [...character.history, lifeEvent(character, nextFamily.history[nextFamily.history.length - 1].title, nextFamily.history[nextFamily.history.length - 1].description)]
+    history: [lifeEvent(character, nextFamily.history[nextFamily.history.length - 1].title, nextFamily.history[nextFamily.history.length - 1].description), ...character.history]
   };
   if (interaction === 'provide-support') {
     const transactions = character.financialTransactions ?? [];
@@ -325,5 +350,5 @@ export function establishFamilyBackground(character: Character): Character {
   if (character.family) return character;
   const family = createFamilyState(character);
   const entry = lifeEvent(character, 'Family background established', 'A family-of-origin record was added. This records known background, not a prediction of future relationships.');
-  return { ...character, family, history: [...character.history, entry] };
+  return { ...character, family, history: [entry, ...character.history] };
 }
