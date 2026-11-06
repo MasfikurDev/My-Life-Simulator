@@ -142,6 +142,7 @@ Current Finance UI boundary:
 - FinanceWorkspace.svelte is the Finance parent shell and owns finance-only sub-navigation.
 - FinanceAccounts.svelte owns Banking: account opening, balances, cash/account movement, and transaction activity.
 - FinanceProducts.svelte owns reusable focused product views for cards, loans, recurring bills/subscriptions, and automatic savings/vault. A view selects one module at a time.
+- FinanceTaxes.svelte owns tax estimates, annual assessments, and outstanding tax liabilities; tax information does not appear in Banking.
 - FinanceAssets.svelte owns focused Property, Investments, and Business views, selected independently.
 - FinanceLivingCosts.svelte owns household arrangements, estimated living costs, and emergency savings targets.
 - App.svelte owns global navigation, character lifecycle, persistence, and time progression. It should not assemble all finance modules inline.
