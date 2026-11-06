@@ -91,7 +91,7 @@ The simulation now has a reusable, save-compatible weekly schedule model:
 - Activity time requirements now come from one shared simulation catalogue: study and extra work take two consecutive periods; exercise, socializing, job applications, and career development take one.
 - The simulation exposes validated planning operations for personal activities, family interactions, business management, and time-consuming event choices. They enforce eligibility, current-week dates, duration fit, no overlap with commitments or other activities, and enough cash for combined planned costs.
 - The planner shows each activity's duration and estimated cost, plus the cash remaining after all planned costs. Removing an activity releases its time and planned budget.
-- Planned activities, family interactions, business sessions, and time-consuming event choices resolve through the weekly loop. Accepted costs and effects are applied at resolution, reservations are cleared, and the calendar advances by seven days. Annual financial settlements and life-stage processing remain on the year boundary.
+- Planned activities, family interactions, business sessions, and time-consuming event choices resolve through the weekly loop. Accepted costs and effects are applied at resolution, reservations are cleared, and the calendar advances by seven days. Annual financial settlements remain on the year boundary; age and birthday-triggered life-stage eligibility update on the actual birthday.
 
 ### 3.3 The week in play
 
@@ -162,7 +162,7 @@ The exact order is a domain contract and must be tested. Proposed order:
 6. Resolve scheduled follow-ups due this week.
 7. Move the calendar to the next week and detect month/year/birthday boundaries.
 8. At a month boundary, process monthly settlement exactly once.
-9. At a year boundary, process annual settlement exactly once, then age/life-stage transitions and annual review.
+9. At a year boundary, process annual settlement and the annual review exactly once. Age and birthday-triggered life-stage transitions are processed on the actual birthday, including when it falls mid-year.
 10. Prepare the next week's schedule, commitments, and eligible event opportunities.
 11. Return structured effects, ledger entries, history entries, and recap data.
 
@@ -203,7 +203,7 @@ The current implementation uses annual actions and annual progression. That is t
 
 ### Current implementation boundary
 
-The app has a weekly calendar, validated activity reservations, and an exactly-once weekly resolver. Monthly settlement and date-based recurring payment schedules remain future work; annual income, expenses, taxes, asset settlement, and annual reviews still run at the year boundary.
+The app has a weekly calendar, validated activity reservations, and a reproducible, exactly-once weekly resolver. Age and birthday-triggered life-stage transitions follow the character's actual birth date. Monthly settlement and date-based recurring payment schedules remain future work; annual income, expenses, taxes, asset settlement, and annual reviews still run at the year boundary.
 
 ## 4. Event and consequence system
 
