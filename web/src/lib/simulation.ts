@@ -1,4 +1,4 @@
-import type { ActivityId, Character, LifeEvent, Gender, Employment } from './types';
+import type { ActivityId, Character, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths } from './types';
 import { getEducationStage, isActivityAvailable } from './progression';
 
 export const ACTIONS_PER_YEAR = 3;
@@ -79,7 +79,8 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     name, age, year: 2026, gender, nationality: profile.nationality, country: profile.country,
     birthplace: pick(profile.cities, random), language, currency: profile.currency, currencyScale: profile.scale,
     familyBackground: background, personality: traits, appearance,
-    education: getEducationStage(age), educationProgress: 0, employment: null, lastYearIncome: 0, lastYearExpenses: 0,
+    education: getEducationStage(age), educationProgress: 0, employment: null, lastYearIncome: 0, lastYearExpenses: 0, lastYearShortfall: 0,
+    householdArrangement: age >= 18 ? 'family-supported' : undefined, savingsGoalMonths: null,
     health: stat(random), happiness: stat(random), intelligence: stat(random), fitness: stat(random),
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), actionsRemaining: ACTIONS_PER_YEAR, history: []
   };
@@ -116,6 +117,40 @@ function createEmployment(character: Character): Employment {
     annualSalary: Math.round(baseSalary * scale * (flexible ? 0.65 : 1)),
     experienceYears: 0, performance: 60, promotions: 0, startedAtAge: character.age
   };
+}
+
+export function getHouseholdBudget(character: Character) {
+  const zero = { housing: 0, food: 0, transport: 0, utilities: 0, personal: 0, total: 0 };
+  if (character.age < 18) return zero;
+  const scale = character.currencyScale ?? 1;
+  const referenceIncome = character.employment?.annualSalary ?? 18000 * scale;
+  const shares: Record<HouseholdArrangement, typeof zero> = {
+    'family-supported': { housing: 0, food: 0.08, transport: 0.03, utilities: 0, personal: 0.04, total: 0.15 },
+    shared: { housing: 0.14, food: 0.12, transport: 0.04, utilities: 0.03, personal: 0.05, total: 0.38 },
+    independent: { housing: 0.25, food: 0.15, transport: 0.06, utilities: 0.06, personal: 0.06, total: 0.58 }
+  };
+  const share = shares[character.householdArrangement ?? 'family-supported'];
+  const housing = Math.round(referenceIncome * share.housing);
+  const food = Math.round(referenceIncome * share.food);
+  const transport = Math.round(referenceIncome * share.transport);
+  const utilities = Math.round(referenceIncome * share.utilities);
+  const personal = Math.round(referenceIncome * share.personal);
+  return { housing, food, transport, utilities, personal, total: housing + food + transport + utilities + personal };
+}
+
+export function setHouseholdArrangement(character: Character, arrangement: HouseholdArrangement): Character {
+  if (character.age < 18 || character.householdArrangement === arrangement) return character;
+  const next = { ...character, householdArrangement: arrangement, history: [...character.history] };
+  const label = arrangement === 'family-supported' ? 'Family-supported' : arrangement === 'shared' ? 'Shared household' : 'Independent living';
+  next.history.unshift(event(next, 'Changed living arrangement', 'You moved to a ' + label.toLowerCase() + ' arrangement. Your annual household budget will change next year.', 'milestone'));
+  return next;
+}
+
+export function setSavingsGoalMonths(character: Character, months: SavingsGoalMonths | null): Character {
+  if (character.age < 18 || character.savingsGoalMonths === months) return character;
+  const next = { ...character, savingsGoalMonths: months, history: [...character.history] };
+  next.history.unshift(event(next, months ? 'Set a savings goal' : 'Cleared savings goal', months ? 'You set an emergency savings target of ' + months + ' months of estimated living costs.' : 'You removed your emergency savings target.'));
+  return next;
 }
 
 export function getActivityCost(character: Character, activity: ActivityId): number {
@@ -200,16 +235,44 @@ export function advanceYear(character: Character): Character {
     next.educationProgress = 0;
     next.history.unshift(event(next, 'Education stage changed', 'You entered ' + educationStage.toLowerCase() + '.', 'milestone'));
   }
-  if (next.employment) {
-    const job = { ...next.employment };
+  if (next.age === 18 && !next.householdArrangement) {
+    next.householdArrangement = 'family-supported';
+    next.history.unshift(event(next, 'Household finances unlocked', 'You can now choose how you live and manage recurring household costs.', 'milestone'));
+  }
+
+  const job = next.employment ? { ...next.employment } : null;
+  if (next.age >= 18) {
+    const income = job ? Math.round(job.annualSalary) : 0;
+    const plannedExpenses = getHouseholdBudget(next).total;
+    const available = next.money + income;
+    const expenses = Math.min(available, plannedExpenses);
+    const shortfall = Math.max(0, plannedExpenses - expenses);
+    next.money = available - expenses;
+    next.lastYearIncome = income;
+    next.lastYearExpenses = expenses;
+    next.lastYearShortfall = shortfall;
+    if (shortfall > 0) {
+      next.happiness = clamp(next.happiness - 4);
+      next.history.unshift(event(next, 'Household budget shortfall', 'You could not cover ' + formatCharacterMoney(next, shortfall) + ' of estimated household costs. Your balance cannot go below zero; no debt is created.', 'event'));
+    }
+    next.history.unshift(event(next, 'Household budget settled', 'Income: ' + formatCharacterMoney(next, income) + '. Costs paid: ' + formatCharacterMoney(next, expenses) + ' of ' + formatCharacterMoney(next, plannedExpenses) + ' estimated.', 'event'));
+  } else if (job) {
     const income = Math.round(job.annualSalary);
     const expenseRate = job.type === 'part-time' ? 0.2 : job.type === 'flexible' ? 0.45 : 0.55;
     const expenses = Math.round(income * expenseRate);
     next.money = Math.max(0, next.money + income - expenses);
     next.lastYearIncome = income;
     next.lastYearExpenses = expenses;
+    next.lastYearShortfall = 0;
+    next.history.unshift(event(next, 'Annual pay received', 'You received ' + formatCharacterMoney(next, income) + ' in earnings. Estimated living costs were ' + formatCharacterMoney(next, expenses) + '.', 'event'));
+  } else {
+    next.lastYearIncome = 0;
+    next.lastYearExpenses = 0;
+    next.lastYearShortfall = 0;
+  }
+
+  if (job) {
     job.experienceYears += 1;
-    next.history.unshift(event(next, 'Annual pay received', 'You received ' + formatCharacterMoney(next, income) + ' in earnings. Living costs were ' + formatCharacterMoney(next, expenses) + '.', 'event'));
     if (job.experienceYears >= 2 && job.performance >= 85 && job.promotions < 3) {
       const oldTitle = job.title;
       job.title = 'Senior ' + oldTitle.replace(/^Senior /, '');
@@ -219,12 +282,10 @@ export function advanceYear(character: Character): Character {
       next.history.unshift(event(next, 'Promoted at work', 'Your results earned a promotion from ' + oldTitle + ' to ' + job.title + '. Pay increased by 20%.', 'milestone'));
     }
     next.employment = job;
-  } else {
-    next.lastYearIncome = 0;
-    next.lastYearExpenses = 0;
   }
+
   next.history.unshift(event(next, 'Another year, another chapter', 'You turned ' + next.age + '. Your choices continue to shape what comes next.', 'milestone'));
-  if (next.age === 18) next.history.unshift(event(next, 'Adult opportunities unlocked', 'Full-time employment and higher education are now available.', 'milestone'));
+  if (next.age === 18) next.history.unshift(event(next, 'Adult opportunities unlocked', 'Full-time employment, higher education and household finance choices are now available.', 'milestone'));
   if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
   return next;
 }
