@@ -23,10 +23,11 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Enforce affordability for paid activities in both the UI and simulation, with currency-scaled costs and no free effects when funds are insufficient.
 - [x] Add a settings game log and portable debug snapshot for reproducible testing.
 - [ ] Expand age/prerequisite eligibility to contextual events, household responsibilities, and relationships.
-- [ ] Add household budgets, unemployment/benefits, taxes, debt, savings goals, and assets with country-aware balancing.
+- [x] Add age-18+ household budgets with family-supported/shared/independent living, recurring expense categories, unemployment shortfall pressure, and emergency savings targets.
+- [ ] Add benefits and taxes only after the household budget is balanced and tested; debt and assets remain later systems.
 
 ## Milestone 3 — Connected systems
-Education and career eligibility/progression; income, recurring expenses, savings, debt; family and relationships; events that respond to circumstances; feedback explaining outcomes.
+Education and career eligibility/progression; validate and balance household income, recurring expenses, and savings; then family and relationships; events that respond to circumstances; feedback explaining outcomes.
 
 ## Milestone 4 — Replayability
 More life stages and event variety; personality/trait effects; achievements and optional challenges; balancing based on actual play sessions.
