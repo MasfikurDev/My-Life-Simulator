@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, canAffordActivity, createCharacter, formatCharacterMoney, generateRandomCharacter, getActivityCost, getHouseholdBudget, performActivity, setHouseholdArrangement, setSavingsGoalMonths } from './simulation';
+import { advanceYear, canAffordActivity, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getHouseholdBudget, getNetWorth, openBankAccount, performActivity, setHouseholdArrangement, setSavingsGoalMonths, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
 import { createGameDebugSnapshot } from './debug-export';
 
@@ -221,6 +221,48 @@ describe('life simulation', () => {
     expect(next.lastYearExpenses).toBe(3800);
     expect(next.lastYearShortfall).toBe(0);
     expect(next.money).toBe(7200);
+  });
+
+  it('opens age-gated bank accounts and preserves existing cash', () => {
+    const teen = createCharacter('Teen', 15);
+    expect(openBankAccount(teen, 'checking')).toBe(teen);
+    const adult = { ...createCharacter('Adult', 30), money: 5000 };
+    const checking = openBankAccount(adult, 'checking', 'Everyday');
+    const savings = openBankAccount(checking, 'savings', 'Emergency');
+    expect(savings.bankAccounts).toHaveLength(2);
+    expect(savings.money).toBe(5000);
+    expect(getNetWorth(savings)).toBe(5000);
+  });
+  it('records deposits, withdrawals and transfers while preserving total money', () => {
+    const base = { ...createCharacter('Adult', 30), money: 1000 };
+    const one = openBankAccount(base, 'checking', 'Everyday');
+    const two = openBankAccount(one, 'savings', 'Reserve');
+    const [checking, savings] = two.bankAccounts!;
+    const deposited = depositToAccount(two, checking.id, 600);
+    expect(deposited.money).toBe(400);
+    const transferred = transferBetweenAccounts(deposited, checking.id, savings.id, 250);
+    expect(transferred.bankAccounts?.map((account) => account.balance)).toEqual([350, 250]);
+    const withdrawn = withdrawFromAccount(transferred, savings.id, 100);
+    expect(withdrawn.money).toBe(500);
+    expect(getNetWorth(withdrawn)).toBe(1000);
+    expect(withdrawn.financialTransactions).toHaveLength(5);
+  });
+  it('rejects overdrafts, invalid amounts and same-account transfers', () => {
+    const base = { ...createCharacter('Adult', 30), money: 10 };
+    const one = openBankAccount(base, 'checking');
+    const account = one.bankAccounts![0];
+    expect(depositToAccount(one, account.id, 11)).toBe(one);
+    expect(withdrawFromAccount(one, account.id, 1)).toBe(one);
+    expect(transferBetweenAccounts(one, account.id, account.id, 1)).toBe(one);
+    expect(depositToAccount(one, account.id, 0)).toBe(one);
+  });
+  it('credits simple annual savings interest and records it', () => {
+    const base = { ...createCharacter('Adult', 30), money: 0 };
+    const opened = openBankAccount(base, 'savings', 'Reserve');
+    const funded = { ...opened, bankAccounts: opened.bankAccounts!.map((account) => ({ ...account, balance: 10000 })) };
+    const next = advanceYear(funded);
+    expect(next.bankAccounts?.[0].balance).toBe(10200);
+    expect(next.financialTransactions?.some((item) => item.type === 'interest' && item.amount === 200)).toBe(true);
   });
 
 });

@@ -1,4 +1,4 @@
-import type { ActivityId, Character, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths } from './types';
+import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths } from './types';
 import { getEducationStage, isActivityAvailable } from './progression';
 
 export const ACTIONS_PER_YEAR = 3;
@@ -117,6 +117,67 @@ function createEmployment(character: Character): Employment {
     annualSalary: Math.round(baseSalary * scale * (flexible ? 0.65 : 1)),
     experienceYears: 0, performance: 60, promotions: 0, startedAtAge: character.age
   };
+}
+
+
+function financeRecord(character: Character, type: FinancialTransaction['type'], amount: number, description: string, from: string, to: string): FinancialTransaction[] {
+  const existing = character.financialTransactions ?? [];
+  const record: FinancialTransaction = {
+    id: String(character.year) + '-' + String(character.age) + '-' + String(existing.length + 1),
+    year: character.year, age: character.age, type, amount: Math.round(amount), description, from, to
+  };
+  return [...existing, record].slice(-300);
+}
+
+export function getNetWorth(character: Character): number {
+  return Math.round(character.money + (character.bankAccounts ?? []).reduce((sum, account) => sum + account.balance, 0));
+}
+
+export function openBankAccount(character: Character, type: BankAccountType, name?: string): Character {
+  if (character.age < 16) return character;
+  const accounts = character.bankAccounts ?? [];
+  if (accounts.length >= 8) return character;
+  const label = name?.trim().slice(0, 28) || (type === 'savings' ? 'Savings account' : 'Everyday account');
+  const account: BankAccount = {
+    id: 'account-' + String(character.year) + '-' + String(character.age) + '-' + String(accounts.length + 1),
+    name: label, type, balance: 0, annualInterestRate: type === 'savings' ? 0.02 : 0, openedAtAge: character.age
+  };
+  const next = { ...character, bankAccounts: [...accounts, account], history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'account-opened', 0, 'Opened ' + label + '.', '—', label);
+  next.history.unshift(event(next, 'Opened a bank account', 'You opened a ' + type + ' account named ' + label + '.', 'milestone'));
+  return next;
+}
+
+export function depositToAccount(character: Character, accountId: string, amount: number): Character {
+  const value = Math.floor(amount);
+  const account = (character.bankAccounts ?? []).find((item) => item.id === accountId);
+  if (character.age < 16 || !account || !Number.isSafeInteger(value) || value <= 0 || character.money < value) return character;
+  const next = { ...character, money: character.money - value, bankAccounts: (character.bankAccounts ?? []).map((item) => item.id === accountId ? { ...item, balance: item.balance + value } : item), history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'deposit', value, 'Deposited ' + formatCharacterMoney(next, value) + ' into ' + account.name + '.', 'Cash', account.name);
+  next.history.unshift(event(next, 'Deposited money', formatCharacterMoney(next, value) + ' moved from cash into ' + account.name + '.'));
+  return next;
+}
+
+export function withdrawFromAccount(character: Character, accountId: string, amount: number): Character {
+  const value = Math.floor(amount);
+  const account = (character.bankAccounts ?? []).find((item) => item.id === accountId);
+  if (character.age < 16 || !account || !Number.isSafeInteger(value) || value <= 0 || account.balance < value) return character;
+  const next = { ...character, money: character.money + value, bankAccounts: (character.bankAccounts ?? []).map((item) => item.id === accountId ? { ...item, balance: item.balance - value } : item), history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'withdrawal', value, 'Withdrew ' + formatCharacterMoney(next, value) + ' from ' + account.name + '.', account.name, 'Cash');
+  next.history.unshift(event(next, 'Withdrew money', formatCharacterMoney(next, value) + ' moved from ' + account.name + ' into cash.'));
+  return next;
+}
+
+export function transferBetweenAccounts(character: Character, fromId: string, toId: string, amount: number): Character {
+  const value = Math.floor(amount);
+  const accounts = character.bankAccounts ?? [];
+  const source = accounts.find((item) => item.id === fromId);
+  const destination = accounts.find((item) => item.id === toId);
+  if (character.age < 16 || !source || !destination || source.id === destination.id || !Number.isSafeInteger(value) || value <= 0 || source.balance < value) return character;
+  const next = { ...character, bankAccounts: accounts.map((item) => item.id === fromId ? { ...item, balance: item.balance - value } : item.id === toId ? { ...item, balance: item.balance + value } : item), history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'transfer', value, 'Transferred ' + formatCharacterMoney(next, value) + ' from ' + source.name + ' to ' + destination.name + '.', source.name, destination.name);
+  next.history.unshift(event(next, 'Transferred between accounts', formatCharacterMoney(next, value) + ' moved from ' + source.name + ' to ' + destination.name + '.'));
+  return next;
 }
 
 export function getHouseholdBudget(character: Character) {
@@ -240,6 +301,18 @@ export function advanceYear(character: Character): Character {
     next.history.unshift(event(next, 'Household finances unlocked', 'You can now choose how you live and manage recurring household costs.', 'milestone'));
   }
 
+  // Existing saves without banking fields remain valid; new accounts earn simple annual interest.
+  const accounts = next.bankAccounts ?? [];
+  if (accounts.length) {
+    next.bankAccounts = accounts.map((account) => {
+      const interest = Math.floor(account.balance * account.annualInterestRate);
+      if (interest > 0) {
+        next.financialTransactions = financeRecord(next, 'interest', interest, 'Annual interest earned on ' + account.name + '.', 'Bank', account.name);
+        next.history.unshift(event(next, 'Bank interest received', account.name + ' earned ' + formatCharacterMoney(next, interest) + ' in interest.', 'event'));
+      }
+      return { ...account, balance: account.balance + interest };
+    });
+  }
   const job = next.employment ? { ...next.employment } : null;
   if (next.age >= 18) {
     const income = job ? Math.round(job.annualSalary) : 0;
@@ -248,6 +321,8 @@ export function advanceYear(character: Character): Character {
     const expenses = Math.min(available, plannedExpenses);
     const shortfall = Math.max(0, plannedExpenses - expenses);
     next.money = available - expenses;
+    if (income > 0) next.financialTransactions = financeRecord(next, 'income', income, 'Annual employment income received.', 'Employment', 'Cash');
+    if (expenses > 0) next.financialTransactions = financeRecord(next, 'expense', expenses, 'Annual household expenses paid.', 'Cash', 'Household');
     next.lastYearIncome = income;
     next.lastYearExpenses = expenses;
     next.lastYearShortfall = shortfall;
@@ -262,6 +337,8 @@ export function advanceYear(character: Character): Character {
     const expenseRate = job.type === 'part-time' ? 0.2 : job.type === 'flexible' ? 0.45 : 0.55;
     const expenses = Math.round(income * expenseRate);
     next.money = Math.max(0, next.money + income - expenses);
+    if (income > 0) next.financialTransactions = financeRecord(next, 'income', income, 'Annual employment income received.', 'Employment', 'Cash');
+    if (expenses > 0) next.financialTransactions = financeRecord(next, 'expense', expenses, 'Estimated living costs paid.', 'Cash', 'Living costs');
     next.lastYearIncome = income;
     next.lastYearExpenses = expenses;
     next.lastYearShortfall = 0;

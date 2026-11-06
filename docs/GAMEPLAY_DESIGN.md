@@ -62,6 +62,13 @@ Build progression in connected layers: early development and schooling; teen edu
 ## Game log and debug export
 The settings page provides a concise recent-log view backed by the character's chronological life history and a copyable, versioned JSON debug snapshot. The snapshot includes the active save slot, full character state, and complete history; it excludes device identifiers, browser details, and account data. Keep the export portable and deterministic apart from its explicit export timestamp. Do not include secrets or unrelated local settings.
 
+## Banking and unified financial foundation
+- Characters age 16+ may open up to eight personal bank accounts: everyday/checking and savings. Older saves without bank fields remain valid.
+- Cash remains immediately available money; bank balances are separate holdings. Net worth currently includes cash plus bank account balances only. Do not present it as complete net worth until debts and other assets exist.
+- Deposits, withdrawals, account opening, transfers, employment income, household expenses, and interest are recorded in an append-only per-character financial transaction history (latest 300 entries). Account operations reject invalid amounts, overdrafts, missing accounts, and same-account transfers.
+- Savings accounts currently earn a simplified 2% annual rate; checking accounts earn 0%. Rates are game-balance values, not real bank offers. Interest is credited on year advancement.
+- The finance screen exposes account creation, cash deposits/withdrawals, account-to-account transfers, balances, and recent transactions. Cards, credit, loans, property, investments, vaults, auto-pay, and subscriptions are not implemented yet.
+
 ## Candidate systems
 Health; family; education; career; finance; relationships; lifestyle; contextual/scheduled/random/player-created events. Build incrementally and connect systems. Do not implement every system at once.
 

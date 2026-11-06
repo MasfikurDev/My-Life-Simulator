@@ -73,3 +73,6 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 
 
 39. Household finance mechanics unlock at age 18. Living arrangement and recurring budget must be stored on the Character, calculated by the simulation, and recorded in life history. Unpaid costs are shortfalls, not debt; never allow a negative cash balance or imply taxes, benefits, debt, or assets exist until implemented. Savings goals are targets measured against available cash, not separate or locked accounts. Preserve legacy saves with optional fields.
+
+
+40. Banking and financial products must use the shared Character financial model and auditable transaction ledger. Cash, account balances, assets, and liabilities are distinct. Transfers must preserve total money; reject overdrafts and invalid operations. Legacy saves remain readable. Do not display a complete net-worth claim while only cash and bank balances are counted.
