@@ -332,11 +332,11 @@ describe('life simulation', () => {
     expect(bought.money).toBe(10000);
     expect(bought.loans?.[0].balance).toBe(40000);
     expect(bought.primaryResidenceId).toBe(bought.properties?.[0].id);
-    expect(getNetWorth(bought)).toBe(getNetWorth(base));
+    expect(getNetWorth(bought)).toBe(getNetWorth(base) - 500);
     const sold = sellProperty(bought, bought.properties![0].id);
     expect(sold.properties).toHaveLength(0);
     expect(sold.loans?.[0].active).toBe(false);
-    expect(getNetWorth(sold)).toBe(getNetWorth(base));
+    expect(getNetWorth(sold)).toBe(getNetWorth(base) - 1000);
   });
   it('supports renting and moving into owned property with housing costs', () => {
     const base = { ...createCharacter('Tenant', 30), currencyScale: 1 };
@@ -351,12 +351,12 @@ describe('life simulation', () => {
     const base = { ...createCharacter('Investor', 30), currencyScale: 1, money: 1000 };
     const stocks = tradeInvestment(base, 'stock-index', 'buy', 2);
     expect(stocks.money).toBe(800);
-    expect(getNetWorth(stocks)).toBe(getNetWorth(base));
+    expect(getNetWorth(stocks)).toBe(getNetWorth(base) - 1);
     const sold = tradeInvestment(stocks, 'stock-index', 'sell', 1);
     expect(sold.money).toBe(900);
-    expect(getNetWorth(sold)).toBe(getNetWorth(base));
+    expect(getNetWorth(sold)).toBe(getNetWorth(base) - 2);
     const gold = tradeInvestment(base, 'gold', 'buy', 1);
-    expect(getNetWorth(gold)).toBe(getNetWorth(base));
+    expect(getNetWorth(gold)).toBe(getNetWorth(base) - 1);
   });
   it('starts, manages and sells a small business with auditable cash flows', () => {
     const base = { ...createCharacter('Founder', 30), currencyScale: 1, money: 5000 };
@@ -503,6 +503,23 @@ describe('life simulation', () => {
     const poor = { ...base, financialTransactions: Array.from({length:7},(_,i)=>({id:'missed-'+i,year:i,age:30,type:'expense' as const,amount:0,description:'Missed loan installment',from:'Cash',to:'Lender'})) };
     expect(getCreditScore(poor)).toBe(455);
     expect(takeLoan(poor, 'personal', 'Rejected', 500, 0.4, 5)).toBe(poor);
+  });
+
+  it('charges brokerage fees and capital-gains tax when selling investments', () => {
+    const base = { ...createCharacter('Investor', 30), currencyScale: 1, money: 0, marketPrices: { stocks: 100, gold: 150, lastUpdatedYear: 0 }, investments: [{ type: 'stock-index' as const, units: 2, averageCost: 50 }] };
+    const sold = tradeInvestment(base, 'stock-index', 'sell', 1);
+    expect(sold.money).toBe(94);
+    expect(sold.investments![0].units).toBe(1);
+    expect(sold.financialTransactions?.some((item)=>item.type==='fee' && item.amount===1)).toBe(true);
+    expect(sold.financialTransactions?.some((item)=>item.type==='tax' && item.amount===5)).toBe(true);
+  });
+  it('deducts property sale fees and capital-gains tax from net proceeds', () => {
+    const base = { ...createCharacter('Owner', 30), currencyScale: 1, money: 0, properties: [{ id: 'asset-1', name: 'Rental flat', type: 'apartment' as const, marketValue: 120000, purchasePrice: 100000, annualMaintenance: 1200, rentedOut: false, annualRentalIncome: 0 }] };
+    const sold = sellProperty(base, 'asset-1');
+    expect(sold.money).toBe(106800);
+    expect(sold.properties).toHaveLength(0);
+    expect(sold.financialTransactions?.some((item)=>item.type==='fee' && item.amount===1200)).toBe(true);
+    expect(sold.financialTransactions?.some((item)=>item.type==='tax' && item.amount===2000)).toBe(true);
   });
 
 });
