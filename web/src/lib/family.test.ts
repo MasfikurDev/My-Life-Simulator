@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { advanceYear, createCharacter, generateRandomCharacter } from './simulation';
 import { getFamilyConnections, interactWithFamily, validateFamilyState } from './family';
+import { prepareGameEvent, resolveGameEvent } from './events';
 
 describe('persistent family simulation', () => {
   it('generates a validated family-of-origin graph for a new child', () => {
@@ -94,6 +95,27 @@ describe('persistent family simulation', () => {
       }]
     };
     expect(validateFamilyState(invalid)).toContain('Parent and guardian relationships cannot contain cycles.');
+  });
+
+
+  it('offers a contextual family reconnection event after higher-priority starter events are resolved', () => {
+    const base = generateRandomCharacter(30, () => 0.5);
+    const character = {
+      ...base,
+      resolvedGameEventIds: ['adult-side-project'],
+      eventPreparedYear: undefined,
+      pendingGameEvent: null
+    };
+    const prepared = prepareGameEvent(character);
+    expect(prepared.pendingGameEvent?.id).toContain('family-check-in-');
+    const personId = prepared.pendingGameEvent?.choices[0].familyBondEffect?.personId;
+    const before = prepared.family!.bonds.find((bond) => bond.personId === personId)!;
+    const resolved = resolveGameEvent(prepared, 'make-time');
+    const after = resolved.family!.bonds.find((bond) => bond.personId === personId)!;
+    expect(after.closeness).toBe(Math.min(100, before.closeness + 6));
+    expect(after.trust).toBe(Math.min(100, before.trust + 3));
+    expect(resolved.happiness).toBe(Math.min(100, prepared.happiness + 2));
+    expect(resolved.history[0].title).toBe('A chance to reconnect: Make time for them');
   });
 
   it('renames the player node when the player changes the generated character name', () => {
