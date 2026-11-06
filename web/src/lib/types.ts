@@ -4,7 +4,15 @@ export type EmploymentType = 'part-time' | 'full-time' | 'flexible';
 export type HouseholdArrangement = 'family-supported' | 'shared' | 'independent';
 export type SavingsGoalMonths = 1 | 3 | 6;
 export type BankAccountType = 'checking' | 'savings';
-export type FinancialTransactionType = 'account-opened' | 'deposit' | 'withdrawal' | 'transfer' | 'income' | 'expense' | 'interest';
+export type FinancialTransactionType = 'account-opened' | 'deposit' | 'withdrawal' | 'transfer' | 'income' | 'expense' | 'interest' | 'loan-issued' | 'loan-payment' | 'loan-interest' | 'card-issued' | 'card-purchase' | 'card-payment' | 'card-interest' | 'recurring-payment' | 'auto-deposit' | 'vault-deposit' | 'vault-withdrawal';
+export type CardType = 'debit' | 'credit';
+export type LoanType = 'personal' | 'mortgage' | 'business';
+export type PaymentSourceType = 'cash' | 'account' | 'card';
+export interface BankCard { id: string; name: string; type: CardType; linkedAccountId?: string; creditLimit: number; balance: number; annualInterestRate: number; active: boolean; }
+export interface Loan { id: string; name: string; type: LoanType; principal: number; balance: number; annualInterestRate: number; termYears: number; paymentAccountId?: string; active: boolean; }
+export interface RecurringPayment { id: string; name: string; amount: number; category: 'subscription' | 'bill'; sourceType: PaymentSourceType; sourceId?: string; active: boolean; startedAtYear: number; }
+export interface AutoDepositRule { id: string; targetAccountId: string; method: 'fixed' | 'percentage'; value: number; active: boolean; }
+
 export interface BankAccount {
   id: string;
   name: string;
@@ -43,6 +51,11 @@ export interface Character {
   householdArrangement?: HouseholdArrangement; savingsGoalMonths?: SavingsGoalMonths | null;
   bankAccounts?: BankAccount[];
   financialTransactions?: FinancialTransaction[];
+  cards?: BankCard[];
+  loans?: Loan[];
+  recurringPayments?: RecurringPayment[];
+  autoDepositRules?: AutoDepositRule[];
+  vaultBalance?: number;
   appearance?: { height: string; build: string; hair: string; eyes: string };
   history: LifeEvent[];
 }

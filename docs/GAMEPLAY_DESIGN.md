@@ -69,6 +69,15 @@ The settings page provides a concise recent-log view backed by the character's c
 - Savings accounts currently earn a simplified 2% annual rate; checking accounts earn 0%. Rates are game-balance values, not real bank offers. Interest is credited on year advancement.
 - The finance screen exposes account creation, cash deposits/withdrawals, account-to-account transfers, balances, and recent transactions. Cards, credit, loans, property, investments, vaults, auto-pay, and subscriptions are not implemented yet.
 
+## Cards, credit, recurring payments and personal vault
+- Age 16+ characters can issue debit cards linked to an existing account; age 18+ characters can issue credit cards with a defined limit. Debit purchases immediately reduce linked bank balances. Credit purchases add to card liability and cannot exceed available credit.
+- Credit card balances accrue a simplified 18% annual rate and attempt a 5% minimum payment each year from the linked account or cash. Players can make explicit repayments. Rates are game values, not real offers.
+- Age 18+ characters can take up to five personal, mortgage, or business loans. Loan proceeds increase cash and liability equally. Interest accrues annually; a simplified principal installment is attempted from cash or a selected bank account. Extra repayments are supported. Missed payments do not erase balances or create hidden negative cash.
+- Up to twelve annual recurring bills/subscriptions can be set up and paid from cash, a bank account, or a credit card. Failed cash/account payments are logged as missed without creating debt; credit-card subscriptions use available credit. Players can cancel them.
+- Up to five automatic deposit rules move a fixed amount or percentage of annual income into a selected bank account after household costs. Deposits only happen when cash is sufficient.
+- Age 16+ characters can store and withdraw cash in a personal safe/vault. Vault holdings earn no interest and remain part of net worth.
+- Net worth now includes cash, bank balances, and vault cash, less active loan balances and credit-card debt. It remains a simplified balance sheet; property, businesses, stocks, gold and other assets are not included yet.
+
 ## Candidate systems
 Health; family; education; career; finance; relationships; lifestyle; contextual/scheduled/random/player-created events. Build incrementally and connect systems. Do not implement every system at once.
 

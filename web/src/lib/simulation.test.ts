@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { advanceYear, canAffordActivity, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getHouseholdBudget, getNetWorth, openBankAccount, performActivity, setHouseholdArrangement, setSavingsGoalMonths, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
+import { addRecurringPayment, depositToVault, issueBankCard, makeCardPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
 
 describe('life simulation', () => {
@@ -263,6 +264,64 @@ describe('life simulation', () => {
     const next = advanceYear(funded);
     expect(next.bankAccounts?.[0].balance).toBe(10200);
     expect(next.financialTransactions?.some((item) => item.type === 'interest' && item.amount === 200)).toBe(true);
+  });
+
+  it('issues loans without changing net worth and tracks interest and repayments', () => {
+    const base = { ...createCharacter('Borrower', 30), currencyScale: 1, money: 1000 };
+    const loaned = takeLoan(base, 'personal', 'Emergency loan', 5000, 0.1, 5);
+    expect(loaned.money).toBe(6000);
+    expect(getNetWorth(loaned)).toBe(getNetWorth(base));
+    const paid = repayLoan(loaned, loaned.loans![0].id, 500, 'cash');
+    expect(paid.money).toBe(5500);
+    expect(paid.loans![0].balance).toBe(4500);
+    const year = advanceYear(loaned);
+    expect(year.loans![0].balance).toBe(4000);
+    expect(year.financialTransactions?.some((t)=>t.type==='loan-interest')).toBe(true);
+  });
+  it('issues debit and credit cards and enforces balances and credit limits', () => {
+    const base = { ...createCharacter('Card user', 30), money: 1000 };
+    const opened = openBankAccount(base, 'checking', 'Daily');
+    const funded = depositToAccount(opened, opened.bankAccounts![0].id, 600);
+    const debit = issueBankCard(funded, 'debit', 'Daily card', opened.bankAccounts![0].id);
+    const credit = issueBankCard(debit, 'credit', 'Credit card', undefined, 1000);
+    const purchased = makeCardPurchase(credit, debit.cards![0].id, 100);
+    expect(purchased.bankAccounts![0].balance).toBe(500);
+    const creditPurchase = makeCardPurchase(purchased, credit.cards![1].id, 400, 'Groceries');
+    expect(creditPurchase.cards![1].balance).toBe(400);
+    expect(getNetWorth(creditPurchase)).toBe(getNetWorth(purchased)-400);
+    expect(makeCardPurchase(creditPurchase, credit.cards![1].id, 700)).toBe(creditPurchase);
+    const paid = payCreditCard(creditPurchase, credit.cards![1].id, 100);
+    expect(paid.cards![1].balance).toBe(300);
+  });
+  it('runs annual subscriptions and automatic savings without creating money', () => {
+    const base = { ...createCharacter('Saver', 30), currencyScale: 1, money: 2000, employment: { title: 'Worker', type: 'full-time' as const, annualSalary: 10000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 } };
+    const opened = openBankAccount(base, 'savings', 'Reserve');
+    const rule = setAutoDeposit(opened, opened.bankAccounts![0].id, 'percentage', 10);
+    const subscription = addRecurringPayment(rule, 'Music', 100, 'subscription', 'cash');
+    const next = advanceYear(subscription);
+    expect(next.bankAccounts![0].balance).toBe(1000);
+    expect(next.money).toBe(9400);
+    expect(getNetWorth(next)).toBe(10400);
+    expect(next.financialTransactions?.some((t)=>t.type==='auto-deposit')).toBe(true);
+    expect(next.financialTransactions?.some((t)=>t.type==='recurring-payment')).toBe(true);
+  });
+  it('moves money to and from a personal vault without changing net worth', () => {
+    const base = { ...createCharacter('Saver', 30), money: 900 };
+    const stored = depositToVault(base, 400);
+    expect(stored.money).toBe(500);
+    expect(stored.vaultBalance).toBe(400);
+    expect(getNetWorth(stored)).toBe(getNetWorth(base));
+    const withdrawn = withdrawFromVault(stored, 150);
+    expect(withdrawn.money).toBe(650);
+    expect(withdrawn.vaultBalance).toBe(250);
+  });
+  it('rejects invalid loans and cards', () => {
+    const base = { ...createCharacter('Teen', 17), money: 500 };
+    expect(takeLoan(base, 'personal', 'Loan', 1000, 0.1, 5)).toBe(base);
+    const adult = { ...createCharacter('Adult', 30), money: 100 };
+    expect(issueBankCard(adult, 'credit', 'Card', undefined, 0)).toBe(adult);
+    expect(issueBankCard(adult, 'debit', 'Debit')).toBe(adult);
+    expect(addRecurringPayment(adult, 'Invalid', 0, 'bill', 'cash')).toBe(adult);
   });
 
 });

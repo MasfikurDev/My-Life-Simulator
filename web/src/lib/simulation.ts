@@ -1,4 +1,4 @@
-import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths } from './types';
+import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, Loan, LoanType, PaymentSourceType, RecurringPayment } from './types';
 import { getEducationStage, isActivityAvailable } from './progression';
 
 export const ACTIONS_PER_YEAR = 3;
@@ -130,7 +130,192 @@ function financeRecord(character: Character, type: FinancialTransaction['type'],
 }
 
 export function getNetWorth(character: Character): number {
-  return Math.round(character.money + (character.bankAccounts ?? []).reduce((sum, account) => sum + account.balance, 0));
+  return Math.round(character.money + (character.bankAccounts ?? []).reduce((sum, account) => sum + account.balance, 0) + (character.vaultBalance ?? 0) - (character.loans ?? []).reduce((sum, loan) => sum + (loan.active ? loan.balance : 0), 0) - (character.cards ?? []).filter((card) => card.type === 'credit').reduce((sum, card) => sum + card.balance, 0));
+}
+
+
+function validAmount(amount: number): boolean { return Number.isSafeInteger(amount) && amount > 0; }
+function accountExists(character: Character, id?: string): boolean { return !!id && (character.bankAccounts ?? []).some((account) => account.id === id); }
+function updateAccountBalance(character: Character, id: string, delta: number): BankAccount[] {
+  return (character.bankAccounts ?? []).map((account) => account.id === id ? { ...account, balance: account.balance + delta } : account);
+}
+export function issueBankCard(character: Character, type: 'debit' | 'credit', name: string, linkedAccountId?: string, creditLimit = 0): Character {
+  if (character.age < (type === 'credit' ? 18 : 16) || (character.cards ?? []).length >= 6) return character;
+  if (type === 'debit' && !accountExists(character, linkedAccountId)) return character;
+  if (type === 'credit' && (!validAmount(creditLimit) || creditLimit > 100000000 || (linkedAccountId && !accountExists(character, linkedAccountId)))) return character;
+  const label = name.trim().slice(0, 28) || (type === 'credit' ? 'Credit card' : 'Debit card');
+  const card: BankCard = { id: 'card-' + character.year + '-' + character.age + '-' + ((character.cards ?? []).length + 1), name: label, type, linkedAccountId, creditLimit: type === 'credit' ? creditLimit : 0, balance: 0, annualInterestRate: type === 'credit' ? 0.18 : 0, active: true };
+  const next = { ...character, cards: [...(character.cards ?? []), card], history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'card-issued', 0, 'Issued ' + label + '.', 'Bank', label);
+  next.history.unshift(event(next, 'Payment card issued', 'You added a ' + type + ' card named ' + label + '.', 'milestone'));
+  return next;
+}
+export function makeCardPurchase(character: Character, cardId: string, amount: number, description = 'Card purchase'): Character {
+  const value = Math.floor(amount);
+  const card = (character.cards ?? []).find((item) => item.id === cardId && item.active);
+  if (!card || !validAmount(value)) return character;
+  if (card.type === 'debit') {
+    const account = (character.bankAccounts ?? []).find((item) => item.id === card.linkedAccountId);
+    if (!account || account.balance < value) return character;
+    const next = { ...character, bankAccounts: updateAccountBalance(character, account.id, -value), history: [...character.history] };
+    next.financialTransactions = financeRecord(next, 'card-purchase', value, description + ' using ' + card.name + '.', account.name, 'Merchant');
+    return next;
+  }
+  if (card.balance + value > card.creditLimit) return character;
+  const next = { ...character, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance + value } : item), history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'card-purchase', value, description + ' using ' + card.name + '.', card.name, 'Merchant');
+  return next;
+}
+export function payCreditCard(character: Character, cardId: string, amount: number, source: 'cash' | 'account' = 'cash', sourceId?: string): Character {
+  const value = Math.floor(amount);
+  const card = (character.cards ?? []).find((item) => item.id === cardId && item.type === 'credit' && item.active);
+  const account = source === 'account' ? (character.bankAccounts ?? []).find((item) => item.id === sourceId) : undefined;
+  if (!card || !validAmount(value) || value > card.balance || (source === 'cash' && character.money < value) || (source === 'account' && (!account || account.balance < value))) return character;
+  const next = { ...character, money: source === 'cash' ? character.money - value : character.money, bankAccounts: source === 'account' && account ? updateAccountBalance(character, account.id, -value) : character.bankAccounts, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance - value } : item), history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'card-payment', value, 'Paid ' + formatCharacterMoney(next, value) + ' toward ' + card.name + '.', source === 'cash' ? 'Cash' : account!.name, card.name);
+  return next;
+}
+export function takeLoan(character: Character, type: LoanType, name: string, principal: number, annualInterestRate: number, termYears: number, paymentAccountId?: string): Character {
+  const value = Math.floor(principal);
+  if (character.age < 18 || (character.loans ?? []).filter((loan) => loan.active).length >= 5 || !validAmount(value) || !Number.isFinite(annualInterestRate) || annualInterestRate < 0 || annualInterestRate > 0.5 || !Number.isInteger(termYears) || termYears < 1 || termYears > 30 || (paymentAccountId && !accountExists(character, paymentAccountId))) return character;
+  const label = name.trim().slice(0, 28) || (type === 'mortgage' ? 'Home loan' : type === 'business' ? 'Business loan' : 'Personal loan');
+  const loan: Loan = { id: 'loan-' + character.year + '-' + character.age + '-' + ((character.loans ?? []).length + 1), name: label, type, principal: value, balance: value, annualInterestRate, termYears, paymentAccountId, active: true };
+  const next = { ...character, money: character.money + value, loans: [...(character.loans ?? []), loan], history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'loan-issued', value, 'Received ' + formatCharacterMoney(next, value) + ' from ' + label + '.', label, 'Cash');
+  next.history.unshift(event(next, 'Loan approved', label + ' added ' + formatCharacterMoney(next, value) + ' to cash. Repayments and interest will be applied annually.', 'milestone'));
+  return next;
+}
+export function repayLoan(character: Character, loanId: string, amount: number, source: 'cash' | 'account' = 'cash', sourceId?: string): Character {
+  const value = Math.floor(amount);
+  const loan = (character.loans ?? []).find((item) => item.id === loanId && item.active);
+  const account = source === 'account' ? (character.bankAccounts ?? []).find((item) => item.id === sourceId) : undefined;
+  if (!loan || !validAmount(value) || value > loan.balance || (source === 'cash' && character.money < value) || (source === 'account' && (!account || account.balance < value))) return character;
+  const balance = loan.balance - value;
+  const next = { ...character, money: source === 'cash' ? character.money - value : character.money, bankAccounts: source === 'account' && account ? updateAccountBalance(character, account.id, -value) : character.bankAccounts, loans: (character.loans ?? []).map((item) => item.id === loanId ? { ...item, balance, active: balance > 0 } : item), history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'loan-payment', value, 'Repaid ' + formatCharacterMoney(next, value) + ' toward ' + loan.name + '.', source === 'cash' ? 'Cash' : account!.name, loan.name);
+  if (balance === 0) next.history.unshift(event(next, 'Loan paid off', 'You fully repaid ' + loan.name + '.', 'milestone'));
+  return next;
+}
+export function addRecurringPayment(character: Character, name: string, amount: number, category: 'subscription' | 'bill', sourceType: PaymentSourceType, sourceId?: string): Character {
+  const value = Math.floor(amount);
+  if (character.age < 16 || (character.recurringPayments ?? []).filter((item) => item.active).length >= 12 || !validAmount(value)) return character;
+  if (sourceType === 'account' && !accountExists(character, sourceId)) return character;
+  if (sourceType === 'card' && !(character.cards ?? []).some((card) => card.id === sourceId && card.active && card.type === 'credit')) return character;
+  const label = name.trim().slice(0, 36);
+  if (!label) return character;
+  const payment: RecurringPayment = { id: 'recurring-' + character.year + '-' + character.age + '-' + ((character.recurringPayments ?? []).length + 1), name: label, amount: value, category, sourceType, sourceId, active: true, startedAtYear: character.year };
+  const next = { ...character, recurringPayments: [...(character.recurringPayments ?? []), payment], history: [...character.history] };
+  next.history.unshift(event(next, 'Recurring payment added', label + ' will cost ' + formatCharacterMoney(next, value) + ' each year.', 'milestone'));
+  return next;
+}
+export function cancelRecurringPayment(character: Character, id: string): Character {
+  if (!(character.recurringPayments ?? []).some((item) => item.id === id && item.active)) return character;
+  return { ...character, recurringPayments: (character.recurringPayments ?? []).map((item) => item.id === id ? { ...item, active: false } : item), history: [...character.history, event(character, 'Recurring payment cancelled', 'A recurring bill or subscription was cancelled.')] };
+}
+export function setAutoDeposit(character: Character, targetAccountId: string, method: 'fixed' | 'percentage', value: number): Character {
+  if (character.age < 16 || !accountExists(character, targetAccountId) || !Number.isFinite(value) || value <= 0 || (method === 'percentage' && value > 90) || (method === 'fixed' && (!Number.isSafeInteger(value) || value > 100000000))) return character;
+  const rules = (character.autoDepositRules ?? []).filter((rule) => rule.active);
+  if (rules.length >= 5) return character;
+  const rule = { id: 'auto-deposit-' + character.year + '-' + character.age + '-' + ((character.autoDepositRules ?? []).length + 1), targetAccountId, method, value, active: true };
+  const next = { ...character, autoDepositRules: [...(character.autoDepositRules ?? []).filter((item) => item.targetAccountId !== targetAccountId), rule], history: [...character.history] };
+  next.history.unshift(event(next, 'Automatic savings configured', (method === 'percentage' ? value + '% of annual income' : formatCharacterMoney(next, value) + ' per year') + ' will be moved to your selected account after income arrives.', 'milestone'));
+  return next;
+}
+export function depositToVault(character: Character, amount: number): Character {
+  const value = Math.floor(amount);
+  if (character.age < 16 || !validAmount(value) || character.money < value) return character;
+  const next = { ...character, money: character.money - value, vaultBalance: (character.vaultBalance ?? 0) + value, history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'vault-deposit', value, 'Stored ' + formatCharacterMoney(next, value) + ' in your personal safe.', 'Cash', 'Personal safe');
+  return next;
+}
+export function withdrawFromVault(character: Character, amount: number): Character {
+  const value = Math.floor(amount);
+  if (character.age < 16 || !validAmount(value) || (character.vaultBalance ?? 0) < value) return character;
+  const next = { ...character, money: character.money + value, vaultBalance: (character.vaultBalance ?? 0) - value, history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'vault-withdrawal', value, 'Removed ' + formatCharacterMoney(next, value) + ' from your personal safe.', 'Personal safe', 'Cash');
+  return next;
+}
+function settleFinancialProducts(character: Character): Character {
+  let next = character;
+  // Automatic deposits are processed after income and before optional recurring payments.
+  for (const rule of next.autoDepositRules ?? []) {
+    if (!rule.active) continue;
+    const account = (next.bankAccounts ?? []).find((item) => item.id === rule.targetAccountId);
+    if (!account) continue;
+    const amount = rule.method === 'percentage' ? Math.floor((next.lastYearIncome ?? 0) * rule.value / 100) : rule.value;
+    if (amount > 0 && next.money >= amount) {
+      next = { ...next, money: next.money - amount, bankAccounts: updateAccountBalance(next, account.id, amount) };
+      next.financialTransactions = financeRecord(next, 'auto-deposit', amount, 'Automatic deposit to ' + account.name + '.', 'Cash', account.name);
+    }
+  }
+  // Recurring charges use the selected source; failed charges are recorded but never create hidden debt.
+  for (const payment of next.recurringPayments ?? []) {
+    if (!payment.active || payment.startedAtYear > next.year) continue;
+    if (payment.sourceType === 'cash' && next.money >= payment.amount) {
+      next = { ...next, money: next.money - payment.amount };
+      next.financialTransactions = financeRecord(next, 'recurring-payment', payment.amount, 'Paid ' + payment.name + '.', 'Cash', payment.name);
+    } else if (payment.sourceType === 'account') {
+      const account = (next.bankAccounts ?? []).find((item) => item.id === payment.sourceId);
+      if (account && account.balance >= payment.amount) {
+        next = { ...next, bankAccounts: updateAccountBalance(next, account.id, -payment.amount) };
+        next.financialTransactions = financeRecord(next, 'recurring-payment', payment.amount, 'Paid ' + payment.name + '.', account.name, payment.name);
+      } else { next.financialTransactions = financeRecord(next, 'expense', 0, 'Missed payment: ' + payment.name + '.', account?.name ?? 'Missing account', payment.name); }
+    } else if (payment.sourceType === 'card') {
+      const card = (next.cards ?? []).find((item) => item.id === payment.sourceId && item.active && item.type === 'credit');
+      if (card && card.balance + payment.amount <= card.creditLimit) {
+        next = { ...next, cards: (next.cards ?? []).map((item) => item.id === card.id ? { ...item, balance: item.balance + payment.amount } : item) };
+        next.financialTransactions = financeRecord(next, 'recurring-payment', payment.amount, 'Charged ' + payment.name + ' to ' + card.name + '.', card.name, payment.name);
+      } else { next.financialTransactions = financeRecord(next, 'expense', 0, 'Missed payment: ' + payment.name + '.', card?.name ?? 'Unavailable card', payment.name); }
+    } else if (payment.sourceType === 'cash') {
+      next.financialTransactions = financeRecord(next, 'expense', 0, 'Missed payment: ' + payment.name + '.', 'Cash', payment.name);
+    }
+  }
+  // Loan interest accrues yearly; a fixed principal-plus-interest installment is attempted.
+  for (const loan of next.loans ?? []) {
+    if (!loan.active) continue;
+    const interest = Math.floor(loan.balance * loan.annualInterestRate);
+    const withInterest = loan.balance + interest;
+    const principalPart = Math.ceil(loan.principal / loan.termYears);
+    const due = Math.min(withInterest, principalPart + interest);
+    if (interest > 0) {
+      next = { ...next, loans: (next.loans ?? []).map((item) => item.id === loan.id ? { ...item, balance: withInterest } : item) };
+      next.financialTransactions = financeRecord(next, 'loan-interest', interest, 'Interest accrued on ' + loan.name + '.', 'Lender', loan.name);
+    }
+    const account = loan.paymentAccountId ? (next.bankAccounts ?? []).find((item) => item.id === loan.paymentAccountId) : undefined;
+    if (loan.paymentAccountId && account && account.balance >= due) {
+      const remaining = withInterest - due;
+      next = { ...next, bankAccounts: updateAccountBalance(next, account.id, -due), loans: (next.loans ?? []).map((item) => item.id === loan.id ? { ...item, balance: remaining, active: remaining > 0 } : item) };
+      next.financialTransactions = financeRecord(next, 'loan-payment', due, 'Annual installment paid for ' + loan.name + '.', account.name, loan.name);
+    } else if (!loan.paymentAccountId && next.money >= due) {
+      const remaining = withInterest - due;
+      next = { ...next, money: next.money - due, loans: (next.loans ?? []).map((item) => item.id === loan.id ? { ...item, balance: remaining, active: remaining > 0 } : item) };
+      next.financialTransactions = financeRecord(next, 'loan-payment', due, 'Annual installment paid for ' + loan.name + '.', 'Cash', loan.name);
+    } else {
+      next.financialTransactions = financeRecord(next, 'expense', 0, 'Missed loan installment for ' + loan.name + '.', loan.paymentAccountId ? 'Bank account' : 'Cash', loan.name);
+    }
+  }
+  // Credit balances accrue interest and attempt a 5% minimum payment from the linked account or cash.
+  for (const card of next.cards ?? []) {
+    if (!card.active || card.type !== 'credit' || card.balance <= 0) continue;
+    const interest = Math.floor(card.balance * card.annualInterestRate);
+    const dueBalance = card.balance + interest;
+    if (interest > 0) {
+      next = { ...next, cards: (next.cards ?? []).map((item) => item.id === card.id ? { ...item, balance: dueBalance } : item) };
+      next.financialTransactions = financeRecord(next, 'card-interest', interest, 'Interest accrued on ' + card.name + '.', 'Bank', card.name);
+    }
+    const minimum = Math.min(dueBalance, Math.max(1, Math.ceil(dueBalance * 0.05)));
+    const account = card.linkedAccountId ? (next.bankAccounts ?? []).find((item) => item.id === card.linkedAccountId) : undefined;
+    if (account && account.balance >= minimum) {
+      next = { ...next, bankAccounts: updateAccountBalance(next, account.id, -minimum), cards: (next.cards ?? []).map((item) => item.id === card.id ? { ...item, balance: dueBalance - minimum } : item) };
+      next.financialTransactions = financeRecord(next, 'card-payment', minimum, 'Minimum payment for ' + card.name + '.', account.name, card.name);
+    } else if (!card.linkedAccountId && next.money >= minimum) {
+      next = { ...next, money: next.money - minimum, cards: (next.cards ?? []).map((item) => item.id === card.id ? { ...item, balance: dueBalance - minimum } : item) };
+      next.financialTransactions = financeRecord(next, 'card-payment', minimum, 'Minimum payment for ' + card.name + '.', 'Cash', card.name);
+    } else {
+      next.financialTransactions = financeRecord(next, 'expense', 0, 'Missed minimum payment for ' + card.name + '.', account?.name ?? 'Cash', card.name);
+    }
+  }
+  return next;
 }
 
 export function openBankAccount(character: Character, type: BankAccountType, name?: string): Character {
@@ -348,6 +533,8 @@ export function advanceYear(character: Character): Character {
     next.lastYearExpenses = 0;
     next.lastYearShortfall = 0;
   }
+
+  Object.assign(next, settleFinancialProducts(next));
 
   if (job) {
     job.experienceYears += 1;
