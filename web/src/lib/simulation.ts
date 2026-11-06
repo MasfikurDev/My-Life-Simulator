@@ -260,12 +260,12 @@ function advanceEconomicConditions(character: Character): Character {
   const cycle = growthRate < -0.018 ? 'recession' : growthRate > 0.025 ? 'expansion' : 'stable';
   const costOfLivingIndex = Math.max(0.5, Math.min(5, previous.costOfLivingIndex * (1 + inflationRate)));
   const economy = { inflationRate, growthRate, baseInterestRate, cycle, costOfLivingIndex, lastUpdatedYear: character.year };
-  const next = { ...character, economy };
-  if (next.employment && next.age >= 18) {
-    const wageAdjustment = Math.max(-0.02, Math.min(0.07, inflationRate * 0.65 + growthRate * 0.2));
-    next.employment = { ...next.employment, annualSalary: Math.max(0, Math.round(next.employment.annualSalary * (1 + wageAdjustment))) };
-  }
-  return next;
+  const inflationFactor = 1 + Math.max(-0.01, inflationRate);
+  return { ...character, economy,
+    recurringPayments: (character.recurringPayments ?? []).map((payment) => ({ ...payment, amount: Math.max(1, Math.round(payment.amount * inflationFactor)) })),
+    rentalHome: character.rentalHome ? { ...character.rentalHome, annualRent: Math.max(1, Math.round(character.rentalHome.annualRent * inflationFactor)) } : character.rentalHome,
+    properties: (character.properties ?? []).map((property) => ({ ...property, annualRentalIncome: property.rentedOut ? Math.max(1, Math.round(property.annualRentalIncome * inflationFactor)) : property.annualRentalIncome }))
+  };
 }
 function settleAnnualAssets(character: Character): Character {
   let next = character;
