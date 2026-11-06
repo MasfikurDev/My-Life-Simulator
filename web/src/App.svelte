@@ -239,19 +239,11 @@
         {:else if character && activeTab==='home'}
           <div class="page-heading"><div><div class="eyebrow">OVERVIEW</div><h1>{character.name}</h1><p>Age {character.age}</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
           <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div></div> </div></section>
-          <div class="life-stage-strip"><div><strong>{getLifeStage(character.age).label}</strong><span>Age {character.age} · {getLifeStage(character.age).ageRange}</span></div><p>{getLifeStage(character.age).description}</p>{#if getLifeStage(character.age).nextAge !== null}<small>Next stage at age {getLifeStage(character.age).nextAge}</small>{/if}</div>
-
-          <div class="section-heading"><div><span class="section-index">01</span><h3>Available actions</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
-          <div class="activity-grid">{#each activities.filter((activity) => ['exercise','socialize'].includes(activity.id) && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}
-            <button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
-          {/each}</div>
-          <div class="section-heading"><div><span class="section-index">02</span><h3>Life stats</h3></div></div>
-          <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
-            <article class="stat-card"><div class="stat-top"><span class="stat-icon {stat.color}">{stat.icon}</span><span class="stat-label">{stat.label}</span></div><div class="stat-value">{stat.value}<small>/100</small></div><div class="meter"><span class={stat.color} style="width:{stat.value}%"></span></div></article>
-          {/each}</div>
-          <div class="bottom-row"><section class="history-card"><div class="card-heading"><div><span class="section-index">03</span><h3>Recent activity</h3></div><button class="text-button" onclick={() => activeTab='history'}>View all →</button></div>
-            {#each character.history.slice(0,3) as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}
-          </section></div>
+          <div class="section-heading"><div><span class="section-index">01</span><h3>Current situation</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
+          <div class="domain-panel"><div class="domain-panel-head"><div><div class="eyebrow">LIFE STAGE</div><h2>{getLifeStage(character.age).label}</h2><p>Age {character.age} · {getLifeStage(character.age).ageRange}</p></div>{#if getLifeStage(character.age).nextAge !== null}<span class="domain-status">NEXT AT {getLifeStage(character.age).nextAge}</span>{/if}</div></div>
+          <div class="finance-shortcuts">
+            <button onclick={() => activeTab='life'}><span class="shortcut-icon">✳</span><strong>Life</strong><small>Wellbeing, personal time and life history</small><b>Open Life →</b></button>
+          </div>
         {:else if character && activeTab==='school' && character.age >= 3}
           <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div><div class="year-pill">AGE {character.age}</div></div>
           <section class="domain-panel">
