@@ -361,9 +361,33 @@ export function payCreditCard(character: Character, cardId: string, amount: numb
   next.financialTransactions = financeRecord(next, 'card-payment', value, 'Paid ' + formatCharacterMoney(next, value) + ' toward ' + card.name + '.', source === 'cash' ? 'Cash' : account!.name, card.name);
   return next;
 }
+
+export function getCreditScore(character: Character): number {
+  const transactions = character.financialTransactions ?? [];
+  const missed = transactions.filter((item) => item.type === 'expense' && /missed/i.test(item.description)).length;
+  const successfulPayments = transactions.filter((item) => item.type === 'loan-payment' || item.type === 'card-payment').length;
+  const creditCards = (character.cards ?? []).filter((card) => card.active && card.type === 'credit');
+  const totalLimit = creditCards.reduce((sum, card) => sum + card.creditLimit, 0);
+  const totalBalance = creditCards.reduce((sum, card) => sum + card.balance, 0);
+  const utilization = totalLimit > 0 ? Math.max(0, totalBalance / totalLimit) : 0;
+  const annualIncome = character.lastYearIncome ?? character.employment?.annualSalary ?? 0;
+  const totalDebt = (character.loans ?? []).filter((loan) => loan.active).reduce((sum, loan) => sum + loan.balance, 0);
+  const debtRatio = annualIncome > 0 ? totalDebt / annualIncome : 0;
+  const utilizationPenalty = utilization > 0.3 ? Math.min(120, Math.round((utilization - 0.3) * 170)) : 0;
+  const debtPenalty = debtRatio > 2 ? Math.min(80, Math.round((debtRatio - 2) * 20)) : 0;
+  const taxPenalty = Math.min(60, Math.floor((character.taxBalance ?? 0) / Math.max(1, 1000 * (character.currencyScale ?? 1))) * 2);
+  return Math.max(300, Math.min(850, 700 + Math.min(30, successfulPayments * 2) - Math.min(245, missed * 35) - utilizationPenalty - debtPenalty - taxPenalty));
+}
+export function getMinimumLoanRate(character: Character, type: LoanType): number {
+  const base = type === 'mortgage' ? 0.065 : type === 'business' ? 0.11 : 0.09;
+  const score = getCreditScore(character);
+  const adjustment = score >= 800 ? -0.02 : score >= 740 ? -0.01 : score >= 680 ? 0 : score >= 620 ? 0.03 : score >= 560 ? 0.06 : 0.1;
+  return Math.max(0.04, Math.min(0.4, base + adjustment));
+}
+
 export function takeLoan(character: Character, type: LoanType, name: string, principal: number, annualInterestRate: number, termYears: number, paymentAccountId?: string): Character {
   const value = Math.floor(principal);
-  if (character.age < 18 || (character.loans ?? []).filter((loan) => loan.active).length >= 5 || !validAmount(value) || !Number.isFinite(annualInterestRate) || annualInterestRate < 0 || annualInterestRate > 0.5 || !Number.isInteger(termYears) || termYears < 1 || termYears > 30 || (paymentAccountId && !accountExists(character, paymentAccountId))) return character;
+  if (character.age < 18 || getCreditScore(character) < 520 || annualInterestRate < getMinimumLoanRate(character, type) || (character.loans ?? []).filter((loan) => loan.active).length >= 5 || !validAmount(value) || !Number.isFinite(annualInterestRate) || annualInterestRate < 0 || annualInterestRate > 0.5 || !Number.isInteger(termYears) || termYears < 1 || termYears > 30 || (paymentAccountId && !accountExists(character, paymentAccountId))) return character;
   const label = name.trim().slice(0, 28) || (type === 'mortgage' ? 'Home loan' : type === 'business' ? 'Business loan' : 'Personal loan');
   const loan: Loan = { id: 'loan-' + character.year + '-' + character.age + '-' + ((character.loans ?? []).length + 1), name: label, type, principal: value, balance: value, annualInterestRate, termYears, paymentAccountId, active: true };
   const next = { ...character, money: character.money + value, loans: [...(character.loans ?? []), loan], history: [...character.history] };
