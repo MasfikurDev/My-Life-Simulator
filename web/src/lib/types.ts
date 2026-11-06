@@ -14,6 +14,8 @@ export interface PropertyAsset { id: string; name: string; type: PropertyType; m
 export interface RentalHome { type: PropertyType; annualRent: number; }
 export interface InvestmentHolding { type: InvestmentType; units: number; averageCost: number; }
 export interface MarketPrices { stocks: number; gold: number; lastUpdatedYear: number; }
+export type EconomicCycle = 'expansion' | 'stable' | 'recession';
+export interface EconomicConditions { inflationRate: number; growthRate: number; baseInterestRate: number; cycle: EconomicCycle; costOfLivingIndex: number; lastUpdatedYear: number; }
 export interface OwnedBusiness { id: string; name: string; type: BusinessType; investedCapital: number; valuation: number; performance: number; }
 
 export type PaymentSourceType = 'cash' | 'account' | 'card';
@@ -70,6 +72,7 @@ export interface Character {
   rentalHome?: RentalHome | null;
   investments?: InvestmentHolding[];
   marketPrices?: MarketPrices;
+  economy?: EconomicConditions;
   businesses?: OwnedBusiness[];
   appearance?: { height: string; build: string; hair: string; eyes: string };
   history: LifeEvent[];
