@@ -132,6 +132,8 @@ describe('life simulation', () => {
     const planned = planFamilyInteractionInNextFreeTime(base, relative.id, 'spend-time');
     expect(planned.issue).toBeNull();
     expect(planned.character.family!.bonds.find((bond) => bond.personId === relative.id)!.closeness).toBe(before);
+    const duplicate = planFamilyInteractionInNextFreeTime(planned.character, relative.id, 'reach-out');
+    expect(duplicate.issue).toBe('unavailable');
     const resolved = advanceWeek(planned.character).character;
     expect(resolved.family!.bonds.find((bond) => bond.personId === relative.id)!.closeness).toBe(Math.min(100, before + 8));
   });
@@ -145,6 +147,8 @@ describe('life simulation', () => {
     expect(planned.issue).toBeNull();
     expect(planned.character.money).toBe(beforeCash);
     expect(planned.character.businesses![0].performance).toBe(beforePerformance);
+    const duplicate = planBusinessManagementInNextFreeTime(planned.character, business.id);
+    expect(duplicate.issue).toBe('unavailable');
     const resolved = advanceWeek(planned.character).character;
     expect(resolved.money).toBe(beforeCash - 20);
     expect(resolved.businesses![0].performance).toBe(Math.min(100, beforePerformance + 8));
