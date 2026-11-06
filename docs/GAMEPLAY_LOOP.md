@@ -54,6 +54,16 @@ The player should feel that a life is unfolding, not that they are spending abst
 - Provide a compact calendar/week view, not a real-time clock or hour-by-hour simulation.
 - Do not simulate 168 individual hours, every NPC, travel minute, or every day autonomously. The game uses meaningful time blocks and summarized routines.
 
+### 3.1.1 Calendar foundation (implemented first slice)
+
+- The simulation uses strict ISO date-only strings (YYYY-MM-DD), interpreted in UTC for deterministic arithmetic. There are no local-time or daylight-saving transitions in the game calendar.
+- Weeks run Monday through Sunday. The calendar exposes the Monday week start even when a date falls later in that week; advancing a week moves the date forward by exactly seven days.
+- New characters receive an initial calendar anchored to the first Monday on or after January 1 of their starting game year. Their birth date is placed on the same month/day in the year implied by their chosen starting age, preserving that age at creation.
+- Age is calculated from birth date and current date, not from the number of week advances. A birthday changes age only when the current date reaches the birthday.
+- For a February 29 birth date in a non-leap year, the game observes the birthday on March 1. This is a consistent game-calendar convention, not a legal-age rule.
+- Existing saves without a calendar remain valid. Their current age/year remain authoritative until the explicit migration stage adds and validates a calendar; this first slice does not silently rewrite old saves or change annual progression.
+- The calendar helpers are pure and tested. Weekly advancement, schedule consumption, date-based events, and financial cadence remain unimplemented until their own resolver/migration tests pass.
+
 ### 3.2 Weekly schedule: commitments first, free time second
 
 The week is shaped by recurring commitments and the player's discretionary choices.
