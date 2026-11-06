@@ -121,8 +121,14 @@ The settings page provides a concise recent-log view backed by the character's c
 Health; family; education; career; finance; relationships; lifestyle; contextual/scheduled/random/player-created events. Build incrementally and connect systems. Do not implement every system at once.
 
 ## Event model
-A future event definition should include a stable ID/content version, eligibility conditions (age, location, finances, health, education, relationships, job, prior flags), trigger type, narrative, choices, costs, immediate effects, delayed consequences, and a history entry.
-Randomness adds uncertainty but never overrides plausibility or eligibility. Avoid excessive repetition. Outcomes should be explainable from the character's circumstances.
+A game event uses a stable ID, eligibility conditions, narrative, choices, costs, immediate effects, optional delayed consequences, and a chronological history entry. Randomness adds uncertainty but never overrides plausibility or eligibility. Avoid excessive repetition. Outcomes should be explainable from the character's circumstances.
+
+### Implemented first event slice
+- `web/src/lib/events.ts` owns the first contextual event catalogue, eligibility, deterministic selection, choice validation, immediate stat/money/action effects, unresolved-event expiry, and scheduled follow-up resolution.
+- The initial authored events cover a school reading group (ages 6–17), an adult side project (ages 18–64), and a wellbeing check-in (age 35+ when health is 60 or lower). Each event is unique per life in this first slice.
+- Choices are stored in the character save as a pending event. Costs are validated in the simulation layer; accepted choices are recorded in Life History. Selected choices can schedule a persistent next-year consequence.
+- Advancing without choosing explicitly lets the situation pass and records that outcome. It does not spend an action or silently grant benefits.
+- The Home overview shows the current situation and recent year recap. This is an initial event loop, not yet the complete year-planning/review interface or a broad event engine.
 
 ## Simulation rules
 - Actions consume a communicated resource, usually time, money, or energy.

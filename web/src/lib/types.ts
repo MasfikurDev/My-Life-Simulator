@@ -52,6 +52,44 @@ export interface Employment {
   promotions: number;
   startedAtAge: number;
 }
+
+export interface GameEventEffects {
+  money?: number;
+  health?: number;
+  happiness?: number;
+  intelligence?: number;
+  fitness?: number;
+}
+export interface ScheduledGameConsequence {
+  id: string;
+  dueYear: number;
+  title: string;
+  description: string;
+  effects: GameEventEffects;
+}
+export interface GameEventFollowUp {
+  delayYears: number;
+  title: string;
+  description: string;
+  effects: GameEventEffects;
+}
+export interface GameEventChoice {
+  id: string;
+  label: string;
+  detail: string;
+  actionCost: number;
+  moneyCost: number;
+  effects: GameEventEffects;
+  followUp?: GameEventFollowUp;
+}
+export interface PendingGameEvent {
+  id: string;
+  title: string;
+  description: string;
+  category: 'opportunity' | 'challenge' | 'personal';
+  choices: GameEventChoice[];
+}
+
 export interface LifeEvent { id: string; year: number; age: number; title: string; description: string; kind: 'milestone' | 'activity' | 'event'; }
 export interface Character {
   name: string; age: number; year: number; health: number; happiness: number;
@@ -76,6 +114,11 @@ export interface Character {
   economy?: EconomicConditions;
   businesses?: OwnedBusiness[];
   appearance?: { height: string; build: string; hair: string; eyes: string };
+  pendingGameEvent?: PendingGameEvent | null;
+  eventPreparedYear?: number;
+  resolvedGameEventIds?: string[];
+  scheduledGameConsequences?: ScheduledGameConsequence[];
+  lastYearRecap?: string[];
   history: LifeEvent[];
 }
 export type SaveSlotId = 'slot-1' | 'slot-2' | 'slot-3';

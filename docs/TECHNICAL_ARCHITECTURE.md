@@ -169,17 +169,19 @@ The top-level Life destination is a modular UI workspace, not a new simulation s
 - No Character schema migration is required. Existing `recurringPayments`, card, bank-account, and household fields remain the source of truth.
 
 
-## Annual progression and event architecture (planned)
+## Annual progression and event architecture
 
-The simulation will evolve from a mostly deterministic annual stat/finance update into a phase-based, event-driven yearly chapter. Keep the core pure TypeScript and independent of Svelte/browser APIs.
+The first event-driven slice now lives in the pure TypeScript module `web/src/lib/events.ts`, independent of Svelte/browser APIs. It defines a small authored event set, age/health eligibility, stable deterministic selection, choice affordability/action validation, immediate bounded effects, persistent scheduled consequences, event expiry, and chronological history records. `simulation.ts` prepares an event for a new year, resolves due consequences, expires unanswered events on advancement, and stores a compact recap. The Home UI presents the pending choice and recap.
+
+The simulation will continue evolving from its mostly deterministic annual stat/finance update into a fuller phase-based yearly chapter. Keep the core pure TypeScript and independent of Svelte/browser APIs.
 
 Planned boundaries:
 - `year-cycle.ts` (or equivalent domain module) coordinates explicit phases: prepare year, resolve player decisions, validate unresolved choices, settle annual systems, age/progress, and produce a recap. Do not introduce this module until its boundaries are clear from the existing simulation code.
-- `events/` owns event definitions, eligibility, selection weights/cooldowns, choice validation, immediate effects, delayed effects, follow-up flags, and history descriptions.
+- `events.ts` currently owns the first event definitions, age/health eligibility, deterministic selection, choice validation, immediate effects, delayed consequences, event expiry, and history descriptions. Expand into an `events/` folder only when the catalogue justifies that complexity.
 - Domain modules (School, Work, Life/Health, Relationships/Family, Finance, Lifestyle) own their state transitions. The event resolver may invoke domain operations but must not duplicate their business rules.
-- The save owns persistent event state: resolved event IDs/versions, cooldowns, choice flags, pending consequences, and a reproducible random seed/state. New fields must be optional/defaulted or migrated safely.
+- The save currently owns optional `pendingGameEvent`, `eventPreparedYear`, `resolvedGameEventIds`, `scheduledGameConsequences`, and `lastYearRecap` fields. These additions are optional so older character saves remain readable. Add versioning/migration only when a real incompatible schema change is required.
 - Event content is data-driven where useful, but do not build a generic event scripting language or content platform before a small playable set proves the pattern.
-- Event and year resolution must be deterministic for the same save, choices, and random seed. Avoid ambient `Math.random()` in authoritative simulation paths.
+- The current event picker is deterministic for the same character identity, age, year, and history length; it does not consume ambient `Math.random()`. Future event systems should use an explicit persisted seed/state if richer randomness is needed.
 - Year-end resolution order must be explicit, documented, and tested. A proposed order is: income/financial settlement; recurring commitments and liabilities; school/work progression; household/family changes; health/relationship drift; delayed event consequences; age/life-stage transition; next-year event preparation. Adjust only when domain dependencies require it.
 - Return structured effects/recap data from simulation functions so UI can explain meaningful outcomes without re-deriving rules.
 - Keep player-facing event content, consequences, and history portable across save/load. Content-version changes must not replay completed events or corrupt pending outcomes.

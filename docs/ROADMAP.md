@@ -46,10 +46,12 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 ## Milestone 3 — Rebuild the annual gameplay loop and event engine (next priority)
 - [ ] Replace simple annual stat progression with a clear year-opening, decision, event, year-review, explicit-advance, and year-recap flow.
 - [ ] Keep the current annual action budget initially, but make action costs and opportunity costs visible and meaningful.
-- [ ] Add a small curated set of contextual events with distinct choices, costs, immediate effects, delayed consequences, and history entries.
-- [ ] Add event eligibility, cooldowns, uniqueness, weighting, and follow-up flags; prevent implausible or repetitive events.
-- [ ] Make important event choices persist and affect later opportunities, relationships, education, work, health, and finances where supported.
-- [ ] Add a concise year recap that explains the most important outcomes and their causes.
+- [x] Add an initial curated set of contextual events with distinct choices, action/money costs, immediate effects, delayed consequences, and history entries.
+- [x] Add age/health eligibility, deterministic selection, per-life uniqueness, choice validation, and persistent scheduled follow-ups for the first event set.
+- [x] Persist event choices and delayed effects in the character save; resolve the first follow-up into next-year state and history.
+- [x] Add a compact year recap on Home using recorded simulation history.
+- [ ] Expand event selection with richer context, cooldowns, category balancing, and a larger authored event set.
+- [ ] Add a complete year-opening/planning/review phase and a clear preview of predictable year-end effects.
 - [ ] Ensure unused actions cannot be exploited to receive free benefits; time still advances only on explicit player confirmation.
 
 **Acceptance:** A fresh character can play several consecutive years with varied, age-appropriate decisions. At least one choice has a tested delayed consequence. The player can explain why a major outcome occurred from visible game history. The same seed and save produce reproducible simulation results.

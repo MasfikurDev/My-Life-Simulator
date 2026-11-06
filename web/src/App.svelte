@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { advanceYear, canAffordActivity, formatCharacterMoney, performActivity } from './lib/simulation';
+  import { resolveGameEvent } from './lib/events';
   import { getAvailableActivityIds, getEducationStage, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
@@ -147,7 +148,13 @@
     if (!character.actionsRemaining) { notify('You have used this year’s available time.'); return; }
     persist(performActivity(character, id)); playSound('action');
   }
-  function nextYear() { if (character) { persist(advanceYear(character)); notify('A new year begins.'); playSound('year'); } }
+  function chooseLifeEvent(choiceId: string) {
+    if (!character) return;
+    const next = resolveGameEvent(character, choiceId);
+    if (next === character) { notify('You need more time or money for that choice.'); return; }
+    persist(next); playSound('action'); notify('Decision recorded.');
+  }
+  function nextYear() { if (character) { const letEventPass = Boolean(character.pendingGameEvent); persist(advanceYear(character)); notify(letEventPass ? 'A new year begins. The situation was left behind.' : 'A new year begins.'); playSound('year'); } }
   function restart() {
     clearSave(activeSlotId); slots = getSaveSlots(); character = null;
     showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.'); pendingSlotId = activeSlotId;
@@ -274,6 +281,34 @@
           <section class="money-card money-focus">
             <div class="money-focus-top"><div><div class="money-label">AVAILABLE CASH</div><div class="money-value">{formatCharacterMoney(character)}</div></div></div>
           </section>
+          {#if character.lastYearRecap?.length}
+            <section class="year-recap">
+              <div class="eyebrow">YEAR {character.year - 1} · RECAP</div>
+              <h2>What changed</h2>
+              <ul>{#each character.lastYearRecap as recap}<li>{recap}</li>{/each}</ul>
+            </section>
+          {/if}
+          {#if character.pendingGameEvent}
+            {@const lifeEvent = character.pendingGameEvent}
+            <section class="game-event-panel">
+              <div class="game-event-top"><span class="eyebrow">THIS YEAR · {lifeEvent.category.toUpperCase()}</span><span class="game-event-status">DECISION</span></div>
+              <h2>{lifeEvent.title}</h2>
+              <p class="game-event-description">{lifeEvent.description}</p>
+              <div class="game-event-choices">
+                {#each lifeEvent.choices as choice}
+                  <button class="game-event-choice" disabled={character.actionsRemaining < choice.actionCost || character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
+                    <span class="game-event-choice-copy"><strong>{choice.label}</strong><small>{choice.detail}</small></span>
+                    <span class="game-event-choice-cost">
+                      {#if choice.actionCost > 0}<span>{choice.actionCost} action</span>{/if}
+                      {#if choice.moneyCost > 0}<span>{formatCharacterMoney(character, choice.moneyCost)}</span>{/if}
+                      {#if choice.actionCost === 0 && choice.moneyCost === 0}<span>No cost</span>{/if}
+                    </span>
+                  </button>
+                {/each}
+              </div>
+              <p class="game-event-footnote">Your decision is recorded in Life History. You can also advance the year and let this situation pass.</p>
+            </section>
+          {/if}
         {:else if character && activeTab==='school' && character.age >= 3}
           <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div><div class="year-pill">AGE {character.age}</div></div>
           <section class="domain-panel">

@@ -2,7 +2,17 @@
 
 **Canonical game-design implementation plan · Approved direction · 2026-11-06**
 
-This document turns the gameplay audit into a staged, implementation-ready direction. It describes the intended game, not a claim that the listed systems already exist. The code and tests determine implementation status.
+This document turns the gameplay audit into a staged, implementation-ready direction. It distinguishes the implemented first slice from planned mechanics.
+
+## Current implementation status · 2026-11-06
+The first event-driven gameplay slice is implemented in the web simulation:
+- Three original contextual events are selected using character/year context and age/health eligibility.
+- A pending event and its choices are persisted in the character save; choice costs and requirements are validated by the simulation.
+- Choices can consume annual actions and money, change bounded stats, and schedule a delayed next-year consequence.
+- Resolved choices and consequences are written to Life History. Unanswered situations expire with an explicit history entry when the player advances.
+- Home shows the current event and a concise recap derived from recorded year changes.
+
+Still planned: a full year-opening and planning phase, year-end financial preview, richer event selection/cooldowns/content, broader cross-domain consequences, and the later School/Work/Family/Health/Retirement/Death milestones. This is the first playable slice, not completion of the full redesign.
 
 ## 1. The game we are making
 
