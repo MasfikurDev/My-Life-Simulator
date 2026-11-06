@@ -4,7 +4,7 @@ export type EmploymentType = 'part-time' | 'full-time' | 'flexible';
 export type HouseholdArrangement = 'family-supported' | 'shared' | 'independent';
 export type SavingsGoalMonths = 1 | 3 | 6;
 export type BankAccountType = 'checking' | 'savings' | 'fixed-deposit';
-export type FinancialTransactionType = 'account-opened' | 'deposit' | 'withdrawal' | 'transfer' | 'income' | 'expense' | 'interest' | 'loan-issued' | 'loan-payment' | 'loan-interest' | 'card-issued' | 'card-purchase' | 'card-payment' | 'card-interest' | 'recurring-payment' | 'auto-deposit' | 'vault-deposit' | 'vault-withdrawal' | 'investment-buy' | 'investment-sell' | 'property-purchase' | 'property-sale' | 'property-rent' | 'business-start' | 'business-income' | 'business-expense' | 'business-sale' | 'card-load';
+export type FinancialTransactionType = 'account-opened' | 'deposit' | 'withdrawal' | 'transfer' | 'income' | 'expense' | 'interest' | 'loan-issued' | 'loan-payment' | 'loan-interest' | 'card-issued' | 'card-purchase' | 'card-payment' | 'card-interest' | 'recurring-payment' | 'auto-deposit' | 'vault-deposit' | 'vault-withdrawal' | 'investment-buy' | 'investment-sell' | 'property-purchase' | 'property-sale' | 'property-rent' | 'business-start' | 'business-income' | 'business-expense' | 'business-sale' | 'card-load' | 'tax';
 export type CardType = 'debit' | 'credit' | 'prepaid';
 export type LoanType = 'personal' | 'mortgage' | 'business';
 export type PropertyType = 'house' | 'apartment';
@@ -59,7 +59,7 @@ export interface Character {
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
   educationProgress?: number; employment?: Employment | null;
-  lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number;
+  lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number; lastYearTax?: number; taxBalance?: number;
   householdArrangement?: HouseholdArrangement; savingsGoalMonths?: SavingsGoalMonths | null;
   bankAccounts?: BankAccount[];
   financialTransactions?: FinancialTransaction[];

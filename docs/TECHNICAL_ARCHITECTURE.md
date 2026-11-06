@@ -116,3 +116,9 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 - Annual economic conditions are derived deterministically from simulated year and age. The same input save produces the same rates and market update.
 - Inflation updates the cost index, recurring charges, rental agreements, and household budget. Market asset updates are bounded: equities respond primarily to growth, gold responds more to inflation, property growth responds to both, and business operating results respond to growth and performance.
 - Economic values are fictional and should be labeled as simplified estimates. Avoid presenting them as real market predictions.
+
+
+## Tax settlement
+- Optional `lastYearTax` and `taxBalance` fields preserve legacy saves. Progressive wage tax, positive rental/business income tax, and property levy are assessed annually after asset income and before financial-product autopay.
+- Tax settlement draws cash first, then checking/savings balances. Fixed-deposit accounts cannot be used before maturity. Any unpaid amount remains a liability and is deducted from net worth; no negative cash balance is permitted.
+- Tax amounts are game-balance assumptions, not jurisdiction-specific tax advice. Ledger entries record paid amounts and remaining liability.
