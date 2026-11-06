@@ -42,6 +42,12 @@ describe('life simulation', () => {
     expect(conflict.issue).toBe('time-conflict');
     expect(conflict.character).toBe(first.character);
   });
+  it('rejects a long activity when it cannot fit before the day ends', () => {
+    const adult = createCharacter('Planner', 30);
+    const result = planActivity(adult, 'study', '2026-01-05', 'evening');
+    expect(result.issue).toBe('invalid-time-slot');
+    expect(result.character).toBe(adult);
+  });
   it('reserves enough cash for all planned paid activities', () => {
     const adult = { ...createCharacter('Planner', 30), money: 50, currencyScale: 1 };
     const first = planActivity(adult, 'study', '2026-01-05', 'morning');
