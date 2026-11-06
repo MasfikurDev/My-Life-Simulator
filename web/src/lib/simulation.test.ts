@@ -470,7 +470,7 @@ describe('life simulation', () => {
     expect(next.bankAccounts!.find((account)=>account.id==='checking-1')!.balance).toBe(0);
     expect(next.bankAccounts!.find((account)=>account.id==='fixed-1')!.balance).toBeGreaterThan(5000);
     expect(next.taxBalance).toBeGreaterThan(0);
-    expect(getNetWorth(next)).toBeLessThan(getNetWorth(base));
+    expect(getNetWorth({ ...next, taxBalance: 0 }) - getNetWorth(next)).toBe(next.taxBalance);
     expect(next.financialTransactions?.some((item)=>item.type==='tax')).toBe(true);
   });
   it('clears previously outstanding tax when sufficient cash becomes available', () => {
