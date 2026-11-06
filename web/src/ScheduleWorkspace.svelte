@@ -15,9 +15,13 @@
   const plannedCost = $derived(schedule.activities.reduce((total, item) => total + getActivityCost(character, item.activityId), 0));
   const availableActivities = $derived(getAvailableActivityIds(character.age, character.employment));
   let selectedActivity = $state<ActivityId>('exercise');
-  let selectedDate = $state(weekStart);
+  let selectedDate = $state<string>('');
   let selectedPeriod = $state<DayPeriod>('morning');
   let feedback = $state('');
+
+  $effect(() => {
+    if (!days.some((day) => day.date === selectedDate)) selectedDate = weekStart;
+  });
 
   const days = $derived(weekdays.map((label, index) => {
     const date = addCalendarDays(weekStart, index);
