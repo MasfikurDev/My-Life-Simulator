@@ -53,7 +53,7 @@
         {#each connections as connection (connection.person.id)}
           <article class="relative-card">
             <div class="relative-head">
-              <div><h3>{connection.person.name}</h3><p>{connection.role} · Age {connection.age}{connection.livesTogether ? ' · Lives with you' : ''}</p></div>
+              <div><h3>{connection.person.name}</h3><p>{connection.role} · {connection.living ? 'Age ' : 'Died at age '}{connection.age}{connection.livesTogether ? ' · Lives with you' : ''}</p></div>
               <span class:deceased={!connection.living} class="relative-status">{connection.living ? 'Living' : 'Deceased'}</span>
             </div>
             {#if connection.bond}
