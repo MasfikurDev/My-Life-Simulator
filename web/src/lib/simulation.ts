@@ -830,7 +830,7 @@ export function removePlannedActivity(character: Character, activityId: string):
 
 export interface WeeklyResolutionResult {
   character: Character;
-  issue: 'invalid-schedule' | 'already-resolved' | null;
+  issue: 'invalid-schedule' | 'already-resolved' | 'unresolvable-action' | null;
   recap: string[];
 }
 
@@ -864,23 +864,24 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   const periodOrder: Record<DayPeriod, number> = { morning: 0, afternoon: 1, evening: 2 };
   const ordered = [...schedule.activities].sort((a, b) => a.date.localeCompare(b.date) || periodOrder[a.startPeriod] - periodOrder[b.startPeriod] || a.id.localeCompare(b.id));
   for (const item of ordered) {
+    let result: Character;
     if (item.action?.kind === 'family') {
-      const result = interactWithFamily(next, item.action.personId, item.action.interaction, item.action.supportAmount ?? 0);
-      if (result !== next) { next = result; recap.push('Family: ' + item.action.interaction.replace('-', ' ') + '.'); }
-      else recap.push('A planned family interaction could not be completed.');
+      result = interactWithFamily(next, item.action.personId, item.action.interaction, item.action.supportAmount ?? 0);
+      if (result !== next) recap.push('Family: ' + item.action.interaction.replace('-', ' ') + '.');
     } else if (item.action?.kind === 'business') {
-      const result = manageBusiness(next, item.action.businessId);
-      if (result !== next) { next = result; recap.push('Business management session completed.'); }
-      else recap.push('A planned business session could not be completed.');
+      result = manageBusiness(next, item.action.businessId);
+      if (result !== next) recap.push('Business management session completed.');
     } else if (item.action?.kind === 'event') {
-      const result = next.pendingGameEvent?.id === item.action.eventId ? resolveGameEvent(next, item.action.choiceId) : next;
-      if (result !== next) { next = result; recap.push('Event decision resolved.'); }
-      else recap.push('A planned event decision could not be completed.');
+      result = next.pendingGameEvent?.id === item.action.eventId ? resolveGameEvent(next, item.action.choiceId) : next;
+      if (result !== next) recap.push('Event decision resolved.');
     } else {
-      const result = performActivity(next, item.activityId as ActivityId, weekRandom);
-      if (result !== next) { next = result; recap.push(item.activityId + ' completed.'); }
-      else recap.push(item.activityId + ' could not be completed.');
+      result = performActivity(next, item.activityId as ActivityId, weekRandom);
+      if (result !== next) recap.push(item.activityId + ' completed.');
     }
+    // Never consume a reservation when its effect cannot be applied. Keep the
+    // original save and let the player remove or repair the stale plan.
+    if (result === next) return { character, issue: 'unresolvable-action', recap: [] };
+    next = result;
   }
   const nextSchedule = { ...schedule, activities: [] };
   next = { ...next, weeklySchedule: nextSchedule, lastResolvedWeekStart: weekStart, lastWeekRecap: recap };
