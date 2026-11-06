@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { advanceYear, canAffordActivity, formatCharacterMoney, performActivity } from './lib/simulation';
-  import { getAvailableActivityIds } from './lib/progression';
+  import { getAvailableActivityIds, getEducationStage, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
@@ -195,7 +195,7 @@
         {#each [{id:'home',label:'Overview',icon:'⌂'},...(character && character.age >= 3 ? [{id:'school',label:'School',icon:'▤'}] : []),...(character && character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'}] : []),{id:'life',label:'Life',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'settings',label:'Settings',icon:'⚙'}] as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => activeTab=item.id}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
-        {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>{character.name}</strong><small>Age {character.age}</small></div></div>{/if}
+        {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>Active save</strong><small>Slot {activeSlotId.slice(-1)}</small></div></div>{/if}
       </aside>
       <section class="content">
         {#if activeTab==='create'}
@@ -237,11 +237,43 @@
           </section>
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
         {:else if character && activeTab==='home'}
-          <div class="page-heading"><div><div class="eyebrow">OVERVIEW</div><h1>{character.name}</h1><p>Age {character.age}</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
-          <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div></div> </div></section>
-          <div class="finance-shortcuts">
-            <button onclick={() => activeTab='life'}><span class="shortcut-icon">✳</span><strong>Life</strong><small>Wellbeing, personal time, growth and history</small><b>Open Life →</b></button>
+          {@const stage = getLifeStage(character.age)}
+          {@const educationStatus = character.education === 'Higher education' ? 'Higher education' : character.education ?? getEducationStage(character.age)}
+          {@const workStatus = character.employment
+            ? character.employment.title
+            : character.age < 16
+              ? 'Not eligible yet'
+              : character.age < 18
+                ? 'Part-time opportunities'
+                : character.age >= 65
+                  ? 'Flexible work available'
+                  : 'Job search'}
+          {@const workDetail = character.employment
+            ? character.employment.type === 'part-time' ? 'Part-time employment' : character.employment.type === 'flexible' ? 'Flexible employment' : 'Full-time employment'
+            : character.age < 16 ? 'Employment unlocks at age 16' : character.age < 18 ? 'School-age work only' : character.age >= 65 ? 'Optional later-life work' : 'No current position'}
+          <div class="page-heading overview-heading">
+            <div>
+              <div class="eyebrow">CURRENT OVERVIEW</div>
+              <h1>{character.name}</h1>
+              <p>Age {character.age} · {stage.label}{#if character.birthplace && character.country} · {character.birthplace}, {character.country}{/if}</p>
+            </div>
+            <div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div>
           </div>
+          <section class="overview-context" aria-label="Current situation">
+            <div class="overview-context-item">
+              <span>EDUCATION</span>
+              <strong>{educationStatus}</strong>
+              <small>{character.age < 3 ? 'Not started' : character.age < 6 ? 'Early learning stage' : character.age < 18 ? 'School-age learning' : character.education === 'Higher education' ? 'Qualification completed' : 'Secondary education completed'}</small>
+            </div>
+            <div class="overview-context-item">
+              <span>WORK & CAREER</span>
+              <strong>{workStatus}</strong>
+              <small>{workDetail}</small>
+            </div>
+          </section>
+          <section class="money-card money-focus">
+            <div class="money-focus-top"><div><div class="money-label">AVAILABLE CASH</div><div class="money-value">{formatCharacterMoney(character)}</div></div></div>
+          </section>
         {:else if character && activeTab==='school' && character.age >= 3}
           <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div><div class="year-pill">AGE {character.age}</div></div>
           <section class="domain-panel">
