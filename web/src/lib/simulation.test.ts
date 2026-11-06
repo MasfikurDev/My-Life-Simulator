@@ -220,7 +220,7 @@ describe('life simulation', () => {
       employment: { title: 'Worker', type: 'full-time' as const, annualSalary: 10000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 } };
     const next = advanceYear(adult);
     expect(next.lastYearIncome).toBe(10000);
-    expect(next.lastYearExpenses).toBe(3800);
+    expect(next.lastYearExpenses).toBe(Math.round(3800 * getEconomicConditions(next).costOfLivingIndex));
     expect(next.lastYearShortfall).toBe(0);
     expect(next.money).toBe(1000 + 10000 - next.lastYearExpenses!);
   });
