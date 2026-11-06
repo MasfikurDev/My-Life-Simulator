@@ -73,6 +73,7 @@ export interface GameEventFollowUp {
   description: string;
   effects: GameEventEffects;
 }
+export interface FamilyBondEffect { personId: string; closeness: number; trust: number; tension: number; }
 export interface GameEventChoice {
   id: string;
   label: string;
@@ -80,6 +81,7 @@ export interface GameEventChoice {
   actionCost: number;
   moneyCost: number;
   effects: GameEventEffects;
+  familyBondEffect?: FamilyBondEffect;
   followUp?: GameEventFollowUp;
 }
 export interface PendingGameEvent {
