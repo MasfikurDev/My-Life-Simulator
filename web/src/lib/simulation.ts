@@ -1,4 +1,4 @@
-import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType } from './types';
+import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType } from './types';
 import { getEducationStage, isActivityAvailable } from './progression';
 
 export const ACTIONS_PER_YEAR = 3;
@@ -133,7 +133,7 @@ export function getNetWorth(character: Character): number {
   const investments = (character.investments ?? []).reduce((sum, holding) => sum + holding.units * getMarketPrice(character, holding.type), 0);
   const properties = (character.properties ?? []).reduce((sum, property) => sum + property.marketValue, 0);
   const businesses = (character.businesses ?? []).reduce((sum, business) => sum + business.valuation, 0);
-  return Math.round(character.money + (character.bankAccounts ?? []).reduce((sum, account) => sum + account.balance, 0) + (character.vaultBalance ?? 0) + investments + properties + businesses - (character.loans ?? []).reduce((sum, loan) => sum + (loan.active ? loan.balance : 0), 0) - (character.cards ?? []).filter((card) => card.type === 'credit').reduce((sum, card) => sum + card.balance, 0));
+  return Math.round(character.money + (character.bankAccounts ?? []).reduce((sum, account) => sum + account.balance, 0) + (character.vaultBalance ?? 0) + (character.cards ?? []).filter((card) => card.type === 'prepaid').reduce((sum, card) => sum + card.balance, 0) + investments + properties + businesses - (character.loans ?? []).reduce((sum, loan) => sum + (loan.active ? loan.balance : 0), 0) - (character.cards ?? []).filter((card) => card.type === 'credit').reduce((sum, card) => sum + card.balance, 0));
 }
 
 
@@ -284,7 +284,7 @@ function accountExists(character: Character, id?: string): boolean { return !!id
 function updateAccountBalance(character: Character, id: string, delta: number): BankAccount[] {
   return (character.bankAccounts ?? []).map((account) => account.id === id ? { ...account, balance: account.balance + delta } : account);
 }
-export function issueBankCard(character: Character, type: 'debit' | 'credit', name: string, linkedAccountId?: string, creditLimit = 0): Character {
+export function issueBankCard(character: Character, type: CardType, name: string, linkedAccountId?: string, creditLimit = 0): Character {
   if (character.age < (type === 'credit' ? 18 : 16) || (character.cards ?? []).length >= 6) return character;
   if (type === 'debit' && !accountExists(character, linkedAccountId)) return character;
   if (type === 'credit' && (!validAmount(creditLimit) || creditLimit > 100000000 || (linkedAccountId && !accountExists(character, linkedAccountId)))) return character;
@@ -295,10 +295,25 @@ export function issueBankCard(character: Character, type: 'debit' | 'credit', na
   next.history.unshift(event(next, 'Payment card issued', 'You added a ' + type + ' card named ' + label + '.', 'milestone'));
   return next;
 }
+export function loadPrepaidCard(character: Character, cardId: string, amount: number, source: 'cash' | 'account' = 'cash', sourceId?: string): Character {
+  const value = Math.floor(amount);
+  const card = (character.cards ?? []).find((item) => item.id === cardId && item.type === 'prepaid' && item.active);
+  const account = source === 'account' ? (character.bankAccounts ?? []).find((item) => item.id === sourceId) : undefined;
+  if (!card || !validAmount(value) || (source === 'cash' && character.money < value) || (source === 'account' && (!account || account.balance < value))) return character;
+  const next = { ...character, money: source === 'cash' ? character.money - value : character.money, bankAccounts: source === 'account' && account ? updateAccountBalance(character, account.id, -value) : character.bankAccounts, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance + value } : item), history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'card-load', value, 'Loaded ' + formatCharacterMoney(next, value) + ' onto ' + card.name + '.', source === 'cash' ? 'Cash' : account!.name, card.name);
+  return next;
+}
 export function makeCardPurchase(character: Character, cardId: string, amount: number, description = 'Card purchase'): Character {
   const value = Math.floor(amount);
   const card = (character.cards ?? []).find((item) => item.id === cardId && item.active);
   if (!card || !validAmount(value)) return character;
+  if (card.type === 'prepaid') {
+    if (card.balance < value) return character;
+    const next = { ...character, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance - value } : item), history: [...character.history] };
+    next.financialTransactions = financeRecord(next, 'card-purchase', value, description + ' using ' + card.name + '.', card.name, 'Merchant');
+    return next;
+  }
   if (card.type === 'debit') {
     const account = (character.bankAccounts ?? []).find((item) => item.id === card.linkedAccountId);
     if (!account || account.balance < value) return character;
@@ -345,7 +360,7 @@ export function addRecurringPayment(character: Character, name: string, amount: 
   const value = Math.floor(amount);
   if (character.age < 16 || (character.recurringPayments ?? []).filter((item) => item.active).length >= 12 || !validAmount(value)) return character;
   if (sourceType === 'account' && !accountExists(character, sourceId)) return character;
-  if (sourceType === 'card' && !(character.cards ?? []).some((card) => card.id === sourceId && card.active && card.type === 'credit')) return character;
+  if (sourceType === 'card' && !(character.cards ?? []).some((card) => card.id === sourceId && card.active && (card.type === 'credit' || card.type === 'prepaid'))) return character;
   const label = name.trim().slice(0, 36);
   if (!label) return character;
   const payment: RecurringPayment = { id: 'recurring-' + character.year + '-' + character.age + '-' + ((character.recurringPayments ?? []).length + 1), name: label, amount: value, category, sourceType, sourceId, active: true, startedAtYear: character.year };
@@ -406,9 +421,10 @@ function settleFinancialProducts(character: Character): Character {
         next.financialTransactions = financeRecord(next, 'recurring-payment', payment.amount, 'Paid ' + payment.name + '.', account.name, payment.name);
       } else { next.financialTransactions = financeRecord(next, 'expense', 0, 'Missed payment: ' + payment.name + '.', account?.name ?? 'Missing account', payment.name); }
     } else if (payment.sourceType === 'card') {
-      const card = (next.cards ?? []).find((item) => item.id === payment.sourceId && item.active && item.type === 'credit');
-      if (card && card.balance + payment.amount <= card.creditLimit) {
-        next = { ...next, cards: (next.cards ?? []).map((item) => item.id === card.id ? { ...item, balance: item.balance + payment.amount } : item) };
+      const card = (next.cards ?? []).find((item) => item.id === payment.sourceId && item.active && (item.type === 'credit' || item.type === 'prepaid'));
+      const canCharge = card && (card.type === 'credit' ? card.balance + payment.amount <= card.creditLimit : card.balance >= payment.amount);
+      if (card && canCharge) {
+        next = { ...next, cards: (next.cards ?? []).map((item) => item.id === card.id ? { ...item, balance: item.type === 'credit' ? item.balance + payment.amount : item.balance - payment.amount } : item) };
         next.financialTransactions = financeRecord(next, 'recurring-payment', payment.amount, 'Charged ' + payment.name + ' to ' + card.name + '.', card.name, payment.name);
       } else { next.financialTransactions = financeRecord(next, 'expense', 0, 'Missed payment: ' + payment.name + '.', card?.name ?? 'Unavailable card', payment.name); }
     } else if (payment.sourceType === 'cash') {
@@ -463,14 +479,14 @@ function settleFinancialProducts(character: Character): Character {
   return next;
 }
 
-export function openBankAccount(character: Character, type: BankAccountType, name?: string): Character {
-  if (character.age < 16) return character;
+export function openBankAccount(character: Character, type: BankAccountType, name?: string, termYears = 1): Character {
+  if (character.age < 16 || (type === 'fixed-deposit' && (!Number.isInteger(termYears) || termYears < 1 || termYears > 10))) return character;
   const accounts = character.bankAccounts ?? [];
   if (accounts.length >= 8) return character;
   const label = name?.trim().slice(0, 28) || (type === 'savings' ? 'Savings account' : 'Everyday account');
   const account: BankAccount = {
     id: 'account-' + String(character.year) + '-' + String(character.age) + '-' + String(accounts.length + 1),
-    name: label, type, balance: 0, annualInterestRate: type === 'savings' ? 0.02 : 0, openedAtAge: character.age
+    name: label, type, balance: 0, annualInterestRate: type === 'fixed-deposit' ? 0.045 : type === 'savings' ? 0.02 : 0, openedAtAge: character.age, maturesAtYear: type === 'fixed-deposit' ? character.year + termYears : undefined
   };
   const next = { ...character, bankAccounts: [...accounts, account], history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'account-opened', 0, 'Opened ' + label + '.', '—', label);
@@ -491,7 +507,7 @@ export function depositToAccount(character: Character, accountId: string, amount
 export function withdrawFromAccount(character: Character, accountId: string, amount: number): Character {
   const value = Math.floor(amount);
   const account = (character.bankAccounts ?? []).find((item) => item.id === accountId);
-  if (character.age < 16 || !account || !Number.isSafeInteger(value) || value <= 0 || account.balance < value) return character;
+  if (character.age < 16 || !account || !Number.isSafeInteger(value) || value <= 0 || account.balance < value || (account.type === 'fixed-deposit' && character.year < (account.maturesAtYear ?? Number.MAX_SAFE_INTEGER))) return character;
   const next = { ...character, money: character.money + value, bankAccounts: (character.bankAccounts ?? []).map((item) => item.id === accountId ? { ...item, balance: item.balance - value } : item), history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'withdrawal', value, 'Withdrew ' + formatCharacterMoney(next, value) + ' from ' + account.name + '.', account.name, 'Cash');
   next.history.unshift(event(next, 'Withdrew money', formatCharacterMoney(next, value) + ' moved from ' + account.name + ' into cash.'));
