@@ -1,8 +1,9 @@
-import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType } from './types';
-import { getEducationStage, isActivityAvailable } from './progression';
+import type { ActivityId, DayPeriod, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType } from './types';
+import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences } from './events';
 import { advanceFamilyYear, createFamilyState } from './family';
-import { createGameCalendar } from './calendar';
+import { createGameCalendar, getFirstWeekStartOfYear, getWeekStart } from './calendar';
+import { buildWeeklySchedule, getWeeklySchedule } from './weekly-schedule';
 
 export const ACTIONS_PER_YEAR = 3;
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
@@ -669,6 +670,97 @@ export function getActivityCost(character: Character, activity: ActivityId): num
 
 export function canAffordActivity(character: Character, activity: ActivityId): boolean {
   return character.money >= getActivityCost(character, activity);
+}
+
+export type ActivityPlanningIssue =
+  | 'unavailable'
+  | 'invalid-date'
+  | 'outside-current-week'
+  | 'invalid-existing-schedule'
+  | 'time-conflict'
+  | 'insufficient-funds';
+
+export interface ActivityPlanningResult {
+  character: Character;
+  issue: ActivityPlanningIssue | null;
+  message: string | null;
+}
+
+/**
+ * Reserve an activity in the character's current week. This is deliberately
+ * separate from activity resolution: planning consumes time capacity, while
+ * the later weekly resolver will apply effects and settle costs exactly once.
+ */
+export function planActivity(character: Character, activity: ActivityId, date: string, startPeriod: DayPeriod): ActivityPlanningResult {
+  if (!isActivityAvailable(character.age, activity, character.employment)) {
+    return { character, issue: 'unavailable', message: 'This activity is not available at your current life stage.' };
+  }
+
+  let currentWeek: string;
+  let activityWeek: string;
+  try {
+    currentWeek = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+    activityWeek = getWeekStart(date);
+  } catch {
+    return { character, issue: 'invalid-date', message: 'Choose a valid calendar date.' };
+  }
+  if (activityWeek !== currentWeek) {
+    return { character, issue: 'outside-current-week', message: 'Activities can only be planned in the current week.' };
+  }
+
+  const schedule = getWeeklySchedule(character.weeklySchedule);
+  if (!buildWeeklySchedule(currentWeek, schedule).valid) {
+    return { character, issue: 'invalid-existing-schedule', message: 'Resolve the existing schedule conflicts before adding another activity.' };
+  }
+
+  const alreadyReserved = schedule.activities.reduce((total, item) => total + getActivityCost(character, item.activityId), 0);
+  const newCost = getActivityCost(character, activity);
+  if (alreadyReserved + newCost > character.money) {
+    return { character, issue: 'insufficient-funds', message: 'Your current cash cannot cover the planned activities this week.' };
+  }
+
+  let sequence = schedule.activities.length + 1;
+  let id = 'planned-' + date + '-' + startPeriod + '-' + activity + '-' + sequence;
+  const existingIds = new Set([...schedule.commitments.map((item) => item.id), ...schedule.activities.map((item) => item.id)]);
+  while (existingIds.has(id)) {
+    sequence += 1;
+    id = 'planned-' + date + '-' + startPeriod + '-' + activity + '-' + sequence;
+  }
+
+  const definition = getActivityDefinition(activity);
+  const nextSchedule = {
+    ...schedule,
+    activities: [...schedule.activities, {
+      id,
+      activityId: activity,
+      date,
+      startPeriod,
+      durationBlocks: definition.durationBlocks
+    }]
+  };
+  const validation = buildWeeklySchedule(currentWeek, nextSchedule);
+  if (!validation.valid) {
+    const issue = validation.issues.find((item) => item.entryId === id);
+    return {
+      character,
+      issue: 'time-conflict',
+      message: issue?.message ?? 'That time cannot be reserved.'
+    };
+  }
+
+  return { character: { ...character, weeklySchedule: nextSchedule }, issue: null, message: null };
+}
+
+export function removePlannedActivity(character: Character, activityId: string): Character {
+  const schedule = getWeeklySchedule(character.weeklySchedule);
+  if (!schedule.activities.some((item) => item.id === activityId)) return character;
+  return {
+    ...character,
+    weeklySchedule: {
+      ...schedule,
+      activities: schedule.activities.filter((item) => item.id !== activityId)
+    }
+  };
 }
 
 export function performActivity(character: Character, activity: ActivityId, random: () => number = Math.random): Character {
