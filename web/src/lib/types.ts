@@ -78,7 +78,7 @@ export interface GameEventChoice {
   id: string;
   label: string;
   detail: string;
-  actionCost: number;
+  timeBlocks: number;
   moneyCost: number;
   effects: GameEventEffects;
   familyBondEffect?: FamilyBondEffect;
@@ -155,12 +155,18 @@ export interface WeeklyCommitment {
   startPeriod: DayPeriod;
   durationBlocks: number;
 }
+export type PlannedAction =
+  | { kind: 'family'; personId: string; interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support'; supportAmount?: number }
+  | { kind: 'business'; businessId: string }
+  | { kind: 'event'; eventId: string; choiceId: string };
+
 export interface PlannedActivity {
   id: string;
-  activityId: ActivityId;
+  activityId: ActivityId | 'family' | 'business' | 'event';
   date: string;
   startPeriod: DayPeriod;
   durationBlocks: number;
+  action?: PlannedAction;
 }
 export interface WeeklySchedule {
   version: 1;
@@ -169,9 +175,11 @@ export interface WeeklySchedule {
 }
 export interface Character {
   name: string; age: number; year: number; health: number; happiness: number;
-  intelligence: number; fitness: number; money: number; actionsRemaining: number;
+  intelligence: number; fitness: number; money: number;
   calendar?: GameCalendar;
   weeklySchedule?: WeeklySchedule;
+  lastResolvedWeekStart?: string;
+  lastWeekRecap?: string[];
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
   educationProgress?: number; employment?: Employment | null;
