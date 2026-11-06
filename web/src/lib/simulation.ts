@@ -1,4 +1,4 @@
-import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, Loan, LoanType, PaymentSourceType, RecurringPayment } from './types';
+import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType } from './types';
 import { getEducationStage, isActivityAvailable } from './progression';
 
 export const ACTIONS_PER_YEAR = 3;
@@ -130,9 +130,154 @@ function financeRecord(character: Character, type: FinancialTransaction['type'],
 }
 
 export function getNetWorth(character: Character): number {
-  return Math.round(character.money + (character.bankAccounts ?? []).reduce((sum, account) => sum + account.balance, 0) + (character.vaultBalance ?? 0) - (character.loans ?? []).reduce((sum, loan) => sum + (loan.active ? loan.balance : 0), 0) - (character.cards ?? []).filter((card) => card.type === 'credit').reduce((sum, card) => sum + card.balance, 0));
+  const investments = (character.investments ?? []).reduce((sum, holding) => sum + holding.units * getMarketPrice(character, holding.type), 0);
+  const properties = (character.properties ?? []).reduce((sum, property) => sum + property.marketValue, 0);
+  const businesses = (character.businesses ?? []).reduce((sum, business) => sum + business.valuation, 0);
+  return Math.round(character.money + (character.bankAccounts ?? []).reduce((sum, account) => sum + account.balance, 0) + (character.vaultBalance ?? 0) + investments + properties + businesses - (character.loans ?? []).reduce((sum, loan) => sum + (loan.active ? loan.balance : 0), 0) - (character.cards ?? []).filter((card) => card.type === 'credit').reduce((sum, card) => sum + card.balance, 0));
 }
 
+
+
+export function getMarketPrice(character: Character, type: InvestmentType): number {
+  const scale = character.currencyScale ?? 1;
+  return Math.max(1, Math.round(type === 'gold' ? (character.marketPrices?.gold ?? 150 * scale) : (character.marketPrices?.stocks ?? 100 * scale)));
+}
+export function tradeInvestment(character: Character, type: InvestmentType, action: 'buy' | 'sell', units: number): Character {
+  const quantity = Math.floor(units);
+  if (character.age < 18 || !Number.isSafeInteger(quantity) || quantity <= 0 || quantity > 1000000) return character;
+  const price = getMarketPrice(character, type);
+  const total = price * quantity;
+  if (!Number.isSafeInteger(total)) return character;
+  const holdings = [...(character.investments ?? [])];
+  const index = holdings.findIndex((holding) => holding.type === type);
+  const holding = index >= 0 ? holdings[index] : { type, units: 0, averageCost: 0 };
+  if (action === 'buy') {
+    if (character.money < total) return character;
+    const nextHolding = { type, units: holding.units + quantity, averageCost: Math.round(((holding.units * holding.averageCost) + total) / (holding.units + quantity)) };
+    if (index >= 0) holdings[index] = nextHolding; else holdings.push(nextHolding);
+    const next = { ...character, money: character.money - total, investments: holdings, history: [...character.history] };
+    next.financialTransactions = financeRecord(next, 'investment-buy', total, 'Bought ' + quantity + ' units of ' + type + '.', 'Cash', type);
+    return next;
+  }
+  if (holding.units < quantity) return character;
+  const remaining = holding.units - quantity;
+  if (remaining === 0) holdings.splice(index, 1); else holdings[index] = { ...holding, units: remaining };
+  const next = { ...character, money: character.money + total, investments: holdings, history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'investment-sell', total, 'Sold ' + quantity + ' units of ' + type + '.', type, 'Cash');
+  return next;
+}
+export function buyProperty(character: Character, type: PropertyType, name: string, price: number, downPayment: number, annualRate = 0.07, termYears = 20, primaryResidence = false): Character {
+  const value = Math.floor(price), down = Math.floor(downPayment);
+  if (character.age < 18 || (character.properties ?? []).length >= 5 || !validAmount(value) || !Number.isSafeInteger(down) || down < Math.ceil(value * 0.2) || down > value || character.money < down || !Number.isFinite(annualRate) || annualRate < 0 || annualRate > 0.5 || !Number.isInteger(termYears) || termYears < 1 || termYears > 30) return character;
+  const financed = value - down;
+  let next = character;
+  if (financed > 0) {
+    next = takeLoan(character, 'mortgage', 'Mortgage · ' + (name.trim() || type), financed, annualRate, termYears);
+    if (next === character) return character;
+  }
+  const mortgage = financed > 0 ? (next.loans ?? []).at(-1) : undefined;
+  const label = name.trim().slice(0, 36) || (type === 'house' ? 'House' : 'Apartment');
+  const property: PropertyAsset = { id: 'property-' + character.year + '-' + character.age + '-' + ((character.properties ?? []).length + 1), name: label, type, marketValue: value, purchasePrice: value, annualMaintenance: Math.max(1, Math.round(value * 0.01)), mortgageLoanId: mortgage?.id, rentedOut: false, annualRentalIncome: 0 };
+  next = { ...next, money: next.money - value, properties: [...(next.properties ?? []), property], primaryResidenceId: primaryResidence ? property.id : next.primaryResidenceId, rentalHome: primaryResidence ? null : next.rentalHome, history: [...next.history] };
+  next.financialTransactions = financeRecord(next, 'property-purchase', value, 'Purchased ' + label + '.', 'Cash and mortgage', label);
+  next.history.unshift(event(next, 'Property purchased', label + ' was added to your assets' + (mortgage ? ' with mortgage financing.' : '.'), 'milestone'));
+  return next;
+}
+export function rentHome(character: Character, type: PropertyType, annualRent: number): Character {
+  const rent = Math.floor(annualRent);
+  if (character.age < 18 || !validAmount(rent)) return character;
+  const next = { ...character, rentalHome: { type, annualRent: rent }, primaryResidenceId: undefined, history: [...character.history] };
+  next.history.unshift(event(next, 'Moved into a rental home', 'You chose to rent an ' + type + ' for ' + formatCharacterMoney(next, rent) + ' per year.', 'milestone'));
+  return next;
+}
+export function moveIntoOwnedProperty(character: Character, propertyId: string): Character {
+  const property = (character.properties ?? []).find((item) => item.id === propertyId);
+  if (character.age < 18 || !property || property.rentedOut) return character;
+  const next = { ...character, primaryResidenceId: propertyId, rentalHome: null, history: [...character.history] };
+  next.history.unshift(event(next, 'Moved into owned property', 'You made ' + property.name + ' your primary residence.', 'milestone'));
+  return next;
+}
+export function setPropertyRental(character: Character, propertyId: string, rentedOut: boolean, annualRentalIncome = 0): Character {
+  const property = (character.properties ?? []).find((item) => item.id === propertyId);
+  const income = Math.floor(annualRentalIncome);
+  if (!property || propertyId === character.primaryResidenceId || (rentedOut && !validAmount(income))) return character;
+  const next = { ...character, properties: (character.properties ?? []).map((item) => item.id === propertyId ? { ...item, rentedOut, annualRentalIncome: rentedOut ? income : 0 } : item), history: [...character.history] };
+  next.history.unshift(event(next, rentedOut ? 'Property listed for rent' : 'Property rental ended', rentedOut ? property.name + ' is expected to earn ' + formatCharacterMoney(next, income) + ' each year.' : property.name + ' is no longer rented out.', 'milestone'));
+  return next;
+}
+export function sellProperty(character: Character, propertyId: string): Character {
+  const property = (character.properties ?? []).find((item) => item.id === propertyId);
+  if (!property) return character;
+  const mortgage = property.mortgageLoanId ? (character.loans ?? []).find((loan) => loan.id === property.mortgageLoanId && loan.active) : undefined;
+  const debt = mortgage?.balance ?? 0;
+  if (property.marketValue < debt) return character;
+  const proceeds = property.marketValue - debt;
+  const next = { ...character, money: character.money + proceeds, properties: (character.properties ?? []).filter((item) => item.id !== propertyId), loans: mortgage ? (character.loans ?? []).map((loan) => loan.id === mortgage.id ? { ...loan, balance: 0, active: false } : loan) : character.loans, primaryResidenceId: character.primaryResidenceId === propertyId ? undefined : character.primaryResidenceId, history: [...character.history] };
+  if (debt > 0) next.financialTransactions = financeRecord(next, 'loan-payment', debt, 'Mortgage settled when selling ' + property.name + '.', property.name, mortgage!.name);
+  next.financialTransactions = financeRecord(next, 'property-sale', property.marketValue, 'Sold ' + property.name + ' and settled linked mortgage.', property.name, 'Cash');
+  next.history.unshift(event(next, 'Property sold', property.name + ' sold for ' + formatCharacterMoney(next, property.marketValue) + (debt ? ', with ' + formatCharacterMoney(next, debt) + ' mortgage settled.' : '.'), 'milestone'));
+  return next;
+}
+export function startBusiness(character: Character, name: string, type: BusinessType, capital: number): Character {
+  const amount = Math.floor(capital);
+  if (character.age < 18 || (character.businesses ?? []).length >= 3 || !validAmount(amount) || amount < 1000 * (character.currencyScale ?? 1) || character.money < amount) return character;
+  const label = name.trim().slice(0, 36);
+  if (!label) return character;
+  const business: OwnedBusiness = { id: 'business-' + character.year + '-' + character.age + '-' + ((character.businesses ?? []).length + 1), name: label, type, investedCapital: amount, valuation: amount, performance: 60 };
+  const next = { ...character, money: character.money - amount, businesses: [...(character.businesses ?? []), business], history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'business-start', amount, 'Started ' + label + '.', 'Cash', label);
+  next.history.unshift(event(next, 'Started a business', label + ' opened with ' + formatCharacterMoney(next, amount) + ' in startup capital.', 'milestone'));
+  return next;
+}
+export function manageBusiness(character: Character, businessId: string): Character {
+  const business = (character.businesses ?? []).find((item) => item.id === businessId);
+  const cost = business ? Math.max(1, Math.round(business.investedCapital * 0.01)) : 0;
+  if (!business || character.age < 18 || character.actionsRemaining <= 0 || character.money < cost) return character;
+  const next = { ...character, money: character.money - cost, actionsRemaining: character.actionsRemaining - 1, businesses: (character.businesses ?? []).map((item) => item.id === businessId ? { ...item, performance: clamp(item.performance + 8) } : item), history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'business-expense', cost, 'Business development expense for ' + business.name + '.', 'Cash', business.name);
+  next.history.unshift(event(next, 'Managed your business', 'You invested time and ' + formatCharacterMoney(next, cost) + ' into improving ' + business.name + '.'));
+  return next;
+}
+export function closeBusiness(character: Character, businessId: string): Character {
+  const business = (character.businesses ?? []).find((item) => item.id === businessId);
+  if (!business) return character;
+  const proceeds = Math.floor(business.valuation * 0.9);
+  const next = { ...character, money: character.money + proceeds, businesses: (character.businesses ?? []).filter((item) => item.id !== businessId), history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'business-sale', proceeds, 'Closed and sold ' + business.name + '.', business.name, 'Cash');
+  next.history.unshift(event(next, 'Business sold', business.name + ' was sold for ' + formatCharacterMoney(next, proceeds) + '.', 'milestone'));
+  return next;
+}
+function settleAnnualAssets(character: Character): Character {
+  let next = character;
+  const scale = next.currencyScale ?? 1;
+  const stockMovement = Math.sin(next.year * 12.9898 + next.age * 78.233) * 0.12;
+  const goldMovement = 0.02 + Math.sin(next.year * 3.17 + next.age * 1.7) * 0.06;
+  const oldPrices = next.marketPrices ?? { stocks: 100 * scale, gold: 150 * scale, lastUpdatedYear: next.year - 1 };
+  next = { ...next, marketPrices: { stocks: Math.max(1, Math.round(oldPrices.stocks * (1 + stockMovement))), gold: Math.max(1, Math.round(oldPrices.gold * (1 + goldMovement))), lastUpdatedYear: next.year } };
+  if ((next.properties ?? []).length) {
+    next = { ...next, properties: (next.properties ?? []).map((property) => ({ ...property, marketValue: Math.max(1, Math.round(property.marketValue * (property.type === 'house' ? 1.02 : 1.015))) })) };
+    for (const property of next.properties) {
+      if (property.rentedOut && property.annualRentalIncome > 0) {
+        next = { ...next, money: next.money + property.annualRentalIncome };
+        next.financialTransactions = financeRecord(next, 'property-rent', property.annualRentalIncome, 'Rental income from ' + property.name + '.', property.name, 'Cash');
+      }
+    }
+  }
+  for (const business of next.businesses ?? []) {
+    const profit = Math.round(business.investedCapital * ((business.performance - 50) / 100) * 0.1);
+    if (profit > 0) {
+      next = { ...next, money: next.money + profit };
+      next.financialTransactions = financeRecord(next, 'business-income', profit, 'Annual operating profit from ' + business.name + '.', business.name, 'Cash');
+    } else if (profit < 0) {
+      const loss = Math.abs(profit);
+      const paid = Math.min(next.money, loss);
+      next = { ...next, money: next.money - paid };
+      next.financialTransactions = financeRecord(next, 'business-expense', paid, 'Annual operating loss at ' + business.name + '.', 'Cash', business.name);
+      if (paid < loss) next = { ...next, businesses: (next.businesses ?? []).map((item) => item.id === business.id ? { ...item, valuation: Math.max(0, item.valuation - (loss - paid)) } : item) };
+    }
+  }
+  return next;
+}
 
 function validAmount(amount: number): boolean { return Number.isSafeInteger(amount) && amount > 0; }
 function accountExists(character: Character, id?: string): boolean { return !!id && (character.bankAccounts ?? []).some((account) => account.id === id); }
@@ -376,12 +521,15 @@ export function getHouseholdBudget(character: Character) {
     independent: { housing: 0.25, food: 0.15, transport: 0.06, utilities: 0.06, personal: 0.06, total: 0.58 }
   };
   const share = shares[character.householdArrangement ?? 'family-supported'];
-  const housing = Math.round(referenceIncome * share.housing);
+  const ownedResidence = (character.properties ?? []).find((property) => property.id === character.primaryResidenceId);
+  const housing = character.rentalHome ? character.rentalHome.annualRent : ownedResidence ? 0 : Math.round(referenceIncome * share.housing);
   const food = Math.round(referenceIncome * share.food);
   const transport = Math.round(referenceIncome * share.transport);
   const utilities = Math.round(referenceIncome * share.utilities);
   const personal = Math.round(referenceIncome * share.personal);
-  return { housing, food, transport, utilities, personal, total: housing + food + transport + utilities + personal };
+  const maintenance = (character.properties ?? []).reduce((sum, property) => sum + property.annualMaintenance, 0);
+  const totalHousing = housing + maintenance;
+  return { housing: totalHousing, food, transport, utilities, personal, total: totalHousing + food + transport + utilities + personal };
 }
 
 export function setHouseholdArrangement(character: Character, arrangement: HouseholdArrangement): Character {
@@ -534,6 +682,7 @@ export function advanceYear(character: Character): Character {
     next.lastYearShortfall = 0;
   }
 
+  Object.assign(next, settleAnnualAssets(next));
   Object.assign(next, settleFinancialProducts(next));
 
   if (job) {
