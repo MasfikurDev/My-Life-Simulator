@@ -60,6 +60,21 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 **Acceptance:** A fresh and migrated save can play several weeks with different activity durations, meaningful time conflicts, contextual events, and persistent consequences. Month-end and year-end processing occur exactly once. Birthday/age eligibility changes on the correct date. Quiet weeks can be advanced quickly. Scenario tests cover a school-age child, employed adult, unemployed adult, and later-life character. Existing saves and all financial invariants remain intact.
 
+## Milestone 4 — Personal Technology (after weekly time foundation)
+
+**Goal:** add smartphones, laptops, and desktop PCs as useful optional assets connected to everyday life.
+
+- [ ] Add Life → Personal Technology and a separate Lifestyle Discover technology retailer.
+- [ ] Add a small fictional catalogue with category-aware capability tiers and new/used options.
+- [ ] Implement individual device ownership/access records and save/load compatibility.
+- [ ] Route purchases, repairs, and resale through the existing Finance transaction/ledger path.
+- [ ] Add basic condition, repair, replacement, and age/guardian rules.
+- [ ] Integrate a few real capability/access checks into School, Work, and Personal activities.
+- [ ] Provide shared/school/work/public/non-digital alternatives so ownership is not a core progression paywall.
+- [ ] Test children, teens, adults, low-income saves, failed purchases, repair, and shared access.
+
+**Acceptance:** Device ownership and costs persist accurately; failed transactions are atomic; capabilities enable specific contextual opportunities; other domains do not duplicate device management; existing saves remain valid. Detailed rules: [PERSONAL_TECHNOLOGY.md](PERSONAL_TECHNOLOGY.md).
+
 ## Milestone 4 — Deepen School and Work into playable systems
 - [ ] Add real school progression choices, enrollment, attendance, classes, grades/exams, and fees in the School workspace.
 - [ ] Add recruitment stages with applications, interviews, offers, acceptance/decline, employer identity, and workplace decisions in Work.
