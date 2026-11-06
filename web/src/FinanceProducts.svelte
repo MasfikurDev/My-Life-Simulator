@@ -19,7 +19,8 @@
   function depositVault(){run(()=>depositToVault(character,n(vaultAmount)),'Cash stored in your personal safe.');}
   function withdrawVault(){run(()=>withdrawFromVault(character,n(vaultAmount)),'Cash withdrawn from your personal safe.');}
   function buy(){run(()=>makeCardPurchase(character,selectedCard,n(purchaseAmount),purchaseDescription||'Card purchase'),'Purchase recorded.');}
-  function loadPrepaid(){const card=prepaidCards.find((item)=>item.id===prepaidCardId);if(!card)return;run(()=>loadPrepaidCard(character,card.id,n(prepaidLoadAmount)),'Prepaid card loaded.');}\n  function payCard(){const card=creditCards.find((item)=>item.id===selectedCard);if(!card)return;run(()=>payCreditCard(character,card.id,n(cardPayAmount),card.linkedAccountId?'account':'cash',card.linkedAccountId),'Card payment completed.');}
+  function loadPrepaid(){const card=prepaidCards.find((item)=>item.id===prepaidCardId);if(!card)return;run(()=>loadPrepaidCard(character,card.id,n(prepaidLoadAmount)),'Prepaid card loaded.');}
+  function payCard(){const card=creditCards.find((item)=>item.id===selectedCard);if(!card)return;run(()=>payCreditCard(character,card.id,n(cardPayAmount),card.linkedAccountId?'account':'cash',card.linkedAccountId),'Card payment completed.');}
   function payLoan(){const loan=loans.find((item)=>item.id===selectedLoan);if(!loan)return;run(()=>repayLoan(character,loan.id,n(loanPayAmount),loan.paymentAccountId?'account':'cash',loan.paymentAccountId),'Loan payment completed.');}
 </script>
 <section class="products-panel">
