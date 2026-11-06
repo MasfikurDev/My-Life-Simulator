@@ -178,6 +178,18 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .life-workspace .life-shortcuts .shortcut-icon {
+    display: grid;
+    place-items: center;
+    width: 27px;
+    height: 27px;
+    border-radius: 8px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 16px;
+    line-height: 1;
+  }
+
   .life-workspace .life-shortcuts button {
     display: grid;
     justify-items: start;
@@ -273,6 +285,12 @@
 
     .life-workspace .life-shortcuts {
       gap: 7px;
+    }
+
+    .life-workspace .life-shortcuts .shortcut-icon {
+      width: 25px;
+      height: 25px;
+      font-size: 15px;
     }
 
     .life-workspace .life-shortcuts button {
