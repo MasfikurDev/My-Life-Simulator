@@ -14,12 +14,12 @@ The week is the fundamental playable unit; the month is the financial/reporting 
 
 ## The intended player experience
 
-The game is played as a sequence of meaningful weeks, grouped into monthly financial rhythms and yearly life chapters, not as a dashboard that the player advances through. The detailed annual loop, event rules, consequence model, life-stage experience, mortality/ending direction, genre references, and acceptance criteria are defined in [`GAMEPLAY_LOOP.md`](GAMEPLAY_LOOP.md). That document is canonical for the redesign and distinguishes planned mechanics from implemented ones.
+The game is played as a sequence of meaningful weeks, grouped into monthly financial rhythms and yearly life chapters, not as a dashboard that the player advances through. The detailed weekly cycle, event rules, consequence model, life-stage experience, mortality/ending direction, genre references, and acceptance criteria are defined in [`GAMEPLAY_LOOP.md`](GAMEPLAY_LOOP.md). That document is canonical for the redesign and distinguishes planned mechanics from implemented ones.
 
 ### Core game-design rules
 - Every week should offer relevant decisions, changing circumstances, or a deliberate quiet week; repeated stat grinding must not be the dominant loop.
 - Recurring commitments shape available time; the player chooses how to use genuine free time rather than spending abstract annual action tokens.
-- Actions, events, and annual settlement must create understandable immediate or delayed consequences.
+- Actions, events, and monthly/yearly settlement must create understandable immediate or delayed consequences.
 - Event content must be contextual, age-eligible, varied, and persistent where a choice matters.
 - The player must see meaningful costs and trade-offs before committing.
 - Systems remain modular in the UI but connected through explicit shared simulation state.
