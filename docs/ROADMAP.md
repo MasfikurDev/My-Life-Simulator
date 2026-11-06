@@ -51,9 +51,9 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour or reserve time for unimplemented school/work schedules. The first model uses three broad periods per day and validates overlaps; no school/work commitments are invented.
 - [x] Add a visible Life → Schedule planner with a seven-day, 21-period grid, age-available activity planning, duration-based reservations, conflict prevention, and removal. Planned activities are saved; they are not yet resolved or marked complete.
 - [x] Centralize per-activity time requirements and validate planned activities in the simulation: life-stage eligibility, current-week boundaries, duration fit, overlaps, and aggregate planned cash costs.
-- [ ] Complete the cutover from annual action tokens across activities, events, family, and business interactions. The legacy direct-action loop remains active until weekly resolution and save migration are ready.
-- [ ] Resolve planned activities into deterministic gameplay effects and charge their accepted costs exactly once.
-- [ ] Add deterministic, exactly-once weekly resolution with structured effects, history, and recap.
+- [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, and business management.
+- [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once.
+- [x] Add deterministic, exactly-once weekly resolution with history, recap, and seven-day calendar advancement.
 - [ ] Adapt contextual events, deadlines, and delayed consequences to date/week boundaries.
 - [ ] Move recurring payments and payroll to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries.
 - [ ] Prevent duplicate or skipped financial settlement across month/year boundaries; document rounding and payment-failure behavior.
@@ -102,7 +102,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Model dependants, childcare, shared household membership, and caregiving with complete Time/Finance/Health contracts.
 - [ ] Integrate family mortality and bereavement with the global mortality/terminal-state model.
 - [ ] Add estate, inheritance, and generational continuation only after people, assets, dependants, and terminal-life state are reliable.
-- [ ] Migrate family interactions from annual actions to weekly time blocks when Milestone 3 is complete.
+- [x] Migrate family interactions from annual actions to weekly time blocks.
 
 **Acceptance:** Family is represented by real people and validated relationships, not a single score. Interactions materially affect the selected relationship and are recorded. Financial support cannot create money or hidden debt. New and legacy saves remain valid. Different family structures and child/adult/later-life scenarios are tested. No unimplemented partner, child, care, death, or inheritance state is shown as fact.
 
