@@ -32,7 +32,7 @@ A modern, replayable life simulator where the player shapes a believable life th
 - A polished interface: typography, hierarchy, cards, clear actions, themes, responsive layouts, restrained animation.
 
 ## Game feel and genre direction
-My Life Simulator must be fun to play as a game, not merely comprehensive as a life-management model. Its primary rhythm is a sequence of yearly chapters containing relevant decisions, contextual events, resource trade-offs, consequences, and a recap. The player should be able to make progress in a short mobile session and still build a distinct life over a longer playthrough.
+My Life Simulator must be fun to play as a game, not merely comprehensive as a life-management model. Its primary rhythm is a sequence of playable weeks, grouped into monthly financial rhythms and yearly life chapters. Weeks contain relevant decisions, contextual events, schedule trade-offs, consequences, and concise recaps; months organize recurring financial obligations and reports; years organize birthdays, life-stage changes, and long-term milestones. The player should be able to make progress in a short mobile session and still build a distinct life over a longer playthrough.
 
 Genre references are used for design lessons only:
 - BitLife demonstrates the accessibility of a year-by-year life timeline, broad roleplaying paths, and consequential events.
