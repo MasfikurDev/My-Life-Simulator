@@ -199,7 +199,7 @@ A playable weekly loop is not complete until:
 The annual-action-to-weekly-save migration is implemented:
 - Schema 1 single-save data and schema 2 multi-slot data migrate to schema 3 while preserving valid character records and all three slot identities.
 - Existing age and world year remain authoritative. When no calendar exists, the migration anchors the character to the first Monday on or after January 1 of the stored year and derives a matching birth date so the displayed age is unchanged at migration.
-- The obsolete annual action counter is retired; unused annual actions are not converted into extra weekly time or free activities.
+- The obsolete annual action counter is retired; unused annual actions are not converted into extra weekly time or free activities. Pending legacy event choices convert their old action cost into an equivalent time-block requirement.
 - The exact pre-migration payload is retained under `my-life-simulator.save.pre-weekly-migration` before the new payload replaces the active save. Unknown formats are rejected without overwriting the original.
 
 ### Current implementation boundary
