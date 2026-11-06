@@ -51,3 +51,6 @@ Every major life system must have a distinct, self-contained experience. A paren
 
 ## School, Work, and personal activities
 School, Work, Life, and Finance are distinct top-level workspaces. School owns learning and education progression; Work owns job search, employment and career actions; Life owns personal wellbeing, personal growth, everyday activities, and the chronological life history. Life is a parent workspace with focused Overview, Wellbeing, Personal Growth, Personal, and Life History sections. Personal activities must not remain a separate top-level destination. All workspaces share the same character, annual action budget, simulation, and event history without mixing domain-specific controls.
+
+
+Personal Technology is part of everyday life: smartphones, laptops, and desktop PCs can support communication, education, work, creativity, and entertainment. Devices create meaningful purchase, maintenance, and upgrade decisions while remaining optional assets rather than mandatory gates. Their management belongs to its own Life workspace and their purchases use the shared Finance system.
