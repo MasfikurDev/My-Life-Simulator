@@ -87,7 +87,8 @@ The simulation now has a reusable, save-compatible weekly schedule model:
 - Planned activities reserve dated periods in the selected week and must remain within that week.
 - The pure schedule resolver expands commitments, identifies free periods, and reports duplicate IDs, invalid dates/durations, out-of-week activities, and overlapping placements.
 - New characters receive an empty versioned schedule. Legacy characters without this optional field are treated as having an empty schedule; existing annual progression and saves are unchanged.
-- This is a data/simulation foundation only. It does not yet consume time, advance weeks, create domain schedules, or replace annual actions.
+- The Life workspace now exposes a seven-day planner. Players can reserve age-available activities in morning/afternoon/evening periods, see the duration each activity reserves, remove plans, and receive a conflict message when a placement overlaps an existing reservation. The schedule is saved with the character.
+- Planned activities are reservations only: they do not yet apply gameplay effects, consume the old annual action tokens, or advance the calendar. The existing annual loop remains active until weekly resolution and save migration are implemented.
 
 ### 3.3 The week in play
 
