@@ -267,7 +267,7 @@ describe('life simulation', () => {
   });
 
   it('issues loans without changing net worth and tracks interest and repayments', () => {
-    const base = { ...createCharacter('Borrower', 30), money: 1000 };
+    const base = { ...createCharacter('Borrower', 30), currencyScale: 1, money: 1000 };
     const loaned = takeLoan(base, 'personal', 'Emergency loan', 5000, 0.1, 5);
     expect(loaned.money).toBe(6000);
     expect(getNetWorth(loaned)).toBe(getNetWorth(base));
@@ -294,7 +294,7 @@ describe('life simulation', () => {
     expect(paid.cards![1].balance).toBe(300);
   });
   it('runs annual subscriptions and automatic savings without creating money', () => {
-    const base = { ...createCharacter('Saver', 30), money: 2000, employment: { title: 'Worker', type: 'full-time' as const, annualSalary: 10000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 } };
+    const base = { ...createCharacter('Saver', 30), currencyScale: 1, money: 2000, employment: { title: 'Worker', type: 'full-time' as const, annualSalary: 10000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 } };
     const opened = openBankAccount(base, 'savings', 'Reserve');
     const rule = setAutoDeposit(opened, opened.bankAccounts![0].id, 'percentage', 10);
     const subscription = addRecurringPayment(rule, 'Music', 100, 'subscription', 'cash');
