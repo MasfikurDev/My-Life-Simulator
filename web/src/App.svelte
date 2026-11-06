@@ -267,7 +267,7 @@
             {@const goalTarget = character.savingsGoalMonths ? Math.round((budget.total / 12) * character.savingsGoalMonths) : 0}
             <section class="household-budget-panel">
               <div class="section-heading"><div><span class="section-index">01</span><h3>Living arrangement</h3></div></div>
-              <p class="finance-footnote">Your choice changes the estimated annual household costs. You can change it at any time; the new budget applies at the next year-end.</p>
+              <p class="finance-footnote">Your choice updates the estimated annual costs now; the budget is settled when you advance the year.</p>
               <div class="household-choice-grid">
                 <button class:finance-choice-active={character.householdArrangement==='family-supported'} class="finance-choice" onclick={() => changeHouseholdArrangement('family-supported')}><strong>Family-supported</strong><small>Shared family support; lowest personal costs.</small></button>
                 <button class:finance-choice-active={character.householdArrangement==='shared'} class="finance-choice" onclick={() => changeHouseholdArrangement('shared')}><strong>Shared household</strong><small>Split housing and household bills.</small></button>
