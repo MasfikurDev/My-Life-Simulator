@@ -503,3 +503,20 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
  .savings-choice-row{gap:5px}
  .savings-choice{font-size:9px}
 }
+
+
+/* Focused life-domain workspaces */
+.domain-panel{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:18px;margin:0 0 24px}
+.domain-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.domain-panel-head h2{font-size:19px;letter-spacing:-.45px;margin:7px 0 5px;color:var(--text)}
+.domain-panel-head p{font-size:11px;line-height:1.55;color:var(--muted);margin:0}
+.domain-status{flex:none;border:1px solid var(--line-strong);border-radius:7px;padding:6px 8px;color:var(--accent);font-size:8px;font-weight:800;letter-spacing:.9px}
+.domain-progress-label{display:flex;justify-content:space-between;gap:12px;margin:18px 0 7px;font-size:10px;color:var(--muted)}
+.domain-progress-label strong{color:var(--text);font-variant-numeric:tabular-nums}
+.domain-note{font-size:10px;line-height:1.5;color:var(--muted);margin-top:10px}
+.domain-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px;padding-top:15px;border-top:1px solid var(--line)}
+.domain-metrics>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.domain-metrics span{font-size:9px;color:var(--muted)}
+.domain-metrics strong{font-size:13px;color:var(--text);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+@media(max-width:620px){.domain-panel{padding:14px;margin-bottom:19px}.domain-panel-head h2{font-size:17px}.domain-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 10px}.domain-metrics strong{font-size:12px}}
+@media(max-width:360px){.domain-panel-head{gap:8px}.domain-status{font-size:7px;padding:5px 6px}}

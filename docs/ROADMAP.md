@@ -37,10 +37,12 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Add benefits and taxes after household budgets and financial flows are balanced.
 
 - [x] Split Finance into dedicated Banking, Cards, Loans, Taxes, Bills & Subscriptions, Savings & Vault, Property, Investments, Business, and Living Costs destinations.
-- [ ] Build separate school/education and job-search/workplace experiences using the same domain-module rules.
+- [x] Separate School, Work, and Personal activities into age-gated, domain-native destinations using existing simulation actions and save fields.
+- [ ] Expand School with enrollment, attendance, classes, grades, and education history only when each mechanic has a complete simulation loop.
+- [ ] Expand Work with a real application/interview/offer flow and richer workplace interactions; do not display placeholder recruitment stages.
 
 ## Milestone 3 — Connected systems
-Education and career eligibility/progression; validate and balance household income, recurring expenses, and savings; then family and relationships; events that respond to circumstances; feedback explaining outcomes.
+Expand education and career mechanics inside their dedicated School and Work destinations; validate and balance household income, recurring expenses, and savings; then family and relationships; events that respond to circumstances; feedback explaining outcomes.
 
 ## Milestone 4 — Replayability
 More life stages and event variety; personality/trait effects; achievements and optional challenges; balancing based on actual play sessions.

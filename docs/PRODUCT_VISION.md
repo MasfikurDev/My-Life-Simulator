@@ -38,3 +38,6 @@ Not initial goals: 3D worlds, real-time character movement, multiplayer, social 
 
 ## Domain-native experiences
 Every major life system must have a distinct, self-contained experience. A parent area groups related systems; it must not become a dumping ground for unrelated panels. Finance is one destination containing dedicated Banking, Cards, Loans, Taxes, Bills & Subscriptions, Savings & Vault, Property, Investments, Business, and Living Costs experiences. Education and work are separate life destinations, not summaries embedded in Finance. Each system owns its vocabulary, actions, navigation, contextual feedback, and visual identity while sharing the same character and simulation state.
+
+## School, Work, and personal activities
+School and Work are distinct top-level life experiences with age-appropriate access. School owns learning and education progression; Work owns job search, employment and career actions; Personal owns health, recreation and social activities. Their interfaces share the same character, annual action budget, simulation, and life history without mixing domain-specific controls.
