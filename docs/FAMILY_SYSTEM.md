@@ -133,4 +133,4 @@ A stage is not complete because a screen exists. Each stage requires simulation 
 
 ## Initial implementation boundary
 
-The first implementation should establish a real persistent family graph and a small, fully working interaction loop. It should not claim that partnership, birth, adoption, childcare, caregiving, family mortality, inheritance, or generational play are implemented until those mechanics exist and are tested.
+The first implementation establishes a real persistent family graph, a targeted interaction loop, and a one-time contextual family reconnection event for adults when higher-priority starter events are exhausted. The prompt is not repeated after it is resolved or passed. It should not claim that partnership, birth, adoption, childcare, caregiving, family mortality, inheritance, or generational play are implemented until those mechanics exist and are tested.
