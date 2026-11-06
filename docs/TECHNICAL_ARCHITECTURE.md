@@ -133,3 +133,22 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 - Stock-index and gold trades charge a 0.5% brokerage fee. Buy fees are included in the holding's average cost basis; sell fees reduce proceeds. Positive realized gains incur a simplified 10% capital-gains tax recorded in the ledger.
 - Property purchases and sales charge a 1% service/transfer fee. Positive realized property gains incur a simplified 10% capital-gains tax. Sale proceeds must cover linked mortgage debt, fees, and tax or the sale is rejected.
 - Fees reduce net worth; transfers between cash and holdings preserve value only before fees. Capital-gains taxes are paid from proceeds and recorded separately.
+
+
+## Domain module architecture
+Keep the simulation domain model independent from Svelte components. Organize UI and simulation capabilities around bounded life-system modules; shared types and persistence are contracts, not a reason to combine screens.
+
+Current Finance UI boundary:
+- FinanceWorkspace.svelte is the Finance parent shell and owns finance-only sub-navigation.
+- FinanceAccounts.svelte owns Banking: account opening, balances, cash/account movement, and transaction activity.
+- FinanceProducts.svelte owns reusable focused product views for cards, loans, recurring bills/subscriptions, and automatic savings/vault. A view selects one module at a time.
+- FinanceAssets.svelte owns focused Property, Investments, and Business views, selected independently.
+- FinanceLivingCosts.svelte owns household arrangements, estimated living costs, and emergency savings targets.
+- App.svelte owns global navigation, character lifecycle, persistence, and time progression. It should not assemble all finance modules inline.
+
+Future Education and Work modules must follow the same boundary pattern:
+- Education owns school enrollment, classes, attendance, grades, fees, study sessions, and education history.
+- Work owns job discovery, applications, interviews, offers, employment, workplace actions/performance, payroll and career history.
+- Do not implement Education/Work as status panels inside Finance. Their simulation logic should be callable through domain functions and their UI should be independent components/destinations.
+
+Shared cross-domain effects are communicated through explicit simulation transactions, history events, or narrowly scoped state changes. A bank account may receive salary, but the bank screen does not become a work screen. Keep each domain independently testable and progressively unlockable by age/eligibility.
