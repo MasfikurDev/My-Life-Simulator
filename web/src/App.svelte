@@ -157,8 +157,9 @@
     if (!character) return;
     const planned = planEventChoiceInNextFreeTime(character, choiceId);
     if (planned.issue) { notify(planned.message ?? 'That decision could not be scheduled.'); return; }
+    const immediate = character.pendingGameEvent?.choices.find((choice) => choice.id === choiceId)?.timeBlocks === 0;
     persist(planned.character); playSound('action');
-    notify(planned.character === character ? 'Decision recorded.' : 'Decision scheduled for this week.');
+    notify(immediate ? 'Decision recorded.' : 'Decision scheduled for this week.');
   }
   function openAdvanceReview() { if (!character) return; activeTab = 'home'; advanceReviewOpen = true; }
   function closeAdvanceReview() { advanceReviewOpen = false; }
@@ -338,7 +339,7 @@
                 <div><span>Available cash</span><strong>{formatCharacterMoney(character)}</strong></div>
               </div>
               {#if character.pendingGameEvent}
-                <p class="year-review-warning">Unresolved situation: {character.pendingGameEvent.title}. It will pass if you advance without choosing.</p>
+                <p class="year-review-warning">Unresolved situation: {character.pendingGameEvent.title}. It remains available for now but may expire at the year boundary if left unanswered.</p>
               {/if}
               <p class="year-review-note">Only accepted reservations are resolved. Conflicts must be fixed before the week can advance. Annual income, household costs, taxes and long-term financial settlements remain on their yearly boundary.</p>
               <div class="year-review-actions"><button class="secondary-button" onclick={closeAdvanceReview}>Back to this week</button><button class="primary-button" onclick={advanceWeekNow}>Resolve week and continue</button></div>
