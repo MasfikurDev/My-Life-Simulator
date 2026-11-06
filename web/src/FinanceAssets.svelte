@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { buyProperty, closeBusiness, formatCharacterMoney, getMarketPrice, manageBusiness, moveIntoOwnedProperty, rentHome, sellProperty, setPropertyRental, startBusiness, tradeInvestment } from './lib/simulation';
+  import { buyProperty, closeBusiness, formatCharacterMoney, getEconomicConditions, getMarketPrice, manageBusiness, moveIntoOwnedProperty, rentHome, sellProperty, setPropertyRental, startBusiness, tradeInvestment } from './lib/simulation';
   import type { BusinessType, Character, PropertyType } from './lib/types';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   const scale = $derived(character.currencyScale ?? 1);
@@ -24,6 +24,8 @@
 </script>
 <section class="assets-panel">
   <div class="assets-heading"><div><small>LONG-TERM WEALTH</small><h2>Property & investments</h2></div><span>{properties.length} properties · {businesses.length} businesses</span></div>
+  <div class="economy-strip"><div><small>ECONOMY</small><strong class={economy.cycle}>{economy.cycle}</strong></div><div><small>INFLATION</small><strong>{rate(economy.inflationRate)}</strong></div><div><small>GROWTH</small><strong>{rate(economy.growthRate)}</strong></div><div><small>BASE RATE</small><strong>{rate(economy.baseInterestRate)}</strong></div></div>
+  <p class="economy-note">Living costs and market prices respond to the economy. Stocks can fall in downturns; gold may react differently when inflation rises. Rates and returns are simplified game estimates.</p>
   <details><summary>Housing: rent or own</summary>
     <div class="current-home"><small>CURRENT ARRANGEMENT</small><strong>{character.primaryResidenceId ? properties.find((p)=>p.id===character.primaryResidenceId)?.name ?? 'Owned home' : character.rentalHome ? 'Renting · '+character.rentalHome.type : 'Current household arrangement'}</strong>{#if character.rentalHome}<span>{formatCharacterMoney(character,character.rentalHome.annualRent)} annual rent</span>{/if}</div>
     <div class="form-grid"><label>Rent type<select bind:value={rentalType}><option value="apartment">Apartment</option><option value="house">House</option></select></label><label>Annual rent<input type="number" min="1" bind:value={annualRent} placeholder={String(6000*scale)}/></label></div><button onclick={rent} disabled={character.age<18}>Choose rental home</button>
