@@ -107,3 +107,10 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 ## Additional bank products
 - Checking and savings accounts remain liquid. Fixed deposits store a maturity year and lock withdrawals until that simulated year; their simplified annual rate is 4.5%.
 - Prepaid cards store a positive funded balance. Loading transfers value from cash or a bank account; purchases and recurring charges reduce the stored balance. Prepaid balances are assets in net worth, unlike credit card balances which are liabilities.
+
+
+## Economic simulation
+- `Character.economy` is optional for save compatibility and stores bounded inflation, growth, benchmark rate, cycle, cost-of-living index, and last update year.
+- Annual economic conditions are derived deterministically from simulated year and age. The same input save produces the same rates and market update.
+- Inflation updates the cost index, recurring charges, rental agreements, and household budget. Market asset updates are bounded: equities respond primarily to growth, gold responds more to inflation, property growth responds to both, and business operating results respond to growth and performance.
+- Economic values are fictional and should be labeled as simplified estimates. Avoid presenting them as real market predictions.
