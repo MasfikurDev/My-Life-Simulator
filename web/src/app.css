@@ -473,3 +473,33 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 @media(max-width:620px){.career-finance-panel{padding:11px}.career-status-grid{gap:9px}.employment-pay-grid{gap:10px}.employment-pay-grid strong{font-size:10px}}
 
 
+
+
+/* Household finances and savings choices. */
+.household-budget-panel{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.household-budget-panel>.section-heading{margin-top:13px}
+.household-budget-panel>.section-heading:first-child{margin-top:0}
+.household-choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:11px}
+.finance-choice{min-width:0;min-height:44px;padding:9px 10px;text-align:left;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised);color:var(--text);display:flex;flex-direction:column;justify-content:center;gap:5px}
+.finance-choice strong{font-size:10px}.finance-choice small{font-size:9px;line-height:1.4;color:var(--muted)}
+.finance-choice-active{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px #72d69a24}
+.household-budget-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;margin-top:10px}
+.household-budget-grid>div{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);min-width:0}
+.household-budget-grid span{font-size:10px;color:var(--muted)}.household-budget-grid strong{font-size:11px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.household-budget-grid .budget-total{grid-column:1/-1;border-bottom:0}.household-budget-grid .budget-total span,.household-budget-grid .budget-total strong{font-weight:800;color:var(--text)}
+.finance-pressure-note{font-size:10px;line-height:1.5;color:#e5a36b;margin:10px 0 0}
+.savings-choice-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}
+.savings-choice{align-items:center;text-align:center;padding:8px 5px}
+.savings-progress-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.savings-progress-row>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.savings-progress-row small{font-size:8px;letter-spacing:.8px;color:var(--muted)}
+.savings-progress-row strong{font-size:12px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+@media(max-width:620px){
+ .household-budget-panel{padding:11px}
+ .household-choice-grid{grid-template-columns:1fr;gap:6px}
+ .finance-choice{min-height:44px}
+ .household-budget-grid{gap:0 10px}
+ .household-budget-grid strong{font-size:10px}
+ .savings-choice-row{gap:5px}
+ .savings-choice{font-size:9px}
+}

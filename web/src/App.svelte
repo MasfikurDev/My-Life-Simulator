@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { advanceYear, canAffordActivity, formatCharacterMoney, performActivity } from './lib/simulation';
+  import { advanceYear, canAffordActivity, formatCharacterMoney, getHouseholdBudget, performActivity, setHouseholdArrangement, setSavingsGoalMonths } from './lib/simulation';
   import { getAvailableActivityIds, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
-  import type { ActivityId, Character, SaveSlot, SaveSlotId } from './lib/types';
+  import type { ActivityId, Character, HouseholdArrangement, SavingsGoalMonths, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
     isFullscreen: () => boolean;
     setFullscreen: (enabled: boolean) => void;
@@ -146,6 +146,8 @@
     persist(performActivity(character, id)); playSound('action');
   }
   function nextYear() { if (character) { persist(advanceYear(character)); notify('A new year begins.'); playSound('year'); } }
+  function changeHouseholdArrangement(arrangement: HouseholdArrangement) { if (character) persist(setHouseholdArrangement(character, arrangement)); }
+  function changeSavingsGoal(months: SavingsGoalMonths | null) { if (character) persist(setSavingsGoalMonths(character, months)); }
   function restart() {
     clearSave(activeSlotId); slots = getSaveSlots(); character = null;
     showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.'); pendingSlotId = activeSlotId;
@@ -258,21 +260,65 @@
           <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h1>Life history</h1><p>Events and decisions recorded during this life.</p></div></div>
           <section class="history-card full-history">{#each character.history as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</section>
         {:else if character && activeTab==='finances'}
-          <div class="page-heading"><div><div class="eyebrow">FINANCES</div><h1>Balance & activity</h1><p>Available savings and the costs or earnings of current activities.</p></div></div>
-          <section class="money-card finance-wide"><div class="money-label">AVAILABLE SAVINGS</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Current cash balance after recorded earnings and costs.</p></section>
+          <div class="page-heading"><div><div class="eyebrow">FINANCES</div><h1>{character.age >= 18 ? 'Household budget' : 'Balance & activity'}</h1><p>{character.age >= 18 ? 'Choose your living arrangement and plan an emergency savings target.' : 'Available balance and the costs or earnings of current activities.'}</p></div></div>
+          <section class="money-card finance-wide"><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Cash available after recorded earnings and costs.</p></section>
+          {#if character.age >= 18}
+            {@const budget = getHouseholdBudget(character)}
+            {@const goalTarget = character.savingsGoalMonths ? Math.round((budget.total / 12) * character.savingsGoalMonths) : 0}
+            <section class="household-budget-panel">
+              <div class="section-heading"><div><span class="section-index">01</span><h3>Living arrangement</h3></div></div>
+              <p class="finance-footnote">Your choice updates the estimated annual costs now; the budget is settled when you advance the year.</p>
+              <div class="household-choice-grid">
+                <button class:finance-choice-active={character.householdArrangement==='family-supported'} class="finance-choice" onclick={() => changeHouseholdArrangement('family-supported')}><strong>Family-supported</strong><small>Shared family support; lowest personal costs.</small></button>
+                <button class:finance-choice-active={character.householdArrangement==='shared'} class="finance-choice" onclick={() => changeHouseholdArrangement('shared')}><strong>Shared household</strong><small>Split housing and household bills.</small></button>
+                <button class:finance-choice-active={character.householdArrangement==='independent'} class="finance-choice" onclick={() => changeHouseholdArrangement('independent')}><strong>Independent</strong><small>Cover your own housing and living costs.</small></button>
+              </div>
+              <div class="section-heading"><div><span class="section-index">02</span><h3>Estimated annual budget</h3></div><span class="section-hint">{character.employment ? 'Income-based estimate' : 'Unemployed baseline'}</span></div>
+              <div class="household-budget-grid">
+                {#each [{label:'Housing',value:budget.housing},{label:'Food',value:budget.food},{label:'Transport',value:budget.transport},{label:'Utilities',value:budget.utilities},{label:'Personal',value:budget.personal}] as item}
+                  <div><span>{item.label}</span><strong>{formatCharacterMoney(character,item.value)}</strong></div>
+                {/each}
+                <div class="budget-total"><span>Total planned costs</span><strong>{formatCharacterMoney(character,budget.total)}</strong></div>
+              </div>
+              <div class="employment-pay-grid">
+                <div><small>ANNUAL INCOME</small><strong>{formatCharacterMoney(character,character.employment?.annualSalary ?? 0)}</strong></div>
+                <div><small>LAST YEAR PAID</small><strong>{formatCharacterMoney(character,character.lastYearExpenses ?? 0)}</strong></div>
+                <div><small>LAST YEAR SHORTFALL</small><strong>{formatCharacterMoney(character,character.lastYearShortfall ?? 0)}</strong></div>
+                <div><small>LAST YEAR INCOME</small><strong>{formatCharacterMoney(character,character.lastYearIncome ?? 0)}</strong></div>
+              </div>
+              {#if (character.lastYearShortfall ?? 0) > 0}<p class="finance-pressure-note">Last year, available funds did not cover all estimated costs. The unpaid amount is recorded as a shortfall, not debt.</p>{:else if !character.employment}<p class="finance-footnote">No job income is currently recorded. Household costs still apply and are paid from your available balance where possible.</p>{/if}
+            </section>
+            <section class="household-budget-panel savings-goal-panel">
+              <div class="section-heading"><div><span class="section-index">03</span><h3>Emergency savings goal</h3></div></div>
+              <p class="finance-footnote">Choose a target based on one, three, or six months of your estimated household costs. Progress uses your current available balance.</p>
+              <div class="savings-choice-row">
+                {#each [1,3,6] as months}
+                  <button class:finance-choice-active={character.savingsGoalMonths===months} class="finance-choice savings-choice" onclick={() => changeSavingsGoal(months as SavingsGoalMonths)}>{months} month{months===1?'':'s'}</button>
+                {/each}
+                <button class:finance-choice-active={character.savingsGoalMonths===null || character.savingsGoalMonths===undefined} class="finance-choice savings-choice" onclick={() => changeSavingsGoal(null)}>No goal</button>
+              </div>
+              {#if character.savingsGoalMonths}
+                <div class="savings-progress-row"><div><small>TARGET</small><strong>{formatCharacterMoney(character,goalTarget)}</strong></div><div><small>CURRENT BALANCE</small><strong>{formatCharacterMoney(character)}</strong></div></div>
+                <div class="career-performance-meter"><span style="width:{Math.min(100,Math.round(character.money/Math.max(1,goalTarget)*100))}%"></span></div>
+                <p class="finance-footnote">{Math.min(100,Math.round(character.money/Math.max(1,goalTarget)*100))}% of your selected target.</p>
+              {/if}
+            </section>
+          {/if}
           <section class="career-finance-panel">
-            <div class="section-heading"><div><span class="section-index">01</span><h3>Education & employment</h3></div></div>
+            <div class="section-heading"><div><span class="section-index">{character.age >= 18 ? '04' : '01'}</span><h3>Education & employment</h3></div></div>
             <div class="career-status-grid">
               <div><small>EDUCATION</small><strong>{character.education ?? 'Not recorded'}</strong>{#if character.education === 'Higher education'}<span>Higher education completed.</span>{:else}<span>{character.educationProgress ?? 0}% progress toward the next learning milestone</span><div class="meter"><span style="width:{character.educationProgress ?? 0}%"></span></div>{/if}</div>
               <div><small>EMPLOYMENT</small>{#if character.employment}<strong>{character.employment.title}</strong><span>{character.employment.type === 'part-time' ? 'Part-time' : character.employment.type === 'flexible' ? 'Flexible' : 'Full-time'} · {character.employment.experienceYears} years experience</span>{:else}<strong>Not employed</strong><span>{character.age < 16 ? 'Work unlocks at age 16.' : character.age < 18 ? 'Part-time roles are available.' : 'Apply for a job from Activities.'}</span>{/if}</div>
             </div>
             {#if character.employment}
-              <div class="employment-pay-grid"><div><small>ANNUAL PAY</small><strong>{formatCharacterMoney(character, character.employment.annualSalary)}</strong></div><div><small>LAST YEAR'S LIVING COSTS</small><strong>{formatCharacterMoney(character, character.lastYearExpenses ?? 0)}</strong></div><div><small>LAST YEAR'S EARNINGS</small><strong>{formatCharacterMoney(character, character.lastYearIncome ?? 0)}</strong></div><div><small>PERFORMANCE</small><strong>{character.employment.performance}/100</strong></div></div>
+              <div class="employment-pay-grid"><div><small>ANNUAL PAY</small><strong>{formatCharacterMoney(character, character.employment.annualSalary)}</strong></div><div><small>LAST YEAR'S COSTS PAID</small><strong>{formatCharacterMoney(character, character.lastYearExpenses ?? 0)}</strong></div><div><small>LAST YEAR'S EARNINGS</small><strong>{formatCharacterMoney(character, character.lastYearIncome ?? 0)}</strong></div><div><small>PERFORMANCE</small><strong>{character.employment.performance}/100</strong></div></div>
               <div class="career-performance-meter"><span style="width:{character.employment.performance}%"></span></div>
             {/if}
-            <p class="finance-footnote">Earnings are credited annually when you advance the year. Living costs are estimated from job type; these are simplified game values, not real-world salary data.</p>
+            <p class="finance-footnote">Salary is credited when you advance a year. From age 18, household costs are calculated from the selected living arrangement. These are simplified game-balance estimates, not real-world cost data.</p>
           </section>
-          <section class="finance-actions"><div class="section-heading"><div><span class="section-index">02</span><h3>Other money changes</h3></div></div><div class="finance-action-list"><div><span class="finance-action-icon positive">↗</span><span><strong>Extra work</strong><small>One-time earning action; separate from a regular job.</small></span><b class="positive-text">+{formatCharacterMoney(character, 180 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">＋</span><span><strong>Study</strong><small>Build knowledge; costs money from age 16.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 35 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">◎</span><span><strong>Socialize</strong><small>Spend time with people who matter.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 20 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon">⌁</span><span><strong>Exercise</strong><small>Improves health and fitness without a direct money cost.</small></span><b class="neutral-text">{formatCharacterMoney(character, 0)}</b></div></div></section>
+          {#if character.age < 18}
+            <section class="finance-actions"><div class="section-heading"><div><span class="section-index">02</span><h3>Other money changes</h3></div></div><div class="finance-action-list"><div><span class="finance-action-icon positive">↗</span><span><strong>Extra work</strong><small>One-time earning action; separate from a regular job.</small></span><b class="positive-text">+{formatCharacterMoney(character, 180 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">＋</span><span><strong>Study</strong><small>Build knowledge; costs money from age 16.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 35 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon negative">◎</span><span><strong>Socialize</strong><small>Spend time with people who matter.</small></span><b>{character.age < 16 ? 'Time' : '−' + formatCharacterMoney(character, 20 * (character.currencyScale ?? 1))}</b></div><div><span class="finance-action-icon">⌁</span><span><strong>Exercise</strong><small>Improves health and fitness without a direct money cost.</small></span><b class="neutral-text">{formatCharacterMoney(character, 0)}</b></div></div></section>
+          {/if}
         {/if}
       </section>
     </main>

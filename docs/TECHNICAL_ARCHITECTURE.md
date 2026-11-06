@@ -72,3 +72,7 @@ Education progress, employment records, salary, annual living-cost estimates, pe
 - The title-less life-progression artwork is the centered Android splash image. The AndroidX SplashScreen compatibility API holds it while the hosted game loads, then moves it upward and fades it out when the first page finishes (or a main-frame load error is shown).
 - These two artworks are native Android assets only. Do not render either image inside the welcome or character-creation web UI.
 - Preserve the splash's black background and avoid adding a second in-page loading/branding hero.
+
+
+## Household finance model
+Household arrangement, savings-goal duration, annual income, paid expenses, and unpaid shortfall are optional Character fields. `getHouseholdBudget` is a pure simulation calculation; `advanceYear` settles the annual budget, applies financial-pressure effects, and records history. No negative balance or debt is generated. The savings target is derived from the selected number of months of estimated costs and current cash; it is not a separate account. Existing local saves require no schema-version bump.

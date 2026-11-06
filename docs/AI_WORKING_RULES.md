@@ -70,3 +70,6 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 
 
 38. Keep the two supplied brand artworks in their distinct native roles: title artwork is the Android app/launcher logo; title-less life-progression artwork is the centered Android splash image that moves upward and fades when the WebView finishes its initial load. Never place either artwork in the web welcome or character-creation UI, and never redraw or alter the source PNGs.
+
+
+39. Household finance mechanics unlock at age 18. Living arrangement and recurring budget must be stored on the Character, calculated by the simulation, and recorded in life history. Unpaid costs are shortfalls, not debt; never allow a negative cash balance or imply taxes, benefits, debt, or assets exist until implemented. Savings goals are targets measured against available cash, not separate or locked accounts. Preserve legacy saves with optional fields.

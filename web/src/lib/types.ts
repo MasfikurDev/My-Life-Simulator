@@ -1,6 +1,8 @@
 export type ActivityId = 'study' | 'exercise' | 'socialize' | 'work' | 'apply-job' | 'career';
 export type Gender = 'male' | 'female' | 'non-binary';
 export type EmploymentType = 'part-time' | 'full-time' | 'flexible';
+export type HouseholdArrangement = 'family-supported' | 'shared' | 'independent';
+export type SavingsGoalMonths = 1 | 3 | 6;
 export interface Employment {
   title: string;
   type: EmploymentType;
@@ -17,7 +19,8 @@ export interface Character {
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
   educationProgress?: number; employment?: Employment | null;
-  lastYearIncome?: number; lastYearExpenses?: number;
+  lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number;
+  householdArrangement?: HouseholdArrangement; savingsGoalMonths?: SavingsGoalMonths | null;
   appearance?: { height: string; build: string; hair: string; eyes: string };
   history: LifeEvent[];
 }
