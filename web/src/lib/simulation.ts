@@ -247,15 +247,39 @@ export function closeBusiness(character: Character, businessId: string): Charact
   next.history.unshift(event(next, 'Business sold', business.name + ' was sold for ' + formatCharacterMoney(next, proceeds) + '.', 'milestone'));
   return next;
 }
+export function getEconomicConditions(character: Character) {
+  return character.economy ?? { inflationRate: 0.025, growthRate: 0.02, baseInterestRate: 0.045, cycle: 'stable' as const, costOfLivingIndex: 1, lastUpdatedYear: character.year };
+}
+function advanceEconomicConditions(character: Character): Character {
+  const previous = getEconomicConditions(character);
+  const wave = Math.sin(character.year * 1.71 + (character.age % 11) * 0.37);
+  const secondary = Math.sin(character.year * 0.63 + 2.4);
+  const growthRate = Math.max(-0.055, Math.min(0.065, wave * 0.038 + secondary * 0.012));
+  const inflationRate = Math.max(-0.015, Math.min(0.095, 0.025 + secondary * 0.025 + (growthRate < -0.02 ? 0.012 : 0)));
+  const baseInterestRate = Math.max(0.01, Math.min(0.14, 0.035 + inflationRate * 0.55 - growthRate * 0.2));
+  const cycle: 'expansion' | 'stable' | 'recession' = growthRate < -0.018 ? 'recession' : growthRate > 0.025 ? 'expansion' : 'stable';
+  const costOfLivingIndex = Math.max(0.5, Math.min(5, previous.costOfLivingIndex * (1 + inflationRate)));
+  const economy = { inflationRate, growthRate, baseInterestRate, cycle, costOfLivingIndex, lastUpdatedYear: character.year };
+  const inflationFactor = 1 + Math.max(-0.01, inflationRate);
+  return { ...character, economy,
+    recurringPayments: (character.recurringPayments ?? []).map((payment) => ({ ...payment, amount: Math.max(1, Math.round(payment.amount * inflationFactor)) })),
+    rentalHome: character.rentalHome ? { ...character.rentalHome, annualRent: Math.max(1, Math.round(character.rentalHome.annualRent * inflationFactor)) } : character.rentalHome,
+    properties: (character.properties ?? []).map((property) => ({ ...property, annualRentalIncome: property.rentedOut ? Math.max(1, Math.round(property.annualRentalIncome * inflationFactor)) : property.annualRentalIncome }))
+  };
+}
 function settleAnnualAssets(character: Character): Character {
   let next = character;
   const scale = next.currencyScale ?? 1;
-  const stockMovement = Math.sin(next.year * 12.9898 + next.age * 78.233) * 0.12;
-  const goldMovement = 0.02 + Math.sin(next.year * 3.17 + next.age * 1.7) * 0.06;
+  const economy = getEconomicConditions(next);
+  const stockNoise = Math.sin(next.year * 12.9898 + next.age * 78.233) * 0.12;
+  const goldNoise = Math.sin(next.year * 3.17 + next.age * 1.7) * 0.035;
+  const stockMovement = Math.max(-0.35, Math.min(0.3, economy.growthRate * 1.35 + stockNoise));
+  const goldMovement = Math.max(-0.12, Math.min(0.2, economy.inflationRate * 0.75 - economy.growthRate * 0.15 + goldNoise));
   const oldPrices = next.marketPrices ?? { stocks: 100 * scale, gold: 150 * scale, lastUpdatedYear: next.year - 1 };
   next = { ...next, marketPrices: { stocks: Math.max(1, Math.round(oldPrices.stocks * (1 + stockMovement))), gold: Math.max(1, Math.round(oldPrices.gold * (1 + goldMovement))), lastUpdatedYear: next.year } };
   if ((next.properties ?? []).length) {
-    next = { ...next, properties: (next.properties ?? []).map((property) => ({ ...property, marketValue: Math.max(1, Math.round(property.marketValue * (property.type === 'house' ? 1.02 : 1.015))) })) };
+    const propertyGrowth = Math.max(-0.08, Math.min(0.12, economy.inflationRate * 0.35 + economy.growthRate * 0.45 + 0.005));
+    next = { ...next, properties: (next.properties ?? []).map((property) => ({ ...property, marketValue: Math.max(1, Math.round(property.marketValue * (1 + propertyGrowth))) })) };
     for (const property of next.properties ?? []) {
       if (property.rentedOut && property.annualRentalIncome > 0) {
         next = { ...next, money: next.money + property.annualRentalIncome };
@@ -264,7 +288,8 @@ function settleAnnualAssets(character: Character): Character {
     }
   }
   for (const business of next.businesses ?? []) {
-    const profit = Math.round(business.investedCapital * ((business.performance - 50) / 100) * 0.1);
+    const profitRate = ((business.performance - 50) / 100) * 0.1 + economy.growthRate * 0.35;
+    const profit = Math.round(business.investedCapital * profitRate);
     if (profit > 0) {
       next = { ...next, money: next.money + profit };
       next.financialTransactions = financeRecord(next, 'business-income', profit, 'Annual operating profit from ' + business.name + '.', business.name, 'Cash');
@@ -278,6 +303,7 @@ function settleAnnualAssets(character: Character): Character {
   }
   return next;
 }
+
 
 function validAmount(amount: number): boolean { return Number.isSafeInteger(amount) && amount > 0; }
 function accountExists(character: Character, id?: string): boolean { return !!id && (character.bankAccounts ?? []).some((account) => account.id === id); }
@@ -533,6 +559,7 @@ export function getHouseholdBudget(character: Character) {
   if (character.age < 18) return zero;
   const scale = character.currencyScale ?? 1;
   const referenceIncome = character.employment?.annualSalary ?? 18000 * scale;
+  const costIndex = getEconomicConditions(character).costOfLivingIndex;
   const shares: Record<HouseholdArrangement, typeof zero> = {
     'family-supported': { housing: 0, food: 0.08, transport: 0.03, utilities: 0, personal: 0.04, total: 0.15 },
     shared: { housing: 0.14, food: 0.12, transport: 0.04, utilities: 0.03, personal: 0.05, total: 0.38 },
@@ -540,11 +567,11 @@ export function getHouseholdBudget(character: Character) {
   };
   const share = shares[character.householdArrangement ?? 'family-supported'];
   const ownedResidence = (character.properties ?? []).find((property) => property.id === character.primaryResidenceId);
-  const housing = character.rentalHome ? character.rentalHome.annualRent : ownedResidence ? 0 : Math.round(referenceIncome * share.housing);
-  const food = Math.round(referenceIncome * share.food);
-  const transport = Math.round(referenceIncome * share.transport);
-  const utilities = Math.round(referenceIncome * share.utilities);
-  const personal = Math.round(referenceIncome * share.personal);
+  const housing = character.rentalHome ? character.rentalHome.annualRent : ownedResidence ? 0 : Math.round(referenceIncome * share.housing * costIndex);
+  const food = Math.round(referenceIncome * share.food * costIndex);
+  const transport = Math.round(referenceIncome * share.transport * costIndex);
+  const utilities = Math.round(referenceIncome * share.utilities * costIndex);
+  const personal = Math.round(referenceIncome * share.personal * costIndex);
   const maintenance = (character.properties ?? []).reduce((sum, property) => sum + property.annualMaintenance, 0);
   const totalHousing = housing + maintenance;
   return { housing: totalHousing, food, transport, utilities, personal, total: totalHousing + food + transport + utilities + personal };
@@ -640,7 +667,8 @@ export function performActivity(character: Character, activity: ActivityId, rand
 }
 
 export function advanceYear(character: Character): Character {
-  const next: Character = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
+  let next: Character = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
+  next = advanceEconomicConditions(next);
   const educationStage = getEducationStage(next.age);
   if ([3, 6, 13, 18].includes(next.age) && next.education !== 'Higher education' && next.education !== educationStage) {
     next.education = educationStage;
