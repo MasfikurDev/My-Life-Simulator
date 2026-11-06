@@ -8,7 +8,7 @@
   let { character, onChange, initialView = 'overview', initialActivity = 'exercise' }: { character: Character; onChange: (next: Character) => void; initialView?: LifeView; initialActivity?: ActivityId } = $props();
   let activeView = $state<LifeView>(initialView);
   let selectedActivity = $state<ActivityId>(initialActivity);
-  const views = [
+  const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'schedule', label: 'Schedule' }, 
     { id: 'lifestyle', label: 'Lifestyle' },
