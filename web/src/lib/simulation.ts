@@ -360,7 +360,7 @@ export function addRecurringPayment(character: Character, name: string, amount: 
   const value = Math.floor(amount);
   if (character.age < 16 || (character.recurringPayments ?? []).filter((item) => item.active).length >= 12 || !validAmount(value)) return character;
   if (sourceType === 'account' && !accountExists(character, sourceId)) return character;
-  if (sourceType === 'card' && !(character.cards ?? []).some((card) => card.id === sourceId && card.active && (card.type === 'credit' || card.type === 'prepaid'))) return character;
+  if (sourceType === 'card' && !(character.cards ?? []).some((card) => card.id === sourceId && card.active)) return character;
   const label = name.trim().slice(0, 36);
   if (!label) return character;
   const payment: RecurringPayment = { id: 'recurring-' + character.year + '-' + character.age + '-' + ((character.recurringPayments ?? []).length + 1), name: label, amount: value, category, sourceType, sourceId, active: true, startedAtYear: character.year };
@@ -421,10 +421,12 @@ function settleFinancialProducts(character: Character): Character {
         next.financialTransactions = financeRecord(next, 'recurring-payment', payment.amount, 'Paid ' + payment.name + '.', account.name, payment.name);
       } else { next.financialTransactions = financeRecord(next, 'expense', 0, 'Missed payment: ' + payment.name + '.', account?.name ?? 'Missing account', payment.name); }
     } else if (payment.sourceType === 'card') {
-      const card = (next.cards ?? []).find((item) => item.id === payment.sourceId && item.active && (item.type === 'credit' || item.type === 'prepaid'));
-      const canCharge = card && (card.type === 'credit' ? card.balance + payment.amount <= card.creditLimit : card.balance >= payment.amount);
+      const card = (next.cards ?? []).find((item) => item.id === payment.sourceId && item.active);
+      const linkedAccount = card?.type === 'debit' ? (next.bankAccounts ?? []).find((account) => account.id === card.linkedAccountId) : undefined;
+      const canCharge = card && (card.type === 'credit' ? card.balance + payment.amount <= card.creditLimit : card.type === 'prepaid' ? card.balance >= payment.amount : !!linkedAccount && linkedAccount.balance >= payment.amount);
       if (card && canCharge) {
-        next = { ...next, cards: (next.cards ?? []).map((item) => item.id === card.id ? { ...item, balance: item.type === 'credit' ? item.balance + payment.amount : item.balance - payment.amount } : item) };
+        if (card.type === 'debit' && linkedAccount) next = { ...next, bankAccounts: updateAccountBalance(next, linkedAccount.id, -payment.amount) };
+        else next = { ...next, cards: (next.cards ?? []).map((item) => item.id === card.id ? { ...item, balance: item.type === 'credit' ? item.balance + payment.amount : item.balance - payment.amount } : item) };
         next.financialTransactions = financeRecord(next, 'recurring-payment', payment.amount, 'Charged ' + payment.name + ' to ' + card.name + '.', card.name, payment.name);
       } else { next.financialTransactions = financeRecord(next, 'expense', 0, 'Missed payment: ' + payment.name + '.', card?.name ?? 'Unavailable card', payment.name); }
     } else if (payment.sourceType === 'cash') {
