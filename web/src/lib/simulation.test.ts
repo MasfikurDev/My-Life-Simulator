@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, canAffordActivity, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getHouseholdBudget, getNetWorth, openBankAccount, performActivity, setHouseholdArrangement, setSavingsGoalMonths, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceYear, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getHouseholdBudget, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
 import { addRecurringPayment, depositToVault, issueBankCard, makeCardPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
@@ -322,6 +322,63 @@ describe('life simulation', () => {
     expect(issueBankCard(adult, 'credit', 'Card', undefined, 0)).toBe(adult);
     expect(issueBankCard(adult, 'debit', 'Debit')).toBe(adult);
     expect(addRecurringPayment(adult, 'Invalid', 0, 'bill', 'cash')).toBe(adult);
+  });
+
+  it('buys a mortgaged property without creating net worth from borrowed money', () => {
+    const base = { ...createCharacter('Homeowner', 30), currencyScale: 1, money: 20000 };
+    const bought = buyProperty(base, 'house', 'First home', 50000, 10000, 0.07, 20, true);
+    expect(bought.properties).toHaveLength(1);
+    expect(bought.money).toBe(10000);
+    expect(bought.loans?.[0].balance).toBe(40000);
+    expect(bought.primaryResidenceId).toBe(bought.properties?.[0].id);
+    expect(getNetWorth(bought)).toBe(getNetWorth(base));
+    const sold = sellProperty(bought, bought.properties![0].id);
+    expect(sold.properties).toHaveLength(0);
+    expect(sold.loans?.[0].active).toBe(false);
+    expect(getNetWorth(sold)).toBe(getNetWorth(base));
+  });
+  it('supports renting and moving into owned property with housing costs', () => {
+    const base = { ...createCharacter('Tenant', 30), currencyScale: 1 };
+    const rented = rentHome(base, 'apartment', 6000);
+    expect(getHouseholdBudget(rented).housing).toBe(6000);
+    const bought = buyProperty({ ...base, money: 20000 }, 'apartment', 'Flat', 10000, 10000, 0.07, 10, false);
+    const moved = moveIntoOwnedProperty(bought, bought.properties![0].id);
+    expect(moved.rentalHome).toBeNull();
+    expect(getHouseholdBudget(moved).housing).toBe(100);
+  });
+  it('buys and sells whole stock and gold units without losing value to transfers', () => {
+    const base = { ...createCharacter('Investor', 30), currencyScale: 1, money: 1000 };
+    const stocks = tradeInvestment(base, 'stock-index', 'buy', 2);
+    expect(stocks.money).toBe(800);
+    expect(getNetWorth(stocks)).toBe(getNetWorth(base));
+    const sold = tradeInvestment(stocks, 'stock-index', 'sell', 1);
+    expect(sold.money).toBe(900);
+    expect(getNetWorth(sold)).toBe(getNetWorth(base));
+    const gold = tradeInvestment(base, 'gold', 'buy', 1);
+    expect(getNetWorth(gold)).toBe(getNetWorth(base));
+  });
+  it('starts, manages and sells a small business with auditable cash flows', () => {
+    const base = { ...createCharacter('Founder', 30), currencyScale: 1, money: 5000 };
+    const started = startBusiness(base, 'Corner shop', 'retail', 2000);
+    expect(started.money).toBe(3000);
+    expect(getNetWorth(started)).toBe(getNetWorth(base));
+    const managed = manageBusiness(started, started.businesses![0].id);
+    expect(managed.businesses![0].performance).toBe(68);
+    expect(managed.actionsRemaining).toBe(2);
+    const closed = closeBusiness(managed, managed.businesses![0].id);
+    expect(closed.businesses).toHaveLength(0);
+    expect(closed.money).toBe(4780);
+  });
+  it('updates asset values and credits rental and business income on year advancement', () => {
+    const base = { ...createCharacter('Owner', 30), currencyScale: 1, money: 10000 };
+    const property = buyProperty(base, 'apartment', 'Rental flat', 5000, 5000, 0.07, 10, false);
+    const rented = setPropertyRental(property, property.properties![0].id, true, 1000);
+    const business = startBusiness(rented, 'Online shop', 'online', 1000);
+    const next = advanceYear(business);
+    expect(next.properties![0].marketValue).toBe(5075);
+    expect(next.marketPrices?.lastUpdatedYear).toBe(next.year);
+    expect(next.financialTransactions?.some((t)=>t.type==='property-rent')).toBe(true);
+    expect(next.financialTransactions?.some((t)=>t.type==='business-income')).toBe(true);
   });
 
 });

@@ -7,6 +7,7 @@
   import CharacterCreation from './CharacterCreation.svelte';
   import FinanceAccounts from './FinanceAccounts.svelte';
   import FinanceProducts from './FinanceProducts.svelte';
+  import FinanceAssets from './FinanceAssets.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
   import type { ActivityId, Character, HouseholdArrangement, SavingsGoalMonths, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
@@ -264,7 +265,7 @@
         {:else if character && activeTab==='finances'}
           <div class="page-heading"><div><div class="eyebrow">FINANCES</div><h1>{character.age >= 18 ? 'Household budget' : 'Balance & activity'}</h1><p>{character.age >= 18 ? 'Choose your living arrangement and plan an emergency savings target.' : 'Available balance and the costs or earnings of current activities.'}</p></div></div>
           <section class="money-card finance-wide"><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div><p>Cash available after recorded earnings and costs.</p></section>
-          {#if character.age >= 16}<FinanceAccounts {character} onChange={persist} /><FinanceProducts {character} onChange={persist} />{/if}
+          {#if character.age >= 16}<FinanceAccounts {character} onChange={persist} /><FinanceProducts {character} onChange={persist} /><FinanceAssets {character} onChange={persist} />{/if}
           {#if character.age >= 18}
             {@const budget = getHouseholdBudget(character)}
             {@const goalTarget = character.savingsGoalMonths ? Math.round((budget.total / 12) * character.savingsGoalMonths) : 0}
