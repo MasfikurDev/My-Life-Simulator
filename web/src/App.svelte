@@ -208,6 +208,16 @@
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>Active save</strong><small>Slot {activeSlotId.slice(-1)}</small></div></div>{/if}
       </aside>
       <section class="content">
+        {#if character && activeTab !== 'settings' && activeTab !== 'create'}
+          <div class="page-context-header" aria-label="Current life status">
+            <div class="page-context-identity"><strong>{character.name}</strong><span>Age {character.age} · {getLifeStage(character.age).label}</span></div>
+            <div class="page-context-metrics">
+              <div><span>YEAR</span><strong>{character.year}</strong></div>
+              <div><span>CASH</span><strong>{formatCharacterMoney(character)}</strong></div>
+              <div><span>TIME</span><strong>{character.actionsRemaining}/3</strong></div>
+            </div>
+          </div>
+        {/if}
         {#if activeTab==='create'}
           <CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='home'} />
         {:else if activeTab==='settings'}
@@ -261,14 +271,7 @@
           {@const workDetail = character.employment
             ? character.employment.type === 'part-time' ? 'Part-time employment' : character.employment.type === 'flexible' ? 'Flexible employment' : 'Full-time employment'
             : character.age < 16 ? 'Employment unlocks at age 16' : character.age < 18 ? 'School-age work only' : character.age >= 65 ? 'Optional later-life work' : 'No current position'}
-          <div class="page-heading overview-heading">
-            <div>
-              <div class="eyebrow">CURRENT OVERVIEW</div>
-              <h1>{character.name}</h1>
-              <p>Age {character.age} · {stage.label}{#if character.birthplace && character.country} · {character.birthplace}, {character.country}{/if}</p>
-            </div>
-            <div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div>
-          </div>
+          <div class="page-heading overview-heading"><div><div class="eyebrow">CURRENT OVERVIEW</div><h1>Your life</h1><p>{stage.label}{#if character.birthplace && character.country} · {character.birthplace}, {character.country}{/if}</p></div></div>
           <section class="overview-context" aria-label="Current situation">
             <div class="overview-context-item">
               <span>EDUCATION</span>
@@ -280,9 +283,6 @@
               <strong>{workStatus}</strong>
               <small>{workDetail}</small>
             </div>
-          </section>
-          <section class="money-card money-focus">
-            <div class="money-focus-top"><div><div class="money-label">AVAILABLE CASH</div><div class="money-value">{formatCharacterMoney(character)}</div></div></div>
           </section>
           {#if character.lastYearRecap?.length}
             <section class="year-recap">
@@ -335,7 +335,7 @@
             </section>
           {/if}
         {:else if character && activeTab==='school' && character.age >= 3}
-          <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div><div class="year-pill">AGE {character.age}</div></div>
+          <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div></div>
           <section class="domain-panel">
             <div class="domain-panel-head"><div><div class="eyebrow">CURRENT EDUCATION</div><h2>{character.education ?? 'Education in progress'}</h2><p>{character.age < 6 ? 'Early learning and foundational skills.' : character.age < 13 ? 'Primary-stage learning.' : character.age < 18 ? 'Secondary-stage learning.' : character.education === 'Higher education' ? 'Higher education completed.' : 'Continuing education and personal development.'}</p></div><span class="domain-status">{character.age < 18 ? 'SCHOOL AGE' : 'LEARNING'}</span></div>
             <div class="domain-progress-label"><span>Learning progress</span><strong>{character.educationProgress ?? 0}%</strong></div>
@@ -346,7 +346,7 @@
           <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => activity.id === 'study' && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
         {:else if character && activeTab==='work' && character.age >= 16}
-          <div class="page-heading"><div><div class="eyebrow">EMPLOYMENT</div><h1>Work</h1><p>Find work, manage your current role and develop your career.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
+          <div class="page-heading"><div><div class="eyebrow">EMPLOYMENT</div><h1>Work</h1><p>Find work, manage your current role and develop your career.</p></div></div>
           <section class="domain-panel">
             {#if character.employment}
               <div class="domain-panel-head"><div><div class="eyebrow">CURRENT POSITION</div><h2>{character.employment.title}</h2><p>{character.employment.type === 'part-time' ? 'Part-time employment' : character.employment.type === 'flexible' ? 'Flexible employment' : 'Full-time employment'} · Started at age {character.employment.startedAtAge}</p></div><span class="domain-status">EMPLOYED</span></div>
