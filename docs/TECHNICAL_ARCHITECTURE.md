@@ -53,6 +53,13 @@ The current localStorage adapter supports three independent save slots. Schema v
 ## Simulation boundaries
 Core simulation inputs are game state, action/choice, and random source/seed. Outputs are updated state plus explicit effects/history. No DOM, Svelte, localStorage, network, or Android imports in core simulation. Time advancement is an explicit domain operation. Use integer minor units for money once currency arithmetic expands. Validate invariants at boundaries.
 
+## Game calendar foundation
+- Calendar dates are strict ISO date-only strings interpreted in UTC; do not use local Date parsing or wall-clock time in simulation rules.
+- Weeks start Monday and span Monday–Sunday. The active date advances in seven-day steps; month/year boundaries are derived from dates, not assumed to align with weeks.
+- New characters receive optional calendar.currentDate and calendar.birthDate values. Age is derived from these dates once weekly progression is enabled. Legacy saves without this optional field remain readable and retain their current age/year semantics until an explicit migration is implemented.
+- February 29 birthdays are observed on March 1 in non-leap years. This convention is centralized in the pure calendar module and covered by tests.
+- Do not enable weekly time advancement or change annual settlement in this foundation change. The next stages must introduce schedules, a single-week resolver, exactly-once month/year settlement, and save migration as one validated progression path.
+
 ## Performance
 Keep initial bundle small; avoid unnecessary dependencies. Lazy-load optional heavy features. Profile before optimizing. WASM is not automatically faster: boundary crossings, conversion, build complexity, and mobile constraints must be measured. Test on a real mid-range Android device and throttled mobile connection. Avoid blocking animations and layout shifts.
 
