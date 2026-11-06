@@ -20,12 +20,14 @@ import android.widget.TextView
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
 class MainActivity : Activity() {
+    private var pageReady = false
     private lateinit var webView: WebView
     private lateinit var progress: ProgressBar
     private lateinit var retry: TextView
@@ -35,7 +37,17 @@ class MainActivity : Activity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition { !pageReady }
         super.onCreate(savedInstanceState)
+        splashScreen.setOnExitAnimationListener { splash ->
+            splash.view.animate()
+                .translationY(-splash.view.height.toFloat())
+                .alpha(0f)
+                .setDuration(420L)
+                .withEndAction { splash.remove() }
+                .start()
+        }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
@@ -81,10 +93,15 @@ class MainActivity : Activity() {
             }
 
             override fun onReceivedError(view: WebView, request: WebResourceRequest, error: android.webkit.WebResourceError) {
-                if (request.isForMainFrame) retry.visibility = View.VISIBLE
+                if (request.isForMainFrame) {
+                    pageReady = true
+                    retry.visibility = View.VISIBLE
+                    progress.visibility = View.GONE
+                }
             }
 
             override fun onPageFinished(view: WebView, url: String) {
+                pageReady = true
                 retry.visibility = View.GONE
                 progress.visibility = View.GONE
             }
