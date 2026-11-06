@@ -43,14 +43,6 @@ function makeBond(personId: string, random: () => number, close = false): Family
     supportProvidedTotal: 0
   };
 }
-function addHistory(family: FamilyState, year: number, type: FamilyHistoryEntry['type'], title: string, description: string, personIds: string[]): FamilyState {
-  const entry: FamilyHistoryEntry = {
-    id: 'family-' + year + '-' + (family.history.length + 1),
-    year, type, title, description, personIds
-  };
-  return { ...family, history: [...family.history, entry] };
-}
-
 export function createFamilyState(character: Pick<Character, 'name' | 'age' | 'year' | 'country' | 'gender'>, random: () => number = Math.random): FamilyState {
   const player: FamilyPerson = {
     id: PLAYER_ID, name: character.name, gender: character.gender,
