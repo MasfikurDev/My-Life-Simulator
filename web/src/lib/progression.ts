@@ -30,6 +30,10 @@ const STAGES: Array<LifeStage & { min: number; max: number }> = [
   { id: 'senior', label: 'Later life', ageRange: '65+', min: 65, max: 120, description: 'Later-life choices focus on health, relationships, interests and flexible work.', nextAge: null }
 ];
 
+export function getActivityDefinition(activity: ActivityId): ActivityDefinition {
+  return ACTIVITY_DEFINITIONS[activity];
+}
+
 export function getLifeStage(age: number): LifeStage {
   const safeAge = Math.max(0, Math.floor(age));
   const stage = STAGES.find((candidate) => safeAge >= candidate.min && safeAge <= candidate.max) ?? STAGES[STAGES.length - 1];
