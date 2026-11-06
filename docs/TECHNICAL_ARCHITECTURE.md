@@ -102,3 +102,8 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 - Stock-index and gold holdings use whole units and current simulated prices. Trading moves cash to/from asset value. Market price updates are deterministic per simulated year to keep saves and tests reproducible while still allowing gains and losses.
 - Business startup moves cash into business valuation; operating profit/loss changes cash, and management consumes an action plus a cash cost.
 - Net worth includes all modeled asset classes and subtracts loan and credit-card liabilities.
+
+
+## Additional bank products
+- Checking and savings accounts remain liquid. Fixed deposits store a maturity year and lock withdrawals until that simulated year; their simplified annual rate is 4.5%.
+- Prepaid cards store a positive funded balance. Loading transfers value from cash or a bank account; purchases and recurring charges reduce the stored balance. Prepaid balances are assets in net worth, unlike credit card balances which are liabilities.
