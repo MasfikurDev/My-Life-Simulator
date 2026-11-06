@@ -122,3 +122,8 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 - Optional `lastYearTax` and `taxBalance` fields preserve legacy saves. Progressive wage tax, positive rental/business income tax, and property levy are assessed annually after asset income and before financial-product autopay.
 - Tax settlement draws cash first, then checking/savings balances. Fixed-deposit accounts cannot be used before maturity. Any unpaid amount remains a liability and is deducted from net worth; no negative cash balance is permitted.
 - Tax amounts are game-balance assumptions, not jurisdiction-specific tax advice. Ledger entries record paid amounts and remaining liability.
+
+
+## Creditworthiness
+- Credit score is derived from the capped financial ledger, active credit-card utilization, active loan balance relative to annual income, and outstanding tax liability. It is deterministic and does not require a separate migration field.
+- Loan issuance enforces age, active-loan count, minimum credit score, and a score-based minimum interest rate per loan type. The score does not yet calculate a full affordability ratio or a country-specific bureau report.

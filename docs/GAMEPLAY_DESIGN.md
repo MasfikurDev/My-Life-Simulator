@@ -98,6 +98,11 @@ The settings page provides a concise recent-log view backed by the character's c
 - Annual tax is automatically paid from cash first, then liquid checking/savings accounts. Fixed deposits remain locked until maturity. If funds are insufficient, the unpaid amount carries as a tax liability and reduces net worth; no negative cash balance is created.
 - Tax is assessed once per simulated year and appears in the financial ledger, with the outstanding balance and prior-year amount shown in Banking. There are no tax forms, deductions, jurisdiction-specific rules, penalties, or capital-gains tax yet.
 
+## Creditworthiness and loan pricing
+- Adults have a simplified credit score from 300 to 850, starting at 700. The score reflects missed loan/card payments, successful repayments, credit-card utilization, debt relative to income, and unpaid tax balances.
+- Loan products have different starting rates: personal 9%, mortgage 6.5%, business 11%. The score adjusts the minimum eligible rate; players can choose a higher rate but cannot take a loan below their score-based floor. Poor credit can eventually block new borrowing.
+- The score is a game abstraction, not a real credit-bureau score. It does not model a specific country's lending regulations or bureau rules.
+
 ## Candidate systems
 Health; family; education; career; finance; relationships; lifestyle; contextual/scheduled/random/player-created events. Build incrementally and connect systems. Do not implement every system at once.
 

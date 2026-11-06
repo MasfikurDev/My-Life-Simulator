@@ -88,3 +88,5 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 44. Economic simulation must be deterministic for a given save/year, bounded against runaway rates and asset changes, and preserve legacy-save compatibility. Inflation must flow into cost-of-living and recurring price assumptions; market assets must respond to economic conditions without guaranteeing returns. Clearly label all rates and market movements as fictional simplified game estimates.
 
 45. Tax settlement must be deterministic, auditable, and never create negative cash. Pay from cash and eligible liquid accounts only; fixed deposits remain locked until maturity. Any unpaid tax must remain a visible liability included in net worth. Keep rates clearly labeled as fictional game rules, not jurisdiction-specific advice.
+
+46. Credit score must be derived consistently from auditable financial state, bounded to 300–850, and treated as a simplified fictional metric. Loan products must enforce the score-based minimum rate and never silently approve a rate below the floor. Do not claim the score matches any real credit bureau.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getAnnualTaxEstimate, getEconomicConditions, getHouseholdBudget, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceYear, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeCardPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
@@ -479,6 +479,30 @@ describe('life simulation', () => {
     expect(next.taxBalance).toBe(0);
     expect(next.money).toBeLessThan(10000);
     expect(next.lastYearTax).toBe(0);
+  });
+
+  it('calculates credit score from payment history, utilization, debt and tax balance', () => {
+    const base = { ...createCharacter('Borrower', 30), currencyScale: 1 };
+    expect(getCreditScore(base)).toBe(700);
+    const card = issueBankCard(base, 'credit', 'Everyday credit', undefined, 1000);
+    const used = makeCardPurchase(card, card.cards![0].id, 800);
+    expect(getCreditScore(used)).toBeLessThan(getCreditScore(base));
+    const missed = { ...base, financialTransactions: [{ id: 'missed-1', year: 1, age: 30, type: 'expense' as const, amount: 0, description: 'Missed loan installment', from: 'Cash', to: 'Lender' }] };
+    expect(getCreditScore(missed)).toBe(665);
+    const paid = { ...base, financialTransactions: [{ id: 'paid-1', year: 1, age: 30, type: 'loan-payment' as const, amount: 100, description: 'Installment paid', from: 'Cash', to: 'Lender' }] };
+    expect(getCreditScore(paid)).toBe(702);
+  });
+  it('sets score-based minimum loan rates and rejects unaffordable credit pricing', () => {
+    const base = { ...createCharacter('Borrower', 30), currencyScale: 1, money: 1000 };
+    expect(getMinimumLoanRate(base, 'personal')).toBe(0.09);
+    expect(getMinimumLoanRate(base, 'mortgage')).toBe(0.065);
+    expect(getMinimumLoanRate(base, 'business')).toBe(0.11);
+    expect(takeLoan(base, 'personal', 'Too cheap', 500, 0.08, 5)).toBe(base);
+    const approved = takeLoan(base, 'personal', 'Fair rate', 500, 0.09, 5);
+    expect(approved.loans).toHaveLength(1);
+    const poor = { ...base, financialTransactions: Array.from({length:7},(_,i)=>({id:'missed-'+i,year:i,age:30,type:'expense' as const,amount:0,description:'Missed loan installment',from:'Cash',to:'Lender'})) };
+    expect(getCreditScore(poor)).toBe(455);
+    expect(takeLoan(poor, 'personal', 'Rejected', 500, 0.4, 5)).toBe(poor);
   });
 
 });
