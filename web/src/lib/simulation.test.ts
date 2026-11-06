@@ -458,11 +458,12 @@ describe('life simulation', () => {
   it('assesses annual taxes, pays liquid funds first, and carries unpaid tax as a liability', () => {
     const base = {
       ...createCharacter('Tax payer', 30), currencyScale: 1, money: 0, lastYearIncome: 50000,
+      employment: { title: 'Worker', type: 'full-time' as const, annualSalary: 50000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 },
       bankAccounts: [
         { id: 'checking-1', name: 'Everyday', type: 'checking' as const, balance: 1000, annualInterestRate: 0, openedAtAge: 20 },
         { id: 'fixed-1', name: 'Fixed deposit', type: 'fixed-deposit' as const, balance: 5000, annualInterestRate: 0.045, openedAtAge: 20, termYears: 3, maturesAtYear: 99 }
       ],
-      properties: [{ id: 'home-1', name: 'Home', type: 'house' as const, marketValue: 100000, purchasePrice: 100000, annualMaintenance: 1000, rentedOut: false, annualRentalIncome: 0 }]
+      properties: [{ id: 'home-1', name: 'Home', type: 'house' as const, marketValue: 10000000, purchasePrice: 10000000, annualMaintenance: 1000, rentedOut: false, annualRentalIncome: 0 }]
     };
     const next = advanceYear(base);
     expect(next.lastYearTax).toBeGreaterThan(0);
