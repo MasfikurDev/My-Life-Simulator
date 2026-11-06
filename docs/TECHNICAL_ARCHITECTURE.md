@@ -65,3 +65,10 @@ The Android WebView exposes a narrowly scoped `AndroidApp.copyToClipboard(text)`
 
 ## Education, employment, and recurring finances
 Education progress, employment records, salary, annual living-cost estimates, performance, experience, and promotions are fields on the simulation's Character model. These new fields are optional to preserve existing save compatibility; no storage schema bump is required. Eligibility is centralized in `progression.ts` and checked again by `performActivity`. Annual income/expenses and promotion outcomes are applied in `advanceYear`, then recorded in the character history. Keep country salary balancing explicitly provisional and never use the UI to invent finance state.
+
+
+## Native Android branding and launch experience
+- The original title artwork is the Android launcher/app logo, referenced by the adaptive launcher icon foreground. Keep the source PNG unchanged.
+- The title-less life-progression artwork is the centered Android splash image. The AndroidX SplashScreen compatibility API holds it while the hosted game loads, then moves it upward and fades it out when the first page finishes (or a main-frame load error is shown).
+- These two artworks are native Android assets only. Do not render either image inside the welcome or character-creation web UI.
+- Preserve the splash's black background and avoid adding a second in-page loading/branding hero.
