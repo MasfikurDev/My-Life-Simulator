@@ -1,13 +1,20 @@
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
+function utcDate(year: number, monthIndex: number, day: number): Date {
+  const date = new Date(0);
+  date.setUTCHours(0, 0, 0, 0);
+  date.setUTCFullYear(year, monthIndex, day);
+  return date;
+}
+
 function parseDate(value: string): Date {
   const match = DATE_PATTERN.exec(value);
   if (!match) throw new RangeError('Date must use YYYY-MM-DD format.');
   const year = Number(match[1]);
   const month = Number(match[2]);
   const day = Number(match[3]);
-  const date = new Date(Date.UTC(year, month - 1, day));
+  const date = utcDate(year, month - 1, day);
   if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
     throw new RangeError('Date is not a valid calendar day.');
   }
@@ -48,8 +55,8 @@ export function getFirstWeekStartOfYear(year: number): string {
 function birthdayInYear(birthDate: Date, year: number): Date {
   const month = birthDate.getUTCMonth();
   const day = birthDate.getUTCDate();
-  if (month === 1 && day === 29 && !isLeapYear(year)) return new Date(Date.UTC(year, 2, 1));
-  return new Date(Date.UTC(year, month, day));
+  if (month === 1 && day === 29 && !isLeapYear(year)) return utcDate(year, 2, 1);
+  return utcDate(year, month, day);
 }
 
 /** Age in completed years. February 29 birthdays fall on March 1 in non-leap years. */
