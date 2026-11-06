@@ -32,7 +32,8 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add bounded economic cycles, inflation, growth and benchmark-rate indicators; link inflation to living costs, subscriptions, rental agreements, and market valuations.
 - [x] Add simplified progressive income tax, rental/business income tax, annual property levy, and carried unpaid tax liability.
 - [x] Add a simplified 300–850 credit score using payment history, utilization, debt and unpaid taxes; price personal, mortgage and business loans from the score.
-- [ ] Add brokerage fees, full affordability checks and variable-rate debt.
+- [x] Add simplified brokerage/transfer fees and capital-gains tax on investment/property sales.
+- [ ] Add full affordability checks and variable-rate debt.
 - [ ] Add benefits and taxes after household budgets and financial flows are balanced.
 
 ## Milestone 3 — Connected systems

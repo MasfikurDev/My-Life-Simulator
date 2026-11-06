@@ -146,29 +146,39 @@ export function tradeInvestment(character: Character, type: InvestmentType, acti
   const quantity = Math.floor(units);
   if (character.age < 18 || !Number.isSafeInteger(quantity) || quantity <= 0 || quantity > 1000000) return character;
   const price = getMarketPrice(character, type);
-  const total = price * quantity;
-  if (!Number.isSafeInteger(total)) return character;
+  const gross = price * quantity;
+  if (!Number.isSafeInteger(gross)) return character;
+  const fee = Math.ceil(gross * 0.005);
   const holdings = [...(character.investments ?? [])];
   const index = holdings.findIndex((holding) => holding.type === type);
   const holding = index >= 0 ? holdings[index] : { type, units: 0, averageCost: 0 };
   if (action === 'buy') {
-    if (character.money < total) return character;
-    const nextHolding = { type, units: holding.units + quantity, averageCost: Math.round(((holding.units * holding.averageCost) + total) / (holding.units + quantity)) };
+    const cost = gross + fee;
+    if (character.money < cost) return character;
+    const nextHolding = { type, units: holding.units + quantity, averageCost: Math.round(((holding.units * holding.averageCost) + cost) / (holding.units + quantity)) };
     if (index >= 0) holdings[index] = nextHolding; else holdings.push(nextHolding);
-    const next = { ...character, money: character.money - total, investments: holdings, history: [...character.history] };
-    next.financialTransactions = financeRecord(next, 'investment-buy', total, 'Bought ' + quantity + ' units of ' + type + '.', 'Cash', type);
+    const next = { ...character, money: character.money - cost, investments: holdings, history: [...character.history] };
+    next.financialTransactions = financeRecord(next, 'investment-buy', gross, 'Bought ' + quantity + ' units of ' + type + '.', 'Cash', type);
+    next.financialTransactions = financeRecord(next, 'fee', fee, 'Brokerage fee on purchase of ' + type + '.', 'Cash', 'Broker');
     return next;
   }
   if (holding.units < quantity) return character;
+  const capitalGain = Math.max(0, (price - holding.averageCost) * quantity);
+  const capitalGainsTax = Math.round(capitalGain * 0.1);
+  const netProceeds = gross - fee - capitalGainsTax;
+  if (netProceeds < 0) return character;
   const remaining = holding.units - quantity;
   if (remaining === 0) holdings.splice(index, 1); else holdings[index] = { ...holding, units: remaining };
-  const next = { ...character, money: character.money + total, investments: holdings, history: [...character.history] };
-  next.financialTransactions = financeRecord(next, 'investment-sell', total, 'Sold ' + quantity + ' units of ' + type + '.', type, 'Cash');
+  const next = { ...character, money: character.money + netProceeds, investments: holdings, history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'investment-sell', gross, 'Sold ' + quantity + ' units of ' + type + '.', type, 'Cash');
+  next.financialTransactions = financeRecord(next, 'fee', fee, 'Brokerage fee on sale of ' + type + '.', 'Cash', 'Broker');
+  if (capitalGainsTax > 0) next.financialTransactions = financeRecord(next, 'tax', capitalGainsTax, 'Capital-gains tax on sale of ' + type + '.', 'Cash', 'Tax authority');
   return next;
 }
 export function buyProperty(character: Character, type: PropertyType, name: string, price: number, downPayment: number, annualRate = 0.07, termYears = 20, primaryResidence = false): Character {
   const value = Math.floor(price), down = Math.floor(downPayment);
-  if (character.age < 18 || (character.properties ?? []).length >= 5 || !validAmount(value) || !Number.isSafeInteger(down) || down < Math.ceil(value * 0.2) || down > value || character.money < down || !Number.isFinite(annualRate) || annualRate < 0 || annualRate > 0.5 || !Number.isInteger(termYears) || termYears < 1 || termYears > 30) return character;
+  const purchaseFee = Math.ceil(value * 0.01);
+  if (character.age < 18 || (character.properties ?? []).length >= 5 || !validAmount(value) || !Number.isSafeInteger(down) || down < Math.ceil(value * 0.2) || down > value || character.money < down + purchaseFee || !Number.isFinite(annualRate) || annualRate < 0 || annualRate > 0.5 || !Number.isInteger(termYears) || termYears < 1 || termYears > 30) return character;
   const financed = value - down;
   let next = character;
   if (financed > 0) {
@@ -178,8 +188,9 @@ export function buyProperty(character: Character, type: PropertyType, name: stri
   const mortgage = financed > 0 ? (next.loans ?? [])[Math.max(0, (next.loans ?? []).length - 1)] : undefined;
   const label = name.trim().slice(0, 36) || (type === 'house' ? 'House' : 'Apartment');
   const property: PropertyAsset = { id: 'property-' + character.year + '-' + character.age + '-' + ((character.properties ?? []).length + 1), name: label, type, marketValue: value, purchasePrice: value, annualMaintenance: Math.max(1, Math.round(value * 0.01)), mortgageLoanId: mortgage?.id, rentedOut: false, annualRentalIncome: 0 };
-  next = { ...next, money: next.money - value, properties: [...(next.properties ?? []), property], primaryResidenceId: primaryResidence ? property.id : next.primaryResidenceId, rentalHome: primaryResidence ? null : next.rentalHome, history: [...next.history] };
+  next = { ...next, money: next.money - value - purchaseFee, properties: [...(next.properties ?? []), property], primaryResidenceId: primaryResidence ? property.id : next.primaryResidenceId, rentalHome: primaryResidence ? null : next.rentalHome, history: [...next.history] };
   next.financialTransactions = financeRecord(next, 'property-purchase', value, 'Purchased ' + label + '.', 'Cash and mortgage', label);
+  next.financialTransactions = financeRecord(next, 'fee', purchaseFee, 'Property purchase and transfer fees for ' + label + '.', 'Cash', 'Property services');
   next.history.unshift(event(next, 'Property purchased', label + ' was added to your assets' + (mortgage ? ' with mortgage financing.' : '.'), 'milestone'));
   return next;
 }
@@ -210,12 +221,17 @@ export function sellProperty(character: Character, propertyId: string): Characte
   if (!property) return character;
   const mortgage = property.mortgageLoanId ? (character.loans ?? []).find((loan) => loan.id === property.mortgageLoanId && loan.active) : undefined;
   const debt = mortgage?.balance ?? 0;
-  if (property.marketValue < debt) return character;
-  const proceeds = property.marketValue - debt;
+  const saleFee = Math.ceil(property.marketValue * 0.01);
+  const capitalGain = Math.max(0, property.marketValue - property.purchasePrice);
+  const capitalGainsTax = Math.round(capitalGain * 0.1);
+  const proceeds = property.marketValue - debt - saleFee - capitalGainsTax;
+  if (proceeds < 0) return character;
   const next = { ...character, money: character.money + proceeds, properties: (character.properties ?? []).filter((item) => item.id !== propertyId), loans: mortgage ? (character.loans ?? []).map((loan) => loan.id === mortgage.id ? { ...loan, balance: 0, active: false } : loan) : character.loans, primaryResidenceId: character.primaryResidenceId === propertyId ? undefined : character.primaryResidenceId, history: [...character.history] };
   if (debt > 0) next.financialTransactions = financeRecord(next, 'loan-payment', debt, 'Mortgage settled when selling ' + property.name + '.', property.name, mortgage!.name);
   next.financialTransactions = financeRecord(next, 'property-sale', property.marketValue, 'Sold ' + property.name + ' and settled linked mortgage.', property.name, 'Cash');
-  next.history.unshift(event(next, 'Property sold', property.name + ' sold for ' + formatCharacterMoney(next, property.marketValue) + (debt ? ', with ' + formatCharacterMoney(next, debt) + ' mortgage settled.' : '.'), 'milestone'));
+  next.financialTransactions = financeRecord(next, 'fee', saleFee, 'Property sale and transfer fees for ' + property.name + '.', 'Cash', 'Property services');
+  if (capitalGainsTax > 0) next.financialTransactions = financeRecord(next, 'tax', capitalGainsTax, 'Capital-gains tax on sale of ' + property.name + '.', 'Cash', 'Tax authority');
+  next.history.unshift(event(next, 'Property sold', property.name + ' sold for ' + formatCharacterMoney(next, property.marketValue) + (debt ? ', with ' + formatCharacterMoney(next, debt) + ' mortgage settled.' : '.') + ' Fees and capital-gains tax were deducted.'));
   return next;
 }
 export function startBusiness(character: Character, name: string, type: BusinessType, capital: number): Character {
