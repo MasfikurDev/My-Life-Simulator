@@ -12,6 +12,7 @@
   const weekStart = $derived(getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year)));
   const schedule = $derived(getWeeklySchedule(character.weeklySchedule));
   const result = $derived(buildWeeklySchedule(weekStart, schedule));
+  const plannedCost = $derived(schedule.activities.reduce((total, item) => total + getActivityCost(character, item.activityId), 0));
   const availableActivities = $derived(getAvailableActivityIds(character.age, character.employment));
   let selectedActivity = $state<ActivityId>('exercise');
   let selectedDate = $state(weekStart);
@@ -59,6 +60,8 @@
     <div><strong>{schedule.commitments.length}</strong><span>Recurring commitments</span></div>
   </section>
 
+  <p class="schedule-budget">Planned activity costs: <strong>{formatCharacterMoney(character, plannedCost)}</strong> · Cash after planned costs: <strong>{formatCharacterMoney(character, Math.max(0, character.money - plannedCost))}</strong></p>
+
   <section class="schedule-planner">
     <div class="planner-copy">
       <div class="eyebrow">MAKE A PLAN</div>
@@ -83,7 +86,7 @@
       <label>Start
         <select bind:value={selectedPeriod}>
           {#each periods as period}
-            <option value={period}>{period[0].toUpperCase() + period.slice(1)}</option>
+            <option value={period} disabled={getActivityDefinition(selectedActivity).durationBlocks > periods.length - periods.indexOf(period)}>{period[0].toUpperCase() + period.slice(1)}</option>
           {/each}
         </select>
       </label>
@@ -135,6 +138,7 @@
   .schedule-summary div{display:grid;gap:4px;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
   .schedule-summary strong{font-size:21px;color:var(--text)}
   .schedule-summary span{font-size:10px;color:var(--muted)}
+  .schedule-budget{margin:-5px 0 0;color:var(--muted);font-size:10px}.schedule-budget strong{color:var(--text)}
   .schedule-planner{display:grid;gap:12px;padding:15px;border:1px solid var(--line);border-radius:13px;background:var(--surface)}
   .planner-copy h3{margin:4px 0;font-size:16px;color:var(--text)}
   .planner-controls{display:grid;grid-template-columns:1.2fr 1.3fr 1fr auto;gap:8px;align-items:end}
