@@ -320,7 +320,9 @@ export function advanceYear(character: Character): Character {
     const available = next.money + income;
     const expenses = Math.min(available, plannedExpenses);
     const shortfall = Math.max(0, plannedExpenses - expenses);
-    next.money = available - expenses;\n    if (income > 0) next.financialTransactions = financeRecord(next, 'income', income, 'Annual employment income received.', 'Employment', 'Cash');\n    if (expenses > 0) next.financialTransactions = financeRecord(next, 'expense', expenses, 'Annual household expenses paid.', 'Cash', 'Household');
+    next.money = available - expenses;
+    if (income > 0) next.financialTransactions = financeRecord(next, 'income', income, 'Annual employment income received.', 'Employment', 'Cash');
+    if (expenses > 0) next.financialTransactions = financeRecord(next, 'expense', expenses, 'Annual household expenses paid.', 'Cash', 'Household');
     next.lastYearIncome = income;
     next.lastYearExpenses = expenses;
     next.lastYearShortfall = shortfall;
@@ -334,7 +336,9 @@ export function advanceYear(character: Character): Character {
     const income = Math.round(job.annualSalary);
     const expenseRate = job.type === 'part-time' ? 0.2 : job.type === 'flexible' ? 0.45 : 0.55;
     const expenses = Math.round(income * expenseRate);
-    next.money = Math.max(0, next.money + income - expenses);\n    if (income > 0) next.financialTransactions = financeRecord(next, 'income', income, 'Annual employment income received.', 'Employment', 'Cash');\n    if (expenses > 0) next.financialTransactions = financeRecord(next, 'expense', expenses, 'Estimated living costs paid.', 'Cash', 'Living costs');
+    next.money = Math.max(0, next.money + income - expenses);
+    if (income > 0) next.financialTransactions = financeRecord(next, 'income', income, 'Annual employment income received.', 'Employment', 'Cash');
+    if (expenses > 0) next.financialTransactions = financeRecord(next, 'expense', expenses, 'Estimated living costs paid.', 'Cash', 'Living costs');
     next.lastYearIncome = income;
     next.lastYearExpenses = expenses;
     next.lastYearShortfall = 0;
