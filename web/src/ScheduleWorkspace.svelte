@@ -132,7 +132,7 @@
       {#each result.issues as issue}<p>{issue.message}</p>{/each}
     </section>
   {/if}
-  <p class="schedule-footnote">Time blocks are planning constraints, not hours. School and work routines will appear only when those systems provide real schedules. Planning does not apply effects or charge money yet; weekly resolution is the next step.</p>
+  <p class="schedule-footnote">Time blocks are planning constraints, not hours. School and work routines will appear only when those systems provide real schedules. Planned actions resolve in order when you start the next week. Effects and costs are applied once.</p>
 </section>
 
 <style>
