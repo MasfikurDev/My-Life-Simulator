@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getEconomicConditions, getHouseholdBudget, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceYear, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getAnnualTaxEstimate, getEconomicConditions, getHouseholdBudget, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeCardPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
@@ -445,6 +445,39 @@ describe('life simulation', () => {
     expect(next.recurringPayments![0].amount).toBeGreaterThan(0);
     expect(next.economy!.costOfLivingIndex).toBeGreaterThan(0);
     expect(getHouseholdBudget(next).total).not.toBe(before);
+  });
+
+  it('calculates progressive income tax with a tax-free allowance', () => {
+    const low = { ...createCharacter('Low earner', 30), currencyScale: 1, lastYearIncome: 10000 };
+    const middle = { ...createCharacter('Middle earner', 30), currencyScale: 1, lastYearIncome: 50000 };
+    const high = { ...createCharacter('High earner', 30), currencyScale: 1, lastYearIncome: 70000 };
+    expect(getAnnualTaxEstimate(low).incomeTax).toBe(0);
+    expect(getAnnualTaxEstimate(middle).incomeTax).toBe(4800);
+    expect(getAnnualTaxEstimate(high).incomeTax).toBe(8300);
+  });
+  it('assesses annual taxes, pays liquid funds first, and carries unpaid tax as a liability', () => {
+    const base = {
+      ...createCharacter('Tax payer', 30), currencyScale: 1, money: 0, lastYearIncome: 50000,
+      bankAccounts: [
+        { id: 'checking-1', name: 'Everyday', type: 'checking' as const, balance: 1000, annualInterestRate: 0, openedAtAge: 20 },
+        { id: 'fixed-1', name: 'Fixed deposit', type: 'fixed-deposit' as const, balance: 5000, annualInterestRate: 0.045, openedAtAge: 20, termYears: 3, maturesAtYear: 99 }
+      ],
+      properties: [{ id: 'home-1', name: 'Home', type: 'house' as const, marketValue: 100000, purchasePrice: 100000, annualMaintenance: 1000, rentedOut: false, annualRentalIncome: 0 }]
+    };
+    const next = advanceYear(base);
+    expect(next.lastYearTax).toBeGreaterThan(0);
+    expect(next.bankAccounts!.find((account)=>account.id==='checking-1')!.balance).toBe(0);
+    expect(next.bankAccounts!.find((account)=>account.id==='fixed-1')!.balance).toBeGreaterThan(5000);
+    expect(next.taxBalance).toBeGreaterThan(0);
+    expect(getNetWorth(next)).toBeLessThan(getNetWorth(base));
+    expect(next.financialTransactions?.some((item)=>item.type==='tax')).toBe(true);
+  });
+  it('clears previously outstanding tax when sufficient cash becomes available', () => {
+    const base = { ...createCharacter('Tax payer', 30), currencyScale: 1, money: 10000, taxBalance: 500, lastYearIncome: 0 };
+    const next = advanceYear(base);
+    expect(next.taxBalance).toBe(0);
+    expect(next.money).toBeLessThan(10000);
+    expect(next.lastYearTax).toBe(0);
   });
 
 });
