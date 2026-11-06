@@ -7,6 +7,7 @@
   const views = [
     { id: 'overview', label: 'Overview' },
     { id: 'wellbeing', label: 'Wellbeing' },
+    { id: 'growth', label: 'Personal growth' },
     { id: 'personal', label: 'Personal' },
     { id: 'history', label: 'Life history' }
   ];
@@ -57,6 +58,11 @@
           <article class="stat-card"><div class="stat-top"><span class="stat-icon {stat.color}">{stat.icon}</span><span class="stat-label">{stat.label}</span></div><div class="stat-value">{stat.value}<small>/100</small></div><div class="meter"><span class={stat.color} style="width:{stat.value}%"></span></div></article>
         {/each}
       </div>
+    </section>
+  {:else if activeView === 'growth'}
+    <section class="domain-panel">
+      <div class="domain-panel-head"><div><div class="eyebrow">PERSONAL DEVELOPMENT</div><h2>Intelligence</h2><p>A general measure of accumulated learning and knowledge.</p></div></div>
+      <div class="stats-grid"><article class="stat-card"><div class="stat-top"><span class="stat-icon blue">✳</span><span class="stat-label">Intelligence</span></div><div class="stat-value">{character.intelligence}<small>/100</small></div><div class="meter"><span class="blue" style="width:{character.intelligence}%"></span></div></article></div>
     </section>
   {:else if activeView === 'personal'}
     <div class="page-heading"><div><div class="eyebrow">PERSONAL TIME</div><h2>Everyday activities</h2><p>Exercise and social time. Actions use the same yearly time allowance as other systems.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
