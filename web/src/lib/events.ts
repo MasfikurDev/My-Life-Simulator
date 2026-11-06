@@ -82,7 +82,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
         {
           id: 'take-part',
           label: 'Take part',
-          detail: 'Invest one action and ' + Math.round(50 * scale).toLocaleString('en-US') + ' in supplies. If you follow through, the experience may lead to a small payment next year.',
+          detail: 'Reserve one period and spend ' + Math.round(50 * scale).toLocaleString('en-US') + ' on supplies. If you follow through, the experience may lead to a small payment next year.',
           timeBlocks: 1,
           moneyCost: Math.round(50 * scale),
           effects: { intelligence: 2, happiness: 1 },
