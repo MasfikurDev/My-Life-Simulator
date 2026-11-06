@@ -27,8 +27,10 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - name: Install locked dependencies
         run: npm ci --prefer-offline --no-audit --no-fund --no-progress
-      # The build script already runs type checks and tests before Vite.
+      # GitHub Pages is hosted below /<repository>/; Cloudflare uses the domain root.
       - name: Check, test, and build
+        env:
+          VITE_BASE_PATH: /My-Life-Simulator/
         run: npm run build
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'
