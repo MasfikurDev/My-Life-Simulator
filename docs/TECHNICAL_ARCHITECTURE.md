@@ -235,3 +235,21 @@ Personal Technology is a modular Life domain. Its canonical behavior, boundaries
 - Keep capability tiers category-aware and task-specific. Avoid a universal hardware score and avoid storing derived bonuses.
 - Existing saves without device data load as having no personal devices, not invented purchases.
 - Keep condition and usage deterministic and auditable. Do not add battery, storage, data, or subscription meters until they support a tested gameplay decision.
+
+## Exploratory architecture direction: portable simulation core
+
+This section records a promising future direction, not an approved implementation requirement or a commitment to a language/toolchain.
+
+- Keep the simulation engine independent of Svelte, browser APIs, Android, and presentation components. The frontend collects player decisions and renders results; domain logic owns rules, validation, state transitions, and consequences.
+- Prefer clear domain contracts and modular TypeScript systems first. A stable boundary is more valuable now than choosing a lower-level implementation language prematurely.
+- Consider a language-independent simulation interface so selected modules could later be implemented in Rust or another suitable language and exposed to the web client through WebAssembly (WASM).
+- WASM is an optional implementation/acceleration path, not the default architecture. Do not rewrite systems in Rust/C++ or introduce WASM solely for perceived performance, fashion, or theoretical efficiency.
+- Potential future candidates include computationally expensive world/economy simulation, large-scale NPC decisions, procedural generation, or other workloads shown by profiling to be CPU-bound.
+- Keep ordinary UI behavior, navigation, save management, and low-cost domain operations in TypeScript unless evidence supports moving a specific workload.
+- Before adopting WASM, benchmark representative game scenarios on target mid-range mobile hardware. Include serialization/data conversion, memory copies, JavaScript/WASM boundary crossings, bundle size, startup cost, debugging, testing, and build/release complexity—not just raw function speed.
+- If adopted, move only a bounded, independently testable module at a time. Prefer coarse-grained calls (for example, resolving a week or simulation batch) over many tiny cross-boundary calls.
+- Preserve deterministic behavior, seeded randomness, save compatibility, explicit effects/history, and reproducible tests regardless of implementation language.
+- Revisit this direction only when the simulation architecture is stable enough and a measured need or concrete portability benefit justifies the additional toolchain.
+
+The near-term implementation remains a pure TypeScript simulation engine with explicit domain boundaries. This exploratory direction must not delay playable gameplay milestones or add development overhead without demonstrated value.
+
