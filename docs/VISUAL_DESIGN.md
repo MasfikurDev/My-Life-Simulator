@@ -73,3 +73,13 @@ Do not render multiple controls or components for the same action or destination
 - Use the original title artwork only as the Android launcher/app logo.
 - Use the title-less life-progression artwork only as the centered Android launch splash image. Keep it visible until the WebView's first page finishes loading; then animate it upward and fade it away.
 - Do not place either native artwork in the web welcome or character-creation screens. Preserve the original PNG files unchanged.
+
+
+## Domain-native interface language
+- A system must look and behave like the real-world environment it represents, simplified for play. Do not reuse one generic dashboard layout for every domain.
+- Finance is a parent destination with its own internal navigation. Banking, cards, loans, recurring payments, savings/vault, property, investments, business, and living costs each open a focused view. Do not stack all finance modules into one long screen.
+- Banking uses account cards, available balances, account details, transfers, deposits/withdrawals, and a transaction activity list. Household budgets and living-arrangement choices are not shown on the Banking screen.
+- Cards should use payment-card terminology and card controls; Loans should emphasize principal, rate, term, repayment and credit standing; Investments should present a portfolio/market context; Property should feel like housing/property management; Business should focus on operations and business performance.
+- Education will use school/campus navigation, student records, classes, attendance, grades, fees and learning actions. Work will use recruitment/job-search flows and a distinct workplace view for an employed character. These systems must not be represented as generic status cards inside Finance.
+- Keep the shared AMOLED theme, typography, spacing, accessibility and navigation shell consistent. Domain identity comes from relevant information architecture, terminology, actions and contextual layouts—not arbitrary unrelated colors or decorative imitation.
+- Use progressive disclosure within each domain. Do not show controls from unrelated domains or repeat the same summary and action on multiple screens.
