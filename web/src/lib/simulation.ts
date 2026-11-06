@@ -678,6 +678,7 @@ export type ActivityPlanningIssue =
   | 'outside-current-week'
   | 'invalid-existing-schedule'
   | 'time-conflict'
+  | 'invalid-time-slot'
   | 'insufficient-funds';
 
 export interface ActivityPlanningResult {
@@ -741,9 +742,10 @@ export function planActivity(character: Character, activity: ActivityId, date: s
   const validation = buildWeeklySchedule(currentWeek, nextSchedule);
   if (!validation.valid) {
     const issue = validation.issues.find((item) => item.entryId === id);
+    const isOverlap = issue?.code === 'overlap';
     return {
       character,
-      issue: 'time-conflict',
+      issue: isOverlap ? 'time-conflict' : 'invalid-time-slot',
       message: issue?.message ?? 'That time cannot be reserved.'
     };
   }
