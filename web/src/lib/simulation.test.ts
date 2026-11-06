@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { advanceYear, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getHouseholdBudget, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
+import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeCardPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
 
@@ -379,6 +380,35 @@ describe('life simulation', () => {
     expect(next.marketPrices?.lastUpdatedYear).toBe(next.year);
     expect(next.financialTransactions?.some((t)=>t.type==='property-rent')).toBe(true);
     expect(next.financialTransactions?.some((t)=>t.type==='business-income')).toBe(true);
+  });
+
+  it('locks fixed deposits until maturity and credits their higher interest', () => {
+    const base = { ...createCharacter('Saver', 30), currencyScale: 1, money: 1000, year: 2026 };
+    const opened = openBankAccount(base, 'fixed-deposit', 'Term deposit', 2);
+    const funded = depositToAccount(opened, opened.bankAccounts![0].id, 1000);
+    expect(withdrawFromAccount(funded, funded.bankAccounts![0].id, 100)).toBe(funded);
+    const yearOne = advanceYear(funded);
+    expect(yearOne.bankAccounts![0].balance).toBe(1045);
+    expect(withdrawFromAccount(yearOne, yearOne.bankAccounts![0].id, 100)).toBe(yearOne);
+    const yearTwo = advanceYear(yearOne);
+    expect(yearTwo.year).toBe(2028);
+    expect(yearTwo.bankAccounts![0].balance).toBe(1092);
+    expect(withdrawFromAccount(yearTwo, yearTwo.bankAccounts![0].id, 1092).money).toBe(1092);
+  });
+  it('loads prepaid cards from cash, limits spending and supports recurring charges', () => {
+    const base = { ...createCharacter('Card user', 30), currencyScale: 1, money: 1000 };
+    const issued = issueBankCard(base, 'prepaid', 'Travel card');
+    const loaded = loadPrepaidCard(issued, issued.cards![0].id, 400);
+    expect(loaded.money).toBe(600);
+    expect(loaded.cards![0].balance).toBe(400);
+    expect(getNetWorth(loaded)).toBe(getNetWorth(base));
+    const spent = makeCardPurchase(loaded, loaded.cards![0].id, 150);
+    expect(spent.cards![0].balance).toBe(250);
+    expect(getNetWorth(spent)).toBe(getNetWorth(base)-150);
+    const subscription = addRecurringPayment(spent, 'Transit pass', 100, 'bill', 'card', issued.cards![0].id);
+    const next = advanceYear(subscription);
+    expect(next.cards![0].balance).toBe(150);
+    expect(next.financialTransactions?.some((item)=>item.type==='recurring-payment')).toBe(true);
   });
 
 });
