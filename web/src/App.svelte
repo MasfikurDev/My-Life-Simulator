@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { advanceYear, canAffordActivity, formatCharacterMoney, performActivity } from './lib/simulation';
-  import { getAvailableActivityIds, getLifeStage } from './lib/progression';
+  import { getAvailableActivityIds } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
   import FinanceWorkspace from './FinanceWorkspace.svelte';
+  import LifeWorkspace from './LifeWorkspace.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
   import type { ActivityId, Character, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
@@ -191,7 +192,7 @@
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
-        {#each [{id:'home',label:'Overview',icon:'⌂'},...(character && character.age >= 3 ? [{id:'school',label:'School',icon:'▤'}] : []),...(character && character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'}] : []),{id:'activities',label:'Personal',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'history',label:'Life history',icon:'↗'},{id:'settings',label:'Settings',icon:'⚙'}] as item}
+        {#each [{id:'home',label:'Overview',icon:'⌂'},...(character && character.age >= 3 ? [{id:'school',label:'School',icon:'▤'}] : []),...(character && character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'}] : []),{id:'life',label:'Life',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'settings',label:'Settings',icon:'⚙'}] as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => activeTab=item.id}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>{character.name}</strong><small>Age {character.age}</small></div></div>{/if}
@@ -215,7 +216,7 @@
             {#if character}
               <div class="debug-export-row"><div><strong>Gameplay snapshot</strong><p>Includes the character, current stats, finances, save slot and complete life history. It excludes device identifiers and browser data.</p></div><button class="secondary-button" onclick={copyDebugSnapshot} disabled={debugCopying}>{debugCopying ? 'Copying…' : 'Copy snapshot'}</button></div>
               <div class="settings-log-list">{#each character.history.slice(0,6) as item}<div class="settings-log-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</div>
-              <button class="text-button settings-log-link" onclick={() => activeTab='history'}>Open complete life history →</button>
+              <button class="text-button settings-log-link" onclick={() => activeTab='life'}>Open Life workspace →</button>
             {:else}
               <p class="settings-empty-log">The game log will appear here after a life is started.</p>
             {/if}
@@ -238,23 +239,9 @@
         {:else if character && activeTab==='home'}
           <div class="page-heading"><div><div class="eyebrow">OVERVIEW</div><h1>{character.name}</h1><p>Age {character.age}</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
           <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div></div> </div></section>
-          <div class="life-stage-strip"><div><strong>{getLifeStage(character.age).label}</strong><span>Age {character.age} · {getLifeStage(character.age).ageRange}</span></div><p>{getLifeStage(character.age).description}</p>{#if getLifeStage(character.age).nextAge !== null}<small>Next stage at age {getLifeStage(character.age).nextAge}</small>{/if}</div>
-
-          <div class="section-heading"><div><span class="section-index">01</span><h3>Available actions</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
-          <div class="activity-grid">{#each activities.filter((activity) => ['exercise','socialize'].includes(activity.id) && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}
-            <button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
-          {/each}</div>
-          <div class="section-heading"><div><span class="section-index">02</span><h3>Life stats</h3></div></div>
-          <div class="stats-grid">{#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Intelligence',value:character.intelligence,color:'blue',icon:'✳'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
-            <article class="stat-card"><div class="stat-top"><span class="stat-icon {stat.color}">{stat.icon}</span><span class="stat-label">{stat.label}</span></div><div class="stat-value">{stat.value}<small>/100</small></div><div class="meter"><span class={stat.color} style="width:{stat.value}%"></span></div></article>
-          {/each}</div>
-          <div class="bottom-row"><section class="history-card"><div class="card-heading"><div><span class="section-index">03</span><h3>Recent activity</h3></div><button class="text-button" onclick={() => activeTab='history'}>View all →</button></div>
-            {#each character.history.slice(0,3) as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}
-          </section></div>
-        {:else if character && activeTab==='activities'}
-          <div class="page-heading"><div><div class="eyebrow">PERSONAL TIME</div><h1>Personal activities</h1><p>Health, recreation and relationships.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => ['exercise','socialize'].includes(activity.id) && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
-
+          <div class="finance-shortcuts">
+            <button onclick={() => activeTab='life'}><span class="shortcut-icon">✳</span><strong>Life</strong><small>Wellbeing, personal time, growth and history</small><b>Open Life →</b></button>
+          </div>
         {:else if character && activeTab==='school' && character.age >= 3}
           <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div><div class="year-pill">AGE {character.age}</div></div>
           <section class="domain-panel">
@@ -279,9 +266,8 @@
           <div class="section-heading"><div><span class="section-index">01</span><h3>{character.employment ? 'Workplace & career' : 'Job opportunities'}</h3></div></div>
           <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => ['apply-job','career','work'].includes(activity.id) && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
-        {:else if character && activeTab==='history'}
-          <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h1>Life history</h1><p>Events and decisions recorded during this life.</p></div></div>
-          <section class="history-card full-history">{#each character.history as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</section>
+        {:else if character && activeTab==='life'}
+          <LifeWorkspace {character} onChange={persist} />
         {:else if character && activeTab==='finances'}
           <FinanceWorkspace {character} onChange={persist} />
         {/if}

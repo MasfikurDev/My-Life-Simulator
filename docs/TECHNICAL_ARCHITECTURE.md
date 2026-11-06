@@ -153,3 +153,7 @@ Future Education and Work modules must follow the same boundary pattern:
 - Do not implement Education/Work as status panels inside Finance. Their simulation logic should be callable through domain functions and their UI should be independent components/destinations.
 
 Shared cross-domain effects are communicated through explicit simulation transactions, history events, or narrowly scoped state changes. A bank account may receive salary, but the bank screen does not become a work screen. Keep each domain independently testable and progressively unlockable by age/eligibility.
+
+
+## Life workspace
+The top-level Life destination is a modular UI workspace, not a new simulation subsystem. Its focused sections are Overview, Wellbeing (health, happiness, fitness), Personal Growth (intelligence), Personal (exercise and social activities), and Life History. The workspace reuses Character fields, existing activity eligibility and affordability functions, `performActivity`, and the shared chronological `history` array. Do not duplicate or migrate persisted state solely to support navigation. School and Work remain separate top-level destinations; settings may show a short recent-log preview but the complete history belongs in Life.
