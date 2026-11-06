@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, getAnnualReview, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
-import { getAvailableActivityIds, getLifeStage } from './progression';
+import { advanceYear, getAnnualReview, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
@@ -15,6 +15,63 @@ describe('life simulation', () => {
     expect(getActivityCost(child, 'study')).toBe(0);
     expect(canAffordActivity(adult, 'study')).toBe(true);
     expect(canAffordActivity({ ...adult, money: 3499 }, 'study')).toBe(false);
+  });
+  it('defines different time requirements for activities', () => {
+    expect(getActivityDefinition('study').durationBlocks).toBe(2);
+    expect(getActivityDefinition('work').durationBlocks).toBe(2);
+    expect(getActivityDefinition('exercise').durationBlocks).toBe(1);
+    expect(getActivityDefinition('apply-job').durationBlocks).toBe(1);
+  });
+  it('plans activities into the current week without spending annual action tokens or cash early', () => {
+    const adult = { ...createCharacter('Planner', 30), money: 100, currencyScale: 1, actionsRemaining: 0 };
+    const result = planActivity(adult, 'study', '2026-01-05', 'morning');
+    expect(result.issue).toBeNull();
+    expect(result.character.weeklySchedule?.activities).toHaveLength(1);
+    expect(result.character.weeklySchedule?.activities[0]).toMatchObject({
+      activityId: 'study', date: '2026-01-05', startPeriod: 'morning', durationBlocks: 2
+    });
+    expect(result.character.actionsRemaining).toBe(0);
+    expect(result.character.money).toBe(100);
+    expect(adult.weeklySchedule?.activities).toHaveLength(0);
+  });
+  it('rejects overlapping activity reservations without changing the save', () => {
+    const adult = createCharacter('Planner', 30);
+    const first = planActivity(adult, 'exercise', '2026-01-05', 'morning');
+    const conflict = planActivity(first.character, 'socialize', '2026-01-05', 'morning');
+    expect(first.issue).toBeNull();
+    expect(conflict.issue).toBe('time-conflict');
+    expect(conflict.character).toBe(first.character);
+  });
+  it('rejects a long activity when it cannot fit before the day ends', () => {
+    const adult = createCharacter('Planner', 30);
+    const result = planActivity(adult, 'study', '2026-01-05', 'evening');
+    expect(result.issue).toBe('invalid-time-slot');
+    expect(result.character).toBe(adult);
+  });
+  it('reserves enough cash for all planned paid activities', () => {
+    const adult = { ...createCharacter('Planner', 30), money: 50, currencyScale: 1 };
+    const first = planActivity(adult, 'study', '2026-01-05', 'morning');
+    const second = planActivity(first.character, 'socialize', '2026-01-06', 'morning');
+    expect(first.issue).toBeNull();
+    expect(second.issue).toBe('insufficient-funds');
+    expect(second.character).toBe(first.character);
+  });
+  it('enforces life-stage eligibility and current-week boundaries when planning', () => {
+    const child = createCharacter('Child', 2);
+    expect(planActivity(child, 'study', '2026-01-05', 'morning').issue).toBe('unavailable');
+    const adult = createCharacter('Adult', 30);
+    expect(planActivity(adult, 'exercise', '2026-01-12', 'morning').issue).toBe('outside-current-week');
+    expect(planActivity(adult, 'exercise', 'not-a-date', 'morning').issue).toBe('invalid-date');
+  });
+  it('removes a planned activity without affecting other reservations', () => {
+    const adult = createCharacter('Planner', 30);
+    const first = planActivity(adult, 'exercise', '2026-01-05', 'morning').character;
+    const second = planActivity(first, 'socialize', '2026-01-05', 'afternoon').character;
+    const id = second.weeklySchedule!.activities[0].id;
+    const removed = removePlannedActivity(second, id);
+    expect(removed.weeklySchedule?.activities).toHaveLength(1);
+    expect(removed.weeklySchedule?.activities[0].activityId).toBe('socialize');
+    expect(removePlannedActivity(removed, 'missing-id')).toBe(removed);
   });
   it('rejects paid activities when the balance is insufficient', () => {
     const adult = { ...createCharacter('Adult', 30), money: 10, currencyScale: 1 };
