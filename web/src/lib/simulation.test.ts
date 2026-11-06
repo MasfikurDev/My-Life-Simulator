@@ -411,4 +411,15 @@ describe('life simulation', () => {
     expect(next.financialTransactions?.some((item)=>item.type==='recurring-payment')).toBe(true);
   });
 
+  it('supports debit-card auto-pay by debiting its linked bank account', () => {
+    const base = { ...createCharacter('Card payer', 30), currencyScale: 1, money: 10000 };
+    const account = openBankAccount(base, 'checking', 'Bills account');
+    const funded = depositToAccount(account, account.bankAccounts![0].id, 5000);
+    const debit = issueBankCard(funded, 'debit', 'Bills card', account.bankAccounts![0].id);
+    const recurring = addRecurringPayment(debit, 'Internet bill', 100, 'bill', 'card', debit.cards![0].id);
+    const next = advanceYear(recurring);
+    expect(next.bankAccounts![0].balance).toBe(4900);
+    expect(next.financialTransactions?.some((item)=>item.type==='recurring-payment' && item.amount===100)).toBe(true);
+  });
+
 });
