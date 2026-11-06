@@ -541,6 +541,7 @@ export function getHouseholdBudget(character: Character) {
   if (character.age < 18) return zero;
   const scale = character.currencyScale ?? 1;
   const referenceIncome = character.employment?.annualSalary ?? 18000 * scale;
+  const costIndex = getEconomicConditions(character).costOfLivingIndex;
   const shares: Record<HouseholdArrangement, typeof zero> = {
     'family-supported': { housing: 0, food: 0.08, transport: 0.03, utilities: 0, personal: 0.04, total: 0.15 },
     shared: { housing: 0.14, food: 0.12, transport: 0.04, utilities: 0.03, personal: 0.05, total: 0.38 },
@@ -548,11 +549,11 @@ export function getHouseholdBudget(character: Character) {
   };
   const share = shares[character.householdArrangement ?? 'family-supported'];
   const ownedResidence = (character.properties ?? []).find((property) => property.id === character.primaryResidenceId);
-  const housing = character.rentalHome ? character.rentalHome.annualRent : ownedResidence ? 0 : Math.round(referenceIncome * share.housing);
-  const food = Math.round(referenceIncome * share.food);
-  const transport = Math.round(referenceIncome * share.transport);
-  const utilities = Math.round(referenceIncome * share.utilities);
-  const personal = Math.round(referenceIncome * share.personal);
+  const housing = character.rentalHome ? character.rentalHome.annualRent : ownedResidence ? 0 : Math.round(referenceIncome * share.housing * costIndex);
+  const food = Math.round(referenceIncome * share.food * costIndex);
+  const transport = Math.round(referenceIncome * share.transport * costIndex);
+  const utilities = Math.round(referenceIncome * share.utilities * costIndex);
+  const personal = Math.round(referenceIncome * share.personal * costIndex);
   const maintenance = (character.properties ?? []).reduce((sum, property) => sum + property.annualMaintenance, 0);
   const totalHousing = housing + maintenance;
   return { housing: totalHousing, food, transport, utilities, personal, total: totalHousing + food + transport + utilities + personal };
@@ -648,7 +649,8 @@ export function performActivity(character: Character, activity: ActivityId, rand
 }
 
 export function advanceYear(character: Character): Character {
-  const next: Character = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
+  let next: Character = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
+  next = advanceEconomicConditions(next);
   const educationStage = getEducationStage(next.age);
   if ([3, 6, 13, 18].includes(next.age) && next.education !== 'Higher education' && next.education !== educationStage) {
     next.education = educationStage;
