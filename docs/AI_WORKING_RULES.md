@@ -133,3 +133,10 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 75. Monthly and annual financial settlement must have explicit due dates/cadences and exactly-once behavior. Never double-charge by running both annual and monthly versions of the same obligation. Do not divide annual values by 12 without documented rounding and migration rules.
 76. A weekly save migration must preserve age/date semantics, all three save slots, cash, accounts, assets, liabilities, ledgers, education/work state, history, event choices, and pending consequences. Do not switch live progression to weekly until migration and multi-week scenario tests pass.
 77. Bulk advancement must resolve each intervening week in order and stop at meaningful decisions, deadlines, events, birthdays, and payment failures. Never skip simulation by applying a coarse multi-week approximation.
+
+
+78. Personal Technology is a modular Life domain for smartphones, laptops, and desktop PCs. Device management belongs in Life → Personal Technology; retail discovery/purchase belongs in Lifestyle → Discover; payments and ledger entries belong to Finance.
+79. Devices are optional assets and capability enablers, not mandatory paywalls. Provide shared, school/work-provided, public, or non-digital alternatives for core progression where reasonable. Do not grant broad stat bonuses for owning expensive hardware.
+80. Distinguish ownership from borrowed/shared/provided access. Never count non-owned access as a personal asset or invent devices for legacy saves. Age and guardian rules apply to purchases and contracts.
+81. Device purchases, repairs, and resale must use the existing Finance transaction path and be atomic with device-state changes. Do not create a separate technology wallet or duplicate device controls in School, Work, or Finance.
+82. Keep hardware simulation lightweight: fictional models, category-aware capability tiers, condition, and meaningful repair/replacement decisions. Do not add detailed benchmarks, battery/storage meters, subscriptions, or real-world brand catalogues without a demonstrated gameplay need.
