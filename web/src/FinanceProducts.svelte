@@ -29,7 +29,7 @@
   <div class="products-title"><div><small>{view === 'cards' ? 'PAYMENT METHODS' : view === 'loans' ? 'CREDIT SERVICES' : view === 'bills' ? 'RECURRING PAYMENTS' : view === 'savings' ? 'SAVINGS TOOLS' : 'FINANCIAL TOOLS'}</small><h2>{view === 'cards' ? 'Cards' : view === 'loans' ? 'Loans & credit' : view === 'bills' ? 'Bills & subscriptions' : view === 'savings' ? 'Automatic savings & vault' : 'Credit, payments & savings'}</h2></div>{#if view === 'all' || view === 'savings'}<span class="vault-total">Safe · {formatCharacterMoney(character,character.vaultBalance??0)}</span>{/if}</div>
   {#if view === 'all' || view === 'loans'}<div class="credit-score"><div><small>CREDIT SCORE</small><strong>{creditScore}</strong><span>{creditTier}</span></div><p>Payment history, credit-card use, debt and unpaid tax influence your score. Better scores qualify for lower starting loan rates.</p></div>{/if}
   {#if view === 'all' || view === 'cards'}
-  <details><summary>Payment cards <span>{cards.length}/6</span></summary>
+  <details open={view !== 'all'}><summary>Payment cards <span>{cards.length}/6</span></summary>
     {#each cards as card}<div class="product-row"><div><strong>{card.name}</strong><small>{card.type==='credit'?'Credit · '+formatCharacterMoney(character,card.balance)+' owed / '+formatCharacterMoney(character,card.creditLimit)+' limit':card.type==='prepaid'?'Prepaid · '+formatCharacterMoney(character,card.balance)+' available':'Debit · linked to '+(accounts.find((a)=>a.id===card.linkedAccountId)?.name??'unavailable account')}</small></div><b>{card.type==='credit'?formatCharacterMoney(character,Math.max(0,card.creditLimit-card.balance))+' available':card.type==='prepaid'?formatCharacterMoney(character,card.balance)+' stored':'Active'}</b></div>{/each}
     <div class="form-grid"><label>Card type<select bind:value={cardType}><option value="debit">Debit card</option><option value="credit">Credit card</option><option value="prepaid">Prepaid card</option></select></label><label>Card name<input bind:value={cardName} placeholder="Everyday card"/></label></div>
     {#if cardType==='debit'}<label>Bank account<select bind:value={cardAccount}><option value="">Select account</option>{#each accounts as a}<option value={a.id}>{a.name}</option>{/each}</select></label>{:else if cardType==='credit'}<div class="form-grid"><label>Credit limit<input type="number" min="1" bind:value={creditLimit}/></label><label>Payment account (optional)<select bind:value={cardAccount}><option value="">Pay from cash</option>{#each accounts as a}<option value={a.id}>{a.name}</option>{/each}</select></label></div><small class="hint">Simplified 18% annual interest. A 5% minimum payment is attempted each year.</small>{:else}<small class="hint">Prepaid cards have no credit line or interest. Load them from cash, then spend only the available balance.</small>{/if}
@@ -40,7 +40,7 @@
   </details>
   {/if}
   {#if view === 'all' || view === 'loans'}
-  <details><summary>Loans <span>{loans.length}/5 active</span></summary>
+  <details open={view !== 'all'}><summary>Loans <span>{loans.length}/5 active</span></summary>
     {#each loans as loan}<div class="product-row"><div><strong>{loan.name}</strong><small>{loan.type} · {(loan.annualInterestRate*100).toFixed(1)}% annual · {loan.termYears}-year term</small></div><b>{formatCharacterMoney(character,loan.balance)} owed</b></div>{/each}
     <div class="form-grid"><label>Loan type<select bind:value={loanType}><option value="personal">Personal</option><option value="mortgage">Mortgage</option><option value="business">Business</option></select></label><label>Name<input bind:value={loanName} placeholder="Personal loan"/></label><label>Principal<input type="number" min="1" bind:value={loanAmount}/></label><label>Annual interest %<input type="number" min="0" max="50" step="0.5" bind:value={loanRate}/></label><label>Term (years)<input type="number" min="1" max="30" bind:value={loanTerm}/></label><label>Repayment account<select bind:value={loanAccount}><option value="">Use cash</option>{#each accounts as a}<option value={a.id}>{a.name}</option>{/each}</select></label></div>
     <small class="hint">Minimum rate for your current score: {(minimumLoanRate*100).toFixed(1)}%. A lower rate is not eligible. Missed payments and high balances can reduce your score.</small>
@@ -50,7 +50,7 @@
   </details>
   {/if}
   {#if view === 'all' || view === 'bills'}
-  <details><summary>Subscriptions & recurring bills <span>{recurring.length}/12 active</span></summary>
+  <details open={view !== 'all'}><summary>Subscriptions & recurring bills <span>{recurring.length}/12 active</span></summary>
     {#each recurring as item}<div class="product-row"><div><strong>{item.name}</strong><small>{item.category} · {item.sourceType} · {formatCharacterMoney(character,item.amount)} / year</small></div><button class="quiet" onclick={()=>run(()=>cancelRecurringPayment(character,item.id),'Recurring payment cancelled.')}>Cancel</button></div>{/each}
     <div class="form-grid"><label>Name<input bind:value={recurringName} placeholder="Music subscription"/></label><label>Annual amount<input type="number" min="1" bind:value={recurringAmount}/></label><label>Category<select bind:value={recurringCategory}><option value="subscription">Subscription</option><option value="bill">Recurring bill</option></select></label><label>Payment source<select bind:value={recurringSource}><option value="cash">Cash</option><option value="account">Bank account</option><option value="card">Credit / prepaid card</option></select></label></div>
     {#if recurringSource==='account'}<label>Account<select bind:value={recurringSourceId}><option value="">Choose account</option>{#each accounts as a}<option value={a.id}>{a.name}</option>{/each}</select></label>{:else if recurringSource==='card'}<label>Payment card<select bind:value={recurringSourceId}><option value="">Choose credit card</option>{#each paymentCards as card}<option value={card.id}>{card.name}</option>{/each}</select></label>{/if}
@@ -58,11 +58,11 @@
   </details>
   {/if}
   {#if view === 'all' || view === 'savings'}
-  <details><summary>Automatic savings deposits</summary>
+  <details open={view !== 'all'}><summary>Automatic savings deposits</summary>
     <div class="form-grid"><label>Destination account<select bind:value={depositAccount}><option value="">Choose savings account</option>{#each accounts as a}<option value={a.id}>{a.name}</option>{/each}</select></label><label>Deposit method<select bind:value={depositMethod}><option value="percentage">Percentage of income</option><option value="fixed">Fixed amount / year</option></select></label><label>{depositMethod==='percentage'?'Percentage (1–90)':'Amount per year'}<input type="number" min="1" max={depositMethod==='percentage'?90:100000000} bind:value={depositValue}/></label></div>
     <button class="primary" onclick={createAutoDeposit} disabled={!depositAccount}>Save automatic deposit</button><small class="hint">Applied after annual income and household expenses, only when cash is sufficient.</small>
   </details>
-  <details><summary>Personal safe / vault</summary>
+  <details open={view !== 'all'}><summary>Personal safe / vault</summary>
     <div class="vault-balance"><small>STORED SECURELY</small><strong>{formatCharacterMoney(character,character.vaultBalance??0)}</strong></div>
     <label>Amount<input type="number" min="1" bind:value={vaultAmount}/></label><div class="action-row"><button onclick={depositVault}>Store cash</button><button onclick={withdrawVault}>Withdraw cash</button></div><small class="hint">The safe holds physical cash. It earns no interest and is included in net worth.</small>
   </details>
