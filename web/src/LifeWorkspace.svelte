@@ -69,7 +69,7 @@
       <div class="stats-grid"><article class="stat-card"><div class="stat-top"><span class="stat-icon blue">✳</span><span class="stat-label">Intelligence</span></div><div class="stat-value">{character.intelligence}<small>/100</small></div><div class="meter"><span class="blue" style="width:{character.intelligence}%"></span></div></article></div>
     </section>
   {:else if activeView === 'personal'}
-    <div class="page-heading"><div><div class="eyebrow">PERSONAL TIME</div><h2>Everyday activities</h2><p>Exercise and social time are planned in your weekly schedule.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
+    <div class="page-heading"><div><div class="eyebrow">PERSONAL TIME</div><h2>Everyday activities</h2><p>Exercise and social time are planned in your weekly schedule.</p></div><div class="year-pill">{character.weeklySchedule?.activities.length ?? 0} PLANNED</div></div>
     <div class="activity-grid activity-grid-large">
       {#each availablePersonalActivities as activity}
         <button class="activity-card" onclick={openSchedule}>
