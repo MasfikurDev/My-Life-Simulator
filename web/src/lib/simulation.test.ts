@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceWeek, advanceYear, getAnnualReview, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceWeek, advanceYear, getAnnualReview, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
@@ -106,6 +106,21 @@ describe('life simulation', () => {
     expect(planned.character.family!.bonds.find((bond) => bond.personId === relative.id)!.closeness).toBe(before);
     const resolved = advanceWeek(planned.character).character;
     expect(resolved.family!.bonds.find((bond) => bond.personId === relative.id)!.closeness).toBe(Math.min(100, before + 8));
+  });
+  it('schedules business management and charges its operating investment only on weekly resolution', () => {
+    const base = { ...createCharacter('Owner', 30), money: 10000, currencyScale: 1 };
+    const started = startBusiness(base, 'Corner shop', 'retail', 2000);
+    const business = started.businesses![0];
+    const beforeCash = started.money;
+    const beforePerformance = business.performance;
+    const planned = planBusinessManagementInNextFreeTime(started, business.id);
+    expect(planned.issue).toBeNull();
+    expect(planned.character.money).toBe(beforeCash);
+    expect(planned.character.businesses![0].performance).toBe(beforePerformance);
+    const resolved = advanceWeek(planned.character).character;
+    expect(resolved.money).toBe(beforeCash - 20);
+    expect(resolved.businesses![0].performance).toBe(Math.min(100, beforePerformance + 8));
+    expect(resolved.financialTransactions?.some((entry) => entry.type === 'business-expense' && entry.amount === 20)).toBe(true);
   });
   it('schedules time-consuming event choices and resolves them with the week', () => {
     const student = createCharacter('Student', 12);
