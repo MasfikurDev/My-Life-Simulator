@@ -175,7 +175,7 @@ export function buyProperty(character: Character, type: PropertyType, name: stri
     next = takeLoan(character, 'mortgage', 'Mortgage · ' + (name.trim() || type), financed, annualRate, termYears);
     if (next === character) return character;
   }
-  const mortgage = financed > 0 ? (next.loans ?? []).at(-1) : undefined;
+  const mortgage = financed > 0 ? (next.loans ?? [])[Math.max(0, (next.loans ?? []).length - 1)] : undefined;
   const label = name.trim().slice(0, 36) || (type === 'house' ? 'House' : 'Apartment');
   const property: PropertyAsset = { id: 'property-' + character.year + '-' + character.age + '-' + ((character.properties ?? []).length + 1), name: label, type, marketValue: value, purchasePrice: value, annualMaintenance: Math.max(1, Math.round(value * 0.01)), mortgageLoanId: mortgage?.id, rentedOut: false, annualRentalIncome: 0 };
   next = { ...next, money: next.money - value, properties: [...(next.properties ?? []), property], primaryResidenceId: primaryResidence ? property.id : next.primaryResidenceId, rentalHome: primaryResidence ? null : next.rentalHome, history: [...next.history] };
@@ -256,7 +256,7 @@ function settleAnnualAssets(character: Character): Character {
   next = { ...next, marketPrices: { stocks: Math.max(1, Math.round(oldPrices.stocks * (1 + stockMovement))), gold: Math.max(1, Math.round(oldPrices.gold * (1 + goldMovement))), lastUpdatedYear: next.year } };
   if ((next.properties ?? []).length) {
     next = { ...next, properties: (next.properties ?? []).map((property) => ({ ...property, marketValue: Math.max(1, Math.round(property.marketValue * (property.type === 'house' ? 1.02 : 1.015))) })) };
-    for (const property of next.properties) {
+    for (const property of next.properties ?? []) {
       if (property.rentedOut && property.annualRentalIncome > 0) {
         next = { ...next, money: next.money + property.annualRentalIncome };
         next.financialTransactions = financeRecord(next, 'property-rent', property.annualRentalIncome, 'Rental income from ' + property.name + '.', property.name, 'Cash');
