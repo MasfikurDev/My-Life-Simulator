@@ -150,6 +150,19 @@ describe('life simulation', () => {
     expect(resolved.businesses![0].performance).toBe(Math.min(100, beforePerformance + 8));
     expect(resolved.financialTransactions?.some((entry) => entry.type === 'business-expense' && entry.amount === 20)).toBe(true);
   });
+  it('keeps a stale business reservation instead of silently consuming it', () => {
+    const base = { ...createCharacter('Owner', 30), money: 10000, currencyScale: 1 };
+    const started = startBusiness(base, 'Corner shop', 'retail', 2000);
+    const business = started.businesses![0];
+    const planned = planBusinessManagementInNextFreeTime(started, business.id);
+    expect(planned.issue).toBeNull();
+    const afterSale = closeBusiness(planned.character, business.id);
+    const result = advanceWeek(afterSale);
+    expect(result.issue).toBe('unresolvable-action');
+    expect(result.character).toBe(afterSale);
+    expect(result.character.weeklySchedule?.activities).toHaveLength(1);
+    expect(result.character.calendar?.currentDate).toBe(afterSale.calendar?.currentDate);
+  });
   it('schedules time-consuming event choices and resolves them with the week', () => {
     const student = createCharacter('Student', 12);
     const planned = planEventChoiceInNextFreeTime(student, 'join');
