@@ -133,7 +133,7 @@ export function getNetWorth(character: Character): number {
   const investments = (character.investments ?? []).reduce((sum, holding) => sum + holding.units * getMarketPrice(character, holding.type), 0);
   const properties = (character.properties ?? []).reduce((sum, property) => sum + property.marketValue, 0);
   const businesses = (character.businesses ?? []).reduce((sum, business) => sum + business.valuation, 0);
-  return Math.round(character.money + (character.bankAccounts ?? []).reduce((sum, account) => sum + account.balance, 0) + (character.vaultBalance ?? 0) + (character.cards ?? []).filter((card) => card.type === 'prepaid').reduce((sum, card) => sum + card.balance, 0) + investments + properties + businesses - (character.loans ?? []).reduce((sum, loan) => sum + (loan.active ? loan.balance : 0), 0) - (character.cards ?? []).filter((card) => card.type === 'credit').reduce((sum, card) => sum + card.balance, 0));
+  return Math.round(character.money + (character.bankAccounts ?? []).reduce((sum, account) => sum + account.balance, 0) + (character.vaultBalance ?? 0) + (character.cards ?? []).filter((card) => card.type === 'prepaid').reduce((sum, card) => sum + card.balance, 0) + investments + properties + businesses - (character.loans ?? []).reduce((sum, loan) => sum + (loan.active ? loan.balance : 0), 0) - (character.cards ?? []).filter((card) => card.type === 'credit').reduce((sum, card) => sum + card.balance, 0) - (character.taxBalance ?? 0));
 }
 
 
@@ -666,6 +666,55 @@ export function performActivity(character: Character, activity: ActivityId, rand
   return next;
 }
 
+
+export function getAnnualTaxEstimate(character: Character) {
+  const scale = character.currencyScale ?? 1;
+  const income = Math.max(0, character.lastYearIncome ?? character.employment?.annualSalary ?? 0);
+  const firstBand = 12000 * scale;
+  const secondBand = 30000 * scale;
+  const thirdBand = 60000 * scale;
+  const incomeTax = Math.round(
+    Math.min(Math.max(0, income - firstBand), secondBand - firstBand) * 0.1 +
+    Math.min(Math.max(0, income - secondBand), thirdBand - secondBand) * 0.15 +
+    Math.max(0, income - thirdBand) * 0.2
+  );
+  const rentalIncome = (character.properties ?? []).filter((property) => property.rentedOut).reduce((sum, property) => sum + property.annualRentalIncome, 0);
+  const economy = getEconomicConditions(character);
+  const businessProfit = (character.businesses ?? []).reduce((sum, business) => sum + Math.round(business.investedCapital * (((business.performance - 50) / 100) * 0.1 + economy.growthRate * 0.35)), 0);
+  const assetIncomeTax = Math.round(Math.max(0, rentalIncome + businessProfit) * 0.1);
+  const propertyTax = Math.round((character.properties ?? []).reduce((sum, property) => sum + property.marketValue, 0) * 0.005);
+  return { incomeTax, assetIncomeTax, propertyTax, total: incomeTax + assetIncomeTax + propertyTax };
+}
+function settleAnnualTaxes(character: Character): Character {
+  if (character.age < 18) return character;
+  const estimate = getAnnualTaxEstimate(character);
+  const annualTax = estimate.total;
+  const due = (character.taxBalance ?? 0) + annualTax;
+  let remaining = due;
+  let money = character.money;
+  const cashPayment = Math.min(money, remaining);
+  money -= cashPayment;
+  remaining -= cashPayment;
+  let bankAccounts = character.bankAccounts;
+  if (remaining > 0 && bankAccounts?.length) {
+    bankAccounts = bankAccounts.map((account) => {
+      if (remaining <= 0 || account.type === 'fixed-deposit') return account;
+      const paid = Math.min(account.balance, remaining);
+      remaining -= paid;
+      return { ...account, balance: account.balance - paid };
+    });
+  }
+  const paid = due - remaining;
+  const next = { ...character, money, bankAccounts, taxBalance: remaining, lastYearTax: annualTax, history: [...character.history] };
+  if (due > 0) {
+    next.financialTransactions = financeRecord(next, 'tax', paid, 'Annual tax assessed: ' + formatCharacterMoney(next, annualTax) + '. Paid: ' + formatCharacterMoney(next, paid) + '. Outstanding: ' + formatCharacterMoney(next, remaining) + '.', 'Cash and eligible bank accounts', 'Tax authority');
+    next.history.unshift(event(next, remaining > 0 ? 'Tax balance outstanding' : 'Annual taxes paid', 'Annual tax was ' + formatCharacterMoney(next, annualTax) + '. Paid ' + formatCharacterMoney(next, paid) + (remaining > 0 ? '; ' + formatCharacterMoney(next, remaining) + ' remains outstanding.' : '.'), 'event'));
+  } else {
+    next.financialTransactions = financeRecord(next, 'tax', 0, 'No annual tax due.', 'Income and assets', 'Tax authority');
+  }
+  return next;
+}
+
 export function advanceYear(character: Character): Character {
   let next: Character = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
   next = advanceEconomicConditions(next);
@@ -729,6 +778,7 @@ export function advanceYear(character: Character): Character {
   }
 
   Object.assign(next, settleAnnualAssets(next));
+  Object.assign(next, settleAnnualTaxes(next));
   Object.assign(next, settleFinancialProducts(next));
 
   if (job) {
