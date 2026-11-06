@@ -97,6 +97,34 @@ describe('life simulation', () => {
     expect(current.calendar?.currentDate).toBe('2027-01-11');
     expect(current.age).toBe(19);
   });
+  it('applies age-based milestones on the actual birthday rather than waiting for January', () => {
+    const base = createCharacter('Birthday', 17);
+    const beforeBirthday = {
+      ...base,
+      calendar: { currentDate: '2026-07-06', birthDate: '2008-07-10' }
+    };
+    const afterBirthday = advanceWeek(beforeBirthday).character;
+    expect(afterBirthday.calendar?.currentDate).toBe('2026-07-13');
+    expect(afterBirthday.age).toBe(18);
+    expect(afterBirthday.householdArrangement).toBe('family-supported');
+    expect(afterBirthday.history.some((entry) => entry.title === 'Adult opportunities unlocked')).toBe(true);
+  });
+  it('uses the correct age for annual health settlement when a birthday is not near January', () => {
+    const base = createCharacter('Older adult', 45);
+    const beforeYearBoundary = {
+      ...base,
+      calendar: { currentDate: '2026-12-28', birthDate: '1981-07-10' }
+    };
+    const afterYearBoundary = advanceWeek(beforeYearBoundary).character;
+    expect(afterYearBoundary.calendar?.currentDate).toBe('2027-01-04');
+    expect(afterYearBoundary.age).toBe(45);
+    expect(afterYearBoundary.health).toBe(beforeYearBoundary.health - 2);
+  });
+  it('reproduces random weekly outcomes from the same saved state and schedule', () => {
+    const base = createCharacter('Consistent', 30);
+    const planned = planActivity(base, 'apply-job', '2026-01-05', 'morning').character;
+    expect(advanceWeek(planned).character).toEqual(advanceWeek(planned).character);
+  });
   it('schedules family interactions and applies them only during weekly resolution', () => {
     const base = generateRandomCharacter(30, () => 0.5);
     const relative = base.family!.people.find((person) => person.id !== base.family!.playerPersonId)!;
