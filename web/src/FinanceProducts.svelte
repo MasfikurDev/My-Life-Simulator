@@ -9,7 +9,7 @@
   let vaultAmount = $state('100'); let purchaseAmount = $state('100'); let purchaseDescription = $state('Purchase'); let selectedCard = $state(''); let cardPayAmount = $state('100'); let prepaidCardId = $state(''); let prepaidLoadAmount = $state('100'); let selectedLoan = $state(''); let loanPayAmount = $state('100');
   let notice = $state('');
   const accounts = $derived(character.bankAccounts ?? []); const cards = $derived(character.cards ?? []); const loans = $derived((character.loans ?? []).filter((loan)=>loan.active)); const recurring = $derived((character.recurringPayments ?? []).filter((item)=>item.active));
-  const creditCards = $derived(cards.filter((card)=>card.type==='credit' && card.active)); const prepaidCards = $derived(cards.filter((card)=>card.type==='prepaid' && card.active)); const paymentCards = $derived(cards.filter((card)=>['credit','prepaid'].includes(card.type) && card.active));
+  const creditCards = $derived(cards.filter((card)=>card.type==='credit' && card.active)); const prepaidCards = $derived(cards.filter((card)=>card.type==='prepaid' && card.active)); const paymentCards = $derived(cards.filter((card)=>card.active));
   function n(value:string){const v=Number(value);return Number.isFinite(v)?Math.floor(v):0}
   function run(action:()=>Character,success:string){const next=action();if(next===character){notice='The action could not be completed. Check eligibility, balances, limits and selected accounts.';return;}onChange(next);notice=success;}
   function createCard(){run(()=>issueBankCard(character,cardType,cardName,cardAccount||undefined,n(creditLimit)),'Card issued.');cardName='';}
