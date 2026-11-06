@@ -85,11 +85,23 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Acceptance:** Education and career choices change future options and have visible consequences; no placeholder status is shown as a real mechanic.
 
 ## Milestone 5 — Persistent family and relationships
-- [ ] Model persistent people and family roles with relationship state, history, and age-appropriate interactions.
-- [ ] Add relationship events and meaningful follow-ups, including support, conflict, milestones, and responsibilities.
-- [ ] Connect dependants and family support to household finances only through explicit, auditable rules.
 
-**Acceptance:** Relationships are represented by actual people and interactions, not a single isolated score; family support and obligations have tested effects.
+**Specification:** [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md). Family is simulation-first: persistent people, validated kinship/guardianship graph, separate closeness/trust/tension, household/dependency state, and auditable family history.
+
+- [x] Add optional, backward-compatible family graph types and stable player/relative identities.
+- [x] Generate a modest family-of-origin context for new characters without assuming a partner or children.
+- [x] Add graph validation for identity, relationship endpoints, duplicate links, parent/guardian cycles, bonds, and history.
+- [x] Add targeted spend-time, reach-out, and conflict-reconciliation interactions with simulation-side age/action validation.
+- [x] Add adult financial support as a cash outflow in the shared Finance ledger.
+- [x] Add an explicit family-background initialization path for existing saves that lack family data.
+- [ ] Expand the relationship graph with explicit partnership, separation, parenthood, adoption, and guardianship lifecycle operations.
+- [ ] Add contextual family events, cooldowns, delayed consequences, and relationship-specific follow-ups.
+- [ ] Model dependants, childcare, shared household membership, and caregiving with complete Time/Finance/Health contracts.
+- [ ] Integrate family mortality and bereavement with the global mortality/terminal-state model.
+- [ ] Add estate, inheritance, and generational continuation only after people, assets, dependants, and terminal-life state are reliable.
+- [ ] Migrate family interactions from annual actions to weekly time blocks when Milestone 3 is complete.
+
+**Acceptance:** Family is represented by real people and validated relationships, not a single score. Interactions materially affect the selected relationship and are recorded. Financial support cannot create money or hidden debt. New and legacy saves remain valid. Different family structures and child/adult/later-life scenarios are tested. No unimplemented partner, child, care, death, or inheritance state is shown as fact.
 
 ## Milestone 6 — Health, aging, retirement, and later-life economy
 - [ ] Make health, happiness, and fitness affect gameplay through transparent, bounded rules.
