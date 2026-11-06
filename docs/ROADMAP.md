@@ -27,8 +27,9 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add a unified money ledger and age-gated personal bank accounts with cash deposits, withdrawals, transfers, simple savings interest, and a net-worth summary.
 - [x] Add configurable automatic deposits, debit/credit cards, recurring bills and subscriptions, and a personal safe/vault.
 - [x] Add personal, mortgage, and business loan products with annual interest, scheduled installments, and extra repayments.
-- [ ] Add housing/property ownership and rental choices.
-- [ ] Add investments and gold, then businesses and economic conditions.
+- [x] Add housing/property ownership, mortgages, rental choices, rental income, maintenance and sale.
+- [x] Add stock-index and gold trading with simulated price movement, plus small-business ownership and management.
+- [ ] Add macroeconomic conditions, inflation, taxes, brokerage fees and creditworthiness.
 - [ ] Add benefits and taxes after household budgets and financial flows are balanced.
 
 ## Milestone 3 — Connected systems
