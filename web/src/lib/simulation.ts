@@ -777,6 +777,39 @@ function settleAnnualTaxes(character: Character): Character {
   return next;
 }
 
+export type AnnualReview = {
+  currentYear: number;
+  nextAge: number;
+  actionsRemaining: number;
+  pendingEventTitle: string | null;
+  annualIncome: number;
+  estimatedLivingCosts: number;
+  projectedCashBeforeOtherSettlements: number;
+  estimatedShortfall: number;
+};
+
+/** A deliberately limited preview of the predictable income and living-cost portion of year-end settlement. */
+export function getAnnualReview(character: Character): AnnualReview {
+  const annualIncome = Math.max(0, Math.round(character.employment?.annualSalary ?? 0));
+  const estimatedLivingCosts = character.age >= 18
+    ? getHouseholdBudget(character).total
+    : character.employment
+      ? Math.round(annualIncome * (character.employment.type === 'part-time' ? 0.2 : character.employment.type === 'flexible' ? 0.45 : 0.55))
+      : 0;
+  const available = character.money + annualIncome;
+  const paidCosts = Math.min(available, estimatedLivingCosts);
+  return {
+    currentYear: character.year,
+    nextAge: character.age + 1,
+    actionsRemaining: character.actionsRemaining,
+    pendingEventTitle: character.pendingGameEvent?.title ?? null,
+    annualIncome,
+    estimatedLivingCosts,
+    projectedCashBeforeOtherSettlements: available - paidCosts,
+    estimatedShortfall: Math.max(0, estimatedLivingCosts - paidCosts)
+  };
+}
+
 export function advanceYear(character: Character): Character {
   const previousHistoryLength = character.history.length;
   const current = expirePendingGameEvent(character);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceYear, getAnnualReview, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
@@ -31,6 +31,24 @@ describe('life simulation', () => {
     expect(next.actionsRemaining).toBe(2);
     expect(next.intelligence).toBe(adult.intelligence + 5);
   });
+  it('previews predictable annual income and living costs without mutating the save', () => {
+    const employed = {
+      ...createCharacter('Planner', 30),
+      money: 5000,
+      employment: { title: 'Worker', type: 'full-time' as const, annualSalary: 20000, experienceYears: 1, performance: 60, promotions: 0, startedAtAge: 25 },
+      householdArrangement: 'family-supported' as const
+    };
+    const before = structuredClone(employed);
+    const review = getAnnualReview(employed);
+    expect(review.currentYear).toBe(employed.year);
+    expect(review.nextAge).toBe(31);
+    expect(review.annualIncome).toBe(20000);
+    expect(review.estimatedLivingCosts).toBe(getHouseholdBudget(employed).total);
+    expect(review.projectedCashBeforeOtherSettlements).toBe(Math.max(0, employed.money + 20000 - review.estimatedLivingCosts));
+    expect(review.pendingEventTitle).toBe(employed.pendingGameEvent?.title ?? null);
+    expect(employed).toEqual(before);
+  });
+
   it('creates a character with a starting history', () => {
     const c = createCharacter('Sam');
     expect(c.name).toBe('Sam'); expect(c.age).toBe(18); expect(c.actionsRemaining).toBe(3);
