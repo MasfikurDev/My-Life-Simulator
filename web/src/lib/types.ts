@@ -138,9 +138,16 @@ export interface FamilyState {
   history: FamilyHistoryEntry[];
   lastSimulatedYear: number;
 }
+export interface GameCalendar {
+  /** ISO 8601 date representing the first day of the active game week. */
+  currentDate: string;
+  /** ISO 8601 date of birth; age is derived from this and currentDate. */
+  birthDate: string;
+}
 export interface Character {
   name: string; age: number; year: number; health: number; happiness: number;
   intelligence: number; fitness: number; money: number; actionsRemaining: number;
+  calendar?: GameCalendar;
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
   educationProgress?: number; employment?: Employment | null;
