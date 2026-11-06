@@ -741,6 +741,8 @@ export function planActivity(character: Character, activity: ActivityId, date: s
 }
 
 export function planFamilyInteraction(character: Character, personId: string, interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support', supportAmount = 0, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
+  const preview = interactWithFamily(character, personId, interaction, supportAmount);
+  if (preview === character) return { character, issue: 'unavailable', message: 'This interaction is not available for that family member right now.' };
   const family = character.family;
   const person = family?.people.find((entry) => entry.id === personId);
   if (!family || !person || person.id === family.playerPersonId) return { character, issue: 'unavailable', message: 'That family member is not available.' };
@@ -751,7 +753,7 @@ export function planFamilyInteraction(character: Character, personId: string, in
 
 export function planBusinessManagement(character: Character, businessId: string, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
   const business = (character.businesses ?? []).find((entry) => entry.id === businessId);
-  if (!business || character.age < 18) return { character, issue: 'unavailable', message: 'This business cannot be managed right now.' };
+  if (!business || manageBusiness(character, businessId) === character) return { character, issue: 'unavailable', message: 'This business cannot be managed right now.' };
   const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
   return reserveTimedAction(character, 'business', day, startPeriod, 2, { kind: 'business', businessId }, Math.max(1, Math.round(business.investedCapital * 0.01)));
 }
@@ -761,6 +763,7 @@ export function planEventChoice(character: Character, choiceId: string, date?: s
   const choice = pending?.choices.find((entry) => entry.id === choiceId);
   if (!pending || !choice) return { character, issue: 'unavailable', message: 'That event is no longer available.' };
   if (choice.moneyCost > character.money) return { character, issue: 'insufficient-funds', message: 'You do not have enough cash for that decision.' };
+  if (resolveGameEvent(character, choiceId) === character) return { character, issue: 'unavailable', message: 'That decision can no longer be completed.' };
   if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'event' && item.action.eventId === pending.id)) return { character, issue: 'unavailable', message: 'A decision for this situation is already scheduled.' };
   if (choice.timeBlocks === 0) {
     const next = resolveGameEvent(character, choiceId);
@@ -831,12 +834,29 @@ export interface WeeklyResolutionResult {
   recap: string[];
 }
 
+function createWeeklyRandom(character: Character, weekStart: string): () => number {
+  const seedText = character.name + '|' + (character.calendar?.birthDate ?? '') + '|' + weekStart + '|' + JSON.stringify(getWeeklySchedule(character.weeklySchedule).activities);
+  let seed = 2166136261;
+  for (let index = 0; index < seedText.length; index += 1) {
+    seed ^= seedText.charCodeAt(index);
+    seed = Math.imul(seed, 16777619);
+  }
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let value = seed;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 /** Resolves every accepted reservation once, then advances the world calendar by exactly seven days. */
-export function advanceWeek(character: Character, random: () => number = Math.random): WeeklyResolutionResult {
+export function advanceWeek(character: Character, random?: () => number): WeeklyResolutionResult {
   const currentDate = character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year);
   const weekStart = getWeekStart(currentDate);
   if (character.lastResolvedWeekStart === weekStart) return { character, issue: 'already-resolved', recap: character.lastWeekRecap ?? [] };
   const schedule = getWeeklySchedule(character.weeklySchedule);
+  const weekRandom = random ?? createWeeklyRandom(character, weekStart);
   const validation = buildWeeklySchedule(weekStart, schedule);
   if (!validation.valid) return { character, issue: 'invalid-schedule', recap: [] };
   let next = { ...character, history: [...character.history] };
@@ -857,7 +877,7 @@ export function advanceWeek(character: Character, random: () => number = Math.ra
       if (result !== next) { next = result; recap.push('Event decision resolved.'); }
       else recap.push('A planned event decision could not be completed.');
     } else {
-      const result = performActivity(next, item.activityId as ActivityId, random);
+      const result = performActivity(next, item.activityId as ActivityId, weekRandom);
       if (result !== next) { next = result; recap.push(item.activityId + ' completed.'); }
       else recap.push(item.activityId + ' could not be completed.');
     }
@@ -866,12 +886,15 @@ export function advanceWeek(character: Character, random: () => number = Math.ra
   next = { ...next, weeklySchedule: nextSchedule, lastResolvedWeekStart: weekStart, lastWeekRecap: recap };
   const nextDate = getNextWeekDate(currentDate);
   const nextYear = Number(nextDate.slice(0, 4));
-  const nextAge = getAgeAtDate(next.calendar?.birthDate ?? createGameCalendar(next.age, next.year).birthDate, nextDate);
+  const birthDate = next.calendar?.birthDate ?? createGameCalendar(next.age, next.year).birthDate;
+  const nextAge = getAgeAtDate(birthDate, nextDate);
+  const previousAge = next.age;
   next = { ...next, calendar: { ...(next.calendar ?? createGameCalendar(next.age, next.year)), currentDate: nextDate } };
   if (nextYear > character.year) {
-    next = advanceYear({ ...next, age: nextAge - 1, year: character.year });
+    next = settleCalendarYear(next, nextYear, nextAge, previousAge);
   } else {
-    next = { ...next, age: nextAge, year: nextYear };
+    next = applyAgeTransition(next, previousAge, nextAge);
+    next = { ...next, year: nextYear };
   }
   return { character: next, issue: null, recap };
 }
@@ -1019,12 +1042,9 @@ export function getAnnualReview(character: Character): AnnualReview {
   };
 }
 
-export function advanceYear(character: Character): Character {
-  const previousHistoryLength = character.history.length;
-  const current = expirePendingGameEvent(character);
-  let next: Character = { ...current, age: current.age + 1, year: current.year + 1, health: clamp(current.health - (current.age >= 45 ? 2 : 1)), history: [...current.history] };
-  next = advanceFamilyYear(next);
-  next = advanceEconomicConditions(next);
+function applyAgeTransition(character: Character, previousAge: number, targetAge: number): Character {
+  if (targetAge <= previousAge) return { ...character, age: targetAge };
+  let next: Character = { ...character, age: targetAge, history: [...character.history] };
   const educationStage = getEducationStage(next.age);
   if ([3, 6, 13, 18].includes(next.age) && next.education !== 'Higher education' && next.education !== educationStage) {
     next.education = educationStage;
@@ -1035,6 +1055,18 @@ export function advanceYear(character: Character): Character {
     next.householdArrangement = 'family-supported';
     next.history.unshift(event(next, 'Household finances unlocked', 'You can now choose how you live and manage recurring household costs.', 'milestone'));
   }
+  next.history.unshift(event(next, 'Another year, another chapter', 'You turned ' + next.age + '. Your choices continue to shape what comes next.', 'milestone'));
+  if (next.age === 18) next.history.unshift(event(next, 'Adult opportunities unlocked', 'Full-time employment, higher education and household finance choices are now available.', 'milestone'));
+  if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
+  return next;
+}
+
+function settleCalendarYear(character: Character, targetYear: number, targetAge: number, previousAge: number): Character {
+  const previousHistoryLength = character.history.length;
+  const current = expirePendingGameEvent(character);
+  let next: Character = { ...current, age: targetAge, year: targetYear, health: clamp(current.health - (previousAge >= 45 ? 2 : 1)), history: [...current.history] };
+  next = advanceFamilyYear(next);
+  next = advanceEconomicConditions(next);
 
   // Existing saves without banking fields remain valid; new accounts earn simple annual interest.
   const accounts = next.bankAccounts ?? [];
@@ -1101,13 +1133,15 @@ export function advanceYear(character: Character): Character {
     next.employment = job;
   }
 
-  next.history.unshift(event(next, 'Another year, another chapter', 'You turned ' + next.age + '. Your choices continue to shape what comes next.', 'milestone'));
-  if (next.age === 18) next.history.unshift(event(next, 'Adult opportunities unlocked', 'Full-time employment, higher education and household finance choices are now available.', 'milestone'));
-  if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
+  next = applyAgeTransition(next, previousAge, targetAge);
   next = resolveDueGameConsequences(next);
   next = prepareGameEvent(next);
   const recapCount = Math.max(0, next.history.length - previousHistoryLength);
   next.lastYearRecap = next.history.slice(0, recapCount).slice(0, 4).map((item) => item.title + ' — ' + item.description);
   if (!next.lastYearRecap.length) next.lastYearRecap = ['A quiet year. No major changes were recorded.'];
   return next;
+}
+
+export function advanceYear(character: Character): Character {
+  return settleCalendarYear(character, character.year + 1, character.age + 1, character.age);
 }
