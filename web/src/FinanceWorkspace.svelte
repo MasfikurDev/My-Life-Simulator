@@ -1,8 +1,6 @@
 <script lang="ts">
   import FinanceAccounts from './FinanceAccounts.svelte';
-  import FinanceProducts from './FinanceProducts.svelte';
   import FinanceAssets from './FinanceAssets.svelte';
-  import FinanceLivingCosts from './FinanceLivingCosts.svelte';
   import FinanceTaxes from './FinanceTaxes.svelte';
   import { formatCharacterMoney, getNetWorth } from './lib/simulation';
   import type { Character } from './lib/types';
@@ -11,33 +9,24 @@
   const views = $derived([
     { id: 'overview', label: 'Overview', available: true },
     { id: 'banking', label: 'Banking', available: character.age >= 16 },
-    { id: 'cards', label: 'Cards', available: character.age >= 16 },
-    { id: 'loans', label: 'Loans', available: character.age >= 18 },
     { id: 'taxes', label: 'Taxes', available: character.age >= 18 },
-    { id: 'bills', label: 'Bills & subscriptions', available: character.age >= 16 },
-    { id: 'savings', label: 'Savings & vault', available: character.age >= 16 },
     { id: 'property', label: 'Property', available: character.age >= 18 },
     { id: 'investments', label: 'Investments', available: character.age >= 18 },
-    { id: 'business', label: 'Business', available: character.age >= 18 },
-    { id: 'living', label: 'Living costs', available: character.age >= 18 }
+    { id: 'business', label: 'Business', available: character.age >= 18 }
   ]);
   const title = $derived(views.find((item) => item.id === activeView)?.label ?? 'Overview');
-  const accountCount = $derived((character.bankAccounts ?? []).length);
-  const cardCount = $derived((character.cards ?? []).filter((item) => item.active).length);
-  const loanCount = $derived((character.loans ?? []).filter((item) => item.active).length);
-
   function openView(id: string) { if (views.find((item) => item.id === id)?.available) activeView = id; }
 </script>
 
 <section class="finance-workspace">
   <header class="finance-header">
-    <div><div class="eyebrow">FINANCE</div><h1>{title}</h1><p>Manage money through separate financial services.</p></div>
+    <div><div class="eyebrow">FINANCE</div><h1>{title}</h1><p>Manage accounts, obligations and assets in their dedicated services.</p></div>
     {#if activeView !== 'overview'}<button class="finance-back" onclick={() => activeView='overview'}>← Finance overview</button>{/if}
   </header>
 
   <nav class="finance-nav" aria-label="Finance sections">
     {#each views as item}
-      <button class:active={activeView===item.id} disabled={!item.available} title={!item.available ? 'Available from age ' + (item.id === 'banking' || item.id === 'cards' || item.id === 'bills' || item.id === 'savings' ? '16' : '18') : undefined} aria-current={activeView===item.id ? 'page' : undefined} onclick={() => openView(item.id)}>{item.label}{#if !item.available}<span> · Locked</span>{/if}</button>
+      <button class:active={activeView===item.id} disabled={!item.available} title={!item.available ? 'Available from age 18' : undefined} aria-current={activeView===item.id ? 'page' : undefined} onclick={() => openView(item.id)}>{item.label}{#if !item.available}<span> · Locked</span>{/if}</button>
     {/each}
   </nav>
 
@@ -47,37 +36,22 @@
       <div class="finance-networth-card"><small>ESTIMATED NET WORTH</small><strong>{formatCharacterMoney(character,getNetWorth(character))}</strong><span>Assets minus recorded debt and liabilities.</span></div>
     </div>
     <div class="finance-shortcuts">
-      <button onclick={() => openView('banking')} disabled={character.age<16}><span class="shortcut-icon">▤</span><strong>Banking</strong><small>{accountCount} accounts · balances and transfers</small><b>Open banking →</b></button>
-      <button onclick={() => openView('cards')} disabled={character.age<16}><span class="shortcut-icon">▭</span><strong>Cards</strong><small>{cardCount} active cards</small><b>Manage cards →</b></button>
-      <button onclick={() => openView('loans')} disabled={character.age<18}><span class="shortcut-icon">↗</span><strong>Loans</strong><small>{loanCount} active loans</small><b>Manage credit →</b></button>
+      <button onclick={() => openView('banking')} disabled={character.age<16}><span class="shortcut-icon">▤</span><strong>Banking</strong><small>Accounts, cards, loans, savings and vault</small><b>Open banking →</b></button>
       <button onclick={() => openView('taxes')} disabled={character.age<18}><span class="shortcut-icon">▤</span><strong>Taxes</strong><small>Annual assessment and outstanding balance</small><b>View taxes →</b></button>
-      <button onclick={() => openView('bills')} disabled={character.age<16}><span class="shortcut-icon">↻</span><strong>Bills & subscriptions</strong><small>{(character.recurringPayments ?? []).length} recurring payments</small><b>Manage payments →</b></button>
-      <button onclick={() => openView('savings')} disabled={character.age<16}><span class="shortcut-icon">▣</span><strong>Savings & vault</strong><small>Automatic deposits and stored cash</small><b>Open savings →</b></button>
       <button onclick={() => openView('property')} disabled={character.age<18}><span class="shortcut-icon">⌂</span><strong>Property</strong><small>Rent, buy, manage or sell a home</small><b>Manage property →</b></button>
       <button onclick={() => openView('investments')} disabled={character.age<18}><span class="shortcut-icon">↗</span><strong>Investments</strong><small>Trade index funds and gold</small><b>Open portfolio →</b></button>
       <button onclick={() => openView('business')} disabled={character.age<18}><span class="shortcut-icon">▦</span><strong>Business</strong><small>Start and operate a business</small><b>Manage business →</b></button>
-      <button onclick={() => openView('living')} disabled={character.age<18}><span class="shortcut-icon">⌂</span><strong>Living costs</strong><small>Housing arrangement and household budget</small><b>Plan living costs →</b></button>
     </div>
   {:else if activeView === 'banking'}
-    <FinanceAccounts {character} onChange={onChange} />
-  {:else if activeView === 'cards'}
-    <FinanceProducts {character} onChange={onChange} view="cards" />
-  {:else if activeView === 'loans'}
-    <FinanceProducts {character} onChange={onChange} view="loans" />
+    <FinanceAccounts {character} {onChange} />
   {:else if activeView === 'taxes'}
     <FinanceTaxes {character} />
-  {:else if activeView === 'bills'}
-    <FinanceProducts {character} onChange={onChange} view="bills" />
-  {:else if activeView === 'savings'}
-    <FinanceProducts {character} onChange={onChange} view="savings" />
   {:else if activeView === 'property'}
-    <FinanceAssets {character} onChange={onChange} view="property" />
+    <FinanceAssets {character} {onChange} view="property" />
   {:else if activeView === 'investments'}
-    <FinanceAssets {character} onChange={onChange} view="investments" />
+    <FinanceAssets {character} {onChange} view="investments" />
   {:else if activeView === 'business'}
-    <FinanceAssets {character} onChange={onChange} view="business" />
-  {:else if activeView === 'living'}
-    <FinanceLivingCosts {character} onChange={onChange} />
+    <FinanceAssets {character} {onChange} view="business" />
   {/if}
 </section>
 

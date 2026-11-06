@@ -1,11 +1,9 @@
 <script lang="ts">
-  import { formatCharacterMoney, getHouseholdBudget, setHouseholdArrangement, setSavingsGoalMonths } from './lib/simulation';
-  import type { Character, HouseholdArrangement, SavingsGoalMonths } from './lib/types';
+  import { formatCharacterMoney, getHouseholdBudget, setHouseholdArrangement } from './lib/simulation';
+  import type { Character, HouseholdArrangement } from './lib/types';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   const budget = $derived(getHouseholdBudget(character));
-  const goalTarget = $derived(character.savingsGoalMonths ? Math.round((budget.total / 12) * character.savingsGoalMonths) : 0);
   function changeArrangement(value: HouseholdArrangement) { onChange(setHouseholdArrangement(character, value)); }
-  function changeGoal(value: SavingsGoalMonths | null) { onChange(setSavingsGoalMonths(character, value)); }
 </script>
 
 <div class="living-costs">
@@ -32,19 +30,5 @@
     </div>
     {#if (character.lastYearShortfall ?? 0) > 0}<p class="finance-pressure-note">Last year, available funds did not cover all estimated costs. The unpaid amount is recorded as a shortfall, not debt.</p>{:else if !character.employment}<p class="finance-footnote">No job income is currently recorded. Costs are paid from available funds where possible.</p>{/if}
   </section>
-  <section class="household-budget-panel savings-goal-panel">
-    <div class="section-heading"><div><span class="section-index">03</span><h3>Emergency savings target</h3></div></div>
-    <p class="finance-footnote">Set a target of one, three, or six months of estimated living costs. Progress uses your current available balance.</p>
-    <div class="savings-choice-row">
-      {#each [1,3,6] as months}
-        <button class:finance-choice-active={character.savingsGoalMonths===months} class="finance-choice savings-choice" onclick={() => changeGoal(months as SavingsGoalMonths)}>{months} month{months===1?'':'s'}</button>
-      {/each}
-      <button class:finance-choice-active={character.savingsGoalMonths===null || character.savingsGoalMonths===undefined} class="finance-choice savings-choice" onclick={() => changeGoal(null)}>No goal</button>
-    </div>
-    {#if character.savingsGoalMonths}
-      <div class="savings-progress-row"><div><small>TARGET</small><strong>{formatCharacterMoney(character,goalTarget)}</strong></div><div><small>CURRENT BALANCE</small><strong>{formatCharacterMoney(character)}</strong></div></div>
-      <div class="career-performance-meter"><span style="width:{Math.min(100,Math.round(character.money/Math.max(1,goalTarget)*100))}%"></span></div>
-      <p class="finance-footnote">{Math.min(100,Math.round(character.money/Math.max(1,goalTarget)*100))}% of your selected target.</p>
-    {/if}
-  </section>
+
 </div>
