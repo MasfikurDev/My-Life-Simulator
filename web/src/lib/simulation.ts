@@ -5,7 +5,6 @@ import { advanceFamilyYear, createFamilyState } from './family';
 import { createGameCalendar, getFirstWeekStartOfYear, getWeekStart } from './calendar';
 import { buildWeeklySchedule, getWeeklySchedule } from './weekly-schedule';
 
-export const ACTIONS_PER_YEAR = 3;
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
 
 type CountryProfile = {
@@ -86,7 +85,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     education: getEducationStage(age), educationProgress: 0, employment: null, lastYearIncome: 0, lastYearExpenses: 0, lastYearShortfall: 0,
     householdArrangement: age >= 18 ? 'family-supported' : undefined, savingsGoalMonths: null,
     health: stat(random), happiness: stat(random), intelligence: stat(random), fitness: stat(random),
-    money: Math.round(moneyBase * profile.scale * moneyMultiplier), actionsRemaining: ACTIONS_PER_YEAR, history: []
+    money: Math.round(moneyBase * profile.scale * moneyMultiplier), history: []
   };
   character.family = createFamilyState(character, random);
   character.history.push(event(character, 'A new chapter begins', name + ' begins life at age ' + age + ' in ' + character.birthplace + ', ' + profile.country + '. Their ' + background.toLowerCase() + ' family background shapes their starting circumstances, but not their future.', 'milestone'));
@@ -256,8 +255,8 @@ export function startBusiness(character: Character, name: string, type: Business
 export function manageBusiness(character: Character, businessId: string): Character {
   const business = (character.businesses ?? []).find((item) => item.id === businessId);
   const cost = business ? Math.max(1, Math.round(business.investedCapital * 0.01)) : 0;
-  if (!business || character.age < 18 || character.actionsRemaining <= 0 || character.money < cost) return character;
-  const next = { ...character, money: character.money - cost, actionsRemaining: character.actionsRemaining - 1, businesses: (character.businesses ?? []).map((item) => item.id === businessId ? { ...item, performance: clamp(item.performance + 8) } : item), history: [...character.history] };
+  if (!business || character.age < 18 || character.money < cost) return character;
+  const next = { ...character, money: character.money - cost, businesses: (character.businesses ?? []).map((item) => item.id === businessId ? { ...item, performance: clamp(item.performance + 8) } : item), history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'business-expense', cost, 'Business development expense for ' + business.name + '.', 'Cash', business.name);
   next.history.unshift(event(next, 'Managed your business', 'You invested time and ' + formatCharacterMoney(next, cost) + ' into improving ' + business.name + '.'));
   return next;
@@ -766,8 +765,8 @@ export function removePlannedActivity(character: Character, activityId: string):
 }
 
 export function performActivity(character: Character, activity: ActivityId, random: () => number = Math.random): Character {
-  if (character.actionsRemaining <= 0 || !isActivityAvailable(character.age, activity, character.employment) || !canAffordActivity(character, activity)) return character;
-  const next = { ...character, history: [...character.history], actionsRemaining: character.actionsRemaining - 1 };
+  if (!isActivityAvailable(character.age, activity, character.employment) || !canAffordActivity(character, activity)) return character;
+  const next = { ...character, history: [...character.history] };
   const scale = character.currencyScale ?? 1;
   switch (activity) {
     case 'study':
@@ -880,7 +879,6 @@ function settleAnnualTaxes(character: Character): Character {
 export type AnnualReview = {
   currentYear: number;
   nextAge: number;
-  actionsRemaining: number;
   pendingEventTitle: string | null;
   annualIncome: number;
   estimatedLivingCosts: number;
@@ -901,7 +899,6 @@ export function getAnnualReview(character: Character): AnnualReview {
   return {
     currentYear: character.year,
     nextAge: character.age + 1,
-    actionsRemaining: character.actionsRemaining,
     pendingEventTitle: character.pendingGameEvent?.title ?? null,
     annualIncome,
     estimatedLivingCosts,
@@ -913,7 +910,7 @@ export function getAnnualReview(character: Character): AnnualReview {
 export function advanceYear(character: Character): Character {
   const previousHistoryLength = character.history.length;
   const current = expirePendingGameEvent(character);
-  let next: Character = { ...current, age: current.age + 1, year: current.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(current.health - (current.age >= 45 ? 2 : 1)), history: [...current.history] };
+  let next: Character = { ...current, age: current.age + 1, year: current.year + 1, health: clamp(current.health - (current.age >= 45 ? 2 : 1)), history: [...current.history] };
   next = advanceFamilyYear(next);
   next = advanceEconomicConditions(next);
   const educationStage = getEducationStage(next.age);
