@@ -43,19 +43,22 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Expand School with enrollment, attendance, classes, grades, and education history only when each mechanic has a complete simulation loop.
 - [ ] Expand Work with a real application/interview/offer flow and richer workplace interactions; do not display placeholder recruitment stages.
 
-## Milestone 3 — Rebuild the annual gameplay loop and event engine (next priority)
-- [x] Add a player-opened year review with a limited, clearly labeled forecast and explicit confirmation before annual advancement.
-- [ ] Complete the year-opening context and full year-end review across all predictable and variable settlements.
-- [ ] Keep the current annual action budget initially, but make action costs and opportunity costs visible and meaningful.
-- [x] Add an initial curated set of contextual events with distinct choices, action/money costs, immediate effects, delayed consequences, and history entries.
-- [x] Add age/health eligibility, deterministic selection, per-life uniqueness, choice validation, and persistent scheduled follow-ups for the first event set.
-- [x] Persist event choices and delayed effects in the character save; resolve the first follow-up into next-year state and history.
-- [x] Add a compact year recap on Home using recorded simulation history.
-- [ ] Expand event selection with richer context, cooldowns, category balancing, and a larger authored event set.
-- [ ] Add a complete year-opening/planning phase and expand the review to cover all predictable year-end effects without duplicating Finance screens.
-- [ ] Ensure unused actions cannot be exploited to receive free benefits; time still advances only on explicit player confirmation.
+## Milestone 3 — Replace annual actions with the weekly gameplay cycle (next priority)
 
-**Acceptance:** A fresh character can play several consecutive years with varied, age-appropriate decisions. At least one choice has a tested delayed consequence. The player can explain why a major outcome occurred from visible game history. The same seed and save produce reproducible simulation results.
+**Design decision:** weekly is the playable time unit; monthly is the financial/reporting unit; yearly is the life-progression unit. This milestone is a foundational redesign, not a cosmetic change from "3 actions/year" to "3 actions/week".
+
+- [ ] Specify and test date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
+- [ ] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour or reserve time for unimplemented school/work schedules.
+- [ ] Replace annual action tokens with activity time requirements and conflict validation. Different activities may consume different time blocks and money; no arbitrary universal weekly action quota.
+- [ ] Add deterministic, exactly-once weekly resolution with structured effects, history, and recap.
+- [ ] Adapt contextual events, deadlines, and delayed consequences to date/week boundaries.
+- [ ] Move recurring payments and payroll to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries.
+- [ ] Prevent duplicate or skipped financial settlement across month/year boundaries; document rounding and payment-failure behavior.
+- [ ] Add safe migration for existing annual-action saves across all three slots; preserve balances, ledger, liabilities, assets, employment/education, history, pending events, and completed choices.
+- [ ] Add multi-week advancement only after single-week resolution is reliable; it must stop before important decisions, deadlines, events, birthdays, and payment failures.
+- [ ] Replace the year-only review with a concise weekly review, monthly Finance statement, and annual life review without duplicating domain workspaces.
+
+**Acceptance:** A fresh and migrated save can play several weeks with different activity durations, meaningful time conflicts, contextual events, and persistent consequences. Month-end and year-end processing occur exactly once. Birthday/age eligibility changes on the correct date. Quiet weeks can be advanced quickly. Scenario tests cover a school-age child, employed adult, unemployed adult, and later-life character. Existing saves and all financial invariants remain intact.
 
 ## Milestone 4 — Deepen School and Work into playable systems
 - [ ] Add real school progression choices, enrollment, attendance, classes, grades/exams, and fees in the School workspace.
