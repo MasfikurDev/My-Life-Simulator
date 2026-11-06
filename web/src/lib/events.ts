@@ -132,9 +132,9 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
     });
   }
 
-  if (events.length === 0 && character.family) {
+  if (events.length === 0 && character.family && character.age >= 18) {
     const relative = getFamilyConnections(character).find((connection) =>
-      connection.living && connection.bond && connection.bond.lastInteractionYear !== character.year
+      connection.living && connection.bond && (connection.bond.lastInteractionYear === null || character.year - connection.bond.lastInteractionYear >= 2)
     );
     if (relative) {
       const id = 'family-check-in-' + relative.person.id + '-' + character.year;
