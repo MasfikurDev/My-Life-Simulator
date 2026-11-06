@@ -29,7 +29,7 @@
   let slotToDelete = $state<SaveSlotId | null>(null);
   let pendingSlotId = $state<SaveSlotId | null>(null);
   let debugCopying = $state(false);
-  let yearReviewOpen = $state(false);
+  let advanceReviewOpen = $state(false);
   let lifeInitialView = $state('overview');
   onMount(() => {
     slots = getSaveSlots();
@@ -158,14 +158,14 @@
     persist(planned.character); playSound('action');
     notify(planned.character === character ? 'Decision recorded.' : 'Decision scheduled for this week.');
   }
-  function openYearReview() { if (!character) return; activeTab = 'home'; yearReviewOpen = true; }
-  function closeYearReview() { yearReviewOpen = false; }
-  function nextYear() {
+  function openAdvanceReview() { if (!character) return; activeTab = 'home'; advanceReviewOpen = true; }
+  function closeAdvanceReview() { advanceReviewOpen = false; }
+  function advanceWeekNow() {
     if (!character) return;
     const result = advanceWeek(character);
-    if (result.issue) { notify(result.issue === 'invalid-schedule' ? 'Fix the schedule conflicts before starting the next week.' : 'This week has already been resolved.'); return; }
+    if (result.issue) { notify(result.issue === 'invalid-schedule' ? 'Fix the schedule conflicts before advancing.' : result.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action is no longer available. Remove or repair that reservation before advancing.'); return; }
     const crossedYear = result.character.year > character.year;
-    persist(result.character); yearReviewOpen = false;
+    persist(result.character); advanceReviewOpen = false;
     notify(crossedYear ? 'Week completed. A new year begins.' : 'Week completed. The next week begins.');
     playSound(crossedYear ? 'year' : 'action');
   }
@@ -323,7 +323,7 @@
               <p class="game-event-footnote">Time-consuming decisions are added to this week’s schedule and take effect when the week resolves. You can also leave the situation unanswered.</p>
             </section>
           {/if}
-          {#if yearReviewOpen}
+          {#if advanceReviewOpen}
             {@const plannedCount = character.weeklySchedule?.activities.length ?? 0}
             <section class="year-review-panel" aria-label="Week review">
               <div class="game-event-top"><span class="eyebrow">WEEK REVIEW · {character.calendar?.currentDate ?? character.year}</span><span class="game-event-status">BEFORE ADVANCING</span></div>
@@ -339,7 +339,7 @@
                 <p class="year-review-warning">Unresolved situation: {character.pendingGameEvent.title}. It will pass if you advance without choosing.</p>
               {/if}
               <p class="year-review-note">Only accepted reservations are resolved. Conflicts must be fixed before the week can advance. Annual income, household costs, taxes and long-term financial settlements remain on their yearly boundary.</p>
-              <div class="year-review-actions"><button class="secondary-button" onclick={closeYearReview}>Back to this week</button><button class="primary-button" onclick={nextYear}>Resolve week and continue</button></div>
+              <div class="year-review-actions"><button class="secondary-button" onclick={closeAdvanceReview}>Back to this week</button><button class="primary-button" onclick={advanceWeekNow}>Resolve week and continue</button></div>
             </section>
           {/if}
         {:else if character && activeTab==='school' && character.age >= 3}
@@ -375,7 +375,7 @@
     </main>
   {/if}
   {#if character && activeTab !== 'settings'}
-    <button class="advance-fab" onclick={openYearReview} aria-label="Advance" title="Advance">
+    <button class="advance-fab" onclick={openAdvanceReview} aria-label="Advance" title="Advance">
       <span class="fab-arrow" aria-hidden="true">→</span><span class="fab-label">Advance</span>
     </button>
   {/if}
