@@ -156,6 +156,7 @@ export interface WeeklyCommitment {
   durationBlocks: number;
 }
 export type PlannedAction =
+  | { kind: 'activity' }
   | { kind: 'family'; personId: string; interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support'; supportAmount?: number }
   | { kind: 'business'; businessId: string }
   | { kind: 'event'; eventId: string; choiceId: string };
