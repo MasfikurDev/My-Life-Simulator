@@ -69,10 +69,11 @@
     <p class="hint">Set a target based on one, three, or six months of estimated living costs.</p>
     <div class="action-row">
       {#each [1,3,6] as months}
-        <button class:goal-active={character.savingsGoalMonths===months} onclick={() => updateSavingsGoal(months as SavingsGoalMonths)}>{months} month{months===1?'':'s'}</button>
+        <button class:goal-active={character.savingsGoalMonths===months} disabled={character.age<18} onclick={() => updateSavingsGoal(months as SavingsGoalMonths)}>{months} month{months===1?'':'s'}</button>
       {/each}
     </div>
-    <button class="quiet" onclick={() => updateSavingsGoal(null)}>No savings target</button>
+    <button class="quiet" disabled={character.age<18} onclick={() => updateSavingsGoal(null)}>No savings target</button>
+    {#if character.age<18}<small class="hint">Emergency savings targets unlock at age 18.</small>{/if}
     {#if character.savingsGoalMonths}
       <div class="vault-balance"><small>TARGET · {character.savingsGoalMonths} MONTHS</small><strong>{formatCharacterMoney(character,savingsGoalTarget)}</strong><small>Cash balance · {formatCharacterMoney(character)}</small></div>
       <div class="savings-progress"><span style="width:{Math.min(100,Math.round(character.money/Math.max(1,savingsGoalTarget)*100))}%"></span></div>
