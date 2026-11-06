@@ -581,3 +581,16 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .year-review-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
 .year-review-actions button{min-height:40px}
 @media(max-width:420px){.year-review-actions{display:grid;grid-template-columns:1fr}.year-review-actions button{width:100%}}
+
+
+/* Shared page context: persistent identity and key status without repeating cards on every workspace. */
+.page-context-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 15px;margin:0 0 22px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(110deg,#0b120d,#090c0a)}
+.page-context-identity{display:flex;flex-direction:column;gap:4px;min-width:0}
+.page-context-identity strong{font-size:14px;letter-spacing:-.2px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.page-context-identity span{font-size:10px;color:var(--muted)}
+.page-context-metrics{display:flex;align-items:center;gap:clamp(10px,2.4vw,25px)}
+.page-context-metrics>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.page-context-metrics span{font-size:8px;letter-spacing:1px;color:var(--subtle);font-weight:750}
+.page-context-metrics strong{font-size:11px;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:620px){.page-context-header{align-items:flex-start;padding:11px 12px;margin-bottom:17px;gap:10px}.page-context-identity strong{font-size:12px}.page-context-identity span{font-size:9px}.page-context-metrics{gap:12px}.page-context-metrics span{font-size:7px}.page-context-metrics strong{font-size:10px}}
+@media(max-width:380px){.page-context-header{flex-direction:column}.page-context-metrics{width:100%;justify-content:space-between}}
