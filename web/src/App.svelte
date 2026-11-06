@@ -40,6 +40,7 @@
     fullscreen = getAndroidBridge()?.isFullscreen() ?? Boolean(document.fullscreenElement);
   });
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
+  function navigateTab(tab: string) { if (tab === 'life') lifeInitialView = 'overview'; activeTab = tab; }
   function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
   function startLife(nextCharacter: Character) {
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
@@ -215,7 +216,7 @@
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
         {#each [{id:'home',label:'Overview',icon:'⌂'},...(character && character.age >= 3 ? [{id:'school',label:'School',icon:'▤'}] : []),...(character && character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'}] : []),{id:'life',label:'Life',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'settings',label:'Settings',icon:'⚙'}] as item}
-          <button class:active={activeTab===item.id} class="nav-item" onclick={() => activeTab=item.id}><span class="nav-icon">{item.icon}</span>{item.label}</button>
+          <button class:active={activeTab===item.id} class="nav-item" onclick={() => navigateTab(item.id)}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>Active save</strong><small>Slot {activeSlotId.slice(-1)}</small></div></div>{/if}
       </aside>
@@ -236,7 +237,7 @@
           <div class="page-heading"><div><div class="eyebrow">PREFERENCES & CONTROLS</div><h1>Game <em>settings.</em></h1><p>Adjust how the game appears and manage your saved story.</p></div></div>
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">01</span><div><h3>Sound</h3><p>Control the small audio cues used for game actions.</p></div></div>
-            <div class="setting-row"><div><strong>Sound effects</strong><p>Subtle original tones for actions, starting a life and advancing a year. No background music.</p></div><button class:setting-enabled={soundEnabled} class="setting-toggle" role="switch" aria-checked={soundEnabled} onclick={() => toggleSounds(!soundEnabled)}><span></span><small>{soundEnabled ? 'ON' : 'OFF'}</small></button></div>
+            <div class="setting-row"><div><strong>Sound effects</strong><p>Subtle original tones for actions, starting a life and advancing a week. No background music.</p></div><button class:setting-enabled={soundEnabled} class="setting-toggle" role="switch" aria-checked={soundEnabled} onclick={() => toggleSounds(!soundEnabled)}><span></span><small>{soundEnabled ? 'ON' : 'OFF'}</small></button></div>
           </section>
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">02</span><div><h3>Save slots</h3><p>Keep up to three separate lives on this device.</p></div></div>
