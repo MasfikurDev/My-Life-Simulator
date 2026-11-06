@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, getAnnualReview, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceWeek, advanceYear, getAnnualReview, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
@@ -23,14 +23,13 @@ describe('life simulation', () => {
     expect(getActivityDefinition('apply-job').durationBlocks).toBe(1);
   });
   it('plans activities into the current week without spending annual action tokens or cash early', () => {
-    const adult = { ...createCharacter('Planner', 30), money: 100, currencyScale: 1, actionsRemaining: 0 };
+    const adult = { ...createCharacter('Planner', 30), money: 100, currencyScale: 1 };
     const result = planActivity(adult, 'study', '2026-01-05', 'morning');
     expect(result.issue).toBeNull();
     expect(result.character.weeklySchedule?.activities).toHaveLength(1);
     expect(result.character.weeklySchedule?.activities[0]).toMatchObject({
       activityId: 'study', date: '2026-01-05', startPeriod: 'morning', durationBlocks: 2
     });
-    expect(result.character.actionsRemaining).toBe(0);
     expect(result.character.money).toBe(100);
     expect(adult.weeklySchedule?.activities).toHaveLength(0);
   });
@@ -73,19 +72,73 @@ describe('life simulation', () => {
     expect(removed.weeklySchedule?.activities[0].activityId).toBe('socialize');
     expect(removePlannedActivity(removed, 'missing-id')).toBe(removed);
   });
+  it('resolves a planned week once, charges costs, clears reservations and advances exactly seven days', () => {
+    const base = { ...createCharacter('Weekly', 30), money: 100, currencyScale: 1 };
+    const planned = planActivity(base, 'study', '2026-01-05', 'morning');
+    expect(planned.issue).toBeNull();
+    const resolved = advanceWeek(planned.character);
+    expect(resolved.issue).toBeNull();
+    expect(resolved.character.calendar?.currentDate).toBe('2026-01-12');
+    expect(resolved.character.age).toBe(30);
+    expect(resolved.character.money).toBe(65);
+    expect(resolved.character.intelligence).toBe(base.intelligence + 5);
+    expect(resolved.character.weeklySchedule?.activities).toHaveLength(0);
+    expect(resolved.character.lastResolvedWeekStart).toBe('2026-01-05');
+    expect(resolved.character.history[0].title).toBe('Made time to study');
+    expect(advanceWeek({ ...base, lastResolvedWeekStart: '2026-01-05' }).issue).toBe('already-resolved');
+  });
+  it('does not age at a year boundary until the actual birthday', () => {
+    let current = createCharacter('Birthday', 18);
+    for (let i = 0; i < 52; i += 1) current = advanceWeek(current).character;
+    expect(current.calendar?.currentDate).toBe('2027-01-04');
+    expect(current.year).toBe(2027);
+    expect(current.age).toBe(18);
+    current = advanceWeek(current).character;
+    expect(current.calendar?.currentDate).toBe('2027-01-11');
+    expect(current.age).toBe(19);
+  });
+  it('schedules family interactions and applies them only during weekly resolution', () => {
+    const base = generateRandomCharacter(30, () => 0.5);
+    const relative = base.family!.people.find((person) => person.id !== base.family!.playerPersonId)!;
+    const before = base.family!.bonds.find((bond) => bond.personId === relative.id)!.closeness;
+    const planned = planFamilyInteractionInNextFreeTime(base, relative.id, 'spend-time');
+    expect(planned.issue).toBeNull();
+    expect(planned.character.family!.bonds.find((bond) => bond.personId === relative.id)!.closeness).toBe(before);
+    const resolved = advanceWeek(planned.character).character;
+    expect(resolved.family!.bonds.find((bond) => bond.personId === relative.id)!.closeness).toBe(Math.min(100, before + 8));
+  });
+  it('schedules time-consuming event choices and resolves them with the week', () => {
+    const student = createCharacter('Student', 12);
+    const planned = planEventChoiceInNextFreeTime(student, 'join');
+    expect(planned.issue).toBeNull();
+    expect(planned.character.pendingGameEvent?.id).toBe('school-reading-circle');
+    const resolved = advanceWeek(planned.character).character;
+    expect(resolved.pendingGameEvent).toBeNull();
+    expect(resolved.intelligence).toBe(student.intelligence + 3);
+    expect(resolved.scheduledGameConsequences).toHaveLength(1);
+  });
+  it('rejects a week with invalid existing reservations without advancing time', () => {
+    const base = createCharacter('Planner', 30);
+    const invalid = { ...base, weeklySchedule: { version: 1 as const, commitments: [], activities: [
+      { id: 'a', activityId: 'exercise' as const, date: '2026-01-05', startPeriod: 'morning' as const, durationBlocks: 1 },
+      { id: 'b', activityId: 'study' as const, date: '2026-01-05', startPeriod: 'morning' as const, durationBlocks: 2 }
+    ] } };
+    const result = advanceWeek(invalid);
+    expect(result.issue).toBe('invalid-schedule');
+    expect(result.character).toBe(invalid);
+    expect(result.character.calendar?.currentDate).toBe('2026-01-05');
+  });
   it('rejects paid activities when the balance is insufficient', () => {
     const adult = { ...createCharacter('Adult', 30), money: 10, currencyScale: 1 };
     const study = performActivity(adult, 'study');
     const social = performActivity(adult, 'socialize');
     expect(study).toBe(adult);
     expect(social).toBe(adult);
-    expect(adult.actionsRemaining).toBe(3);
   });
   it('charges the exact cost when a paid activity is affordable', () => {
     const adult = { ...createCharacter('Adult', 30), money: 35, currencyScale: 1 };
     const next = performActivity(adult, 'study');
     expect(next.money).toBe(0);
-    expect(next.actionsRemaining).toBe(2);
     expect(next.intelligence).toBe(adult.intelligence + 5);
   });
   it('previews predictable annual income and living costs without mutating the save', () => {
@@ -108,7 +161,7 @@ describe('life simulation', () => {
 
   it('creates a character with a starting history', () => {
     const c = createCharacter('Sam');
-    expect(c.name).toBe('Sam'); expect(c.age).toBe(18); expect(c.actionsRemaining).toBe(3);
+    expect(c.name).toBe('Sam'); expect(c.age).toBe(18); expect(c.calendar).toBeDefined();
     expect(c.history).toHaveLength(1);
     expect(c.calendar?.currentDate).toBe('2026-01-05');
     expect(c.calendar?.birthDate).toBe('2008-01-05');
@@ -124,17 +177,18 @@ describe('life simulation', () => {
     expect(performActivity(child, 'work')).toBe(child);
     expect(performActivity(child, 'study').money).toBe(0);
   });
-  it('applies activity effects and consumes an action', () => {
-    const c = createCharacter('Sam'); const next = performActivity(c, 'exercise');
-    expect(next.fitness).toBe(c.fitness + 6); expect(next.actionsRemaining).toBe(2);
+  it('applies activity effects without an annual action-token limit', () => {
+    const c = createCharacter('Sam');
+    const first = performActivity(c, 'exercise');
+    const second = performActivity(first, 'exercise');
+    expect(first.fitness).toBe(c.fitness + 6);
+    expect(second.fitness).toBe(c.fitness + 12);
+    expect('actionsRemaining' in second).toBe(false);
   });
-  it('blocks activities when the yearly budget is empty', () => {
-    const c = { ...createCharacter('Sam'), actionsRemaining: 0 };
-    expect(performActivity(c, 'work')).toBe(c);
-  });
-  it('advances age and refreshes actions only when requested', () => {
+  it('keeps annual settlement available as a calendar-boundary operation', () => {
     const next = advanceYear(createCharacter('Sam'));
-    expect(next.age).toBe(19); expect(next.year).toBe(2027); expect(next.actionsRemaining).toBe(3);
+    expect(next.age).toBe(19); expect(next.year).toBe(2027);
+    expect('actionsRemaining' in next).toBe(false);
   });
   it('offers an age-appropriate school event and records a meaningful choice', () => {
     const student = createCharacter('Student', 12);
@@ -142,7 +196,6 @@ describe('life simulation', () => {
     const before = student.intelligence;
     const joined = resolveGameEvent(student, 'join');
     expect(joined.pendingGameEvent).toBeNull();
-    expect(joined.actionsRemaining).toBe(student.actionsRemaining - 1);
     expect(joined.intelligence).toBe(before + 3);
     expect(joined.scheduledGameConsequences).toHaveLength(1);
     expect(joined.scheduledGameConsequences![0].dueYear).toBe(student.year + 1);
@@ -254,7 +307,6 @@ describe('life simulation', () => {
     };
     const next = performActivity(worker, 'career');
     expect(next.employment?.performance).toBe(72);
-    expect(next.actionsRemaining).toBe(2);
   });
   it('updates education status when a character crosses school-age boundaries', () => {
     expect(advanceYear(createCharacter('Child', 5)).education).toBe('Primary education');
@@ -519,7 +571,6 @@ describe('life simulation', () => {
     expect(getNetWorth(started)).toBe(getNetWorth(base));
     const managed = manageBusiness(started, started.businesses![0].id);
     expect(managed.businesses![0].performance).toBe(68);
-    expect(managed.actionsRemaining).toBe(2);
     const closed = closeBusiness(managed, managed.businesses![0].id);
     expect(closed.businesses).toHaveLength(0);
     expect(closed.money).toBe(4780);
