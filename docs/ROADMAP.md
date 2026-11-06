@@ -43,14 +43,55 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Expand School with enrollment, attendance, classes, grades, and education history only when each mechanic has a complete simulation loop.
 - [ ] Expand Work with a real application/interview/offer flow and richer workplace interactions; do not display placeholder recruitment stages.
 
-## Milestone 3 — Connected systems
-Expand education and career mechanics inside their dedicated School and Work destinations; validate and balance household income, recurring expenses, and savings; then family and relationships; events that respond to circumstances; feedback explaining outcomes.
+## Milestone 3 — Rebuild the annual gameplay loop and event engine (next priority)
+- [ ] Replace simple annual stat progression with a clear year-opening, decision, event, year-review, explicit-advance, and year-recap flow.
+- [ ] Keep the current annual action budget initially, but make action costs and opportunity costs visible and meaningful.
+- [ ] Add a small curated set of contextual events with distinct choices, costs, immediate effects, delayed consequences, and history entries.
+- [ ] Add event eligibility, cooldowns, uniqueness, weighting, and follow-up flags; prevent implausible or repetitive events.
+- [ ] Make important event choices persist and affect later opportunities, relationships, education, work, health, and finances where supported.
+- [ ] Add a concise year recap that explains the most important outcomes and their causes.
+- [ ] Ensure unused actions cannot be exploited to receive free benefits; time still advances only on explicit player confirmation.
 
-## Milestone 4 — Replayability
-More life stages and event variety; personality/trait effects; achievements and optional challenges; balancing based on actual play sessions.
+**Acceptance:** A fresh character can play several consecutive years with varied, age-appropriate decisions. At least one choice has a tested delayed consequence. The player can explain why a major outcome occurred from visible game history. The same seed and save produce reproducible simulation results.
+
+## Milestone 4 — Deepen School and Work into playable systems
+- [ ] Add real school progression choices, enrollment, attendance, classes, grades/exams, and fees in the School workspace.
+- [ ] Add recruitment stages with applications, interviews, offers, acceptance/decline, employer identity, and workplace decisions in Work.
+- [ ] Connect qualifications and work performance to opportunities without making outcomes deterministic.
+- [ ] Add career stability, job changes, layoffs, and progression only with complete action/outcome loops.
+
+**Acceptance:** Education and career choices change future options and have visible consequences; no placeholder status is shown as a real mechanic.
+
+## Milestone 5 — Persistent family and relationships
+- [ ] Model persistent people and family roles with relationship state, history, and age-appropriate interactions.
+- [ ] Add relationship events and meaningful follow-ups, including support, conflict, milestones, and responsibilities.
+- [ ] Connect dependants and family support to household finances only through explicit, auditable rules.
+
+**Acceptance:** Relationships are represented by actual people and interactions, not a single isolated score; family support and obligations have tested effects.
+
+## Milestone 6 — Health, aging, retirement, and later-life economy
+- [ ] Make health, happiness, and fitness affect gameplay through transparent, bounded rules.
+- [ ] Add illness/injury/recovery and healthcare costs only as complete playable loops.
+- [ ] Add retirement choices, sustainable pension/retirement income, and age-appropriate later-life expenses.
+- [ ] Support continuing work, flexible work, or retirement without arbitrary forced retirement.
+
+**Acceptance:** A later-life character can survive financially through plausible modeled income/expenses, and health changes create understandable gameplay consequences.
+
+## Milestone 7 — Death, final life summary, and legacy
+- [ ] Add explainable mortality risk and a critical-health resolution path.
+- [ ] Make death a terminal state that stops aging and living-character actions.
+- [ ] Present a final life summary based only on recorded facts.
+- [ ] Add estate, inheritance, dependants, or generational continuation only after the underlying ownership and family models are implemented.
+
+**Acceptance:** A complete playthrough can end naturally, preserve its completed save, explain the life outcome, and never continue aging after death.
+
+## Milestone 8 — Replayability and balance
+- [ ] Add more event variety, authored milestone arcs, trait interactions, and optional achievements/challenges.
+- [ ] Balance multiple viable life strategies and test different starting ages, country profiles, and economic circumstances.
+- [ ] Run repeatable birth-to-death playthroughs and edge-case simulations before claiming the game is complete.
 
 ## Later, only when justified
-Marriage/children, family trees, property/assets, generational play, cloud backup, online/social features, WASM acceleration after profiling, and monetization after core gameplay validation.
+Generational play beyond the first complete legacy loop, cloud backup, online/social features, WASM acceleration after profiling, and monetization after the core game is enjoyable.
 
 ## Scope control
 Every milestone needs a playable outcome and acceptance criteria. Avoid parallel implementation of multiple future systems. Prioritize coherence and fun over feature count.

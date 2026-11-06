@@ -167,3 +167,29 @@ The top-level Life destination is a modular UI workspace, not a new simulation s
 - `LifestyleWorkspace.svelte` provides Discover, My services, and Home. Discover uses existing recurring-payment actions for provider subscriptions and simulation purchase actions for supermarket checkouts. My services reads the existing `recurringPayments`, `cards`, and `financialTransactions` state; it does not maintain duplicate records. Home reuses `FinanceLivingCosts.svelte` for household arrangement and budget settings. Emergency savings goals are owned by the Banking savings section in `FinanceProducts.svelte`.
 - `makeCashPurchase` and `makeAccountPurchase` debit their selected source and write a financial transaction plus life-history event. Card purchases continue through `makeCardPurchase`, which enforces the card's own available balance or credit limit.
 - No Character schema migration is required. Existing `recurringPayments`, card, bank-account, and household fields remain the source of truth.
+
+
+## Annual progression and event architecture (planned)
+
+The simulation will evolve from a mostly deterministic annual stat/finance update into a phase-based, event-driven yearly chapter. Keep the core pure TypeScript and independent of Svelte/browser APIs.
+
+Planned boundaries:
+- `year-cycle.ts` (or equivalent domain module) coordinates explicit phases: prepare year, resolve player decisions, validate unresolved choices, settle annual systems, age/progress, and produce a recap. Do not introduce this module until its boundaries are clear from the existing simulation code.
+- `events/` owns event definitions, eligibility, selection weights/cooldowns, choice validation, immediate effects, delayed effects, follow-up flags, and history descriptions.
+- Domain modules (School, Work, Life/Health, Relationships/Family, Finance, Lifestyle) own their state transitions. The event resolver may invoke domain operations but must not duplicate their business rules.
+- The save owns persistent event state: resolved event IDs/versions, cooldowns, choice flags, pending consequences, and a reproducible random seed/state. New fields must be optional/defaulted or migrated safely.
+- Event content is data-driven where useful, but do not build a generic event scripting language or content platform before a small playable set proves the pattern.
+- Event and year resolution must be deterministic for the same save, choices, and random seed. Avoid ambient `Math.random()` in authoritative simulation paths.
+- Year-end resolution order must be explicit, documented, and tested. A proposed order is: income/financial settlement; recurring commitments and liabilities; school/work progression; household/family changes; health/relationship drift; delayed event consequences; age/life-stage transition; next-year event preparation. Adjust only when domain dependencies require it.
+- Return structured effects/recap data from simulation functions so UI can explain meaningful outcomes without re-deriving rules.
+- Keep player-facing event content, consequences, and history portable across save/load. Content-version changes must not replay completed events or corrupt pending outcomes.
+
+### Simulation test requirements
+- Unit-test event eligibility, costs, outcomes, cooldowns, follow-ups, and invalid choices.
+- Test deterministic replay from identical state/seed and save/load continuity with pending consequences.
+- Test age/circumstance eligibility in the simulation layer, not only UI.
+- Test that financial events preserve ledger and balance-sheet invariants.
+- Test that dead characters cannot advance time or perform living-character actions.
+- Add multi-year scenario tests that exercise several connected systems; isolated unit tests alone are insufficient evidence of an enjoyable gameplay loop.
+
+The complete design contract and player-facing acceptance criteria are in `docs/GAMEPLAY_LOOP.md`. These are planned boundaries; do not claim they exist until implemented and tested.

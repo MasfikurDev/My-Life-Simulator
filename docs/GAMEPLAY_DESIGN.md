@@ -10,6 +10,19 @@
 5. Review the updated life and history.
 6. Advance time deliberately when ready.
 
+## The intended player experience
+
+The game is played as a sequence of meaningful yearly chapters, not as a dashboard that the player advances through. The detailed annual loop, event rules, consequence model, life-stage experience, mortality/ending direction, genre references, and acceptance criteria are defined in [`GAMEPLAY_LOOP.md`](GAMEPLAY_LOOP.md). That document is canonical for the redesign and distinguishes planned mechanics from implemented ones.
+
+### Core game-design rules
+- Every year should offer relevant decisions, changing circumstances, or a deliberate quiet year; repeated stat grinding must not be the dominant loop.
+- Actions, events, and annual settlement must create understandable immediate or delayed consequences.
+- Event content must be contextual, age-eligible, varied, and persistent where a choice matters.
+- The player must see meaningful costs and trade-offs before committing.
+- Systems remain modular in the UI but connected through explicit shared simulation state.
+- Stats must influence outcomes and available options; they are not decorative scores.
+- A completed life needs a terminal death state and final summary. Do not imply this is implemented until tested.
+
 ## Character creation and starting lives
 Character creation is scenario-led, not a free-form stat editor. The player chooses one of seven curated starting stages: birth (0), childhood (6), teen years (13), young adulthood (18), established adulthood (30), midlife (45), or later life (65). No arbitrary age slider or manual stat allocation.
 

@@ -31,6 +31,16 @@ A modern, replayable life simulator where the player shapes a believable life th
 - A surprising life: plausible uncertainty and contextual events prevent repetitive playthroughs.
 - A polished interface: typography, hierarchy, cards, clear actions, themes, responsive layouts, restrained animation.
 
+## Game feel and genre direction
+My Life Simulator must be fun to play as a game, not merely comprehensive as a life-management model. Its primary rhythm is a sequence of yearly chapters containing relevant decisions, contextual events, resource trade-offs, consequences, and a recap. The player should be able to make progress in a short mobile session and still build a distinct life over a longer playthrough.
+
+Genre references are used for design lessons only:
+- BitLife demonstrates the accessibility of a year-by-year life timeline, broad roleplaying paths, and consequential events.
+- The Sims demonstrates how needs, traits, relationships, and interactions can produce emergent situations when systems influence one another.
+- Choice-led narrative games demonstrate the value of concise dilemmas, readable options, and immediate feedback.
+
+Do not copy competitor content, event writing, assets, branding, monetization, or distinctive UI. Our direction combines a readable yearly life story with modular domain systems, persistent consequences, age-aware progression, and a complete life arc. See [`GAMEPLAY_LOOP.md`](GAMEPLAY_LOOP.md) for the canonical loop and staged implementation plan.
+
 ## Platform and non-goals
 Primary platform is Android. Initial mode is single-player. GitHub Actions produces test APKs; GitHub Pages hosts the web client. Desktop browser support is useful for testing.
 Not initial goals: 3D worlds, real-time character movement, multiplayer, social feeds, mandatory accounts/backend/AI, huge frameworks before a playable loop, early monetization decisions, or copying competitor assets/content/branding.
