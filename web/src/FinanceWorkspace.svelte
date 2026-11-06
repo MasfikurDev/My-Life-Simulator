@@ -3,6 +3,7 @@
   import FinanceProducts from './FinanceProducts.svelte';
   import FinanceAssets from './FinanceAssets.svelte';
   import FinanceLivingCosts from './FinanceLivingCosts.svelte';
+  import FinanceTaxes from './FinanceTaxes.svelte';
   import { formatCharacterMoney, getNetWorth } from './lib/simulation';
   import type { Character } from './lib/types';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
@@ -12,6 +13,7 @@
     { id: 'banking', label: 'Banking', available: character.age >= 16 },
     { id: 'cards', label: 'Cards', available: character.age >= 16 },
     { id: 'loans', label: 'Loans', available: character.age >= 18 },
+    { id: 'taxes', label: 'Taxes', available: character.age >= 18 },
     { id: 'bills', label: 'Bills & subscriptions', available: character.age >= 16 },
     { id: 'savings', label: 'Savings & vault', available: character.age >= 16 },
     { id: 'property', label: 'Property', available: character.age >= 18 },
@@ -48,6 +50,7 @@
       <button onclick={() => openView('banking')} disabled={character.age<16}><span class="shortcut-icon">▤</span><strong>Banking</strong><small>{accountCount} accounts · balances and transfers</small><b>Open banking →</b></button>
       <button onclick={() => openView('cards')} disabled={character.age<16}><span class="shortcut-icon">▭</span><strong>Cards</strong><small>{cardCount} active cards</small><b>Manage cards →</b></button>
       <button onclick={() => openView('loans')} disabled={character.age<18}><span class="shortcut-icon">↗</span><strong>Loans</strong><small>{loanCount} active loans</small><b>Manage credit →</b></button>
+      <button onclick={() => openView('taxes')} disabled={character.age<18}><span class="shortcut-icon">▤</span><strong>Taxes</strong><small>Annual assessment and outstanding balance</small><b>View taxes →</b></button>
       <button onclick={() => openView('bills')} disabled={character.age<16}><span class="shortcut-icon">↻</span><strong>Bills & subscriptions</strong><small>{(character.recurringPayments ?? []).length} recurring payments</small><b>Manage payments →</b></button>
       <button onclick={() => openView('savings')} disabled={character.age<16}><span class="shortcut-icon">▣</span><strong>Savings & vault</strong><small>Automatic deposits and stored cash</small><b>Open savings →</b></button>
       <button onclick={() => openView('property')} disabled={character.age<18}><span class="shortcut-icon">⌂</span><strong>Property</strong><small>Rent, buy, manage or sell a home</small><b>Manage property →</b></button>
@@ -61,6 +64,8 @@
     <FinanceProducts {character} onChange={onChange} view="cards" />
   {:else if activeView === 'loans'}
     <FinanceProducts {character} onChange={onChange} view="loans" />
+  {:else if activeView === 'taxes'}
+    <FinanceTaxes {character} />
   {:else if activeView === 'bills'}
     <FinanceProducts {character} onChange={onChange} view="bills" />
   {:else if activeView === 'savings'}
