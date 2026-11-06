@@ -325,8 +325,8 @@
           {/if}
           {#if yearReviewOpen}
             {@const plannedCount = character.weeklySchedule?.activities.length ?? 0}
-            <section class="year-review-panel" aria-label="Year-end review">
-              <div class="game-event-top"><span class="eyebrow">YEAR {review.currentYear} · REVIEW</span><span class="game-event-status">BEFORE ADVANCING</span></div>
+            <section class="year-review-panel" aria-label="Week review">
+              <div class="game-event-top"><span class="eyebrow">WEEK REVIEW · {character.calendar?.currentDate ?? character.year}</span><span class="game-event-status">BEFORE ADVANCING</span></div>
               <h2>Ready for the next week?</h2>
               <p class="game-event-description">Resolve {plannedCount} planned {plannedCount === 1 ? 'activity' : 'activities'} in order, apply their effects and costs once, then move the calendar forward by seven days. Your age changes only on your birthday.</p>
               <div class="year-review-grid">
@@ -335,12 +335,11 @@
                 <div><span>Current year</span><strong>{character.year}</strong></div>
                 <div><span>Available cash</span><strong>{formatCharacterMoney(character)}</strong></div>
               </div>
-              
               {#if character.pendingGameEvent}
                 <p class="year-review-warning">Unresolved situation: {character.pendingGameEvent.title}. It will pass if you advance without choosing.</p>
               {/if}
-              <p class="year-review-note">This is a partial forecast. Taxes, subscriptions, loans, interest, property, investments, and market changes settle separately and may change the final balance.</p>
-              <div class="year-review-actions"><button class="secondary-button" onclick={closeYearReview}>Back to this year</button><button class="primary-button" onclick={nextYear}>Confirm and advance to age {review.nextAge}</button></div>
+              <p class="year-review-note">Only accepted reservations are resolved. Conflicts must be fixed before the week can advance. Annual income, household costs, taxes and long-term financial settlements remain on their yearly boundary.</p>
+              <div class="year-review-actions"><button class="secondary-button" onclick={closeYearReview}>Back to this week</button><button class="primary-button" onclick={nextYear}>Resolve week and continue</button></div>
             </section>
           {/if}
         {:else if character && activeTab==='school' && character.age >= 3}
