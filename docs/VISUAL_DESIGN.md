@@ -67,3 +67,9 @@ Use concise, factual, context-aware language. Every message must communicate use
 
 ## Avoid duplicate functionality
 Do not render multiple controls or components for the same action or destination on one screen. Before adding a shortcut, inspect the current screen and navigation for an existing equivalent. Keep one clear primary control; remove redundant summaries that repeat the same actions already available as interactive cards. Responsive navigation may provide alternate layouts for different viewport modes, but do not show redundant desktop controls alongside the same navigation destination.
+
+
+## Native app logo and splash
+- Use the original title artwork only as the Android launcher/app logo.
+- Use the title-less life-progression artwork only as the centered Android launch splash image. Keep it visible until the WebView's first page finishes loading; then animate it upward and fade it away.
+- Do not place either native artwork in the web welcome or character-creation screens. Preserve the original PNG files unchanged.
