@@ -218,3 +218,18 @@ Suggested future module boundaries (do not create empty abstractions prematurely
 - `week-cycle.ts`: orchestration of weekly phases and exactly-once advancement.
 - Domain modules own their own schedule definitions and effects; the cycle coordinator orchestrates them without duplicating their rules.
 - Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups only when weekly migration is underway.
+
+
+## Personal Technology domain
+
+Personal Technology is a modular Life domain. Its canonical behavior, boundaries, and acceptance criteria are specified in [PERSONAL_TECHNOLOGY.md](PERSONAL_TECHNOLOGY.md).
+
+- Model individual device instances with stable IDs, category, fictional model identity, capability tier, condition, acquisition metadata, and ownership/access status.
+- Keep domain logic in pure simulation modules; do not put capability checks, condition rules, or ownership mutations in Svelte components.
+- Life owns inventory, condition, repair, and replacement. Lifestyle Discover owns the retail catalogue and purchase experience. Finance owns affordability, payment execution, and ledger entries.
+- Device purchase/repair/resale must use the existing financial transaction path and be atomic with the corresponding device-state mutation. Failed transactions leave neither a device nor a charge.
+- School, Work, and other domains consume capability/access queries through a narrow domain API; they must not mutate device inventory directly or create duplicate sources of truth.
+- Separate owned devices from borrowed, shared, school-provided, and work-provided access. Only owned assets belong in personal possessions/net-worth calculations.
+- Keep capability tiers category-aware and task-specific. Avoid a universal hardware score and avoid storing derived bonuses.
+- Existing saves without device data load as having no personal devices, not invented purchases.
+- Keep condition and usage deterministic and auditable. Do not add battery, storage, data, or subscription meters until they support a tested gameplay decision.
