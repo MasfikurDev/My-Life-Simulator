@@ -43,13 +43,13 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Expand School with enrollment, attendance, classes, grades, and education history only when each mechanic has a complete simulation loop.
 - [ ] Expand Work with a real application/interview/offer flow and richer workplace interactions; do not display placeholder recruitment stages.
 
-## Milestone 3 — Replace annual actions with the weekly gameplay cycle (next priority)
+## Milestone 3 — Replace annual actions with the weekly gameplay cycle (in progress)
 
 **Design decision:** weekly is the playable time unit; monthly is the financial/reporting unit; yearly is the life-progression unit. This milestone is a foundational redesign, not a cosmetic change from "3 actions/year" to "3 actions/week".
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
 - [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour or reserve time for unimplemented school/work schedules. The first model uses three broad periods per day and validates overlaps; no school/work commitments are invented.
-- [x] Add a visible Life → Schedule planner with a seven-day, 21-period grid, age-available activity planning, duration-based reservations, conflict prevention, and removal. Planned activities are saved; they are not yet resolved or marked complete.
+- [x] Add a visible Life → Schedule planner with a seven-day, 21-period grid, age-available activity planning, duration-based reservations, conflict prevention, removal, and weekly resolution.
 - [x] Centralize per-activity time requirements and validate planned activities in the simulation: life-stage eligibility, current-week boundaries, duration fit, overlaps, and aggregate planned cash costs.
 - [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, and business management.
 - [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once; reject and preserve a turn if a reservation becomes stale before resolution.
@@ -57,7 +57,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Adapt contextual events, deadlines, and delayed consequences to date/week boundaries.
 - [ ] Move recurring payments, employment payroll, and business operating cash flow to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries. Until then, salary and household settlement remain annual and are a known pacing limitation of the weekly loop.
 - [ ] Prevent duplicate or skipped financial settlement across month/year boundaries; document rounding and payment-failure behavior.
-- [ ] Add safe migration for existing annual-action saves across all three slots; preserve balances, ledger, liabilities, assets, employment/education, history, pending events, and completed choices.
+- [x] Migrate schema 1 single-save and schema 2 multi-slot saves to the weekly model; preserve valid character records and all three slots, anchor missing calendars without changing displayed age, and retain the original payload as a recovery copy.
 - [ ] Add multi-week advancement only after single-week resolution is reliable; it must stop before important decisions, deadlines, events, birthdays, and payment failures.
 - [ ] Replace the year-only review with a concise weekly review, monthly Finance statement, and annual life review without duplicating domain workspaces.
 
@@ -94,7 +94,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add optional, backward-compatible family graph types and stable player/relative identities.
 - [x] Generate a modest family-of-origin context for new characters without assuming a partner or children.
 - [x] Add graph validation for identity, relationship endpoints, duplicate links, parent/guardian cycles, bonds, and history.
-- [x] Add targeted spend-time, reach-out, and conflict-reconciliation interactions with simulation-side age/action validation.
+- [x] Add targeted spend-time, reach-out, and conflict-reconciliation interactions with simulation-side age/time validation.
 - [x] Add adult financial support as a cash outflow in the shared Finance ledger.
 - [x] Add an explicit family-background initialization path for existing saves that lack family data.
 - [ ] Expand the relationship graph with explicit partnership, separation, parenthood, adoption, and guardianship lifecycle operations.
