@@ -4,7 +4,7 @@ export type EmploymentType = 'part-time' | 'full-time' | 'flexible';
 export type HouseholdArrangement = 'family-supported' | 'shared' | 'independent';
 export type SavingsGoalMonths = 1 | 3 | 6;
 export type BankAccountType = 'checking' | 'savings' | 'fixed-deposit';
-export type FinancialTransactionType = 'account-opened' | 'deposit' | 'withdrawal' | 'transfer' | 'income' | 'expense' | 'interest' | 'loan-issued' | 'loan-payment' | 'loan-interest' | 'card-issued' | 'card-purchase' | 'card-payment' | 'card-interest' | 'recurring-payment' | 'auto-deposit' | 'vault-deposit' | 'vault-withdrawal' | 'investment-buy' | 'investment-sell' | 'property-purchase' | 'property-sale' | 'property-rent' | 'business-start' | 'business-income' | 'business-expense' | 'business-sale' | 'card-load' | 'tax' | 'fee';
+export type FinancialTransactionType = 'family-support' | 'account-opened' | 'deposit' | 'withdrawal' | 'transfer' | 'income' | 'expense' | 'interest' | 'loan-issued' | 'loan-payment' | 'loan-interest' | 'card-issued' | 'card-purchase' | 'card-payment' | 'card-interest' | 'recurring-payment' | 'auto-deposit' | 'vault-deposit' | 'vault-withdrawal' | 'investment-buy' | 'investment-sell' | 'property-purchase' | 'property-sale' | 'property-rent' | 'business-start' | 'business-income' | 'business-expense' | 'business-sale' | 'card-load' | 'tax' | 'fee';
 export type CardType = 'debit' | 'credit' | 'prepaid';
 export type LoanType = 'personal' | 'mortgage' | 'business';
 export type PropertyType = 'house' | 'apartment';
@@ -91,6 +91,51 @@ export interface PendingGameEvent {
 }
 
 export interface LifeEvent { id: string; year: number; age: number; title: string; description: string; kind: 'milestone' | 'activity' | 'event'; }
+export type FamilyRelationshipType = 'parent' | 'guardian' | 'sibling' | 'partner' | 'adoptive-parent' | 'step-parent';
+export type FamilyHistoryType = 'background' | 'interaction' | 'support' | 'relationship-change' | 'milestone';
+export interface FamilyPerson {
+  id: string;
+  name: string;
+  gender?: Gender;
+  birthYear: number;
+  deathYear?: number;
+}
+export interface FamilyRelationship {
+  id: string;
+  fromPersonId: string;
+  toPersonId: string;
+  type: FamilyRelationshipType;
+  startedAtYear: number;
+  endedAtYear?: number;
+}
+export interface FamilyBond {
+  personId: string;
+  closeness: number;
+  trust: number;
+  tension: number;
+  lastInteractionYear: number | null;
+  supportProvidedTotal: number;
+}
+export interface FamilyHistoryEntry {
+  id: string;
+  year: number;
+  type: FamilyHistoryType;
+  title: string;
+  description: string;
+  personIds: string[];
+}
+export interface FamilyState {
+  version: 1;
+  playerPersonId: string;
+  people: FamilyPerson[];
+  relationships: FamilyRelationship[];
+  bonds: FamilyBond[];
+  householdMemberIds: string[];
+  dependentPersonIds: string[];
+  primaryGuardianId?: string;
+  history: FamilyHistoryEntry[];
+  lastSimulatedYear: number;
+}
 export interface Character {
   name: string; age: number; year: number; health: number; happiness: number;
   intelligence: number; fitness: number; money: number; actionsRemaining: number;
@@ -119,6 +164,7 @@ export interface Character {
   resolvedGameEventIds?: string[];
   scheduledGameConsequences?: ScheduledGameConsequence[];
   lastYearRecap?: string[];
+  family?: FamilyState;
   history: LifeEvent[];
 }
 export type SaveSlotId = 'slot-1' | 'slot-2' | 'slot-3';
