@@ -3,19 +3,22 @@
 **Canonical gameplay direction · Updated 2026-11-06**
 
 ## Core loop
-1. Review the character's life and circumstances.
-2. Choose an activity, interaction, or response to an event.
-3. Pay its cost (time, money, energy, or opportunity).
-4. Apply immediate effects and schedule delayed consequences.
-5. Review the updated life and history.
-6. Advance time deliberately when ready.
+1. Review the current week, calendar, actual commitments, free-time blocks, and relevant situations.
+2. Choose activities in their own domain workspaces and place them into available time.
+3. Pay validated costs (time, money, and only modeled resource costs such as energy).
+4. Resolve commitments, events, due payments, and consequences when the player advances the week.
+5. Review the weekly recap and persistent history.
+6. Use monthly finance/reporting and yearly life-progression reviews at their actual calendar boundaries.
+
+The week is the fundamental playable unit; the month is the financial/reporting unit; the year is the life-progression unit. The old three-actions-per-year model is legacy implementation and is not the target design. Do not replace it with an arbitrary fixed number of weekly action tokens. See [`GAMEPLAY_LOOP.md`](GAMEPLAY_LOOP.md) for the canonical calendar, schedule, resolution order, migration rules, and acceptance tests.
 
 ## The intended player experience
 
-The game is played as a sequence of meaningful yearly chapters, not as a dashboard that the player advances through. The detailed annual loop, event rules, consequence model, life-stage experience, mortality/ending direction, genre references, and acceptance criteria are defined in [`GAMEPLAY_LOOP.md`](GAMEPLAY_LOOP.md). That document is canonical for the redesign and distinguishes planned mechanics from implemented ones.
+The game is played as a sequence of meaningful weeks, grouped into monthly financial rhythms and yearly life chapters, not as a dashboard that the player advances through. The detailed annual loop, event rules, consequence model, life-stage experience, mortality/ending direction, genre references, and acceptance criteria are defined in [`GAMEPLAY_LOOP.md`](GAMEPLAY_LOOP.md). That document is canonical for the redesign and distinguishes planned mechanics from implemented ones.
 
 ### Core game-design rules
-- Every year should offer relevant decisions, changing circumstances, or a deliberate quiet year; repeated stat grinding must not be the dominant loop.
+- Every week should offer relevant decisions, changing circumstances, or a deliberate quiet week; repeated stat grinding must not be the dominant loop.
+- Recurring commitments shape available time; the player chooses how to use genuine free time rather than spending abstract annual action tokens.
 - Actions, events, and annual settlement must create understandable immediate or delayed consequences.
 - Event content must be contextual, age-eligible, varied, and persistent where a choice matters.
 - The player must see meaningful costs and trade-offs before committing.
