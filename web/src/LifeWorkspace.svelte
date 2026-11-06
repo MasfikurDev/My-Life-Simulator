@@ -2,10 +2,12 @@
   import { canAffordActivity, formatCharacterMoney, performActivity } from './lib/simulation';
   import { getAvailableActivityIds, getLifeStage } from './lib/progression';
   import type { ActivityId, Character } from './lib/types';
+  import LifestyleWorkspace from './LifestyleWorkspace.svelte';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   let activeView = $state('overview');
   const views = [
     { id: 'overview', label: 'Overview' },
+    { id: 'lifestyle', label: 'Lifestyle' },
     { id: 'wellbeing', label: 'Wellbeing' },
     { id: 'growth', label: 'Personal growth' },
     { id: 'personal', label: 'Personal' },
@@ -74,6 +76,8 @@
         </button>
       {/each}
     </div>
+  {:else if activeView === 'lifestyle'}
+    <LifestyleWorkspace {character} {onChange} />
   {:else if activeView === 'history'}
     <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h2>Life history</h2><p>Decisions, events and milestones recorded during this life.</p></div><span class="year-pill">{character.history.length} RECORDS</span></div>
     <section class="history-card full-history">
