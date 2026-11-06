@@ -1,5 +1,21 @@
 import type { ActivityId, Employment } from './types';
 
+export interface ActivityDefinition {
+  id: ActivityId;
+  title: string;
+  durationBlocks: number;
+  detail: string;
+}
+
+export const ACTIVITY_DEFINITIONS: Record<ActivityId, ActivityDefinition> = {
+  study: { id: 'study', title: 'Study & learning', durationBlocks: 2, detail: 'A focused session that uses two consecutive periods.' },
+  exercise: { id: 'exercise', title: 'Exercise', durationBlocks: 1, detail: 'A single period for physical activity.' },
+  socialize: { id: 'socialize', title: 'Social time', durationBlocks: 1, detail: 'A single period to spend with friends.' },
+  work: { id: 'work', title: 'Extra work', durationBlocks: 2, detail: 'A longer work session that uses two consecutive periods.' },
+  'apply-job': { id: 'apply-job', title: 'Apply for a job', durationBlocks: 1, detail: 'A single period to prepare and submit an application.' },
+  career: { id: 'career', title: 'Career development', durationBlocks: 1, detail: 'A single period for focused professional development.' }
+};
+
 export interface LifeStage { id: string; label: string; ageRange: string; description: string; nextAge: number | null; }
 
 const STAGES: Array<LifeStage & { min: number; max: number }> = [
