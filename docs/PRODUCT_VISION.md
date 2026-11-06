@@ -54,3 +54,8 @@ School, Work, Life, and Finance are distinct top-level workspaces. School owns l
 
 
 Personal Technology is part of everyday life: smartphones, laptops, and desktop PCs can support communication, education, work, creativity, and entertainment. Devices create meaningful purchase, maintenance, and upgrade decisions while remaining optional assets rather than mandatory gates. Their management belongs to its own Life workspace and their purchases use the shared Finance system.
+
+## Family as a persistent life system
+
+Family is a simulation-owned network of people and relationships across the character's life. It must support varied family structures and optional life paths without assuming marriage, parenthood, or guaranteed support. Family decisions should create meaningful consequences in wellbeing, education, work, time, and finances through explicit cross-domain contracts. The UI is only the domain-native interface to this state. See [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md).
+
