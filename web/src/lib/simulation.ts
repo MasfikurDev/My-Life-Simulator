@@ -288,7 +288,7 @@ export function issueBankCard(character: Character, type: CardType, name: string
   if (character.age < (type === 'credit' ? 18 : 16) || (character.cards ?? []).length >= 6) return character;
   if (type === 'debit' && !accountExists(character, linkedAccountId)) return character;
   if (type === 'credit' && (!validAmount(creditLimit) || creditLimit > 100000000 || (linkedAccountId && !accountExists(character, linkedAccountId)))) return character;
-  const label = name.trim().slice(0, 28) || (type === 'credit' ? 'Credit card' : 'Debit card');
+  const label = name.trim().slice(0, 28) || (type === 'credit' ? 'Credit card' : type === 'prepaid' ? 'Prepaid card' : 'Debit card');
   const card: BankCard = { id: 'card-' + character.year + '-' + character.age + '-' + ((character.cards ?? []).length + 1), name: label, type, linkedAccountId, creditLimit: type === 'credit' ? creditLimit : 0, balance: 0, annualInterestRate: type === 'credit' ? 0.18 : 0, active: true };
   const next = { ...character, cards: [...(character.cards ?? []), card], history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'card-issued', 0, 'Issued ' + label + '.', 'Bank', label);
@@ -483,7 +483,7 @@ export function openBankAccount(character: Character, type: BankAccountType, nam
   if (character.age < 16 || (type === 'fixed-deposit' && (!Number.isInteger(termYears) || termYears < 1 || termYears > 10))) return character;
   const accounts = character.bankAccounts ?? [];
   if (accounts.length >= 8) return character;
-  const label = name?.trim().slice(0, 28) || (type === 'savings' ? 'Savings account' : 'Everyday account');
+  const label = name?.trim().slice(0, 28) || (type === 'fixed-deposit' ? 'Fixed deposit' : type === 'savings' ? 'Savings account' : 'Everyday account');
   const account: BankAccount = {
     id: 'account-' + String(character.year) + '-' + String(character.age) + '-' + String(accounts.length + 1),
     name: label, type, balance: 0, annualInterestRate: type === 'fixed-deposit' ? 0.045 : type === 'savings' ? 0.02 : 0, openedAtAge: character.age, maturesAtYear: type === 'fixed-deposit' ? character.year + termYears : undefined
