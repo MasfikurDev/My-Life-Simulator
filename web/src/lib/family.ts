@@ -320,3 +320,10 @@ export function familyRelationshipTypeLabel(type: FamilyRelationshipType): strin
   };
   return labels[type];
 }
+
+export function establishFamilyBackground(character: Character): Character {
+  if (character.family) return character;
+  const family = createFamilyState(character);
+  const entry = lifeEvent(character, 'Family background established', 'A family-of-origin record was added. This records known background, not a prediction of future relationships.');
+  return { ...character, family, history: [...character.history, entry] };
+}
