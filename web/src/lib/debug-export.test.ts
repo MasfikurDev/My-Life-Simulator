@@ -4,7 +4,7 @@ import type { Character } from './types';
 
 const character: Character = {
   name: 'Alex', age: 25, year: 2026, health: 90, happiness: 75,
-  intelligence: 80, fitness: 70, money: 1200, actionsRemaining: 2,
+  intelligence: 80, fitness: 70, money: 1200,
   history: [{ id: 'start', year: 2001, age: 0, title: 'Born', description: 'A new life begins.', kind: 'milestone' }]
 };
 
