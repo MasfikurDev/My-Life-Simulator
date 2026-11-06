@@ -76,3 +76,5 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 
 
 40. Banking and financial products must use the shared Character financial model and auditable transaction ledger. Cash, account balances, assets, and liabilities are distinct. Transfers must preserve total money; reject overdrafts and invalid operations. Legacy saves remain readable. Do not display a complete net-worth claim while only cash and bank balances are counted.
+
+41. Financial-product operations must post to the shared ledger and preserve balance-sheet invariants: loan issuance creates equal cash and liability; repayment reduces both; card spending creates card liability or reduces a linked deposit account; deposits and vault transfers only move holdings. Net worth must subtract active loans and credit-card debt. Recurring payments must state their funding source and log missed payments without silently creating debt. Legacy saves must remain readable.
