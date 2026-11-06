@@ -344,3 +344,35 @@ export function establishFamilyBackground(character: Character): Character {
   const entry = lifeEvent(character, 'Family background established', 'A family-of-origin record was added. This records known background, not a prediction of future relationships.');
   return { ...character, family, history: [entry, ...character.history] };
 }
+
+export function applyFamilyBondEffect(character: Character, effect: { personId: string; closeness: number; trust: number; tension: number }): Character {
+  const family = character.family;
+  if (!family) return character;
+  const person = family.people.find((item) => item.id === effect.personId);
+  if (!person || person.id === family.playerPersonId || !living(person, character.year)) return character;
+  const bond = family.bonds.find((item) => item.personId === effect.personId);
+  if (!bond) return character;
+  const updatedBond: FamilyBond = {
+    ...bond,
+    closeness: clamp(bond.closeness + effect.closeness),
+    trust: clamp(bond.trust + effect.trust),
+    tension: clamp(bond.tension + effect.tension),
+    lastInteractionYear: character.year
+  };
+  const entry: FamilyHistoryEntry = {
+    id: 'family-' + character.year + '-' + (family.history.length + 1),
+    year: character.year,
+    type: 'interaction',
+    title: 'Family connection strengthened',
+    description: 'A meaningful family interaction changed the relationship with ' + person.name + '.',
+    personIds: [family.playerPersonId, person.id]
+  };
+  return {
+    ...character,
+    family: {
+      ...family,
+      bonds: family.bonds.map((item) => item.personId === effect.personId ? updatedBond : item),
+      history: [...family.history, entry]
+    }
+  };
+}
