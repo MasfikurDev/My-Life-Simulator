@@ -534,6 +534,8 @@ export function advanceYear(character: Character): Character {
     next.lastYearShortfall = 0;
   }
 
+  Object.assign(next, settleFinancialProducts(next));
+
   if (job) {
     job.experienceYears += 1;
     if (job.experienceYears >= 2 && job.performance >= 85 && job.promotions < 3) {
