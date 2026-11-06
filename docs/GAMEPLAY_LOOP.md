@@ -93,6 +93,12 @@ After advancement, provide a compact year recap:
 
 Write important outcomes to chronological life history. The recap should make the causal link between prior choices and results visible.
 
+### Year review gate (implemented first slice)
+
+Before advancing, the player can open a review showing the current year, next age, unused actions, employment income, estimated living costs, and the cash remaining after those two predictable items. An unresolved event is called out because it will expire when the player advances. The player must explicitly confirm advancement; returning to the year leaves the save unchanged.
+
+The preview is intentionally partial. It does not claim to predict tax, recurring payments, loans, interest, property, investment, or market settlement. Those systems still resolve in the simulation and are identified as exclusions in the UI. The review is a decision aid, not a second financial ledger.
+
 ## 4. Event and consequence system
 
 An event is a gameplay object, not just a paragraph with buttons.
