@@ -1,9 +1,33 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, createCharacter, formatCharacterMoney, generateRandomCharacter, performActivity } from './simulation';
+import { advanceYear, canAffordActivity, createCharacter, formatCharacterMoney, generateRandomCharacter, getActivityCost, performActivity } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
 import { createGameDebugSnapshot } from './debug-export';
 
 describe('life simulation', () => {
+  it('calculates age- and currency-scaled activity costs', () => {
+    const adult = { ...createCharacter('Adult', 18), currencyScale: 100, money: 3500 };
+    const child = { ...createCharacter('Child', 12), currencyScale: 100, money: 0 };
+    expect(getActivityCost(adult, 'study')).toBe(3500);
+    expect(getActivityCost(adult, 'socialize')).toBe(2000);
+    expect(getActivityCost(child, 'study')).toBe(0);
+    expect(canAffordActivity(adult, 'study')).toBe(true);
+    expect(canAffordActivity({ ...adult, money: 3499 }, 'study')).toBe(false);
+  });
+  it('rejects paid activities when the balance is insufficient', () => {
+    const adult = { ...createCharacter('Adult', 30), money: 10, currencyScale: 1 };
+    const study = performActivity(adult, 'study');
+    const social = performActivity(adult, 'socialize');
+    expect(study).toBe(adult);
+    expect(social).toBe(adult);
+    expect(adult.actionsRemaining).toBe(3);
+  });
+  it('charges the exact cost when a paid activity is affordable', () => {
+    const adult = { ...createCharacter('Adult', 30), money: 35, currencyScale: 1 };
+    const next = performActivity(adult, 'study');
+    expect(next.money).toBe(0);
+    expect(next.actionsRemaining).toBe(2);
+    expect(next.intelligence).toBe(adult.intelligence + 5);
+  });
   it('creates a character with a starting history', () => {
     const c = createCharacter('Sam');
     expect(c.name).toBe('Sam'); expect(c.age).toBe(18); expect(c.actionsRemaining).toBe(3);
