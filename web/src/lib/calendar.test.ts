@@ -12,6 +12,7 @@ describe('game calendar', () => {
     expect(getNextWeekDate('2026-01-26')).toBe('2026-02-02');
     expect(getNextWeekDate('2026-12-28')).toBe('2027-01-04');
     expect(addCalendarDays('2024-02-28', 1)).toBe('2024-02-29');
+    expect(addCalendarDays('0099-01-01', 1)).toBe('0099-01-02');
   });
 
   it('finds the first Monday on or after January 1', () => {
