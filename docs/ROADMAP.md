@@ -78,8 +78,9 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 ## Milestone 4 — Deepen School and Work into playable systems
 - [ ] Add real school progression choices, enrollment, attendance, classes, grades/exams, and fees in the School workspace.
 - [ ] Add recruitment stages with applications, interviews, offers, acceptance/decline, employer identity, and workplace decisions in Work.
-- [ ] Connect qualifications and work performance to opportunities without making outcomes deterministic.
-- [ ] Add career stability, job changes, layoffs, and progression only with complete action/outcome loops.
+- [ ] Clarify the current-job card and add a read-only career-path preview with estimated salary/bonus ranges; see [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md).
+- [ ] Connect qualifications, role-specific skills, performance, experience, vacancies, and promotion decisions without using a universal fixed-week grind or guaranteeing outcomes.
+- [ ] Add conditional bonuses/benefits, career stability, job changes, layoffs, and deeper progression only with complete payroll and workplace loops.
 
 **Acceptance:** Education and career choices change future options and have visible consequences; no placeholder status is shown as a real mechanic.
 
