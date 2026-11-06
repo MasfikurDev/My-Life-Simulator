@@ -101,7 +101,7 @@ describe('life simulation', () => {
     expect(next.money).toBe(8600);
     expect(next.lastYearIncome).toBe(10000);
     expect(next.lastYearExpenses).toBe(1500);
-    expect(next.history.some((item) => item.title === 'Annual pay received')).toBe(true);
+    expect(next.history.some((item) => item.title === 'Household budget settled')).toBe(true);
   });
   it('promotes experienced employees after sustained high performance', () => {
     const worker = {
