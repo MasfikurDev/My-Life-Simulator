@@ -47,7 +47,8 @@
     </section>
     <div class="finance-shortcuts life-shortcuts">
       <button onclick={() => activeView='wellbeing'}><span class="shortcut-icon">＋</span><strong>Wellbeing</strong><small>Health, happiness and fitness</small><b>View wellbeing →</b></button>
-      <button onclick={() => activeView='personal'}><span class="shortcut-icon">✳</span><strong>Personal</strong><small>Everyday activities and free time</small><b>Open personal life →</b></button>
+      <button onclick={() => activeView='growth'}><span class="shortcut-icon">✳</span><strong>Personal growth</strong><small>Learning and intelligence</small><b>View personal growth →</b></button>
+      <button onclick={() => activeView='personal'}><span class="shortcut-icon">◎</span><strong>Personal</strong><small>Everyday activities and free time</small><b>Open personal life →</b></button>
       <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.length} recorded events and milestones</small><b>Review history →</b></button>
     </div>
   {:else if activeView === 'wellbeing'}
@@ -84,3 +85,230 @@
     </section>
   {/if}
 </section>
+
+<style>
+  .life-workspace {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .life-workspace .finance-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .life-workspace .finance-header > div {
+    min-width: 0;
+  }
+
+  .life-workspace .finance-header h1 {
+    margin: 4px 0 3px;
+    color: var(--text);
+    font-size: clamp(24px, 4vw, 32px);
+    line-height: 1.15;
+    letter-spacing: -.8px;
+  }
+
+  .life-workspace .finance-header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .life-workspace .finance-back {
+    flex: none;
+    min-height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 9px 11px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .life-workspace .finance-back:hover {
+    border-color: var(--line-strong);
+    background: var(--surface-hover);
+  }
+
+  .life-workspace .finance-nav {
+    display: flex;
+    gap: 6px;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 2px 0 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  .life-workspace .finance-nav button {
+    flex: 0 0 auto;
+    min-height: 42px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0 12px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 650;
+    white-space: nowrap;
+    transition: color .18s, background .18s, border-color .18s;
+  }
+
+  .life-workspace .finance-nav button:hover {
+    border-color: var(--line-strong);
+    color: var(--text);
+  }
+
+  .life-workspace .finance-nav button.active {
+    border-color: rgba(114, 214, 154, .5);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .life-workspace .life-shortcuts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .life-workspace .life-shortcuts button {
+    display: grid;
+    justify-items: start;
+    align-content: start;
+    gap: 7px;
+    min-width: 0;
+    min-height: 126px;
+    padding: 13px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--surface);
+    color: var(--text);
+    text-align: left;
+    transition: border-color .18s, background .18s, transform .18s;
+  }
+
+  .life-workspace .life-shortcuts button:hover {
+    border-color: var(--line-strong);
+    background: var(--surface-raised);
+    transform: translateY(-1px);
+  }
+
+  .life-workspace .life-shortcuts strong {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .life-workspace .life-shortcuts small {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.45;
+  }
+
+  .life-workspace .life-shortcuts b {
+    margin-top: auto;
+    color: var(--accent);
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .life-workspace .page-heading h2 {
+    margin: 8px 0 5px;
+    color: var(--text);
+    font-size: clamp(23px, 3vw, 29px);
+    line-height: 1.15;
+    letter-spacing: -1px;
+  }
+
+  .life-workspace .page-heading p {
+    line-height: 1.5;
+  }
+
+  .life-workspace .full-history > p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 620px) {
+    .life-workspace {
+      gap: 12px;
+    }
+
+    .life-workspace .finance-header {
+      align-items: flex-start;
+    }
+
+    .life-workspace .finance-header h1 {
+      font-size: 25px;
+    }
+
+    .life-workspace .finance-header p {
+      font-size: 11px;
+    }
+
+    .life-workspace .finance-back {
+      min-height: 38px;
+      padding: 8px 9px;
+      font-size: 10px;
+    }
+
+    .life-workspace .finance-nav {
+      margin-right: -2px;
+      padding-bottom: 7px;
+    }
+
+    .life-workspace .finance-nav button {
+      min-height: 40px;
+      padding: 0 11px;
+      font-size: 10px;
+    }
+
+    .life-workspace .life-shortcuts {
+      gap: 7px;
+    }
+
+    .life-workspace .life-shortcuts button {
+      min-height: 116px;
+      padding: 11px;
+      border-radius: 10px;
+    }
+
+    .life-workspace .life-shortcuts strong {
+      font-size: 11px;
+    }
+
+    .life-workspace .life-shortcuts small {
+      font-size: 9px;
+    }
+
+    .life-workspace .life-shortcuts b {
+      font-size: 9px;
+    }
+
+    .life-workspace .page-heading h2 {
+      font-size: 24px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .life-workspace .finance-header {
+      flex-wrap: wrap;
+    }
+
+    .life-workspace .finance-back {
+      margin-top: 2px;
+    }
+
+    .life-workspace .life-shortcuts button {
+      padding: 9px;
+    }
+  }
+</style>
