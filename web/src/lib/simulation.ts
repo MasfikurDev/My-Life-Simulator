@@ -795,6 +795,17 @@ export function planFamilyInteractionInNextFreeTime(character: Character, person
   return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
 }
 
+export function planBusinessManagementInNextFreeTime(character: Character, businessId: string): ActivityPlanningResult {
+  const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+  const grid = buildWeeklySchedule(week, getWeeklySchedule(character.weeklySchedule));
+  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
+  for (const block of grid.blocks.filter((entry) => !entry.entryId)) {
+    const result = planBusinessManagement(character, businessId, block.date, block.period);
+    if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
+  }
+  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+}
+
 export function planEventChoiceInNextFreeTime(character: Character, choiceId: string): ActivityPlanningResult {
   const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
   const grid = buildWeeklySchedule(week, getWeeklySchedule(character.weeklySchedule));
