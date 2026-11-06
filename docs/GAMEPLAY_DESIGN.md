@@ -86,6 +86,12 @@ The settings page provides a concise recent-log view backed by the character's c
 - Adults can start up to three small businesses (retail, online, cafe) with startup capital. Business value begins at invested capital; yearly operating profit/loss depends on performance. Management consumes an action and a small cash cost; businesses can be sold for 90% of estimated value.
 - Net worth includes cash, bank accounts, vault, property, investments at current market prices, and business valuation, less active loans and credit-card debt. This is a simplified balance sheet; no detailed tax, brokerage fees, property transfer fees, or macroeconomic model exists yet.
 
+## Macroeconomic conditions and inflation
+- Each simulated year advances a compact economy model with an expansion, stable, or recession cycle; inflation, economic growth, and a benchmark interest rate are shown in the finance area.
+- Inflation changes the cost-of-living index, recurring bill/subscription amounts, and rental agreements. Deflation is possible but bounded. Household costs use the cost index rather than silently ignoring changing prices.
+- Market movements respond to the economic cycle: broad stock-index holdings react more strongly to growth and downturns; gold reacts more to inflation and can still lose value. Property appreciation responds to both inflation and growth. Business operating results respond to economic growth as well as management performance.
+- Economic conditions are deterministic for a given simulated year/age so saves and tests remain reproducible. Rates and returns are simplified fictional game mechanics, not financial advice or real market forecasts. Taxes, brokerage fees, detailed monetary policy, and variable-rate debt remain future work.
+
 ## Candidate systems
 Health; family; education; career; finance; relationships; lifestyle; contextual/scheduled/random/player-created events. Build incrementally and connect systems. Do not implement every system at once.
 
