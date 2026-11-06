@@ -4,6 +4,7 @@ import { getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
+import { prepareGameEvent, resolveGameEvent } from './events';
 
 describe('life simulation', () => {
   it('calculates age- and currency-scaled activity costs', () => {
@@ -58,6 +59,58 @@ describe('life simulation', () => {
     const next = advanceYear(createCharacter('Sam'));
     expect(next.age).toBe(19); expect(next.year).toBe(2027); expect(next.actionsRemaining).toBe(3);
   });
+  it('offers an age-appropriate school event and records a meaningful choice', () => {
+    const student = createCharacter('Student', 12);
+    expect(student.pendingGameEvent?.id).toBe('school-reading-circle');
+    const before = student.intelligence;
+    const joined = resolveGameEvent(student, 'join');
+    expect(joined.pendingGameEvent).toBeNull();
+    expect(joined.actionsRemaining).toBe(student.actionsRemaining - 1);
+    expect(joined.intelligence).toBe(before + 3);
+    expect(joined.scheduledGameConsequences).toHaveLength(1);
+    expect(joined.scheduledGameConsequences![0].dueYear).toBe(student.year + 1);
+    expect(joined.history[0].title).toContain('reading circle');
+  });
+
+  it('resolves a delayed event consequence in the following year', () => {
+    const student = createCharacter('Student', 12);
+    const joined = resolveGameEvent(student, 'join');
+    const intelligenceAfterChoice = joined.intelligence;
+    const nextYear = advanceYear(joined);
+    expect(nextYear.intelligence).toBe(intelligenceAfterChoice + 2);
+    expect(nextYear.scheduledGameConsequences).toHaveLength(0);
+    expect(nextYear.history.some((item) => item.title === 'Your reading paid off')).toBe(true);
+  });
+
+  it('lets an unanswered situation pass cleanly when the player advances the year', () => {
+    const student = createCharacter('Student', 12);
+    const nextYear = advanceYear(student);
+    expect(nextYear.pendingGameEvent).toBeNull();
+    expect(nextYear.resolvedGameEventIds).toContain('school-reading-circle');
+    expect(nextYear.history.some((item) => item.title === 'Opportunity passed')).toBe(true);
+  });
+
+  it('rejects event choices that exceed available time or money', () => {
+    const adult = {
+      ...createCharacter('Adult', 30),
+      health: 100,
+      money: 0,
+      pendingGameEvent: null,
+      eventPreparedYear: undefined
+    };
+    const withEvent = prepareGameEvent(adult);
+    expect(withEvent.pendingGameEvent?.id).toBe('adult-side-project');
+    expect(resolveGameEvent(withEvent, 'take-part')).toBe(withEvent);
+  });
+
+  it('records a year recap and prepares the next age-appropriate situation', () => {
+    const student = createCharacter('Student', 12);
+    const nextYear = advanceYear(resolveGameEvent(student, 'join'));
+    expect(nextYear.lastYearRecap?.length).toBeGreaterThan(0);
+    expect(nextYear.eventPreparedYear).toBe(nextYear.year);
+    expect(nextYear.pendingGameEvent).toBeNull();
+  });
+
   it('maps each age into a gradual life stage', () => {
     expect(getLifeStage(0).id).toBe('infant'); expect(getLifeStage(3).id).toBe('preschool');
     expect(getLifeStage(6).id).toBe('childhood'); expect(getLifeStage(13).id).toBe('early-teen');
