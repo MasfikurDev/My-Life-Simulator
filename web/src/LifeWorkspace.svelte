@@ -4,10 +4,12 @@
   import type { ActivityId, Character } from './lib/types';
   import LifestyleWorkspace from './LifestyleWorkspace.svelte';
   import FamilyWorkspace from './FamilyWorkspace.svelte';
+  import ScheduleWorkspace from './ScheduleWorkspace.svelte';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   let activeView = $state('overview');
   const views = [
     { id: 'overview', label: 'Overview' },
+    { id: 'schedule', label: 'Schedule' }, 
     { id: 'lifestyle', label: 'Lifestyle' },
     { id: 'family', label: 'Family' },
     { id: 'wellbeing', label: 'Wellbeing' },
@@ -50,12 +52,15 @@
       <div class="domain-metrics"><div><span>Actions remaining</span><strong>{character.actionsRemaining}/3</strong></div><div><span>Health</span><strong>{character.health}/100</strong></div><div><span>Happiness</span><strong>{character.happiness}/100</strong></div><div><span>Fitness</span><strong>{character.fitness}/100</strong></div></div>
     </section>
     <div class="finance-shortcuts life-shortcuts">
+      <button onclick={() => activeView='schedule'}><span class="shortcut-icon">▦</span><strong>Weekly schedule</strong><small>Plan activities and check time conflicts</small><b>Open schedule →</b></button>
       <button onclick={() => activeView='family'}><span class="shortcut-icon">⌂</span><strong>Family</strong><small>People, bonds and family history</small><b>Open family →</b></button>
       <button onclick={() => activeView='wellbeing'}><span class="shortcut-icon">＋</span><strong>Wellbeing</strong><small>Health, happiness and fitness</small><b>View wellbeing →</b></button>
       <button onclick={() => activeView='growth'}><span class="shortcut-icon">✳</span><strong>Personal growth</strong><small>Learning and intelligence</small><b>View personal growth →</b></button>
       <button onclick={() => activeView='personal'}><span class="shortcut-icon">◎</span><strong>Personal</strong><small>Everyday activities and free time</small><b>Open personal life →</b></button>
       <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.length} recorded events and milestones</small><b>Review history →</b></button>
     </div>
+  {:else if activeView === 'schedule'}
+    <ScheduleWorkspace {character} {onChange} />
   {:else if activeView === 'family'}
     <FamilyWorkspace {character} {onChange} />
   {:else if activeView === 'wellbeing'}
