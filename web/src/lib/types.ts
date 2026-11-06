@@ -59,7 +59,7 @@ export interface Character {
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
   educationProgress?: number; employment?: Employment | null;
-  lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number;
+  lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number; lastYearTax?: number; taxBalance?: number;
   householdArrangement?: HouseholdArrangement; savingsGoalMonths?: SavingsGoalMonths | null;
   bankAccounts?: BankAccount[];
   financialTransactions?: FinancialTransaction[];
