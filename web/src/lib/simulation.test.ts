@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, canAffordActivity, createCharacter, formatCharacterMoney, generateRandomCharacter, getActivityCost, performActivity } from './simulation';
+import { advanceYear, canAffordActivity, createCharacter, formatCharacterMoney, generateRandomCharacter, getActivityCost, getHouseholdBudget, performActivity, setHouseholdArrangement, setSavingsGoalMonths } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
 import { createGameDebugSnapshot } from './debug-export';
 
@@ -184,4 +184,41 @@ describe('life simulation', () => {
     const c = { ...generateRandomCharacter(18, () => 0), money: 1000 };
     expect(formatCharacterMoney(c)).toContain('৳');
   });
+  it('calculates age-gated household costs for each living arrangement', () => {
+    const adult = { ...createCharacter('Adult', 30), currencyScale: 1, employment: null };
+    expect(getHouseholdBudget({ ...adult, age: 17 }).total).toBe(0);
+    expect(getHouseholdBudget({ ...adult, householdArrangement: 'family-supported' }).total).toBe(2700);
+    expect(getHouseholdBudget({ ...adult, householdArrangement: 'shared' }).total).toBe(6840);
+    expect(getHouseholdBudget({ ...adult, householdArrangement: 'independent' }).total).toBe(10440);
+  });
+  it('records living arrangement and savings goal choices without mutating the old save', () => {
+    const adult = createCharacter('Adult', 30);
+    const shared = setHouseholdArrangement(adult, 'shared');
+    const goal = setSavingsGoalMonths(shared, 3);
+    expect(adult.householdArrangement).toBe('family-supported');
+    expect(goal.householdArrangement).toBe('shared');
+    expect(goal.savingsGoalMonths).toBe(3);
+    expect(goal.history[0].title).toBe('Set a savings goal');
+    expect(setHouseholdArrangement(createCharacter('Teen', 17), 'shared').age).toBe(17);
+  });
+  it('charges recurring costs even when an adult is unemployed and records a shortfall', () => {
+    const adult = { ...createCharacter('Adult', 30), money: 100, currencyScale: 1, householdArrangement: 'independent' as const, employment: null };
+    const next = advanceYear(adult);
+    expect(next.lastYearIncome).toBe(0);
+    expect(next.lastYearExpenses).toBe(100);
+    expect(next.lastYearShortfall).toBe(10340);
+    expect(next.money).toBe(0);
+    expect(next.happiness).toBe(adult.happiness - 4);
+    expect(next.history.some((item) => item.title === 'Household budget shortfall')).toBe(true);
+  });
+  it('settles annual household costs from income and savings', () => {
+    const adult = { ...createCharacter('Adult', 30), money: 1000, currencyScale: 1, householdArrangement: 'shared' as const,
+      employment: { title: 'Worker', type: 'full-time' as const, annualSalary: 10000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 } };
+    const next = advanceYear(adult);
+    expect(next.lastYearIncome).toBe(10000);
+    expect(next.lastYearExpenses).toBe(3800);
+    expect(next.lastYearShortfall).toBe(0);
+    expect(next.money).toBe(7200);
+  });
+
 });
