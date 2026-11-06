@@ -3,9 +3,9 @@ export type Gender = 'male' | 'female' | 'non-binary';
 export type EmploymentType = 'part-time' | 'full-time' | 'flexible';
 export type HouseholdArrangement = 'family-supported' | 'shared' | 'independent';
 export type SavingsGoalMonths = 1 | 3 | 6;
-export type BankAccountType = 'checking' | 'savings';
-export type FinancialTransactionType = 'account-opened' | 'deposit' | 'withdrawal' | 'transfer' | 'income' | 'expense' | 'interest' | 'loan-issued' | 'loan-payment' | 'loan-interest' | 'card-issued' | 'card-purchase' | 'card-payment' | 'card-interest' | 'recurring-payment' | 'auto-deposit' | 'vault-deposit' | 'vault-withdrawal' | 'investment-buy' | 'investment-sell' | 'property-purchase' | 'property-sale' | 'property-rent' | 'business-start' | 'business-income' | 'business-expense' | 'business-sale';
-export type CardType = 'debit' | 'credit';
+export type BankAccountType = 'checking' | 'savings' | 'fixed-deposit';
+export type FinancialTransactionType = 'account-opened' | 'deposit' | 'withdrawal' | 'transfer' | 'income' | 'expense' | 'interest' | 'loan-issued' | 'loan-payment' | 'loan-interest' | 'card-issued' | 'card-purchase' | 'card-payment' | 'card-interest' | 'recurring-payment' | 'auto-deposit' | 'vault-deposit' | 'vault-withdrawal' | 'investment-buy' | 'investment-sell' | 'property-purchase' | 'property-sale' | 'property-rent' | 'business-start' | 'business-income' | 'business-expense' | 'business-sale' | 'card-load';
+export type CardType = 'debit' | 'credit' | 'prepaid';
 export type LoanType = 'personal' | 'mortgage' | 'business';
 export type PropertyType = 'house' | 'apartment';
 export type InvestmentType = 'stock-index' | 'gold';
@@ -29,6 +29,7 @@ export interface BankAccount {
   balance: number;
   annualInterestRate: number;
   openedAtAge: number;
+  maturesAtYear?: number;
 }
 export interface FinancialTransaction {
   id: string;

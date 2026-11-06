@@ -24,8 +24,8 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add a settings game log and portable debug snapshot for reproducible testing.
 - [ ] Expand age/prerequisite eligibility to contextual events, household responsibilities, and relationships.
 - [x] Add age-18+ household budgets with family-supported/shared/independent living, recurring expense categories, unemployment shortfall pressure, and emergency savings targets.
-- [x] Add a unified money ledger and age-gated personal bank accounts with cash deposits, withdrawals, transfers, simple savings interest, and a net-worth summary.
-- [x] Add configurable automatic deposits, debit/credit cards, recurring bills and subscriptions, and a personal safe/vault.
+- [x] Add a unified money ledger and age-gated checking, savings, and fixed-deposit accounts with deposits, withdrawals, transfers, interest, and a net-worth summary.
+- [x] Add configurable automatic deposits, debit/credit/prepaid cards, recurring bills and subscriptions, and a personal safe/vault.
 - [x] Add personal, mortgage, and business loan products with annual interest, scheduled installments, and extra repayments.
 - [x] Add housing/property ownership, mortgages, rental choices, rental income, maintenance and sale.
 - [x] Add stock-index and gold trading with simulated price movement, plus small-business ownership and management.
