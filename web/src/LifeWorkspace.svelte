@@ -3,11 +3,13 @@
   import { getAvailableActivityIds, getLifeStage } from './lib/progression';
   import type { ActivityId, Character } from './lib/types';
   import LifestyleWorkspace from './LifestyleWorkspace.svelte';
+  import FamilyWorkspace from './FamilyWorkspace.svelte';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   let activeView = $state('overview');
   const views = [
     { id: 'overview', label: 'Overview' },
     { id: 'lifestyle', label: 'Lifestyle' },
+    { id: 'family', label: 'Family' },
     { id: 'wellbeing', label: 'Wellbeing' },
     { id: 'growth', label: 'Personal growth' },
     { id: 'personal', label: 'Personal' },
@@ -48,11 +50,14 @@
       <div class="domain-metrics"><div><span>Actions remaining</span><strong>{character.actionsRemaining}/3</strong></div><div><span>Health</span><strong>{character.health}/100</strong></div><div><span>Happiness</span><strong>{character.happiness}/100</strong></div><div><span>Fitness</span><strong>{character.fitness}/100</strong></div></div>
     </section>
     <div class="finance-shortcuts life-shortcuts">
+      <button onclick={() => activeView='family'}><span class="shortcut-icon">⌂</span><strong>Family</strong><small>People, bonds and family history</small><b>Open family →</b></button>
       <button onclick={() => activeView='wellbeing'}><span class="shortcut-icon">＋</span><strong>Wellbeing</strong><small>Health, happiness and fitness</small><b>View wellbeing →</b></button>
       <button onclick={() => activeView='growth'}><span class="shortcut-icon">✳</span><strong>Personal growth</strong><small>Learning and intelligence</small><b>View personal growth →</b></button>
       <button onclick={() => activeView='personal'}><span class="shortcut-icon">◎</span><strong>Personal</strong><small>Everyday activities and free time</small><b>Open personal life →</b></button>
       <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.length} recorded events and milestones</small><b>Review history →</b></button>
     </div>
+  {:else if activeView === 'family'}
+    <FamilyWorkspace {character} {onChange} />
   {:else if activeView === 'wellbeing'}
     <section class="domain-panel">
       <div class="domain-panel-head"><div><div class="eyebrow">PERSONAL CONDITION</div><h2>Wellbeing</h2><p>These indicators change through life events and personal activities.</p></div></div>

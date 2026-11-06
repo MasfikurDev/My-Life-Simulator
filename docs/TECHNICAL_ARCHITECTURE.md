@@ -253,3 +253,17 @@ This section records a promising future direction, not an approved implementatio
 
 The near-term implementation remains a pure TypeScript simulation engine with explicit domain boundaries. This exploratory direction must not delay playable gameplay milestones or add development overhead without demonstrated value.
 
+## Family simulation boundary
+
+The Family domain lives in the pure TypeScript module family.ts and is independent of Svelte. It owns persistent family people, directed kinship/guardianship links, player-to-relative bonds, household/dependency references, family-specific history, graph validation, and targeted family interactions. The Character's optional family field preserves compatibility with existing saves; the top-level save schema is not bumped for this additive optional state.
+
+- The player person is a stable graph node, while Character remains authoritative for player identity and stats.
+- Family interactions return a new Character and validate eligibility/resources in simulation code. Financial support debits cash and writes a family-support entry to the shared Finance ledger; Family never owns a wallet.
+- Relative age is derived from birth year and the current simulation year. Family state does not run a second clock or independently age NPCs.
+- New characters receive a generated family-of-origin context; existing saves without family data require an explicit one-time initialization action. No partner or children are invented.
+- Historical deaths in generated family background are fixed past facts only. Future family mortality must use the global mortality system.
+- The current interaction budget still uses the legacy annual action counter. Migrate family activities to the canonical weekly time-block model when that foundation is implemented.
+- Keep partnership, parenthood, adoption, care, shared household finances, and inheritance out of the implementation until their full simulation contracts and tests are ready.
+
+Detailed domain rules: [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md).
+

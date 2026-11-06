@@ -1,6 +1,7 @@
 import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType } from './types';
 import { getEducationStage, isActivityAvailable } from './progression';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences } from './events';
+import { advanceFamilyYear, createFamilyState } from './family';
 
 export const ACTIONS_PER_YEAR = 3;
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
@@ -85,6 +86,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     health: stat(random), happiness: stat(random), intelligence: stat(random), fitness: stat(random),
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), actionsRemaining: ACTIONS_PER_YEAR, history: []
   };
+  character.family = createFamilyState(character, random);
   character.history.push(event(character, 'A new chapter begins', name + ' begins life at age ' + age + ' in ' + character.birthplace + ', ' + profile.country + '. Their ' + background.toLowerCase() + ' family background shapes their starting circumstances, but not their future.', 'milestone'));
   return prepareGameEvent(character);
 }
@@ -92,6 +94,9 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
 export function createCharacter(name: string, startAge = 18): Character {
   const character = generateRandomCharacter(startAge);
   character.name = name.trim().slice(0, 28) || character.name;
+  if (character.family) {
+    character.family = { ...character.family, people: character.family.people.map((person) => person.id === character.family?.playerPersonId ? { ...person, name: character.name } : person) };
+  }
   return character;
 }
 
@@ -814,6 +819,7 @@ export function advanceYear(character: Character): Character {
   const previousHistoryLength = character.history.length;
   const current = expirePendingGameEvent(character);
   let next: Character = { ...current, age: current.age + 1, year: current.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(current.health - (current.age >= 45 ? 2 : 1)), history: [...current.history] };
+  next = advanceFamilyYear(next);
   next = advanceEconomicConditions(next);
   const educationStage = getEducationStage(next.age);
   if ([3, 6, 13, 18].includes(next.age) && next.education !== 'Higher education' && next.education !== educationStage) {

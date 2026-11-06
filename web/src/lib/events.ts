@@ -1,4 +1,5 @@
 import type { Character, GameEventChoice, GameEventEffects, LifeEvent, PendingGameEvent, ScheduledGameConsequence } from './types';
+import { applyFamilyBondEffect, getFamilyConnections } from './family';
 
 const clampStat = (value: number) => Math.max(0, Math.min(100, value));
 
@@ -131,6 +132,42 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
     });
   }
 
+  if (events.length === 0 && character.family && character.age >= 18) {
+    const relative = getFamilyConnections(character).find((connection) =>
+      connection.living && connection.bond && (connection.bond.lastInteractionYear === null || character.year - connection.bond.lastInteractionYear >= 2)
+    );
+    if (relative) {
+      const id = 'family-check-in-' + relative.person.id;
+      if (!resolved.includes(id)) {
+        events.push({
+          id,
+          title: 'A chance to reconnect',
+          description: relative.person.name + ' is part of your family story. You have an opportunity to make time for this relationship.',
+          category: 'personal',
+          choices: [
+            {
+              id: 'make-time',
+              label: 'Make time for them',
+              detail: 'Spend time together and strengthen your family connection.',
+              actionCost: 1,
+              moneyCost: 0,
+              effects: { happiness: 2 },
+              familyBondEffect: { personId: relative.person.id, closeness: 6, trust: 3, tension: -2 }
+            },
+            {
+              id: 'keep-plans',
+              label: 'Keep your current plans',
+              detail: 'Leave the invitation for another time.',
+              actionCost: 0,
+              moneyCost: 0,
+              effects: {}
+            }
+          ]
+        });
+      }
+    }
+  }
+
   return events;
 }
 
@@ -158,6 +195,7 @@ export function resolveGameEvent(character: Character, choiceId: string): Charac
     scheduledGameConsequences: [...(character.scheduledGameConsequences ?? [])]
   };
   next = applyEffects(next, choice.effects);
+  if (choice.familyBondEffect) next = applyFamilyBondEffect(next, choice.familyBondEffect);
 
   if (choice.followUp) {
     const followUp: ScheduledGameConsequence = {

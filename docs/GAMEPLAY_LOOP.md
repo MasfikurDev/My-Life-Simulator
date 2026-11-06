@@ -373,3 +373,12 @@ Smartphones, laptops, and desktop PCs are modeled in the separate [Personal Tech
 Devices are durable, individual assets with age-appropriate ownership/access, a small capability model, gradual condition changes, and repair/replacement decisions. They can enable or improve selected school, work, communication, learning, and entertainment opportunities. They must not become mandatory paywalls: shared, school/work-provided, public, or non-digital alternatives should exist where appropriate.
 
 Do not duplicate device inventory or management controls in other workspaces. Cross-domain systems check actual device capability/access and record effects through their own domain state.
+
+## Family simulation
+
+Family is a persistent simulation domain, specified in [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md). It models identifiable people and a validated relationship graph, not a generic relationship meter. Kinship and guardianship links are distinct from household membership and dependency; closeness, trust, and tension are separate relationship dimensions.
+
+The initial implemented slice generates a modest family-of-origin context for new characters, supports one- or two-parent backgrounds and a small sibling group, records historical family loss only when it predates the current life chapter, and provides targeted time/contact/reconciliation interactions. Adult financial support is an explicit cash outflow recorded in Finance. Existing saves without family state are initialized only through a deliberate player action.
+
+Do not assume every character has a partner or children. Partnership, parenthood, adoption, separation, caregiving, bereavement, inheritance, and generational play remain future mechanics until their full simulation loops exist. No relationship screen may claim a feature that is not represented in save data. Family actions currently consume the legacy annual action allowance; migrate them to actual weekly time blocks when the weekly calendar foundation is implemented.
+
