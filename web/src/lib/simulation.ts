@@ -1,5 +1,6 @@
 import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType } from './types';
 import { getEducationStage, isActivityAvailable } from './progression';
+import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences } from './events';
 
 export const ACTIONS_PER_YEAR = 3;
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
@@ -85,7 +86,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), actionsRemaining: ACTIONS_PER_YEAR, history: []
   };
   character.history.push(event(character, 'A new chapter begins', name + ' begins life at age ' + age + ' in ' + character.birthplace + ', ' + profile.country + '. Their ' + background.toLowerCase() + ' family background shapes their starting circumstances, but not their future.', 'milestone'));
-  return character;
+  return prepareGameEvent(character);
 }
 
 export function createCharacter(name: string, startAge = 18): Character {
@@ -777,7 +778,9 @@ function settleAnnualTaxes(character: Character): Character {
 }
 
 export function advanceYear(character: Character): Character {
-  let next: Character = { ...character, age: character.age + 1, year: character.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(character.health - (character.age >= 45 ? 2 : 1)), history: [...character.history] };
+  const previousHistoryLength = character.history.length;
+  const current = expirePendingGameEvent(character);
+  let next: Character = { ...current, age: current.age + 1, year: current.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(current.health - (current.age >= 45 ? 2 : 1)), history: [...current.history] };
   next = advanceEconomicConditions(next);
   const educationStage = getEducationStage(next.age);
   if ([3, 6, 13, 18].includes(next.age) && next.education !== 'Higher education' && next.education !== educationStage) {
@@ -858,5 +861,10 @@ export function advanceYear(character: Character): Character {
   next.history.unshift(event(next, 'Another year, another chapter', 'You turned ' + next.age + '. Your choices continue to shape what comes next.', 'milestone'));
   if (next.age === 18) next.history.unshift(event(next, 'Adult opportunities unlocked', 'Full-time employment, higher education and household finance choices are now available.', 'milestone'));
   if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
+  next = resolveDueGameConsequences(next);
+  next = prepareGameEvent(next);
+  const recapCount = Math.max(0, next.history.length - previousHistoryLength);
+  next.lastYearRecap = next.history.slice(0, recapCount).slice(0, 4).map((item) => item.title + ' — ' + item.description);
+  if (!next.lastYearRecap.length) next.lastYearRecap = ['A quiet year. No major changes were recorded.'];
   return next;
 }
