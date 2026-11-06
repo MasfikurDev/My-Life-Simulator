@@ -199,7 +199,7 @@
     {id:'study',title:'Study',detail:'Build knowledge for future opportunities.',icon:'↗',cost:'35'},
     {id:'exercise',title:'Exercise',detail:'Improve fitness, health, and mood.',icon:'⌁',cost:'Time'},
     {id:'socialize',title:'Socialize',detail:'Make time for the people around you.',icon:'◎',cost:'20'},
-    {id:'work',title:'Extra work',detail:'Earn a little more this year.',icon:'＋',cost:'+180'},
+    {id:'work',title:'Extra work',detail:'Earn additional money with an extra shift.',icon:'＋',cost:'+180'},
     {id:'apply-job',title:'Apply for a job',detail:'Find paid work suited to your age and education.',icon:'↗',cost:'Time'},
     {id:'career',title:'Career development',detail:'Improve performance and work toward a promotion.',icon:'◆',cost:'Time'}
   ];
@@ -249,7 +249,7 @@
             {#if character}
               <div class="debug-export-row"><div><strong>Gameplay snapshot</strong><p>Includes the character, current stats, finances, save slot and complete life history. It excludes device identifiers and browser data.</p></div><button class="secondary-button" onclick={copyDebugSnapshot} disabled={debugCopying}>{debugCopying ? 'Copying…' : 'Copy snapshot'}</button></div>
               <div class="settings-log-list">{#each character.history.slice(0,6) as item}<div class="settings-log-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</div>
-              <button class="text-button settings-log-link" onclick={() => activeTab='life'}>Open Life workspace →</button>
+              <button class="text-button settings-log-link" onclick={() => navigateTab('life')}>Open Life workspace →</button>
             {:else}
               <p class="settings-empty-log">The game log will appear here after a life is started.</p>
             {/if}
