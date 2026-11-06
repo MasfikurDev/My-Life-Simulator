@@ -200,7 +200,7 @@ export function addRecurringPayment(character: Character, name: string, amount: 
   const value = Math.floor(amount);
   if (character.age < 16 || (character.recurringPayments ?? []).filter((item) => item.active).length >= 12 || !validAmount(value)) return character;
   if (sourceType === 'account' && !accountExists(character, sourceId)) return character;
-  if (sourceType === 'card' && !(character.cards ?? []).some((card) => card.id === sourceId && card.active)) return character;
+  if (sourceType === 'card' && !(character.cards ?? []).some((card) => card.id === sourceId && card.active && card.type === 'credit')) return character;
   const label = name.trim().slice(0, 36);
   if (!label) return character;
   const payment: RecurringPayment = { id: 'recurring-' + character.year + '-' + character.age + '-' + ((character.recurringPayments ?? []).length + 1), name: label, amount: value, category, sourceType, sourceId, active: true, startedAtYear: character.year };
