@@ -137,7 +137,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
       connection.living && connection.bond && (connection.bond.lastInteractionYear === null || character.year - connection.bond.lastInteractionYear >= 2)
     );
     if (relative) {
-      const id = 'family-check-in-' + relative.person.id + '-' + character.year;
+      const id = 'family-check-in-' + relative.person.id;
       if (!resolved.includes(id)) {
         events.push({
           id,
