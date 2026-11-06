@@ -195,3 +195,26 @@ Planned boundaries:
 - Add multi-year scenario tests that exercise several connected systems; isolated unit tests alone are insufficient evidence of an enjoyable gameplay loop.
 
 The complete design contract and player-facing acceptance criteria are in `docs/GAMEPLAY_LOOP.md`. These are planned boundaries; do not claim they exist until implemented and tested.
+
+
+## Weekly calendar and simulation time (approved design direction)
+
+The target gameplay clock is date-based and weekly, not annual-action-based. The week is the fundamental player turn; months own recurring financial/reporting cadence; years own annual settlement, birthdays, life-stage progression, and long-term reviews.
+
+- Keep calendar/date logic in pure TypeScript domain modules, independent of Svelte, browser APIs, and Android. Use explicit date helpers for week boundaries, month/year boundaries, leap years, birthdays, and age calculation.
+- Persist an explicit current game date and the minimum stable identity needed to derive age. Do not increment age once per week or assume every year is exactly 52 weeks.
+- A weekly schedule represents meaningful commitments and discretionary time blocks; it is not a 168-hour real-time simulation. School and Work own their recurring schedules. A domain must not reserve time until its schedule is actually modeled.
+- Validate time-block conflicts and activity prerequisites in simulation functions. UI availability is advisory; the simulation is authoritative.
+- Weekly advancement must be a single deterministic domain transaction returning updated state, financial ledger entries, history, event effects, and recap data. Repeated calls/reloads must not duplicate a resolved week.
+- Monthly and annual settlement must have explicit date-based due rules and idempotency keys/period markers. Never run annual finance settlement in addition to monthly installments for the same obligation.
+- Do not divide existing annual costs/salary/interest by 12 without modeling rounding, due dates, inflation, payment failures, and save migration.
+- Multi-week advancement must call the same weekly resolver sequentially and stop at any decision boundary. It must not skip weeks with a coarse approximation.
+- Save migration must preserve legacy annual saves, all three slots, financial ledgers, liabilities/assets, event state, and history. Migration rules must be deterministic and tested before the UI switches to weekly progression.
+- Keep the current annual simulation path available during development until weekly scenario tests pass; do not partially switch the live save format or mix weekly and annual settlement paths.
+
+Suggested future module boundaries (do not create empty abstractions prematurely):
+- `calendar.ts`: pure calendar/date/birthday helpers.
+- `schedule.ts`: recurring commitments, free-time blocks, overlap and availability validation.
+- `week-cycle.ts`: orchestration of weekly phases and exactly-once advancement.
+- Domain modules own their own schedule definitions and effects; the cycle coordinator orchestrates them without duplicating their rules.
+- Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups only when weekly migration is underway.
