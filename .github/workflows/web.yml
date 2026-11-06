@@ -23,16 +23,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      # Cache npm's package tarballs without requiring a lockfile.
-      - name: Cache npm packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('web/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-      - name: Install dependencies
-        run: npm install --prefer-offline --no-audit --no-fund --no-progress
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund --no-progress
       # The build script already runs type checks and tests before Vite.
       - name: Check, test, and build
         run: npm run build
