@@ -37,7 +37,8 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Add benefits and taxes after household budgets and financial flows are balanced.
 
 - [x] Split Finance into dedicated Banking, Cards, Loans, Taxes, Bills & Subscriptions, Savings & Vault, Property, Investments, Business, and Living Costs destinations.
-- [x] Separate School, Work, and Personal activities into age-gated, domain-native destinations using existing simulation actions and save fields.
+- [x] Separate School and Work into age-gated, domain-native destinations using existing simulation actions and save fields.
+- [x] Consolidate personal wellbeing, personal growth, personal activities, and complete life history under a modular Life workspace.
 - [ ] Expand School with enrollment, attendance, classes, grades, and education history only when each mechanic has a complete simulation loop.
 - [ ] Expand Work with a real application/interview/offer flow and richer workplace interactions; do not display placeholder recruitment stages.
 
