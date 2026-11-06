@@ -163,3 +163,10 @@ Marriage/children, richer family trees, deeper education/career, property/assets
 - The current Work workspace presents job-search or current-role status, existing pay/performance/experience/promotion values, and existing job-application, extra-work, and career-development actions. It does not imply that interviews, offers, named employers, colleagues, or a full recruitment pipeline are implemented.
 - Do not place generic education/employment summaries inside Finance or other unrelated domains. Cross-domain effects (for example, salary paid into a bank account) are represented in the relevant transaction/history records, not by merging the screens.
 - Shared navigation, character identity, time progression, notifications, and save state may be global. Domain-specific controls and copy remain inside their owning system.
+
+
+## Personal Technology
+
+The character may own or access smartphones, laptops, and desktop PCs. Devices are durable assets that create contextual options across school, work, relationships, personal growth, and lifestyle. Manage them in Life → Personal Technology; browse and buy them through Lifestyle → Discover; pay through the existing Finance system.
+
+Keep the first version focused on fictional models, understandable capability tiers, new/used condition, purchase, ownership/access, basic wear, repair, and replacement. Devices should enable specific opportunities rather than grant broad unexplained stat bonuses. Never make premium ownership a hard requirement for core life progression; shared, provided, public, and non-digital alternatives should be available. Full rules and acceptance tests: [PERSONAL_TECHNOLOGY.md](PERSONAL_TECHNOLOGY.md).
