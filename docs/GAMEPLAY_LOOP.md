@@ -1,6 +1,6 @@
 # Gameplay Loop Redesign
 
-**Canonical game-design implementation plan · Approved direction · 2026-11-06**
+**Canonical game-design implementation plan · Weekly-cycle direction · 2026-11-06**
 
 This document turns the gameplay audit into a staged, implementation-ready direction. It distinguishes the implemented first slice from planned mechanics.
 
@@ -16,7 +16,7 @@ Still planned: a full year-opening and planning phase, year-end financial previe
 
 ## 1. The game we are making
 
-My Life Simulator is a replayable, year-by-year life simulation game. The player guides one character from a chosen starting stage through a changing life, makes decisions under limited time and resources, experiences authored and emergent situations, and eventually reaches a meaningful ending.
+My Life Simulator is a replayable, week-by-week life simulation game, with monthly financial rhythms and yearly life-stage progression. The player guides one character from a chosen starting stage through a changing life, makes decisions under limited time and resources, experiences authored and emergent situations, and eventually reaches a meaningful ending.
 
 The experience must feel like playing a game:
 - Give the player a clear reason to make decisions each year.
@@ -39,9 +39,151 @@ Use proven genre patterns as inspiration, not as templates to copy:
 
 Our differentiator is a connected, age-aware life simulation with domain-native systems, an understandable financial life, persistent relationships, and consequences that carry across years.
 
-## 3. The annual gameplay loop
+## 3. The weekly gameplay loop
 
-A simulated year is a playable chapter, not a button that simply increments age.
+**Decision: the week is the fundamental playable time unit.** Months organize recurring finances and reports; years organize birthdays, life-stage transitions, annual milestones, and long-term reviews. The old three-actions-per-year budget is retired as a design direction. Do not merely change it to three actions per week: the new loop is based on a calendar, recurring commitments, and available free time.
+
+The player should feel that a life is unfolding, not that they are spending abstract action tokens. A normal week should take a few deliberate choices and resolve quickly. Quiet weeks are allowed; important weeks can contain more decisions.
+
+### 3.1 Time model and calendar
+
+- Use a continuous, deterministic game calendar with an explicit current date and week boundary. A week runs Monday through Sunday; the calendar must handle month/year boundaries and leap years correctly.
+- Keep the displayed age derived from date of birth and current date. Age changes on the character's birthday, not every week or at every month boundary.
+- The current calendar year remains the world year. Advancing one week must never accidentally age the character by one year.
+- The player advances exactly one week at a time through an explicit **Start next week** action. No screen visit, save/load, or background process advances time.
+- Provide a compact calendar/week view, not a real-time clock or hour-by-hour simulation.
+- Do not simulate 168 individual hours, every NPC, travel minute, or every day autonomously. The game uses meaningful time blocks and summarized routines.
+
+### 3.2 Weekly schedule: commitments first, free time second
+
+The week is shaped by recurring commitments and the player's discretionary choices.
+
+- School, employment, household responsibilities, and other implemented commitments may reserve recurring day/period blocks. These schedules belong to their own domain workspaces.
+- The player sees the commitments that matter this week and the free-time capacity they leave.
+- Player-directed activities consume one or more free-time blocks, plus money and/or energy when appropriate. Different activities can take different amounts of time.
+- A time block is a scheduling constraint, not an action token. The same activity cannot be scheduled into overlapping time; unavailable time cannot be spent twice.
+- Do not require the player to fill every day or every block. Rest, unplanned time, and quiet weeks are valid.
+- Do not add an energy stat merely to create another meter. If energy is introduced, define its source, recovery, bounds, effects, UI explanation, and tests before using it as a cost. Until then, existing health/fitness/happiness rules remain authoritative.
+- Some activities are immediate choices; others become recurring routines or commitments. A routine must show its duration, schedule, cost, benefit, and cancellation/change rules.
+- Events may interrupt or offer alternatives to a schedule. The player should understand which commitment is affected and what the trade-off is.
+
+**No arbitrary universal activity quota:** available free time is derived from the character's actual modeled commitments and schedule. Where a domain has not yet implemented a schedule, it must not invent one or pretend the character attends school/works set hours. Use a clearly labeled provisional free-time allowance only for that domain until its schedule exists, and keep that allowance consistent and testable.
+
+### 3.3 The week in play
+
+**Phase A — Open the week**
+
+Show a compact "This week" view:
+- Date range, current age, and relevant life stage.
+- Scheduled school/work/household commitments that are actually represented in save data.
+- Available free-time blocks and any commitments due soon.
+- Current money position and near-term payments only when the values are modeled.
+- Pending events, opportunities, deadlines, and important consequences.
+- At most a few relevant prompts; do not duplicate whole domain dashboards.
+
+**Phase B — Make choices in their own workspaces**
+
+The player visits the relevant domain and chooses what to do:
+- **School:** attend scheduled classes, study, complete assignments, prepare for exams, and respond to school situations when those mechanics exist.
+- **Work:** attend shifts, perform work activities, develop skills, pursue opportunities, and respond to workplace situations when implemented.
+- **Life:** wellbeing, personal growth, relationships, family, recreation, and personal commitments.
+- **Finance:** banking, spending, saving, debt, assets, household planning, and business decisions.
+- **Lifestyle:** services, purchases, and home arrangements.
+
+Every activity must state its time requirement, monetary cost/income, prerequisites, and meaningful effects before confirmation. Only charge resources after the simulation validates and accepts the activity. Activities that fail validation must leave the save unchanged.
+
+**Phase C — Handle events and interruptions**
+
+Events appear when context justifies them. Some require a response now; others create a deadline or scheduled follow-up. A week should not be forced to contain a dramatic event. Prioritize coherent personal stories over random notifications. A player must not be able to avoid a critical deadline simply by leaving the event screen open forever; deadline and expiry rules must be explicit.
+
+**Phase D — Review the week**
+
+Before advancing, summarize:
+- Activities completed and time used.
+- Commitments fulfilled or missed, with the actual consequences.
+- Unresolved events and deadlines that will expire or change.
+- Known upcoming payments or income.
+- Expected changes that are predictable, and uncertainty where outcomes are not guaranteed.
+
+Do not repeat all financial account details or all school/work details. Link to the owning domain for detail.
+
+**Phase E — Resolve and recap**
+
+The player explicitly confirms **Start next week**. The simulation resolves the week once, in a deterministic order, then displays a concise recap with the most important outcomes and their causes. The recap is based on actual simulation effects, not UI guesses.
+
+### 3.4 Monthly and yearly rhythms
+
+**Monthly layer**
+- Process monthly salary/payroll only when employment contracts and pay cadence support it.
+- Process recurring subscriptions, household bills, loan installments, card obligations, savings contributions, and other monthly obligations on their actual due dates/cadence.
+- Produce a monthly financial statement/summary in Finance, not as a large global dashboard.
+- Handle month boundaries without double-charging or skipping due dates.
+- Existing annual financial mechanics must be migrated deliberately. Do not simply divide annual values by 12 without considering rounding, due dates, interest, inflation, and save compatibility.
+
+**Yearly layer**
+- Birthday and age progression occur on the actual birthday.
+- Resolve school-year transitions, annual salary review, taxes, annual interest, market updates, insurance/contract renewals, and other annual mechanics only at their defined annual dates.
+- Present an annual life review that highlights milestones and longer-term trends; do not make the player perform 52 weekly recaps manually.
+- Life-stage eligibility changes at the relevant birthday/date boundary and is enforced in simulation functions as well as UI.
+- Annual financial settlement must not repeat an obligation already processed monthly.
+
+### 3.5 Deterministic week resolution
+
+The exact order is a domain contract and must be tested. Proposed order:
+1. Validate the week can advance and capture the current week's planned activities/commitments.
+2. Resolve scheduled attendance/work participation and player activities; reject invalid or overlapping time allocations.
+3. Resolve deadlines and events due during the week, recording choices and consequences.
+4. Apply weekly recurring income/expenses only when their due dates fall in this week.
+5. Update bounded wellbeing/skill/progression effects from what actually happened.
+6. Resolve scheduled follow-ups due this week.
+7. Move the calendar to the next week and detect month/year/birthday boundaries.
+8. At a month boundary, process monthly settlement exactly once.
+9. At a year boundary, process annual settlement exactly once, then age/life-stage transitions and annual review.
+10. Prepare the next week's schedule, commitments, and eligible event opportunities.
+11. Return structured effects, ledger entries, history entries, and recap data.
+
+The final order may be adjusted to satisfy domain dependencies, but it must remain deterministic, idempotent against duplicate UI calls, and covered by boundary tests. Financial transfers, income, bills, interest, and expenses must never be applied twice if the player retries, reloads, or resumes a save.
+
+### 3.6 Pacing and player control
+
+- A normal week should be playable in a short mobile session: review, make a small number of meaningful choices, resolve, and continue.
+- Add **Skip quiet week / advance several weeks** only after single-week resolution is reliable. It must stop before birthdays, deadlines, important events, payment failures, job/school milestones, or other decision points.
+- Bulk advancement must resolve every intervening week in order; it must not skip simulation or collapse several weeks into one approximate calculation.
+- Offer clear pause points and a way to inspect the calendar/history without advancing time.
+- Do not punish players for taking a break or for not opening the game in real time. All time is simulated only by explicit player commands.
+- Avoid mandatory repetitive attendance clicks. Once recurring schedules exist, routine participation may resolve automatically, while absences, performance choices, conflicts, and important situations require player agency.
+- Do not make every week a checklist. The player should be able to make no discretionary choice in a quiet week and continue without penalty beyond the consequences of modeled commitments.
+
+### 3.7 Weekly loop acceptance tests
+
+A playable weekly loop is not complete until:
+1. A new player can understand the current week, commitments, free time, and next action without reading documentation.
+2. The player can schedule at least two different activities with different time costs and see that they cannot overlap.
+3. School/work commitments reserve time only when actual schedule data exists.
+4. A weekly activity can create a meaningful immediate effect and a persistent delayed consequence.
+5. One week advances exactly once; retry/reload cannot duplicate income, bills, effects, or history.
+6. Crossing month-end processes monthly payments once; crossing year-end processes annual systems once.
+7. A birthday changes age and eligibility on the correct date, not simply every 52 button presses.
+8. Old saves load with a documented migration and no lost cash, accounts, debt, investments, history, or pending events.
+9. A quiet week can be advanced quickly without fake chores or forced dramatic events.
+10. Multi-week scenario tests produce coherent results for a child in school, an employed adult, an unemployed adult, and a later-life character.
+
+### Legacy transition: annual actions to weekly schedule
+
+The current implementation uses annual actions and annual progression. That is the existing behavior, not the target design. Migration must:
+- Preserve existing age, world year, financial balances/ledger, school/work status, history, event choices, and pending consequences.
+- Establish a deterministic starting date/week for legacy saves using documented rules; never invent a birth date that changes the displayed age unexpectedly.
+- Convert annual action state safely. Do not translate "unused actions" into arbitrary extra weekly time or grant free activities. The legacy action counter should be retired from gameplay after migration.
+- Keep a backup/rollback path for the save migration and test all three save slots, including malformed/old saves.
+- Use optional fields and a versioned migration only when necessary; do not silently reinterpret annual values as monthly/weekly values.
+
+### Current implementation boundary
+
+The existing app is still the annual-action implementation: events, choices, and the year review are tied to the current annual progression. The weekly calendar, schedule, weekly activity resolution, monthly settlement, and date-based aging are planned and must not be described as implemented until code and tests prove them. The implementation sequence is in the Roadmap.
+
+## 4. Event and consequence system
+
+A simulated week is the basic playable turn; a month is a financial/reporting interval; a year is a life-progression chapter.
 
 ### Phase A — Open the year
 Present a compact "This year" view containing:
@@ -200,13 +342,14 @@ Replayability should come from interacting systems and different viable lives, n
 ## 9. Scope and implementation sequence
 
 Build one complete playable slice at a time:
-1. Rework annual progression into the phases above and add a small, high-quality contextual event set with real consequences.
-2. Make event follow-ups and cross-domain consequences persist and appear in year recaps/history.
-3. Deepen School and Work into recognizable game systems with actual progression and choices.
-4. Add persistent family and relationship loops.
-5. Give health and aging consequences; build retirement and sustainable later-life finances.
-6. Add mortality, terminal death, final-life summary, and only then inheritance/legacy.
-7. Balance and replay-test complete lives across starting stages and country profiles.
+1. Design and implement the date-based weekly calendar and backward-compatible save migration.
+2. Replace annual action tokens with a weekly schedule/free-time model and deterministic weekly resolution.
+3. Move financial systems to explicit monthly/annual cadences without duplicate or lost settlements.
+4. Adapt events, deadlines, recaps, and bulk advancement to weekly time.
+5. Deepen School and Work into recognizable schedule-driven systems.
+6. Add persistent family/relationship loops, then meaningful health and aging consequences.
+7. Build sustainable retirement/later-life finances, terminal death, final-life summary, and only then inheritance/legacy.
+8. Balance and replay-test complete lives across starting stages and country profiles.
 
 Do not build every life system in one milestone. Each stage must have a playable acceptance test and must preserve existing save slots and financial records.
 
