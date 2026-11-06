@@ -18,6 +18,21 @@ function migrateCharacter(character: Character): Character {
   delete migrated.actionsRemaining;
   if (!migrated.calendar) migrated.calendar = createGameCalendar(migrated.age, migrated.year);
   if (!migrated.weeklySchedule) migrated.weeklySchedule = { version: 1, commitments: [], activities: [] };
+  if (migrated.pendingGameEvent?.choices) {
+    migrated.pendingGameEvent = {
+      ...migrated.pendingGameEvent,
+      choices: migrated.pendingGameEvent.choices.map((choice) => {
+        const legacyChoice = choice as typeof choice & { actionCost?: number };
+        const { actionCost, ...currentChoice } = legacyChoice;
+        return {
+          ...currentChoice,
+          timeBlocks: Number.isInteger(legacyChoice.timeBlocks)
+            ? legacyChoice.timeBlocks
+            : Number.isInteger(actionCost) ? actionCost! : 0
+        };
+      })
+    };
+  }
   return migrated;
 }
 function persistMigration(raw: string, migrated: SaveData): void {
