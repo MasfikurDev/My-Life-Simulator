@@ -144,10 +144,34 @@ export interface GameCalendar {
   /** ISO 8601 date of birth; age is derived from this and currentDate. */
   birthDate: string;
 }
+export type Weekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export type DayPeriod = 'morning' | 'afternoon' | 'evening';
+export type ScheduleDomain = 'school' | 'work' | 'household' | 'other';
+export interface WeeklyCommitment {
+  id: string;
+  title: string;
+  domain: ScheduleDomain;
+  weekday: Weekday;
+  startPeriod: DayPeriod;
+  durationBlocks: number;
+}
+export interface PlannedActivity {
+  id: string;
+  activityId: ActivityId;
+  date: string;
+  startPeriod: DayPeriod;
+  durationBlocks: number;
+}
+export interface WeeklySchedule {
+  version: 1;
+  commitments: WeeklyCommitment[];
+  activities: PlannedActivity[];
+}
 export interface Character {
   name: string; age: number; year: number; health: number; happiness: number;
   intelligence: number; fitness: number; money: number; actionsRemaining: number;
   calendar?: GameCalendar;
+  weeklySchedule?: WeeklySchedule;
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
   educationProgress?: number; employment?: Employment | null;

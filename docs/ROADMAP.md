@@ -48,7 +48,8 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Design decision:** weekly is the playable time unit; monthly is the financial/reporting unit; yearly is the life-progression unit. This milestone is a foundational redesign, not a cosmetic change from "3 actions/year" to "3 actions/week".
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
-- [ ] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour or reserve time for unimplemented school/work schedules.
+- [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour or reserve time for unimplemented school/work schedules. The first model uses three broad periods per day and validates overlaps; no school/work commitments are invented.
+- [x] Add a visible Life → Schedule planner with a seven-day, 21-period grid, age-available activity planning, duration-based reservations, conflict prevention, and removal. Planned activities are saved; they are not yet resolved or marked complete.
 - [ ] Replace annual action tokens with activity time requirements and conflict validation. Different activities may consume different time blocks and money; no arbitrary universal weekly action quota.
 - [ ] Add deterministic, exactly-once weekly resolution with structured effects, history, and recap.
 - [ ] Adapt contextual events, deadlines, and delayed consequences to date/week boundaries.

@@ -79,6 +79,17 @@ The week is shaped by recurring commitments and the player's discretionary choic
 
 **No arbitrary universal activity quota:** available free time is derived from the character's actual modeled commitments and schedule. Where a domain has not yet implemented a schedule, it must not invent one or pretend the character attends school/works set hours. Use a clearly labeled provisional free-time allowance only for that domain until its schedule exists, and keep that allowance consistent and testable.
 
+### 3.2.1 Schedule model foundation (implemented first slice)
+
+The simulation now has a reusable, save-compatible weekly schedule model:
+- A week is represented as seven days with three broad periods: morning, afternoon, and evening. These are planning blocks, not hourly simulation.
+- Recurring commitments reserve one or more consecutive periods on a selected weekday. They are only added when a domain has a real modeled commitment; the schedule engine does not invent school or work hours.
+- Planned activities reserve dated periods in the selected week and must remain within that week.
+- The pure schedule resolver expands commitments, identifies free periods, and reports duplicate IDs, invalid dates/durations, out-of-week activities, and overlapping placements.
+- New characters receive an empty versioned schedule. Legacy characters without this optional field are treated as having an empty schedule; existing annual progression and saves are unchanged.
+- The Life workspace now exposes a seven-day planner. Players can reserve age-available activities in morning/afternoon/evening periods, see the duration each activity reserves, remove plans, and receive a conflict message when a placement overlaps an existing reservation. The schedule is saved with the character.
+- Planned activities are reservations only: they do not yet apply gameplay effects, consume the old annual action tokens, or advance the calendar. The existing annual loop remains active until weekly resolution and save migration are implemented.
+
 ### 3.3 The week in play
 
 **Phase A — Open the week**
