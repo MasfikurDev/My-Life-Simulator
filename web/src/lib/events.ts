@@ -115,7 +115,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
         {
           id: 'make-time',
           label: 'Make time to recover',
-          detail: 'Use one action to rest and rebuild some health.',
+          detail: 'Reserve time to rest and rebuild some health.',
           timeBlocks: 1,
           moneyCost: 0,
           effects: { health: 6, happiness: 1 }
