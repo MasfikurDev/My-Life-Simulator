@@ -1,25 +1,18 @@
 <script lang="ts">
   import { addCalendarDays, getFirstWeekStartOfYear, getWeekStart } from './lib/calendar';
-  import { getAvailableActivityIds } from './lib/progression';
+  import { getActivityDefinition, getAvailableActivityIds } from './lib/progression';
   import { buildWeeklySchedule, getWeeklySchedule } from './lib/weekly-schedule';
-  import type { ActivityId, Character, DayPeriod, PlannedActivity } from './lib/types';
+  import { formatCharacterMoney, getActivityCost, planActivity, removePlannedActivity } from './lib/simulation';
+  import type { ActivityId, Character, DayPeriod } from './lib/types';
 
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
 
   const periods: DayPeriod[] = ['morning', 'afternoon', 'evening'];
-  const activityInfo: Record<ActivityId, { title: string; duration: number; detail: string }> = {
-    study: { title: 'Study & learning', duration: 2, detail: 'A longer focused session' },
-    exercise: { title: 'Exercise', duration: 1, detail: 'One period' },
-    socialize: { title: 'Social time', duration: 1, detail: 'One period' },
-    work: { title: 'Extra work', duration: 2, detail: 'A longer work session' },
-    'apply-job': { title: 'Apply for a job', duration: 1, detail: 'One period' },
-    career: { title: 'Career development', duration: 1, detail: 'One period' }
-  };
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const weekStart = $derived(getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year)));
   const schedule = $derived(getWeeklySchedule(character.weeklySchedule));
   const result = $derived(buildWeeklySchedule(weekStart, schedule));
-  const availableActivities = $derived(getAvailableActivityIds(character.age));
+  const availableActivities = $derived(getAvailableActivityIds(character.age, character.employment));
   let selectedActivity = $state<ActivityId>('exercise');
   let selectedDate = $state(weekStart);
   let selectedPeriod = $state<DayPeriod>('morning');
@@ -31,39 +24,22 @@
   }));
 
   function addActivity() {
-    const activityId = selectedActivity;
-    if (!availableActivities.includes(activityId)) {
-      feedback = 'This activity is not available at your current life stage.';
+    const planned = planActivity(character, selectedActivity, selectedDate, selectedPeriod);
+    if (planned.issue) {
+      feedback = planned.message ?? 'That activity could not be planned.';
       return;
     }
-    const info = activityInfo[activityId];
-    const id = 'planned-' + selectedDate + '-' + selectedPeriod + '-' + activityId;
-    const activity: PlannedActivity = {
-      id,
-      activityId,
-      date: selectedDate,
-      startPeriod: selectedPeriod,
-      durationBlocks: info.duration
-    };
-    const nextSchedule = { ...schedule, activities: [...schedule.activities, activity] };
-    const nextResult = buildWeeklySchedule(weekStart, nextSchedule);
-    if (!nextResult.valid) {
-      const issue = nextResult.issues.find((item) => item.entryId === id);
-      feedback = issue?.message ?? 'That time cannot be reserved.';
-      return;
-    }
-    onChange({ ...character, weeklySchedule: nextSchedule });
-    feedback = info.title + ' added to the week.';
+    onChange(planned.character);
+    feedback = getActivityDefinition(selectedActivity).title + ' added to the week. Time and estimated cost are reserved for planning.';
   }
 
   function removeActivity(id: string) {
-    const nextSchedule = { ...schedule, activities: schedule.activities.filter((item) => item.id !== id) };
-    onChange({ ...character, weeklySchedule: nextSchedule });
+    onChange(removePlannedActivity(character, id));
     feedback = 'Planned activity removed.';
   }
 
   function activityLabel(id: string) {
-    return activityInfo[id as ActivityId]?.title ?? id;
+    return getActivityDefinition(id as ActivityId)?.title ?? id;
   }
 </script>
 
@@ -72,7 +48,7 @@
     <div>
       <div class="eyebrow">WEEKLY PLANNING</div>
       <h2>Your week</h2>
-      <p>Reserve time for activities. A plan is not completed until its owning gameplay system resolves it.</p>
+      <p>Reserve time for activities. Different activities take different periods; weekly resolution will apply their effects.</p>
     </div>
     <span class="week-range">{weekStart} – {addCalendarDays(weekStart, 6)}</span>
   </header>
@@ -87,13 +63,13 @@
     <div class="planner-copy">
       <div class="eyebrow">MAKE A PLAN</div>
       <h3>Schedule an activity</h3>
-      <p>Each activity reserves a small number of broad periods. You can change the plan until the week is resolved.</p>
+      <p>Activities reserve different amounts of time. Planned costs are checked against available cash; money and effects are applied when the week resolves.</p>
     </div>
     <div class="planner-controls">
       <label>Activity
         <select bind:value={selectedActivity}>
           {#each availableActivities as id}
-            <option value={id}>{activityInfo[id].title} · {activityInfo[id].duration} {activityInfo[id].duration === 1 ? 'period' : 'periods'}</option>
+            <option value={id}>{getActivityDefinition(id).title} · {getActivityDefinition(id).durationBlocks} {getActivityDefinition(id).durationBlocks === 1 ? 'period' : 'periods'} · {getActivityCost(character, id) > 0 ? formatCharacterMoney(character, getActivityCost(character, id)) : 'No cost'}</option>
           {/each}
         </select>
       </label>
@@ -146,7 +122,7 @@
       {#each result.issues as issue}<p>{issue.message}</p>{/each}
     </section>
   {/if}
-  <p class="schedule-footnote">Time blocks are planning constraints, not hours. School and work routines will appear here only when those systems provide real schedules. Planned activities currently reserve time; weekly activity resolution is the next gameplay step.</p>
+  <p class="schedule-footnote">Time blocks are planning constraints, not hours. School and work routines will appear only when those systems provide real schedules. Planning does not apply effects or charge money yet; weekly resolution is the next step.</p>
 </section>
 
 <style>
