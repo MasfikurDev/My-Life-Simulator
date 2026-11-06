@@ -516,7 +516,7 @@ describe('life simulation', () => {
   it('deducts property sale fees and capital-gains tax from net proceeds', () => {
     const base = { ...createCharacter('Owner', 30), currencyScale: 1, money: 0, properties: [{ id: 'asset-1', name: 'Rental flat', type: 'apartment' as const, marketValue: 120000, purchasePrice: 100000, annualMaintenance: 1200, rentedOut: false, annualRentalIncome: 0 }] };
     const sold = sellProperty(base, 'asset-1');
-    expect(sold.money).toBe(106800);
+    expect(sold.money).toBe(116800);
     expect(sold.properties).toHaveLength(0);
     expect(sold.financialTransactions?.some((item)=>item.type==='fee' && item.amount===1200)).toBe(true);
     expect(sold.financialTransactions?.some((item)=>item.type==='tax' && item.amount===2000)).toBe(true);
