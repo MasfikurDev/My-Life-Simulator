@@ -1,4 +1,4 @@
-import type { Character, FamilyBond, FamilyHistoryEntry, FamilyPerson, FamilyRelationship, FamilyState, FamilyRelationshipType, Gender, LifeEvent } from './types';
+import type { Character, FamilyBond, FamilyHistoryEntry, FamilyPerson, FamilyRelationship, FamilyState, FamilyRelationshipType, FinancialTransaction, Gender, LifeEvent } from './types';
 
 export type FamilyInteraction = 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support';
 
@@ -151,12 +151,7 @@ export function createFamilyState(character: Pick<Character, 'name' | 'age' | 'y
       if (living(sibling, character.year) && random() < 0.7) family.householdMemberIds.push(sibling.id);
     }
   }
-  const bondedPeople = new Set<string>();
-  for (const bond of family.bonds) {
-    if (bondedPeople.has(bond.personId)) errors.push('Each family member must have only one player relationship bond.');
-    bondedPeople.add(bond.personId);
-    if (family.householdMemberIds.includes(bond.personId)) bond.lastInteractionYear = character.year;
-  }
+
   return family;
 }
 
@@ -211,7 +206,10 @@ export function validateFamilyState(family: FamilyState): string[] {
     return true;
   };
   for (const id of ids) if (!visit(id)) { errors.push('Parent and guardian relationships cannot contain cycles.'); break; }
+  const bondedPeople = new Set<string>();
   for (const bond of family.bonds) {
+    if (bondedPeople.has(bond.personId)) errors.push('Each family member must have only one player relationship bond.');
+    bondedPeople.add(bond.personId);
     if (!idSet.has(bond.personId) || bond.personId === family.playerPersonId) errors.push('Family bonds must reference a non-player family member.');
     for (const value of [bond.closeness, bond.trust, bond.tension]) {
       if (!Number.isInteger(value) || value < 0 || value > 100) errors.push('Family bond values must be integers from 0 to 100.');
@@ -316,7 +314,7 @@ export function interactWithFamily(character: Character, personId: string, inter
   };
   if (interaction === 'provide-support') {
     const transactions = character.financialTransactions ?? [];
-    next.financialTransactions = [...transactions, {
+    const transaction: FinancialTransaction = {
       id: 'family-support-' + character.year + '-' + (transactions.length + 1),
       year: character.year,
       age: character.age,
@@ -325,7 +323,8 @@ export function interactWithFamily(character: Character, personId: string, inter
       description: 'Financial support provided to ' + person.name + '.',
       from: 'Cash',
       to: person.name
-    }].slice(-300);
+    };
+    next.financialTransactions = [...transactions, transaction].slice(-300);
   }
   return next;
 }
