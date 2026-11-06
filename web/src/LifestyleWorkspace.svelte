@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { addRecurringPayment, cancelRecurringPayment, formatCharacterMoney, makeCashPurchase, makeCardPurchase } from './lib/simulation';
+  import { addRecurringPayment, cancelRecurringPayment, formatCharacterMoney, makeAccountPurchase, makeCashPurchase, makeCardPurchase } from './lib/simulation';
   import FinanceLivingCosts from './FinanceLivingCosts.svelte';
   import type { Character, PaymentSourceType } from './lib/types';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
@@ -7,6 +7,7 @@
   let category = $state('All');
   let paymentSource = $state<PaymentSourceType>('cash');
   let paymentCardId = $state('');
+  let paymentAccountId = $state('');
   let groceryQuantity = $state('1');
   let notice = $state('');
 
@@ -36,7 +37,8 @@
   function providerOwned(id: string) { return activeSubscriptions.some((item) => item.name === providers.find((p) => p.id === id)?.plan); }
   function purchaseSubscription(provider: typeof providers[number]) {
     if (character.age < 16) { notice = 'Personal subscriptions unlock at age 16.'; return; }
-    const next = addRecurringPayment(character, provider.plan, provider.price * scale, 'subscription', paymentSource, paymentSource === 'card' ? paymentCardId : undefined);
+    const sourceId = paymentSource === 'card' ? paymentCardId : paymentSource === 'account' ? paymentAccountId : undefined;
+    const next = addRecurringPayment(character, provider.plan, provider.price * scale, 'subscription', paymentSource, sourceId);
     if (next === character) { notice = 'Could not start this plan. Check your age, payment method and active subscription limit.'; return; }
     onChange(next); notice = provider.plan + ' started. It will be charged annually.';
   }
@@ -50,6 +52,9 @@
     if (paymentSource === 'card') {
       if (!paymentCardId) { notice = 'Choose a payment card.'; return; }
       next = makeCardPurchase(character, paymentCardId, basketTotal, 'Supermarket grocery purchase');
+    } else if (paymentSource === 'account') {
+      if (!paymentAccountId) { notice = 'Choose a bank account.'; return; }
+      next = makeAccountPurchase(character, paymentAccountId, basketTotal, 'Supermarket grocery purchase');
     } else {
       next = makeCashPurchase(character, basketTotal, 'Supermarket grocery purchase');
     }
@@ -83,8 +88,8 @@
     <section class="market-payment">
       <div><strong>Payment method</strong><small>Choose how purchases and new subscriptions are paid.</small></div>
       <div class="payment-controls">
-        <select bind:value={paymentSource} aria-label="Payment method"><option value="cash">Cash</option><option value="card">Payment card</option></select>
-        {#if paymentSource === 'card'}<select bind:value={paymentCardId} aria-label="Choose card"><option value="">Choose card</option>{#each activeCards as card}<option value={card.id}>{card.name} · {card.type}</option>{/each}</select>{/if}
+        <select bind:value={paymentSource} aria-label="Payment method"><option value="cash">Cash</option><option value="account">Bank account</option><option value="card">Payment card</option></select>
+        {#if paymentSource === 'account'}<select bind:value={paymentAccountId} aria-label="Choose bank account"><option value="">Choose account</option>{#each (character.bankAccounts ?? []) as account}<option value={account.id}>{account.name}</option>{/each}</select>{:else if paymentSource === 'card'}<select bind:value={paymentCardId} aria-label="Choose card"><option value="">Choose card</option>{#each activeCards as card}<option value={card.id}>{card.name} · {card.type}</option>{/each}</select>{/if}
       </div>
     </section>
     <nav class="market-categories" aria-label="Store categories">
@@ -99,7 +104,7 @@
             <div class="grocery-item"><div><strong>{item.name}</strong><small>{formatCharacterMoney(character,item.price*scale)} each</small></div><input aria-label={'Quantity of '+item.name} type="number" min="0" max="99" value={quantities[item.id] ?? 0} oninput={(event) => updateQuantity(item.id,event.currentTarget.value)} /></div>
           {/each}
         </div>
-        <button class="primary" onclick={checkoutGroceries} disabled={basketTotal<=0 || (paymentSource==='card' && !paymentCardId)}>Checkout · {formatCharacterMoney(character,basketTotal)}</button>
+        <button class="primary" onclick={checkoutGroceries} disabled={basketTotal<=0 || (paymentSource==='card' && !paymentCardId) || (paymentSource==='account' && !paymentAccountId)}>Checkout · {formatCharacterMoney(character,basketTotal)}</button>
       </section>
     {/if}
     {#if category === 'All' || category !== 'Supermarket'}
@@ -107,7 +112,7 @@
         <div class="market-section-heading"><div><small>SUBSCRIPTIONS & PROVIDERS</small><h3>{category === 'All' ? 'Available plans' : category}</h3></div><span>{filteredProviders.length} PLANS</span></div>
         <div class="provider-grid">
           {#each filteredProviders as provider}
-            <article class="provider-card"><div class="provider-mark">{provider.name.slice(0,1)}</div><div class="provider-info"><strong>{provider.name}</strong><small>{provider.detail}</small><b>{formatCharacterMoney(character,provider.price*scale)} / year</b></div>{#if providerOwned(provider.id)}<span class="owned-label">Owned</span>{:else}<button onclick={() => purchaseSubscription(provider)} disabled={character.age<16 || (paymentSource==='card' && !paymentCardId)}>Subscribe</button>{/if}</article>
+            <article class="provider-card"><div class="provider-mark">{provider.name.slice(0,1)}</div><div class="provider-info"><strong>{provider.name}</strong><small>{provider.detail}</small><b>{formatCharacterMoney(character,provider.price*scale)} / year</b></div>{#if providerOwned(provider.id)}<span class="owned-label">Owned</span>{:else}<button onclick={() => purchaseSubscription(provider)} disabled={character.age<16 || (paymentSource==='card' && !paymentCardId) || (paymentSource==='account' && !paymentAccountId)}>Subscribe</button>{/if}</article>
           {/each}
         </div>
         <small class="lifestyle-note">Plans are fictional game services with simplified annual pricing. Charges are processed during year advancement; a missed charge does not silently create debt.</small>
