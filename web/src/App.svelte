@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { advanceYear, canAffordActivity, formatCharacterMoney, performActivity } from './lib/simulation';
-  import { getAvailableActivityIds, getLifeStage } from './lib/progression';
+  import { getAvailableActivityIds } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
@@ -216,7 +216,7 @@
             {#if character}
               <div class="debug-export-row"><div><strong>Gameplay snapshot</strong><p>Includes the character, current stats, finances, save slot and complete life history. It excludes device identifiers and browser data.</p></div><button class="secondary-button" onclick={copyDebugSnapshot} disabled={debugCopying}>{debugCopying ? 'Copying…' : 'Copy snapshot'}</button></div>
               <div class="settings-log-list">{#each character.history.slice(0,6) as item}<div class="settings-log-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</div>
-              <button class="text-button settings-log-link" onclick={() => activeTab='life'}>Open complete life history →</button>
+              <button class="text-button settings-log-link" onclick={() => activeTab='life'}>Open Life workspace →</button>
             {:else}
               <p class="settings-empty-log">The game log will appear here after a life is started.</p>
             {/if}
@@ -239,10 +239,8 @@
         {:else if character && activeTab==='home'}
           <div class="page-heading"><div><div class="eyebrow">OVERVIEW</div><h1>{character.name}</h1><p>Age {character.age}</p></div><div class="year-pill"><span class="year-dot"></span> YEAR {character.year}</div></div>
           <section class="money-card money-focus"><div class="money-focus-top"><div><div class="money-label">AVAILABLE BALANCE</div><div class="money-value">{formatCharacterMoney(character)}</div></div> </div></section>
-          <div class="section-heading"><div><span class="section-index">01</span><h3>Current situation</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
-          <div class="domain-panel"><div class="domain-panel-head"><div><div class="eyebrow">LIFE STAGE</div><h2>{getLifeStage(character.age).label}</h2><p>Age {character.age} · {getLifeStage(character.age).ageRange}</p></div>{#if getLifeStage(character.age).nextAge !== null}<span class="domain-status">NEXT AT {getLifeStage(character.age).nextAge}</span>{/if}</div></div>
           <div class="finance-shortcuts">
-            <button onclick={() => activeTab='life'}><span class="shortcut-icon">✳</span><strong>Life</strong><small>Wellbeing, personal time and life history</small><b>Open Life →</b></button>
+            <button onclick={() => activeTab='life'}><span class="shortcut-icon">✳</span><strong>Life</strong><small>Wellbeing, personal time, growth and history</small><b>Open Life →</b></button>
           </div>
         {:else if character && activeTab==='school' && character.age >= 3}
           <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div><div class="year-pill">AGE {character.age}</div></div>
