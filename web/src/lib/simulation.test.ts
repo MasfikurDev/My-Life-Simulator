@@ -275,13 +275,13 @@ describe('life simulation', () => {
     expect(paid.money).toBe(5500);
     expect(paid.loans![0].balance).toBe(4500);
     const year = advanceYear(loaned);
-    expect(year.loans![0].balance).toBeGreaterThan(loaned.loans![0].balance - 1000);
+    expect(year.loans![0].balance).toBe(4000);
     expect(year.financialTransactions?.some((t)=>t.type==='loan-interest')).toBe(true);
   });
   it('issues debit and credit cards and enforces balances and credit limits', () => {
     const base = { ...createCharacter('Card user', 30), money: 1000 };
     const opened = openBankAccount(base, 'checking', 'Daily');
-    const funded = depositToAccount({ ...opened, money: 0 }, opened.bankAccounts![0].id, 600);
+    const funded = depositToAccount(opened, opened.bankAccounts![0].id, 600);
     const debit = issueBankCard(funded, 'debit', 'Daily card', opened.bankAccounts![0].id);
     const credit = issueBankCard(debit, 'credit', 'Credit card', undefined, 1000);
     const purchased = makeCardPurchase(credit, debit.cards![0].id, 100);
@@ -294,14 +294,14 @@ describe('life simulation', () => {
     expect(paid.cards![1].balance).toBe(300);
   });
   it('runs annual subscriptions and automatic savings without creating money', () => {
-    const base = { ...createCharacter('Saver', 30), money: 2000 };
+    const base = { ...createCharacter('Saver', 30), money: 2000, employment: { title: 'Worker', type: 'full-time' as const, annualSalary: 10000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 } };
     const opened = openBankAccount(base, 'savings', 'Reserve');
     const rule = setAutoDeposit(opened, opened.bankAccounts![0].id, 'percentage', 10);
     const subscription = addRecurringPayment(rule, 'Music', 100, 'subscription', 'cash');
     const next = advanceYear(subscription);
-    expect(next.bankAccounts![0].balance).toBe(190);
-    expect(next.money).toBe(1710);
-    expect(getNetWorth(next)).toBe(1900);
+    expect(next.bankAccounts![0].balance).toBe(1000);
+    expect(next.money).toBe(9400);
+    expect(getNetWorth(next)).toBe(10400);
     expect(next.financialTransactions?.some((t)=>t.type==='auto-deposit')).toBe(true);
     expect(next.financialTransactions?.some((t)=>t.type==='recurring-payment')).toBe(true);
   });
