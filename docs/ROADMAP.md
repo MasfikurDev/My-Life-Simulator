@@ -29,7 +29,8 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add personal, mortgage, and business loan products with annual interest, scheduled installments, and extra repayments.
 - [x] Add housing/property ownership, mortgages, rental choices, rental income, maintenance and sale.
 - [x] Add stock-index and gold trading with simulated price movement, plus small-business ownership and management.
-- [ ] Add macroeconomic conditions, inflation, taxes, brokerage fees and creditworthiness.
+- [x] Add bounded economic cycles, inflation, growth and benchmark-rate indicators; link inflation to living costs, subscriptions, rental agreements, and market valuations.
+- [ ] Add taxes, brokerage fees, creditworthiness and variable-rate debt.
 - [ ] Add benefits and taxes after household budgets and financial flows are balanced.
 
 ## Milestone 3 — Connected systems
