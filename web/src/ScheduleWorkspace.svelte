@@ -5,7 +5,7 @@
   import { formatCharacterMoney, getActivityCost, getPlannedActivityCost, planActivity, removePlannedActivity } from './lib/simulation';
   import type { ActivityId, Character, DayPeriod } from './lib/types';
 
-  let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
+  let { character, onChange, initialActivity = 'exercise' }: { character: Character; onChange: (next: Character) => void; initialActivity?: ActivityId } = $props();
 
   const periods: DayPeriod[] = ['morning', 'afternoon', 'evening'];
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -14,7 +14,7 @@
   const result = $derived(buildWeeklySchedule(weekStart, schedule));
   const plannedCost = $derived(schedule.activities.reduce((total, item) => total + getPlannedActivityCost(character, item), 0));
   const availableActivities = $derived(getAvailableActivityIds(character.age, character.employment));
-  let selectedActivity = $state<ActivityId>('exercise');
+  let selectedActivity = $state<ActivityId>(initialActivity);
   let selectedDate = $state<string>('');
   let selectedPeriod = $state<DayPeriod>('morning');
   let feedback = $state('');
