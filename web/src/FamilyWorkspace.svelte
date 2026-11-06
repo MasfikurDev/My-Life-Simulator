@@ -1,17 +1,20 @@
 <script lang="ts">
   import type { Character } from './lib/types';
-  import { establishFamilyBackground, getFamilyConnections, interactWithFamily, validateFamilyState } from './lib/family';
-  import { formatCharacterMoney } from './lib/simulation';
+  import { establishFamilyBackground, getFamilyConnections, validateFamilyState } from './lib/family';
+  import { formatCharacterMoney, planFamilyInteractionInNextFreeTime } from './lib/simulation';
 
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   let supportAmount = $state(0);
+  let feedback = $state('');
   const connections = $derived(getFamilyConnections(character));
   const family = $derived(character.family);
   const errors = $derived(family ? validateFamilyState(family) : []);
   const livingCount = $derived(connections.filter((item) => item.living).length);
   function interact(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
-    const next = interactWithFamily(character, personId, action, supportAmount);
-    if (next !== character) onChange(next);
+    const planned = planFamilyInteractionInNextFreeTime(character, personId, action, supportAmount);
+    if (planned.issue) { feedback = planned.message ?? 'That interaction could not be planned.'; return; }
+    onChange(planned.character);
+    feedback = 'Interaction added to this week. It will take effect when the week is resolved.';
   }
 </script>
 
@@ -31,6 +34,7 @@
       <p>Your existing save has not been changed. Export a gameplay snapshot before attempting recovery.</p>
     </section>
   {:else}
+    {#if feedback}<p class="family-footnote" role="status">{feedback}</p>{/if}
     <section class="family-panel">
       <div class="family-panel-head">
         <div><div class="eyebrow">YOUR FAMILY</div><h2>Family connections</h2><p>People and relationships recorded in this life. Family structure is not a measure of success.</p></div>
@@ -69,7 +73,7 @@
               {/if}
               {#if connection.living}
                 <div class="relative-actions">
-                  <button disabled={character.actionsRemaining <= 0} onclick={() => interact(connection.person.id, 'spend-time')}>Spend time</button>
+                  <button onclick={() => interact(connection.person.id, 'spend-time')}>Spend time</button>
                   {#if character.age >= 10}<button disabled={character.actionsRemaining <= 0} onclick={() => interact(connection.person.id, 'reach-out')}>Reach out</button>{/if}
                   {#if character.age >= 13 && connection.bond.tension >= 15}<button disabled={character.actionsRemaining <= 0} onclick={() => interact(connection.person.id, 'reconcile')}>Work through conflict</button>{/if}
                 </div>
@@ -78,7 +82,7 @@
                     <label>Support amount
                       <input type="number" min="1" step="1" bind:value={supportAmount} />
                     </label>
-                    <button disabled={character.actionsRemaining <= 0 || !Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money} onclick={() => interact(connection.person.id, 'provide-support')}>Provide support</button>
+                    <button disabled={!Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money} onclick={() => interact(connection.person.id, 'provide-support')}>Provide support</button>
                   </div>
                   <p class="support-note">Available cash: {formatCharacterMoney(character)}. Support is an actual expense and is recorded in Finance.</p>
                 {/if}
