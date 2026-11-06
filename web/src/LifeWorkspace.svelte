@@ -46,8 +46,8 @@
       <div class="domain-metrics"><div><span>Actions remaining</span><strong>{character.actionsRemaining}/3</strong></div><div><span>Health</span><strong>{character.health}/100</strong></div><div><span>Happiness</span><strong>{character.happiness}/100</strong></div><div><span>Fitness</span><strong>{character.fitness}/100</strong></div></div>
     </section>
     <div class="finance-shortcuts life-shortcuts">
-      <button onclick={() => activeView='wellbeing'><span class="shortcut-icon">＋</span><strong>Wellbeing</strong><small>Health, happiness and fitness</small><b>View wellbeing →</b></button>
-      <button onclick={() => activeView='personal'><span class="shortcut-icon">✳</span><strong>Personal</strong><small>Everyday activities and free time</small><b>Open personal life →</b></button>
+      <button onclick={() => activeView='wellbeing'}><span class="shortcut-icon">＋</span><strong>Wellbeing</strong><small>Health, happiness and fitness</small><b>View wellbeing →</b></button>
+      <button onclick={() => activeView='personal'}><span class="shortcut-icon">✳</span><strong>Personal</strong><small>Everyday activities and free time</small><b>Open personal life →</b></button>
       <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.length} recorded events and milestones</small><b>Review history →</b></button>
     </div>
   {:else if activeView === 'wellbeing'}
