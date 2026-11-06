@@ -191,7 +191,7 @@
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
-        {#each [{id:'home',label:'Overview',icon:'⌂'},{id:'activities',label:'Activities',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'history',label:'Life history',icon:'↗'},{id:'settings',label:'Settings',icon:'⚙'}] as item}
+        {#each [{id:'home',label:'Overview',icon:'⌂'},...(character && character.age >= 3 ? [{id:'school',label:'School',icon:'▤'}] : []),...(character && character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'}] : []),{id:'activities',label:'Personal',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'history',label:'Life history',icon:'↗'},{id:'settings',label:'Settings',icon:'⚙'}] as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => activeTab=item.id}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>{character.name}</strong><small>Age {character.age}</small></div></div>{/if}
@@ -241,7 +241,7 @@
           <div class="life-stage-strip"><div><strong>{getLifeStage(character.age).label}</strong><span>Age {character.age} · {getLifeStage(character.age).ageRange}</span></div><p>{getLifeStage(character.age).description}</p>{#if getLifeStage(character.age).nextAge !== null}<small>Next stage at age {getLifeStage(character.age).nextAge}</small>{/if}</div>
 
           <div class="section-heading"><div><span class="section-index">01</span><h3>Available actions</h3></div><span class="section-hint">{character.actionsRemaining} of 3 actions left</span></div>
-          <div class="activity-grid">{#each activities.filter((activity) => getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}
+          <div class="activity-grid">{#each activities.filter((activity) => ['exercise','socialize'].includes(activity.id) && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}
             <button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>
           {/each}</div>
           <div class="section-heading"><div><span class="section-index">02</span><h3>Life stats</h3></div></div>
@@ -252,8 +252,32 @@
             {#each character.history.slice(0,3) as item}<div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}
           </section></div>
         {:else if character && activeTab==='activities'}
-          <div class="page-heading"><div><div class="eyebrow">AVAILABLE ACTIONS</div><h1>Activities</h1><p>Choose from the actions available at this age.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
+          <div class="page-heading"><div><div class="eyebrow">PERSONAL TIME</div><h1>Personal activities</h1><p>Health, recreation and relationships.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
+          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => ['exercise','socialize'].includes(activity.id) && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
+
+        {:else if character && activeTab==='school' && character.age >= 3}
+          <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div><div class="year-pill">AGE {character.age}</div></div>
+          <section class="domain-panel">
+            <div class="domain-panel-head"><div><div class="eyebrow">CURRENT EDUCATION</div><h2>{character.education ?? 'Education in progress'}</h2><p>{character.age < 6 ? 'Early learning and foundational skills.' : character.age < 13 ? 'Primary-stage learning.' : character.age < 18 ? 'Secondary-stage learning.' : character.education === 'Higher education' ? 'Higher education completed.' : 'Continuing education and personal development.'}</p></div><span class="domain-status">{character.age < 18 ? 'SCHOOL AGE' : 'LEARNING'}</span></div>
+            <div class="domain-progress-label"><span>Learning progress</span><strong>{character.educationProgress ?? 0}%</strong></div>
+            <div class="meter"><span class="blue" style="width:{character.educationProgress ?? 0}%"></span></div>
+            <div class="domain-note">{character.age < 18 ? 'Study actions build knowledge as you progress through school stages.' : 'Study actions build knowledge and can unlock higher education.'}</div>
+          </section>
+          <div class="section-heading"><div><span class="section-index">01</span><h3>Study options</h3></div><span class="section-hint">{character.actionsRemaining} actions left</span></div>
+          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => activity.id === 'study' && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
+
+        {:else if character && activeTab==='work' && character.age >= 16}
+          <div class="page-heading"><div><div class="eyebrow">EMPLOYMENT</div><h1>Work</h1><p>Find work, manage your current role and develop your career.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
+          <section class="domain-panel">
+            {#if character.employment}
+              <div class="domain-panel-head"><div><div class="eyebrow">CURRENT POSITION</div><h2>{character.employment.title}</h2><p>{character.employment.type === 'part-time' ? 'Part-time employment' : character.employment.type === 'flexible' ? 'Flexible employment' : 'Full-time employment'} · Started at age {character.employment.startedAtAge}</p></div><span class="domain-status">EMPLOYED</span></div>
+              <div class="domain-metrics"><div><span>Annual pay</span><strong>{formatCharacterMoney(character, character.employment.annualSalary)}</strong></div><div><span>Performance</span><strong>{character.employment.performance}/100</strong></div><div><span>Experience</span><strong>{character.employment.experienceYears} yrs</strong></div><div><span>Promotions</span><strong>{character.employment.promotions}</strong></div></div>
+            {:else}
+              <div class="domain-panel-head"><div><div class="eyebrow">EMPLOYMENT STATUS</div><h2>No current role</h2><p>{character.age < 18 ? 'Part-time opportunities are available while you continue your education.' : character.age >= 65 ? 'Look for flexible work that fits later life.' : 'Search for a role that matches your education and experience.'}</p></div><span class="domain-status">JOB SEARCH</span></div>
+            {/if}
+          </section>
+          <div class="section-heading"><div><span class="section-index">01</span><h3>{character.employment ? 'Workplace & career' : 'Job opportunities'}</h3></div></div>
+          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => ['apply-job','career','work'].includes(activity.id) && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
         {:else if character && activeTab==='history'}
           <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h1>Life history</h1><p>Events and decisions recorded during this life.</p></div></div>
