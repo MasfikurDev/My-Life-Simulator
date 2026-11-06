@@ -876,18 +876,6 @@ export function advanceWeek(character: Character, random: () => number = Math.ra
   return { character: next, issue: null, recap };
 }
 
-export function removePlannedActivity(character: Character, activityId: string): Character {
-  const schedule = getWeeklySchedule(character.weeklySchedule);
-  if (!schedule.activities.some((item) => item.id === activityId)) return character;
-  return {
-    ...character,
-    weeklySchedule: {
-      ...schedule,
-      activities: schedule.activities.filter((item) => item.id !== activityId)
-    }
-  };
-}
-
 export function performActivity(character: Character, activity: ActivityId, random: () => number = Math.random): Character {
   if (!isActivityAvailable(character.age, activity, character.employment) || !canAffordActivity(character, activity)) return character;
   const next = { ...character, history: [...character.history] };
