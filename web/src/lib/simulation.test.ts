@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, canAffordActivity, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getHouseholdBudget, getNetWorth, openBankAccount, performActivity, setHouseholdArrangement, setSavingsGoalMonths, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceYear, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getHouseholdBudget, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
-import { buyProperty, closeBusiness, getMarketPrice, getNetWorth, manageBusiness, moveIntoOwnedProperty, rentHome, sellProperty, setPropertyRental, startBusiness, tradeInvestment } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeCardPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
 
