@@ -34,3 +34,7 @@ A modern, replayable life simulator where the player shapes a believable life th
 ## Platform and non-goals
 Primary platform is Android. Initial mode is single-player. GitHub Actions produces test APKs; GitHub Pages hosts the web client. Desktop browser support is useful for testing.
 Not initial goals: 3D worlds, real-time character movement, multiplayer, social feeds, mandatory accounts/backend/AI, huge frameworks before a playable loop, early monetization decisions, or copying competitor assets/content/branding.
+
+
+## Domain-native experiences
+Every major life system must have a distinct, self-contained experience. A parent area groups related systems; it must not become a dumping ground for unrelated panels. Finance is one destination containing dedicated Banking, Cards, Loans, Taxes, Bills & Subscriptions, Savings & Vault, Property, Investments, Business, and Living Costs experiences. Education and work are separate life destinations, not summaries embedded in Finance. Each system owns its vocabulary, actions, navigation, contextual feedback, and visual identity while sharing the same character and simulation state.

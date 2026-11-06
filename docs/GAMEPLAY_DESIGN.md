@@ -128,3 +128,13 @@ Scenario-led character creation with coherent randomized profiles, a modern dash
 
 ## Later, not MVP blockers
 Marriage/children, richer family trees, deeper education/career, property/assets, generational play, achievements, expanded event packs, cloud backup, online features. Prioritize based on demonstrated fun and player feedback.
+
+
+## System boundaries and player experiences
+- Each life domain is a dedicated destination with its own focused screen flow. A domain's overview may link to its sub-systems, but must not embed every sub-system's controls and status panels in one long page.
+- Finance is a parent destination, not one monolithic screen. Its child destinations are Banking, Cards, Loans, Taxes, Bills & Subscriptions, Savings & Vault, Property, Investments, Business, and Living Costs. Household budgets belong only in Living Costs; bank balances, transfers, account opening, and bank activity belong only in Banking. Tax estimates and liabilities belong in Taxes, never Banking.
+- Banking should use banking language and interaction patterns (accounts, balances, statements/activity, transfers, deposits, withdrawals). Cards, loans, and recurring payments each have their own focused workspace. Property, investments, and business ownership are separate asset experiences.
+- Education should feel like an educational institution: school/campus identity, enrollment, classes, attendance, grades, fees, study choices, and education history as those mechanics are implemented.
+- Work should feel like a workplace and recruitment process: job search, applications, interviews, offers, current role, workplace performance, colleagues, pay, and career history as those mechanics are implemented.
+- Do not place generic education/employment summaries inside Finance or other unrelated domains. Cross-domain effects (for example, salary paid into a bank account) are represented in the relevant transaction/history records, not by merging the screens.
+- Shared navigation, character identity, time progression, notifications, and save state may be global. Domain-specific controls and copy remain inside their owning system.
