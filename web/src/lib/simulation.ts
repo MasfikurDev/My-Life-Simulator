@@ -2,6 +2,7 @@ import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTran
 import { getEducationStage, isActivityAvailable } from './progression';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences } from './events';
 import { advanceFamilyYear, createFamilyState } from './family';
+import { createGameCalendar } from './calendar';
 
 export const ACTIONS_PER_YEAR = 3;
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
@@ -78,7 +79,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     eyes: pick(['Brown','Blue','Green','Hazel','Gray'], random)
   };
   const character: Character = {
-    name, age, year: 2026, gender, nationality: profile.nationality, country: profile.country,
+    name, age, year: 2026, calendar: createGameCalendar(age, 2026), gender, nationality: profile.nationality, country: profile.country,
     birthplace: pick(profile.cities, random), language, currency: profile.currency, currencyScale: profile.scale,
     familyBackground: background, personality: traits, appearance,
     education: getEducationStage(age), educationProgress: 0, employment: null, lastYearIncome: 0, lastYearExpenses: 0, lastYearShortfall: 0,
