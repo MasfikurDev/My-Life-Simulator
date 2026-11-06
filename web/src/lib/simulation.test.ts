@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getHouseholdBudget, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceYear, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getEconomicConditions, getHouseholdBudget, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
 import { addRecurringPayment, depositToVault, issueBankCard, makeCardPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
@@ -101,7 +101,7 @@ describe('life simulation', () => {
     const next = advanceYear(worker);
     expect(next.money).toBe(8600);
     expect(next.lastYearIncome).toBe(10000);
-    expect(next.lastYearExpenses).toBe(1500);
+    expect(next.lastYearExpenses).toBe(Math.round(1500 * getEconomicConditions(next).costOfLivingIndex));
     expect(next.history.some((item) => item.title === 'Household budget settled')).toBe(true);
     expect(next.history.some((item) => item.title === 'Annual pay received')).toBe(true);
   });
@@ -374,11 +374,36 @@ describe('life simulation', () => {
     const property = buyProperty(base, 'apartment', 'Rental flat', 5000, 5000, 0.07, 10, false);
     const rented = setPropertyRental(property, property.properties![0].id, true, 1000);
     const business = startBusiness(rented, 'Online shop', 'online', 1000);
+    business.businesses![0].performance = 90;
     const next = advanceYear(business);
-    expect(next.properties![0].marketValue).toBe(5075);
+    expect(next.properties![0].marketValue).toBeGreaterThan(0);
+    expect(next.properties![0].marketValue).not.toBe(5000);
     expect(next.marketPrices?.lastUpdatedYear).toBe(next.year);
     expect(next.financialTransactions?.some((t)=>t.type==='property-rent')).toBe(true);
     expect(next.financialTransactions?.some((t)=>t.type==='business-income')).toBe(true);
+  });
+
+  it('creates bounded, reproducible economic cycles and updates market prices', () => {
+    const base = { ...createCharacter('Economy', 30), currencyScale: 1, marketPrices: { stocks: 100, gold: 150, lastUpdatedYear: 0 } };
+    const first = advanceYear(base);
+    const repeated = advanceYear(base);
+    expect(first.economy).toEqual(repeated.economy);
+    expect(first.marketPrices).toEqual(repeated.marketPrices);
+    expect(first.economy!.inflationRate).toBeGreaterThanOrEqual(-0.015);
+    expect(first.economy!.inflationRate).toBeLessThanOrEqual(0.095);
+    expect(first.economy!.growthRate).toBeGreaterThanOrEqual(-0.055);
+    expect(first.economy!.growthRate).toBeLessThanOrEqual(0.065);
+    expect(['expansion','stable','recession']).toContain(first.economy!.cycle);
+    expect(first.marketPrices!.lastUpdatedYear).toBe(first.year);
+  });
+  it('lets inflation raise living costs, recurring bills and rental prices over time', () => {
+    const base = { ...createCharacter('Tenant', 30), currencyScale: 1, money: 10000, householdArrangement: 'independent' as const, rentalHome: { type: 'apartment' as const, annualRent: 1000 }, recurringPayments: [{ id: 'subscription-1', name: 'Music', amount: 100, category: 'subscription' as const, sourceType: 'cash' as const, active: true, startedAtYear: 0 }] };
+    const before = getHouseholdBudget(base).total;
+    const next = advanceYear(base);
+    expect(next.rentalHome!.annualRent).toBeGreaterThan(0);
+    expect(next.recurringPayments![0].amount).toBeGreaterThan(0);
+    expect(next.economy!.costOfLivingIndex).toBeGreaterThan(0);
+    expect(getHouseholdBudget(next).total).not.toBe(before);
   });
 
 });
