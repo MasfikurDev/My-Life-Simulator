@@ -36,7 +36,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Add full affordability checks and variable-rate debt.
 - [ ] Add benefits and taxes after household budgets and financial flows are balanced.
 
-- [x] Split Finance into dedicated Banking, Cards, Loans, Bills & Subscriptions, Savings & Vault, Property, Investments, Business, and Living Costs destinations.
+- [x] Split Finance into dedicated Banking, Cards, Loans, Taxes, Bills & Subscriptions, Savings & Vault, Property, Investments, Business, and Living Costs destinations.
 - [ ] Build separate school/education and job-search/workplace experiences using the same domain-module rules.
 
 ## Milestone 3 — Connected systems
