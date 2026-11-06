@@ -67,3 +67,6 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 36. Clipboard export must use the native Android clipboard bridge in WebView when available, then browser clipboard APIs and a user-gesture fallback. Never display a success message unless a clipboard method confirms success.
 
 37. Paid gameplay actions must enforce affordability in both UI and simulation. Never grant an action's benefits for free when its cost cannot be paid; unaffordable actions must not consume an action or mutate state.
+
+
+38. Keep the two supplied brand artworks in their distinct native roles: title artwork is the Android app/launcher logo; title-less life-progression artwork is the centered Android splash image that moves upward and fades when the WebView finishes its initial load. Never place either artwork in the web welcome or character-creation UI, and never redraw or alter the source PNGs.
