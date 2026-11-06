@@ -2,6 +2,7 @@ import type { Character, SaveData, SaveSlot, SaveSlotId } from './types';
 import { createGameCalendar } from './calendar';
 
 const KEY = 'my-life-simulator.save';
+const MIGRATION_BACKUP_KEY = KEY + '.pre-weekly-migration';
 const SETTINGS_KEY = 'my-life-simulator.settings';
 const CURRENT_SCHEMA = 3;
 const SLOT_IDS: SaveSlotId[] = ['slot-1', 'slot-2', 'slot-3'];
@@ -19,6 +20,12 @@ function migrateCharacter(character: Character): Character {
   if (!migrated.weeklySchedule) migrated.weeklySchedule = { version: 1, commitments: [], activities: [] };
   return migrated;
 }
+function persistMigration(raw: string, migrated: SaveData): void {
+  // Preserve the exact pre-migration payload before replacing it. If either
+  // write fails, the original save remains available for recovery.
+  if (!localStorage.getItem(MIGRATION_BACKUP_KEY)) localStorage.setItem(MIGRATION_BACKUP_KEY, raw);
+  localStorage.setItem(KEY, JSON.stringify(migrated));
+}
 function readData(): SaveData {
   const raw = localStorage.getItem(KEY);
   if (!raw) return { schemaVersion: CURRENT_SCHEMA, activeSlotId: 'slot-1', slots: emptySlots() };
@@ -27,7 +34,7 @@ function readData(): SaveData {
     const slots = emptySlots();
     slots[0] = { id: 'slot-1', character: migrateCharacter(parsed.character), updatedAt: Date.now() };
     const migrated: SaveData = { schemaVersion: CURRENT_SCHEMA, activeSlotId: 'slot-1', slots };
-    localStorage.setItem(KEY, JSON.stringify(migrated));
+    persistMigration(raw, migrated);
     return migrated;
   }
   if (![2, CURRENT_SCHEMA].includes(parsed.schemaVersion ?? 0) || !Array.isArray(parsed.slots)) {
@@ -41,7 +48,7 @@ function readData(): SaveData {
   });
   const activeSlotId = SLOT_IDS.includes(parsed.activeSlotId as SaveSlotId) ? parsed.activeSlotId as SaveSlotId : 'slot-1';
   const migrated: SaveData = { schemaVersion: CURRENT_SCHEMA, activeSlotId, slots };
-  if (parsed.schemaVersion !== CURRENT_SCHEMA) localStorage.setItem(KEY, JSON.stringify(migrated));
+  if (parsed.schemaVersion !== CURRENT_SCHEMA) persistMigration(raw, migrated);
   return migrated;
 }
 function writeData(data: SaveData): void { localStorage.setItem(KEY, JSON.stringify(data)); }
