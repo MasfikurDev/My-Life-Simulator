@@ -346,6 +346,16 @@ export function loadPrepaidCard(character: Character, cardId: string, amount: nu
   next.financialTransactions = financeRecord(next, 'card-load', value, 'Loaded ' + formatCharacterMoney(next, value) + ' onto ' + card.name + '.', source === 'cash' ? 'Cash' : account!.name, card.name);
   return next;
 }
+export function makeCashPurchase(character: Character, amount: number, description: string): Character {
+  const value = Math.floor(amount);
+  const label = description.trim().slice(0, 64);
+  if (!validAmount(value) || character.money < value || !label) return character;
+  const next = { ...character, money: character.money - value, history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'expense', value, label, 'Cash', 'Merchant');
+  next.history.unshift(event(next, 'Purchase', label + ' · ' + formatCharacterMoney(next, value), 'activity'));
+  return next;
+}
+
 export function makeCardPurchase(character: Character, cardId: string, amount: number, description = 'Card purchase'): Character {
   const value = Math.floor(amount);
   const card = (character.cards ?? []).find((item) => item.id === cardId && item.active);
