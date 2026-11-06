@@ -102,6 +102,7 @@ describe('life simulation', () => {
     expect(next.lastYearIncome).toBe(10000);
     expect(next.lastYearExpenses).toBe(1500);
     expect(next.history.some((item) => item.title === 'Household budget settled')).toBe(true);
+    expect(next.history.some((item) => item.title === 'Annual pay received')).toBe(true);
   });
   it('promotes experienced employees after sustained high performance', () => {
     const worker = {
@@ -190,6 +191,7 @@ describe('life simulation', () => {
     expect(getHouseholdBudget({ ...adult, householdArrangement: 'family-supported' }).total).toBe(2700);
     expect(getHouseholdBudget({ ...adult, householdArrangement: 'shared' }).total).toBe(6840);
     expect(getHouseholdBudget({ ...adult, householdArrangement: 'independent' }).total).toBe(10440);
+    expect(getHouseholdBudget({ ...adult, currencyScale: 100, householdArrangement: 'shared' }).total).toBe(684000);
   });
   it('records living arrangement and savings goal choices without mutating the old save', () => {
     const adult = createCharacter('Adult', 30);
