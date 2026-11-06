@@ -80,23 +80,24 @@ The settings page provides a concise recent-log view backed by the character's c
 
 ## Property, housing, investments and businesses
 - Adults can rent a house/apartment with a recurring annual rent or buy a property using cash and/or a mortgage. Mortgage purchases require at least 20% down payment. Property value is an asset; linked mortgage balance is a liability.
-- Players can make an owned property their primary residence, list a non-primary property for rent, receive annual rental income, and sell property. Selling settles the linked mortgage from sale proceeds; a sale is rejected if proceeds cannot cover the outstanding mortgage.
+- Players can make an owned property their primary residence, list a non-primary property for rent, receive annual rental income, and sell property. Selling settles the linked mortgage from sale proceeds; a sale is rejected if proceeds cannot cover the outstanding mortgage, sale fees, and capital-gains tax.
+- Property purchases and sales have a simplified 1% transfer/service fee; realized gains on property sales are taxed at 10%.
 - Housing budgets use the selected rental amount or owned-home maintenance instead of the previous default housing estimate. Property maintenance is estimated at 1% of current value annually. Houses and apartments have modest different annual appreciation rates; these are game-balance assumptions.
-- Adults can buy and sell whole units of a broad index-fund proxy or gold using cash. Prices change once per simulated year with deterministic volatility; market returns are not guaranteed. Gold is not guaranteed inflation protection.
+- Adults can buy and sell whole units of a broad index-fund proxy or gold using cash. Each trade has a 0.5% brokerage fee; realized gains are taxed at 10%. Prices change once per simulated year with deterministic volatility; market returns are not guaranteed. Gold is not guaranteed inflation protection.
 - Adults can start up to three small businesses (retail, online, cafe) with startup capital. Business value begins at invested capital; yearly operating profit/loss depends on performance. Management consumes an action and a small cash cost; businesses can be sold for 90% of estimated value.
-- Net worth includes cash, bank accounts, vault, property, investments at current market prices, and business valuation, less active loans and credit-card debt. This is a simplified balance sheet; no detailed tax, brokerage fees, property transfer fees, or macroeconomic model exists yet.
+- Net worth includes cash, bank accounts, vault, property, investments at current market prices, and business valuation, less active loans and credit-card debt. This is a simplified balance sheet; fees and capital-gains tax are simplified game assumptions, not jurisdiction-specific rules.
 
 ## Macroeconomic conditions and inflation
 - Each simulated year advances a compact economy model with an expansion, stable, or recession cycle; inflation, economic growth, and a benchmark interest rate are shown in the finance area.
 - Inflation changes the cost-of-living index, recurring bill/subscription amounts, and rental agreements. Deflation is possible but bounded. Household costs use the cost index rather than silently ignoring changing prices.
 - Market movements respond to the economic cycle: broad stock-index holdings react more strongly to growth and downturns; gold reacts more to inflation and can still lose value. Property appreciation responds to both inflation and growth. Business operating results respond to economic growth as well as management performance.
-- Economic conditions are deterministic for a given simulated year/age so saves and tests remain reproducible. Rates and returns are simplified fictional game mechanics, not financial advice or real market forecasts. Taxes, brokerage fees, detailed monetary policy, and variable-rate debt remain future work.
+- Economic conditions are deterministic for a given simulated year/age so saves and tests remain reproducible. Rates and returns are simplified fictional game mechanics, not financial advice or real market forecasts. Detailed monetary policy and variable-rate debt remain future work.
 
 ## Simplified taxation
 - Adults pay progressive annual income tax: the first 12,000 currency units (scaled to the character's currency) are tax-free, followed by 10%, 15%, and 20% marginal bands. These are game rules, not jurisdiction-specific tax advice.
 - Property owners pay an annual 0.5% property levy based on estimated market value. Positive net rental and small-business operating income is taxed at a simplified 10% rate.
 - Annual tax is automatically paid from cash first, then liquid checking/savings accounts. Fixed deposits remain locked until maturity. If funds are insufficient, the unpaid amount carries as a tax liability and reduces net worth; no negative cash balance is created.
-- Tax is assessed once per simulated year and appears in the financial ledger, with the outstanding balance and prior-year amount shown in Banking. There are no tax forms, deductions, jurisdiction-specific rules, penalties, or capital-gains tax yet.
+- Tax is assessed once per simulated year and appears in the financial ledger, with the outstanding balance and prior-year amount shown in Banking. There are no tax forms, deductions, jurisdiction-specific rules, or tax penalties yet.
 
 ## Creditworthiness and loan pricing
 - Adults have a simplified credit score from 300 to 850, starting at 700. The score reflects missed loan/card payments, successful repayments, credit-card utilization, debt relative to income, and unpaid tax balances.
