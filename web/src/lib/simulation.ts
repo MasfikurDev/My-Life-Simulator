@@ -257,7 +257,7 @@ function advanceEconomicConditions(character: Character): Character {
   const growthRate = Math.max(-0.055, Math.min(0.065, wave * 0.038 + secondary * 0.012));
   const inflationRate = Math.max(-0.015, Math.min(0.095, 0.025 + secondary * 0.025 + (growthRate < -0.02 ? 0.012 : 0)));
   const baseInterestRate = Math.max(0.01, Math.min(0.14, 0.035 + inflationRate * 0.55 - growthRate * 0.2));
-  const cycle = growthRate < -0.018 ? 'recession' : growthRate > 0.025 ? 'expansion' : 'stable';
+  const cycle: 'expansion' | 'stable' | 'recession' = growthRate < -0.018 ? 'recession' : growthRate > 0.025 ? 'expansion' : 'stable';
   const costOfLivingIndex = Math.max(0.5, Math.min(5, previous.costOfLivingIndex * (1 + inflationRate)));
   const economy = { inflationRate, growthRate, baseInterestRate, cycle, costOfLivingIndex, lastUpdatedYear: character.year };
   const inflationFactor = 1 + Math.max(-0.01, inflationRate);
