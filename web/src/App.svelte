@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { advanceYear, canAffordActivity, formatCharacterMoney, getAnnualReview, performActivity } from './lib/simulation';
-  import { resolveGameEvent } from './lib/events';
+  import { advanceWeek, canAffordActivity, formatCharacterMoney, planActivityInNextFreeTime, planEventChoiceInNextFreeTime } from './lib/simulation';
   import { getAvailableActivityIds, getEducationStage, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
@@ -31,6 +30,7 @@
   let pendingSlotId = $state<SaveSlotId | null>(null);
   let debugCopying = $state(false);
   let yearReviewOpen = $state(false);
+  let lifeInitialView = $state('overview');
   onMount(() => {
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
@@ -146,18 +146,29 @@
   }
   function act(id: ActivityId) {
     if (!character) return;
-    if (!character.actionsRemaining) { notify('You have used this year’s available time.'); return; }
-    persist(performActivity(character, id)); playSound('action');
+    const planned = planActivityInNextFreeTime(character, id);
+    if (planned.issue) { notify(planned.message ?? 'No suitable time is available this week.'); return; }
+    persist(planned.character); activeTab = 'life'; lifeInitialView = 'schedule'; playSound('action');
+    notify('Added to this week’s schedule.');
   }
   function chooseLifeEvent(choiceId: string) {
     if (!character) return;
-    const next = resolveGameEvent(character, choiceId);
-    if (next === character) { notify('You need more time or money for that choice.'); return; }
-    persist(next); playSound('action'); notify('Decision recorded.');
+    const planned = planEventChoiceInNextFreeTime(character, choiceId);
+    if (planned.issue) { notify(planned.message ?? 'That decision could not be scheduled.'); return; }
+    persist(planned.character); playSound('action');
+    notify(planned.character === character ? 'Decision recorded.' : 'Decision scheduled for this week.');
   }
   function openYearReview() { if (!character) return; activeTab = 'home'; yearReviewOpen = true; }
   function closeYearReview() { yearReviewOpen = false; }
-  function nextYear() { if (character) { const letEventPass = Boolean(character.pendingGameEvent); persist(advanceYear(character)); yearReviewOpen = false; notify(letEventPass ? 'A new year begins. The situation was left behind.' : 'A new year begins.'); playSound('year'); } }
+  function nextYear() {
+    if (!character) return;
+    const result = advanceWeek(character);
+    if (result.issue) { notify(result.issue === 'invalid-schedule' ? 'Fix the schedule conflicts before starting the next week.' : 'This week has already been resolved.'); return; }
+    const crossedYear = result.character.year > character.year;
+    persist(result.character); yearReviewOpen = false;
+    notify(crossedYear ? 'Week completed. A new year begins.' : 'Week completed. The next week begins.');
+    playSound(crossedYear ? 'year' : 'action');
+  }
   function restart() {
     clearSave(activeSlotId); slots = getSaveSlots(); character = null;
     showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.'); pendingSlotId = activeSlotId;
@@ -214,7 +225,7 @@
             <div class="page-context-metrics">
               <div><span>YEAR</span><strong>{character.year}</strong></div>
               <div><span>CASH</span><strong>{formatCharacterMoney(character)}</strong></div>
-              <div><span>TIME</span><strong>{character.actionsRemaining}/3</strong></div>
+              <div><span>DATE</span><strong>{character.calendar?.currentDate ?? character.year}</strong></div>
             </div>
           </div>
         {/if}
@@ -299,36 +310,34 @@
               <p class="game-event-description">{lifeEvent.description}</p>
               <div class="game-event-choices">
                 {#each lifeEvent.choices as choice}
-                  <button class="game-event-choice" disabled={character.actionsRemaining < choice.actionCost || character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
+                  <button class="game-event-choice" disabled={character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
                     <span class="game-event-choice-copy"><strong>{choice.label}</strong><small>{choice.detail}</small></span>
                     <span class="game-event-choice-cost">
-                      {#if choice.actionCost > 0}<span>{choice.actionCost} action</span>{/if}
+                      {#if choice.timeBlocks > 0}<span>{choice.timeBlocks} time {choice.timeBlocks === 1 ? 'block' : 'blocks'}</span>{/if}
                       {#if choice.moneyCost > 0}<span>{formatCharacterMoney(character, choice.moneyCost)}</span>{/if}
-                      {#if choice.actionCost === 0 && choice.moneyCost === 0}<span>No cost</span>{/if}
+                      {#if choice.timeBlocks === 0 && choice.moneyCost === 0}<span>No cost</span>{/if}
                     </span>
                   </button>
                 {/each}
               </div>
-              <p class="game-event-footnote">Your decision is recorded in Life History. You can also advance the year and let this situation pass.</p>
+              <p class="game-event-footnote">Time-consuming decisions are added to this week’s schedule and take effect when the week resolves. You can also leave the situation unanswered.</p>
             </section>
           {/if}
           {#if yearReviewOpen}
-            {@const review = getAnnualReview(character)}
+            {@const plannedCount = character.weeklySchedule?.activities.length ?? 0}
             <section class="year-review-panel" aria-label="Year-end review">
               <div class="game-event-top"><span class="eyebrow">YEAR {review.currentYear} · REVIEW</span><span class="game-event-status">BEFORE ADVANCING</span></div>
-              <h2>Review this year</h2>
-              <p class="game-event-description">You are {character.age}. Advancing will move the life forward to age {review.nextAge} and settle the year's finances and simulation changes.</p>
+              <h2>Ready for the next week?</h2>
+              <p class="game-event-description">Resolve {plannedCount} planned {plannedCount === 1 ? 'activity' : 'activities'} in order, apply their effects and costs once, then move the calendar forward by seven days. Your age changes only on your birthday.</p>
               <div class="year-review-grid">
-                <div><span>Actions unused</span><strong>{review.actionsRemaining} / 3</strong></div>
-                <div><span>Annual income</span><strong>{formatCharacterMoney(character, review.annualIncome)}</strong></div>
-                <div><span>Estimated living costs</span><strong>{formatCharacterMoney(character, review.estimatedLivingCosts)}</strong></div>
-                <div><span>Cash after these items</span><strong>{formatCharacterMoney(character, review.projectedCashBeforeOtherSettlements)}</strong></div>
+                <div><span>Planned activities</span><strong>{plannedCount}</strong></div>
+                <div><span>Current age</span><strong>{character.age}</strong></div>
+                <div><span>Current year</span><strong>{character.year}</strong></div>
+                <div><span>Available cash</span><strong>{formatCharacterMoney(character)}</strong></div>
               </div>
-              {#if review.estimatedShortfall > 0}
-                <p class="year-review-warning">Estimated living-cost shortfall: {formatCharacterMoney(character, review.estimatedShortfall)}. The simulation will record the amount it cannot cover.</p>
-              {/if}
-              {#if review.pendingEventTitle}
-                <p class="year-review-warning">Unresolved situation: {review.pendingEventTitle}. It will pass if you advance without choosing.</p>
+              
+              {#if character.pendingGameEvent}
+                <p class="year-review-warning">Unresolved situation: {character.pendingGameEvent.title}. It will pass if you advance without choosing.</p>
               {/if}
               <p class="year-review-note">This is a partial forecast. Taxes, subscriptions, loans, interest, property, investments, and market changes settle separately and may change the final balance.</p>
               <div class="year-review-actions"><button class="secondary-button" onclick={closeYearReview}>Back to this year</button><button class="primary-button" onclick={nextYear}>Confirm and advance to age {review.nextAge}</button></div>
@@ -342,8 +351,8 @@
             <div class="meter"><span class="blue" style="width:{character.educationProgress ?? 0}%"></span></div>
             <div class="domain-note">{character.age < 18 ? 'Study actions build knowledge as you progress through school stages.' : 'Study actions build knowledge and can unlock higher education.'}</div>
           </section>
-          <div class="section-heading"><div><span class="section-index">01</span><h3>Study options</h3></div><span class="section-hint">{character.actionsRemaining} actions left</span></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => activity.id === 'study' && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
+          <div class="section-heading"><div><span class="section-index">01</span><h3>Study options</h3></div><span class="section-hint">Plan activities in your weekly schedule</span></div>
+          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => activity.id === 'study' && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={!canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
         {:else if character && activeTab==='work' && character.age >= 16}
           <div class="page-heading"><div><div class="eyebrow">EMPLOYMENT</div><h1>Work</h1><p>Find work, manage your current role and develop your career.</p></div></div>
@@ -356,10 +365,10 @@
             {/if}
           </section>
           <div class="section-heading"><div><span class="section-index">01</span><h3>{character.employment ? 'Workplace & career' : 'Job opportunities'}</h3></div></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => ['apply-job','career','work'].includes(activity.id) && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
+          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => ['apply-job','career','work'].includes(activity.id) && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={!canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
         {:else if character && activeTab==='life'}
-          <LifeWorkspace {character} onChange={persist} />
+          <LifeWorkspace {character} onChange={persist} initialView={lifeInitialView} />
         {:else if character && activeTab==='finances'}
           <FinanceWorkspace {character} onChange={persist} />
         {/if}
@@ -368,7 +377,7 @@
   {/if}
   {#if character && activeTab !== 'settings'}
     <button class="advance-fab" onclick={openYearReview} aria-label="Review this year" title="Review this year">
-      <span class="fab-arrow" aria-hidden="true">→</span><span class="fab-label">Review year</span><span class="fab-count">{character.actionsRemaining}/3</span>
+      <span class="fab-arrow" aria-hidden="true">→</span><span class="fab-label">Start next week</span><span class="fab-count">{character.weeklySchedule?.activities.length ?? 0} planned</span>
     </button>
   {/if}
   {#if slotToDelete}
