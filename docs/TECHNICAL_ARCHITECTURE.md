@@ -102,3 +102,10 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 - Stock-index and gold holdings use whole units and current simulated prices. Trading moves cash to/from asset value. Market price updates are deterministic per simulated year to keep saves and tests reproducible while still allowing gains and losses.
 - Business startup moves cash into business valuation; operating profit/loss changes cash, and management consumes an action plus a cash cost.
 - Net worth includes all modeled asset classes and subtracts loan and credit-card liabilities.
+
+
+## Economic simulation
+- `Character.economy` is optional for save compatibility and stores bounded inflation, growth, benchmark rate, cycle, cost-of-living index, and last update year.
+- Annual economic conditions are derived deterministically from simulated year and age. The same input save produces the same rates and market update.
+- Inflation updates the cost index, recurring charges, rental agreements, and household budget. Market asset updates are bounded: equities respond primarily to growth, gold responds more to inflation, property growth responds to both, and business operating results respond to growth and performance.
+- Economic values are fictional and should be labeled as simplified estimates. Avoid presenting them as real market predictions.
