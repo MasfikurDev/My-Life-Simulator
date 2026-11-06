@@ -92,6 +92,12 @@ The settings page provides a concise recent-log view backed by the character's c
 - Market movements respond to the economic cycle: broad stock-index holdings react more strongly to growth and downturns; gold reacts more to inflation and can still lose value. Property appreciation responds to both inflation and growth. Business operating results respond to economic growth as well as management performance.
 - Economic conditions are deterministic for a given simulated year/age so saves and tests remain reproducible. Rates and returns are simplified fictional game mechanics, not financial advice or real market forecasts. Taxes, brokerage fees, detailed monetary policy, and variable-rate debt remain future work.
 
+## Simplified taxation
+- Adults pay progressive annual income tax: the first 12,000 currency units (scaled to the character's currency) are tax-free, followed by 10%, 15%, and 20% marginal bands. These are game rules, not jurisdiction-specific tax advice.
+- Property owners pay an annual 0.5% property levy based on estimated market value. Positive net rental and small-business operating income is taxed at a simplified 10% rate.
+- Annual tax is automatically paid from cash first, then liquid checking/savings accounts. Fixed deposits remain locked until maturity. If funds are insufficient, the unpaid amount carries as a tax liability and reduces net worth; no negative cash balance is created.
+- Tax is assessed once per simulated year and appears in the financial ledger, with the outstanding balance and prior-year amount shown in Banking. There are no tax forms, deductions, jurisdiction-specific rules, penalties, or capital-gains tax yet.
+
 ## Candidate systems
 Health; family; education; career; finance; relationships; lifestyle; contextual/scheduled/random/player-created events. Build incrementally and connect systems. Do not implement every system at once.
 
