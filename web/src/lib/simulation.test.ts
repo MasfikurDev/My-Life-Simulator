@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { advanceYear, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
-import { addRecurringPayment, depositToVault, issueBankCard, makeCardPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
+import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
 
 describe('life simulation', () => {
@@ -306,6 +306,30 @@ describe('life simulation', () => {
     expect(next.financialTransactions?.some((t)=>t.type==='auto-deposit')).toBe(true);
     expect(next.financialTransactions?.some((t)=>t.type==='recurring-payment')).toBe(true);
   });
+  it('records marketplace purchases from cash, bank accounts, and debit cards', () => {
+    const base = { ...createCharacter('Shopper', 30), money: 1000 };
+    const cashPurchase = makeCashPurchase(base, 100, 'Supermarket groceries');
+    expect(cashPurchase.money).toBe(900);
+    expect(cashPurchase.financialTransactions?.at(-1)?.type).toBe('expense');
+    expect(cashPurchase.history[0].title).toBe('Purchase');
+    expect(makeCashPurchase(base, 1200, 'Too expensive')).toBe(base);
+
+    const accountBase = openBankAccount(base, 'checking', 'Everyday');
+    const accountId = accountBase.bankAccounts![0].id;
+    const funded = depositToAccount(accountBase, accountId, 400);
+    const accountPurchase = makeAccountPurchase(funded, accountId, 150, 'Online order');
+    expect(accountPurchase.bankAccounts?.[0].balance).toBe(250);
+    expect(accountPurchase.money).toBe(600);
+    expect(accountPurchase.financialTransactions?.at(-1)?.from).toBe('Everyday');
+    expect(makeAccountPurchase(funded, accountId, 500, 'Overdraft')).toBe(funded);
+
+    const debit = issueBankCard(funded, 'debit', 'Everyday card', accountId);
+    const cardId = debit.cards![0].id;
+    const cardPurchase = makeCardPurchase(debit, cardId, 75, 'Grocery card payment');
+    expect(cardPurchase.bankAccounts?.[0].balance).toBe(325);
+    expect(cardPurchase.financialTransactions?.at(-1)?.type).toBe('card-purchase');
+  });
+
   it('moves money to and from a personal vault without changing net worth', () => {
     const base = { ...createCharacter('Saver', 30), money: 900 };
     const stored = depositToVault(base, 400);
