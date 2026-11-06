@@ -23,7 +23,7 @@ describe('life simulation', () => {
     expect(getActivityDefinition('apply-job').durationBlocks).toBe(1);
   });
   it('plans activities into the current week without spending annual action tokens or cash early', () => {
-    const adult = { ...createCharacter('Planner', 30), money: 100, actionsRemaining: 0 };
+    const adult = { ...createCharacter('Planner', 30), money: 100, currencyScale: 1, actionsRemaining: 0 };
     const result = planActivity(adult, 'study', '2026-01-05', 'morning');
     expect(result.issue).toBeNull();
     expect(result.character.weeklySchedule?.activities).toHaveLength(1);
