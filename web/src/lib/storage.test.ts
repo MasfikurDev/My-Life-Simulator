@@ -45,6 +45,15 @@ describe('save slots', () => {
     expect(loadSave('slot-1')?.calendar).toBeDefined();
     expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(3);
   });
+  it('keeps the original save payload as a recovery copy before migration', () => {
+    const values = installStorage();
+    const character = createCharacter('Recovery');
+    const legacy = JSON.stringify({ schemaVersion: 1, character });
+    values.set('my-life-simulator.save', legacy);
+    loadSave('slot-1');
+    expect(values.get('my-life-simulator.save.pre-weekly-migration')).toBe(legacy);
+    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(3);
+  });
   it('migrates the previous single-save format to the weekly calendar without losing its character', () => {
     const values = installStorage();
     const character = createCharacter('Legacy');
