@@ -30,7 +30,8 @@
   let pendingSlotId = $state<SaveSlotId | null>(null);
   let debugCopying = $state(false);
   let advanceReviewOpen = $state(false);
-  let lifeInitialView = $state('overview');
+  let lifeInitialView = $state<'overview' | 'schedule'>('overview');
+  let lifeInitialActivity = $state<ActivityId>('exercise');
   onMount(() => {
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
@@ -148,7 +149,7 @@
     if (!character) return;
     const planned = planActivityInNextFreeTime(character, id);
     if (planned.issue) { notify(planned.message ?? 'No suitable time is available this week.'); return; }
-    persist(planned.character); activeTab = 'life'; lifeInitialView = 'schedule'; playSound('action');
+    persist(planned.character); lifeInitialActivity = id; lifeInitialView = 'schedule'; activeTab = 'life'; playSound('action');
     notify('Added to this week’s schedule.');
   }
   function chooseLifeEvent(choiceId: string) {
@@ -367,7 +368,7 @@
           <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => ['apply-job','career','work'].includes(activity.id) && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={!canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
         {:else if character && activeTab==='life'}
-          <LifeWorkspace {character} onChange={persist} initialView={lifeInitialView} />
+          <LifeWorkspace {character} onChange={persist} initialView={lifeInitialView} initialActivity={lifeInitialActivity} />
         {:else if character && activeTab==='finances'}
           <FinanceWorkspace {character} onChange={persist} />
         {/if}
