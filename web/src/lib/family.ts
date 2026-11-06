@@ -161,6 +161,7 @@ export function createFamilyState(character: Pick<Character, 'name' | 'age' | 'y
 
 export function validateFamilyState(family: FamilyState): string[] {
   const errors: string[] = [];
+  if (!Number.isInteger(family.lastSimulatedYear)) errors.push('Family simulation year must be an integer.');
   const ids = family.people.map((person) => person.id);
   const idSet = new Set(ids);
   if (new Set(ids).size !== ids.length) errors.push('Family person IDs must be unique.');
@@ -181,7 +182,7 @@ export function validateFamilyState(family: FamilyState): string[] {
     const fromPerson = family.people.find((person) => person.id === relation.fromPersonId);
     const toPerson = family.people.find((person) => person.id === relation.toPersonId);
     if (fromPerson && toPerson && relation.startedAtYear < Math.max(fromPerson.birthYear, toPerson.birthYear)) errors.push('A relationship cannot begin before both people exist.');
-    if (fromPerson && toPerson && relation.type === 'parent' && relation.startedAtYear - fromPerson.birthYear < 18) errors.push('A parent must be at least 18 when the parent relationship begins.');
+    if (fromPerson && toPerson && ['parent', 'adoptive-parent', 'step-parent'].includes(relation.type) && relation.startedAtYear - fromPerson.birthYear < 18) errors.push('A parent must be at least 18 when the parent relationship begins.');
     if (fromPerson && toPerson && relation.type === 'guardian' && relation.startedAtYear - fromPerson.birthYear < 18) errors.push('A guardian must be an adult when guardianship begins.');
     if (fromPerson && toPerson && relation.type === 'partner' && (relation.startedAtYear - fromPerson.birthYear < 18 || relation.startedAtYear - toPerson.birthYear < 18)) errors.push('A partnership can only begin between adults.');
     if (relation.endedAtYear !== undefined && (relation.endedAtYear < relation.startedAtYear || relation.endedAtYear > family.lastSimulatedYear)) errors.push('A relationship end year must follow its start and not exceed the current simulation year.');
@@ -230,7 +231,10 @@ export function validateFamilyState(family: FamilyState): string[] {
   if (new Set(family.dependentPersonIds).size !== family.dependentPersonIds.length) errors.push('Dependency records cannot contain duplicate people.');
   for (const id of [...family.householdMemberIds, ...family.dependentPersonIds]) if (!idSet.has(id)) errors.push('Household and dependency records must reference existing people.');
   if (!family.householdMemberIds.includes(family.playerPersonId)) errors.push('The player must be included in their household membership record.');
-  if (family.primaryGuardianId && !idSet.has(family.primaryGuardianId)) errors.push('The primary guardian must exist in the family graph.');
+  if (family.primaryGuardianId) {
+    if (!idSet.has(family.primaryGuardianId)) errors.push('The primary guardian must exist in the family graph.');
+    if (!family.relationships.some((relation) => relation.type === 'guardian' && relation.fromPersonId === family.primaryGuardianId && relation.toPersonId === family.playerPersonId && relation.endedAtYear === undefined)) errors.push('The primary guardian must have an active guardianship link to the player.');
+  }
   return [...new Set(errors)];
 }
 
