@@ -89,9 +89,9 @@ The simulation now has a reusable, save-compatible weekly schedule model:
 - New characters receive an empty versioned schedule. Legacy characters without this optional field are treated as having an empty schedule; existing annual progression and saves are unchanged.
 - The Life workspace now exposes a seven-day planner. Players can reserve age-available activities in morning/afternoon/evening periods, see the duration each activity reserves, remove plans, and receive a conflict message when a placement overlaps an existing reservation. The schedule is saved with the character.
 - Activity time requirements now come from one shared simulation catalogue: study and extra work take two consecutive periods; exercise, socializing, job applications, and career development take one.
-- The simulation exposes a validated planning operation used by the Schedule workspace. It enforces current life-stage eligibility, current-week dates, valid same-day duration, no overlap with recurring commitments or other activities, and enough cash for the combined planned costs.
+- The simulation exposes validated planning operations for personal activities, family interactions, business management, and time-consuming event choices. They enforce eligibility, current-week dates, duration fit, no overlap with commitments or other activities, and enough cash for combined planned costs.
 - The planner shows each activity's duration and estimated cost, plus the cash remaining after all planned costs. Removing an activity releases its time and planned budget.
-- Planning remains separate from execution. It does not yet charge money, apply activity effects, or advance the calendar. The legacy direct-action and annual-action systems remain active until the weekly resolver and save migration are ready.
+- Planned activities, family interactions, business sessions, and time-consuming event choices resolve through the weekly loop. Accepted costs and effects are applied at resolution, reservations are cleared, and the calendar advances by seven days. Annual financial settlements and life-stage processing remain on the year boundary.
 
 ### 3.3 The week in play
 
@@ -203,7 +203,7 @@ The current implementation uses annual actions and annual progression. That is t
 
 ### Current implementation boundary
 
-The existing app is still the annual-action implementation: events, choices, and the year review are tied to the current annual progression. The weekly calendar, schedule, weekly activity resolution, monthly settlement, and date-based aging are planned and must not be described as implemented until code and tests prove them. The implementation sequence is in the Roadmap.
+The app has a weekly calendar, validated activity reservations, and an exactly-once weekly resolver. Monthly settlement and date-based recurring payment schedules remain future work; annual income, expenses, taxes, asset settlement, and annual reviews still run at the year boundary.
 
 ## 4. Event and consequence system
 
