@@ -84,3 +84,5 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 43. Fixed deposits must enforce their maturity lock in simulation functions, not only UI. Prepaid card funds are an asset: loading moves existing cash/account value and spending reduces it. Credit card balances are liabilities. All new product types must be represented in net worth and the shared transaction ledger.
 
 44. Recurring card payments must honor the card's funding model: debit cards debit their linked bank account, credit cards increase liabilities only within available credit, and prepaid cards spend only loaded funds. Missed charges must be recorded without creating hidden balances.
+
+44. Economic simulation must be deterministic for a given save/year, bounded against runaway rates and asset changes, and preserve legacy-save compatibility. Inflation must flow into cost-of-living and recurring price assumptions; market assets must respond to economic conditions without guaranteeing returns. Clearly label all rates and market movements as fictional simplified game estimates.
