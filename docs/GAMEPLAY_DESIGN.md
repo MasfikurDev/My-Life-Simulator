@@ -170,3 +170,12 @@ Marriage/children, richer family trees, deeper education/career, property/assets
 The character may own or access smartphones, laptops, and desktop PCs. Devices are durable assets that create contextual options across school, work, relationships, personal growth, and lifestyle. Manage them in Life → Personal Technology; browse and buy them through Lifestyle → Discover; pay through the existing Finance system.
 
 Keep the first version focused on fictional models, understandable capability tiers, new/used condition, purchase, ownership/access, basic wear, repair, and replacement. Devices should enable specific opportunities rather than grant broad unexplained stat bonuses. Never make premium ownership a hard requirement for core life progression; shared, provided, public, and non-digital alternatives should be available. Full rules and acceptance tests: [PERSONAL_TECHNOLOGY.md](PERSONAL_TECHNOLOGY.md).
+
+## Family system
+
+Family is a connected life system built around persistent people, kinship/guardianship links, relationship bonds, household membership, dependency, and family history. It is not a single relationship score or an assumed spouse-and-children template. See [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md) for the complete domain specification and implementation stages.
+
+The current code implements family-of-origin generation, graph validation, and a small targeted interaction loop. New characters may begin with parents/guardians and siblings; partners and children are never assumed. Existing saves require explicit family-background initialization. Interactions change only the selected bond and record history; adult financial support debits cash and writes to the common Finance ledger. The annual action allowance is transitional until weekly time blocks exist.
+
+Partnership, parenthood, adoption, caregiving, family mortality, inheritance, and legacy remain unimplemented until they have complete simulation rules and tests. Do not present UI-only placeholders as working mechanics.
+
