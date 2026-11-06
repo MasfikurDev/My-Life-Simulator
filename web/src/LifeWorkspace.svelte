@@ -4,8 +4,10 @@
   import LifestyleWorkspace from './LifestyleWorkspace.svelte';
   import FamilyWorkspace from './FamilyWorkspace.svelte';
   import ScheduleWorkspace from './ScheduleWorkspace.svelte';
-  let { character, onChange, initialView = 'overview' }: { character: Character; onChange: (next: Character) => void; initialView?: string } = $props();
-  let activeView = $state(initialView);
+  type LifeView = 'overview' | 'schedule' | 'lifestyle' | 'family' | 'wellbeing' | 'growth' | 'personal' | 'history';
+  let { character, onChange, initialView = 'overview', initialActivity = 'exercise' }: { character: Character; onChange: (next: Character) => void; initialView?: LifeView; initialActivity?: ActivityId } = $props();
+  let activeView = $state<LifeView>(initialView);
+  let selectedActivity = $state<ActivityId>(initialActivity);
   const views = [
     { id: 'overview', label: 'Overview' },
     { id: 'schedule', label: 'Schedule' }, 
@@ -22,7 +24,7 @@
   ];
   const stage = $derived(getLifeStage(character.age));
   const availablePersonalActivities = $derived(personalActivities.filter((item) => getAvailableActivityIds(character.age, character.employment).includes(item.id)));
-  function openSchedule() { activeView = 'schedule'; }
+  function openSchedule(activityId?: ActivityId) { if (activityId) selectedActivity = activityId; activeView = 'schedule'; }
 </script>
 
 <section class="life-workspace">
@@ -51,7 +53,7 @@
       <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.length} recorded events and milestones</small><b>Review history →</b></button>
     </div>
   {:else if activeView === 'schedule'}
-    <ScheduleWorkspace {character} {onChange} />
+    <ScheduleWorkspace {character} {onChange} initialActivity={selectedActivity} />
   {:else if activeView === 'family'}
     <FamilyWorkspace {character} {onChange} />
   {:else if activeView === 'wellbeing'}
@@ -72,7 +74,7 @@
     <div class="page-heading"><div><div class="eyebrow">PERSONAL TIME</div><h2>Everyday activities</h2><p>Exercise and social time are planned in your weekly schedule.</p></div><div class="year-pill">{character.weeklySchedule?.activities.length ?? 0} PLANNED</div></div>
     <div class="activity-grid activity-grid-large">
       {#each availablePersonalActivities as activity}
-        <button class="activity-card" onclick={openSchedule}>
+        <button class="activity-card" onclick={() => openSchedule(activity.id)}>
           <span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">Plan in schedule <span>→</span></span>
         </button>
       {/each}
