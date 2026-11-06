@@ -75,7 +75,7 @@
                 <div class="relative-actions">
                   <button onclick={() => interact(connection.person.id, 'spend-time')}>Spend time</button>
                   {#if character.age >= 10}<button onclick={() => interact(connection.person.id, 'reach-out')}>Reach out</button>{/if}
-                  {#if character.age >= 13 && connection.bond.tension >= 15}<button disabled={character.actionsRemaining <= 0} onclick={() => interact(connection.person.id, 'reconcile')}>Work through conflict</button>{/if}
+                  {#if character.age >= 13 && connection.bond.tension >= 15}<button onclick={() => interact(connection.person.id, 'reconcile')}>Work through conflict</button>{/if}
                 </div>
                 {#if character.age >= 18}
                   <div class="support-row">
