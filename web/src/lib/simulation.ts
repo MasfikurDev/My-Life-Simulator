@@ -743,6 +743,9 @@ export function planActivity(character: Character, activity: ActivityId, date: s
 export function planFamilyInteraction(character: Character, personId: string, interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support', supportAmount = 0, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
   const preview = interactWithFamily(character, personId, interaction, supportAmount);
   if (preview === character) return { character, issue: 'unavailable', message: 'This interaction is not available for that family member right now.' };
+  if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'family' && item.action.personId === personId)) {
+    return { character, issue: 'unavailable', message: 'An interaction with this family member is already planned this week.' };
+  }
   const family = character.family;
   const person = family?.people.find((entry) => entry.id === personId);
   if (!family || !person || person.id === family.playerPersonId) return { character, issue: 'unavailable', message: 'That family member is not available.' };
@@ -753,6 +756,9 @@ export function planFamilyInteraction(character: Character, personId: string, in
 
 export function planBusinessManagement(character: Character, businessId: string, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
   const business = (character.businesses ?? []).find((entry) => entry.id === businessId);
+  if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'business' && item.action.businessId === businessId)) {
+    return { character, issue: 'unavailable', message: 'A management session for this business is already planned this week.' };
+  }
   if (!business || manageBusiness(character, businessId) === character) return { character, issue: 'unavailable', message: 'This business cannot be managed right now.' };
   const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
   return reserveTimedAction(character, 'business', day, startPeriod, 2, { kind: 'business', businessId }, Math.max(1, Math.round(business.investedCapital * 0.01)));
