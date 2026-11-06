@@ -691,7 +691,7 @@ export interface ActivityPlanningResult {
  * separate from activity resolution: planning consumes time capacity, while
  * the later weekly resolver will apply effects and settle costs exactly once.
  */
-function plannedCost(character: Character, item: PlannedActivity): number {
+export function getPlannedActivityCost(character: Character, item: PlannedActivity): number {
   if (item.action?.kind === 'family' && item.action.interaction === 'provide-support') return item.action.supportAmount ?? 0;
   if (item.action?.kind === 'business') {
     const business = (character.businesses ?? []).find((entry) => entry.id === item.action!.businessId);
@@ -717,7 +717,7 @@ function reserveTimedAction(character: Character, activityId: PlannedActivity['a
   if (activityWeek !== currentWeek) return { character, issue: 'outside-current-week', message: 'Activities can only be planned in the current week.' };
   const schedule = getWeeklySchedule(character.weeklySchedule);
   if (!buildWeeklySchedule(currentWeek, schedule).valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts before adding another activity.' };
-  const alreadyReserved = schedule.activities.reduce((total, item) => total + plannedCost(character, item), 0);
+  const alreadyReserved = schedule.activities.reduce((total, item) => total + getPlannedActivityCost(character, item), 0);
   if (alreadyReserved + cost > character.money) return { character, issue: 'insufficient-funds', message: 'Your current cash cannot cover the planned activities this week.' };
   let sequence = schedule.activities.length + 1;
   let id = 'planned-' + date + '-' + startPeriod + '-' + activityId + '-' + sequence;
