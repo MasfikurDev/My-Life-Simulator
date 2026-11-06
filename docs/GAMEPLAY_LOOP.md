@@ -364,3 +364,12 @@ These are design references, not specifications to copy:
 - Interactive narrative and emergent/authored storytelling: https://doi.org/10.1016/j.entcom.2022.100500
 
 Use these references to understand patterns. Never copy their text, event scripts, art, branding, UI, or proprietary content.
+
+
+## Personal Technology as a connected life system
+
+Smartphones, laptops, and desktop PCs are modeled in the separate [Personal Technology system specification](PERSONAL_TECHNOLOGY.md). The system lives in Life → Personal Technology; shopping is provided through Lifestyle → Discover; payments use the existing Finance transaction path.
+
+Devices are durable, individual assets with age-appropriate ownership/access, a small capability model, gradual condition changes, and repair/replacement decisions. They can enable or improve selected school, work, communication, learning, and entertainment opportunities. They must not become mandatory paywalls: shared, school/work-provided, public, or non-digital alternatives should exist where appropriate.
+
+Do not duplicate device inventory or management controls in other workspaces. Cross-domain systems check actual device capability/access and record effects through their own domain state.
