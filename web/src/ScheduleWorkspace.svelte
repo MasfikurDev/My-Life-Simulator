@@ -2,7 +2,7 @@
   import { addCalendarDays, getFirstWeekStartOfYear, getWeekStart } from './lib/calendar';
   import { getActivityDefinition, getAvailableActivityIds } from './lib/progression';
   import { buildWeeklySchedule, getWeeklySchedule } from './lib/weekly-schedule';
-  import { formatCharacterMoney, getActivityCost, planActivity, removePlannedActivity } from './lib/simulation';
+  import { formatCharacterMoney, getActivityCost, getPlannedActivityCost, planActivity, removePlannedActivity } from './lib/simulation';
   import type { ActivityId, Character, DayPeriod } from './lib/types';
 
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
@@ -12,7 +12,7 @@
   const weekStart = $derived(getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year)));
   const schedule = $derived(getWeeklySchedule(character.weeklySchedule));
   const result = $derived(buildWeeklySchedule(weekStart, schedule));
-  const plannedCost = $derived(schedule.activities.reduce((total, item) => total + getActivityCost(character, item.activityId), 0));
+  const plannedCost = $derived(schedule.activities.reduce((total, item) => total + getPlannedActivityCost(character, item), 0));
   const availableActivities = $derived(getAvailableActivityIds(character.age, character.employment));
   let selectedActivity = $state<ActivityId>('exercise');
   let selectedDate = $state<string>('');
@@ -44,6 +44,9 @@
   }
 
   function activityLabel(id: string) {
+    if (id === 'family') return 'Family interaction';
+    if (id === 'business') return 'Business management';
+    if (id === 'event') return 'Life event decision';
     return getActivityDefinition(id as ActivityId)?.title ?? id;
   }
 </script>
