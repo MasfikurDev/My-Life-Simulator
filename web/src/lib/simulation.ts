@@ -251,6 +251,7 @@ export function advanceYear(character: Character): Character {
     next.lastYearIncome = income;
     next.lastYearExpenses = expenses;
     next.lastYearShortfall = shortfall;
+    if (income > 0) next.history.unshift(event(next, 'Annual pay received', 'You received ' + formatCharacterMoney(next, income) + ' in earnings.', 'event'));
     if (shortfall > 0) {
       next.happiness = clamp(next.happiness - 4);
       next.history.unshift(event(next, 'Household budget shortfall', 'You could not cover ' + formatCharacterMoney(next, shortfall) + ' of estimated household costs. Your balance cannot go below zero; no debt is created.', 'event'));
