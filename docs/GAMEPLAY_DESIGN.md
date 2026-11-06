@@ -78,6 +78,14 @@ The settings page provides a concise recent-log view backed by the character's c
 - Age 16+ characters can store and withdraw cash in a personal safe/vault. Vault holdings earn no interest and remain part of net worth.
 - Net worth now includes cash, bank balances, and vault cash, less active loan balances and credit-card debt. It remains a simplified balance sheet; property, businesses, stocks, gold and other assets are not included yet.
 
+## Property, housing, investments and businesses
+- Adults can rent a house/apartment with a recurring annual rent or buy a property using cash and/or a mortgage. Mortgage purchases require at least 20% down payment. Property value is an asset; linked mortgage balance is a liability.
+- Players can make an owned property their primary residence, list a non-primary property for rent, receive annual rental income, and sell property. Selling settles the linked mortgage from sale proceeds; a sale is rejected if proceeds cannot cover the outstanding mortgage.
+- Housing budgets use the selected rental amount or owned-home maintenance instead of the previous default housing estimate. Property maintenance is estimated at 1% of current value annually. Houses and apartments have modest different annual appreciation rates; these are game-balance assumptions.
+- Adults can buy and sell whole units of a broad index-fund proxy or gold using cash. Prices change once per simulated year with deterministic volatility; market returns are not guaranteed. Gold is not guaranteed inflation protection.
+- Adults can start up to three small businesses (retail, online, cafe) with startup capital. Business value begins at invested capital; yearly operating profit/loss depends on performance. Management consumes an action and a small cash cost; businesses can be sold for 90% of estimated value.
+- Net worth includes cash, bank accounts, vault, property, investments at current market prices, and business valuation, less active loans and credit-card debt. This is a simplified balance sheet; no detailed tax, brokerage fees, property transfer fees, or macroeconomic model exists yet.
+
 ## Candidate systems
 Health; family; education; career; finance; relationships; lifestyle; contextual/scheduled/random/player-created events. Build incrementally and connect systems. Do not implement every system at once.
 
