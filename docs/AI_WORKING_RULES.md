@@ -82,3 +82,5 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 42. Property, investments, and businesses must be represented as assets with current values and must be included in net worth; linked mortgages, personal/business loans, and credit balances remain liabilities. Property sales must settle linked mortgages before paying proceeds. Trading transfers value between cash and holdings; never mint money. Market movements must be bounded and reproducible. Legacy saves remain valid.
 
 43. Fixed deposits must enforce their maturity lock in simulation functions, not only UI. Prepaid card funds are an asset: loading moves existing cash/account value and spending reduces it. Credit card balances are liabilities. All new product types must be represented in net worth and the shared transaction ledger.
+
+44. Recurring card payments must honor the card's funding model: debit cards debit their linked bank account, credit cards increase liabilities only within available credit, and prepaid cards spend only loaded funds. Missed charges must be recorded without creating hidden balances.
