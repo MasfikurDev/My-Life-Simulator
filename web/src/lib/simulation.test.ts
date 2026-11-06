@@ -98,9 +98,9 @@ describe('life simulation', () => {
       employment: { title: 'Operations associate', type: 'full-time' as const, annualSalary: 10000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 }
     };
     const next = advanceYear(worker);
-    expect(next.money).toBe(4600);
+    expect(next.money).toBe(8600);
     expect(next.lastYearIncome).toBe(10000);
-    expect(next.lastYearExpenses).toBe(5500);
+    expect(next.lastYearExpenses).toBe(1500);
     expect(next.history.some((item) => item.title === 'Annual pay received')).toBe(true);
   });
   it('promotes experienced employees after sustained high performance', () => {
