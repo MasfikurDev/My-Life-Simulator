@@ -866,12 +866,15 @@ export function advanceWeek(character: Character, random: () => number = Math.ra
   next = { ...next, weeklySchedule: nextSchedule, lastResolvedWeekStart: weekStart, lastWeekRecap: recap };
   const nextDate = getNextWeekDate(currentDate);
   const nextYear = Number(nextDate.slice(0, 4));
-  const nextAge = getAgeAtDate(next.calendar?.birthDate ?? createGameCalendar(next.age, next.year).birthDate, nextDate);
+  const birthDate = next.calendar?.birthDate ?? createGameCalendar(next.age, next.year).birthDate;
+  const nextAge = getAgeAtDate(birthDate, nextDate);
+  const previousAge = next.age;
   next = { ...next, calendar: { ...(next.calendar ?? createGameCalendar(next.age, next.year)), currentDate: nextDate } };
   if (nextYear > character.year) {
-    next = advanceYear({ ...next, age: nextAge - 1, year: character.year });
+    next = settleCalendarYear(next, nextYear, nextAge, previousAge);
   } else {
-    next = { ...next, age: nextAge, year: nextYear };
+    next = applyAgeTransition(next, previousAge, nextAge);
+    next = { ...next, year: nextYear };
   }
   return { character: next, issue: null, recap };
 }
@@ -1019,12 +1022,9 @@ export function getAnnualReview(character: Character): AnnualReview {
   };
 }
 
-export function advanceYear(character: Character): Character {
-  const previousHistoryLength = character.history.length;
-  const current = expirePendingGameEvent(character);
-  let next: Character = { ...current, age: current.age + 1, year: current.year + 1, health: clamp(current.health - (current.age >= 45 ? 2 : 1)), history: [...current.history] };
-  next = advanceFamilyYear(next);
-  next = advanceEconomicConditions(next);
+function applyAgeTransition(character: Character, previousAge: number, targetAge: number): Character {
+  if (targetAge <= previousAge) return { ...character, age: targetAge };
+  let next: Character = { ...character, age: targetAge, history: [...character.history] };
   const educationStage = getEducationStage(next.age);
   if ([3, 6, 13, 18].includes(next.age) && next.education !== 'Higher education' && next.education !== educationStage) {
     next.education = educationStage;
@@ -1035,6 +1035,18 @@ export function advanceYear(character: Character): Character {
     next.householdArrangement = 'family-supported';
     next.history.unshift(event(next, 'Household finances unlocked', 'You can now choose how you live and manage recurring household costs.', 'milestone'));
   }
+  next.history.unshift(event(next, 'Another year, another chapter', 'You turned ' + next.age + '. Your choices continue to shape what comes next.', 'milestone'));
+  if (next.age === 18) next.history.unshift(event(next, 'Adult opportunities unlocked', 'Full-time employment, higher education and household finance choices are now available.', 'milestone'));
+  if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
+  return next;
+}
+
+function settleCalendarYear(character: Character, targetYear: number, targetAge: number, previousAge: number): Character {
+  const previousHistoryLength = character.history.length;
+  const current = expirePendingGameEvent(character);
+  let next: Character = { ...current, age: targetAge, year: targetYear, health: clamp(current.health - (previousAge >= 45 ? 2 : 1)), history: [...current.history] };
+  next = advanceFamilyYear(next);
+  next = advanceEconomicConditions(next);
 
   // Existing saves without banking fields remain valid; new accounts earn simple annual interest.
   const accounts = next.bankAccounts ?? [];
@@ -1101,13 +1113,15 @@ export function advanceYear(character: Character): Character {
     next.employment = job;
   }
 
-  next.history.unshift(event(next, 'Another year, another chapter', 'You turned ' + next.age + '. Your choices continue to shape what comes next.', 'milestone'));
-  if (next.age === 18) next.history.unshift(event(next, 'Adult opportunities unlocked', 'Full-time employment, higher education and household finance choices are now available.', 'milestone'));
-  if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
+  next = applyAgeTransition(next, previousAge, targetAge);
   next = resolveDueGameConsequences(next);
   next = prepareGameEvent(next);
   const recapCount = Math.max(0, next.history.length - previousHistoryLength);
   next.lastYearRecap = next.history.slice(0, recapCount).slice(0, 4).map((item) => item.title + ' — ' + item.description);
   if (!next.lastYearRecap.length) next.lastYearRecap = ['A quiet year. No major changes were recorded.'];
   return next;
+}
+
+export function advanceYear(character: Character): Character {
+  return settleCalendarYear(character, character.year + 1, character.age + 1, character.age);
 }
