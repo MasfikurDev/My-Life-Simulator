@@ -53,6 +53,8 @@ describe('life simulation', () => {
     const c = createCharacter('Sam');
     expect(c.name).toBe('Sam'); expect(c.age).toBe(18); expect(c.actionsRemaining).toBe(3);
     expect(c.history).toHaveLength(1);
+    expect(c.calendar?.currentDate).toBe('2026-01-05');
+    expect(c.calendar?.birthDate).toBe('2008-01-05');
   });
   it('supports birth, teen, adult and later-life starts', () => {
     expect(createCharacter('Newborn', 0).age).toBe(0);

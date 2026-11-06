@@ -1,6 +1,6 @@
 # Roadmap
 
-**Working sequence, not date promises · Reviewed 2026-11-05**
+**Working sequence, not date promises · Reviewed 2026-11-06**
 
 ## Milestone 0 — GitHub-first foundation
 - [x] Preserve product, gameplay, visual, architecture, and AI collaboration decisions.
@@ -47,7 +47,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 **Design decision:** weekly is the playable time unit; monthly is the financial/reporting unit; yearly is the life-progression unit. This milestone is a foundational redesign, not a cosmetic change from "3 actions/year" to "3 actions/week".
 
-- [ ] Specify and test date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
+- [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
 - [ ] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour or reserve time for unimplemented school/work schedules.
 - [ ] Replace annual action tokens with activity time requirements and conflict validation. Different activities may consume different time blocks and money; no arbitrary universal weekly action quota.
 - [ ] Add deterministic, exactly-once weekly resolution with structured effects, history, and recap.
@@ -75,7 +75,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 **Acceptance:** Device ownership and costs persist accurately; failed transactions are atomic; capabilities enable specific contextual opportunities; other domains do not duplicate device management; existing saves remain valid. Detailed rules: [PERSONAL_TECHNOLOGY.md](PERSONAL_TECHNOLOGY.md).
 
-## Milestone 4 — Deepen School and Work into playable systems
+## Milestone 5 — Deepen School and Work into playable systems
 - [ ] Add real school progression choices, enrollment, attendance, classes, grades/exams, and fees in the School workspace.
 - [ ] Add recruitment stages with applications, interviews, offers, acceptance/decline, employer identity, and workplace decisions in Work.
 - [ ] Clarify the current-job card and add a read-only career-path preview with estimated salary/bonus ranges; see [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md).
@@ -84,7 +84,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 **Acceptance:** Education and career choices change future options and have visible consequences; no placeholder status is shown as a real mechanic.
 
-## Milestone 5 — Persistent family and relationships
+## Milestone 6 — Persistent family and relationships
 
 **Specification:** [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md). Family is simulation-first: persistent people, validated kinship/guardianship graph, separate closeness/trust/tension, household/dependency state, and auditable family history.
 
@@ -103,7 +103,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 **Acceptance:** Family is represented by real people and validated relationships, not a single score. Interactions materially affect the selected relationship and are recorded. Financial support cannot create money or hidden debt. New and legacy saves remain valid. Different family structures and child/adult/later-life scenarios are tested. No unimplemented partner, child, care, death, or inheritance state is shown as fact.
 
-## Milestone 6 — Health, aging, retirement, and later-life economy
+## Milestone 7 — Health, aging, retirement, and later-life economy
 - [ ] Make health, happiness, and fitness affect gameplay through transparent, bounded rules.
 - [ ] Add illness/injury/recovery and healthcare costs only as complete playable loops.
 - [ ] Add retirement choices, sustainable pension/retirement income, and age-appropriate later-life expenses.
@@ -111,7 +111,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 **Acceptance:** A later-life character can survive financially through plausible modeled income/expenses, and health changes create understandable gameplay consequences.
 
-## Milestone 7 — Death, final life summary, and legacy
+## Milestone 8 — Death, final life summary, and legacy
 - [ ] Add explainable mortality risk and a critical-health resolution path.
 - [ ] Make death a terminal state that stops aging and living-character actions.
 - [ ] Present a final life summary based only on recorded facts.
@@ -119,7 +119,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 **Acceptance:** A complete playthrough can end naturally, preserve its completed save, explain the life outcome, and never continue aging after death.
 
-## Milestone 8 — Replayability and balance
+## Milestone 9 — Replayability and balance
 - [ ] Add more event variety, authored milestone arcs, trait interactions, and optional achievements/challenges.
 - [ ] Balance multiple viable life strategies and test different starting ages, country profiles, and economic circumstances.
 - [ ] Run repeatable birth-to-death playthroughs and edge-case simulations before claiming the game is complete.
