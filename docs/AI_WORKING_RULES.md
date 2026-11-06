@@ -86,3 +86,5 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 44. Recurring card payments must honor the card's funding model: debit cards debit their linked bank account, credit cards increase liabilities only within available credit, and prepaid cards spend only loaded funds. Missed charges must be recorded without creating hidden balances.
 
 44. Economic simulation must be deterministic for a given save/year, bounded against runaway rates and asset changes, and preserve legacy-save compatibility. Inflation must flow into cost-of-living and recurring price assumptions; market assets must respond to economic conditions without guaranteeing returns. Clearly label all rates and market movements as fictional simplified game estimates.
+
+45. Tax settlement must be deterministic, auditable, and never create negative cash. Pay from cash and eligible liquid accounts only; fixed deposits remain locked until maturity. Any unpaid tax must remain a visible liability included in net worth. Keep rates clearly labeled as fictional game rules, not jurisdiction-specific advice.
