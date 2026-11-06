@@ -540,3 +540,31 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 @media(max-width:360px){
  .overview-context{grid-template-columns:1fr}
 }
+
+
+/* Yearly gameplay: contextual decisions and a compact chapter recap. */
+.game-event-panel,.year-recap{margin:0 0 15px;padding:15px;border:1px solid var(--line);border-radius:13px;background:var(--surface)}
+.game-event-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.game-event-status{padding:5px 8px;border:1px solid var(--line-strong);border-radius:6px;color:var(--accent);font-size:8px;font-weight:800;letter-spacing:.8px}
+.game-event-panel h2,.year-recap h2{margin:9px 0 6px;color:var(--text);font-size:17px;letter-spacing:-.35px}
+.game-event-description{margin:0;color:var(--muted);font-size:11px;line-height:1.6}
+.game-event-choices{display:grid;gap:7px;margin-top:13px}
+.game-event-choice{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;text-align:left;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised);color:var(--text);cursor:pointer}
+.game-event-choice:disabled{opacity:.42;cursor:not-allowed}
+.game-event-choice-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.game-event-choice-copy strong{font-size:11px;line-height:1.35}
+.game-event-choice-copy small{font-size:9px;line-height:1.45;color:var(--muted)}
+.game-event-choice-cost{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none;color:var(--accent);font-size:9px;font-weight:800;white-space:nowrap}
+.game-event-footnote{margin:10px 0 0;color:var(--muted);font-size:9px;line-height:1.45}
+.year-recap .eyebrow{font-size:8px}
+.year-recap h2{margin-top:5px}
+.year-recap ul{display:grid;gap:7px;margin:0;padding:0 0 0 15px;color:var(--muted);font-size:10px;line-height:1.5}
+.year-recap li::marker{color:var(--accent)}
+@media(max-width:620px){
+ .game-event-panel,.year-recap{padding:12px}
+ .game-event-panel h2,.year-recap h2{font-size:15px}
+ .game-event-choice{padding:10px;gap:8px}
+ .game-event-choice-copy strong{font-size:10px}
+ .game-event-choice-copy small{font-size:8px}
+ .game-event-choice-cost{font-size:8px}
+}
