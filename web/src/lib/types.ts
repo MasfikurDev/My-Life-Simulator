@@ -3,6 +3,26 @@ export type Gender = 'male' | 'female' | 'non-binary';
 export type EmploymentType = 'part-time' | 'full-time' | 'flexible';
 export type HouseholdArrangement = 'family-supported' | 'shared' | 'independent';
 export type SavingsGoalMonths = 1 | 3 | 6;
+export type BankAccountType = 'checking' | 'savings';
+export type FinancialTransactionType = 'account-opened' | 'deposit' | 'withdrawal' | 'transfer' | 'income' | 'expense' | 'interest';
+export interface BankAccount {
+  id: string;
+  name: string;
+  type: BankAccountType;
+  balance: number;
+  annualInterestRate: number;
+  openedAtAge: number;
+}
+export interface FinancialTransaction {
+  id: string;
+  year: number;
+  age: number;
+  type: FinancialTransactionType;
+  amount: number;
+  description: string;
+  from: string;
+  to: string;
+}
 export interface Employment {
   title: string;
   type: EmploymentType;
@@ -21,6 +41,8 @@ export interface Character {
   educationProgress?: number; employment?: Employment | null;
   lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number;
   householdArrangement?: HouseholdArrangement; savingsGoalMonths?: SavingsGoalMonths | null;
+  bankAccounts?: BankAccount[];
+  financialTransactions?: FinancialTransaction[];
   appearance?: { height: string; build: string; hair: string; eyes: string };
   history: LifeEvent[];
 }
