@@ -270,7 +270,7 @@ The Family domain lives in the pure TypeScript module family.ts and is independe
 - Relative age is derived from birth year and the current simulation year. Family state does not run a second clock or independently age NPCs.
 - New characters receive a generated family-of-origin context; existing saves without family data require an explicit one-time initialization action. No partner or children are invented.
 - Historical deaths in generated family background are fixed past facts only. Future family mortality must use the global mortality system.
-- The current interaction budget still uses the legacy annual action counter. Migrate family activities to the canonical weekly time-block model when that foundation is implemented.
+- Family interactions use the shared weekly time-block model. The Family workspace confirms the interaction; the simulation places it automatically in suitable free time and resolves its effects during weekly advancement.
 - Keep partnership, parenthood, adoption, care, shared household finances, and inheritance out of the implementation until their full simulation contracts and tests are ready.
 
 Detailed domain rules: [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md).
