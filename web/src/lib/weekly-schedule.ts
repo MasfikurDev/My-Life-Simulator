@@ -141,7 +141,7 @@ export function buildWeeklySchedule(weekStart: string, schedule: WeeklySchedule)
     }
     placements.push({
       id: activity.id,
-      title: activity.activityId,
+      title: activity.action?.kind === 'work'\n        ? (activity.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + activity.action.title\n        : activity.activityId,
       domain: 'activity',
       date: activity.date,
       startPeriod: activity.startPeriod,
