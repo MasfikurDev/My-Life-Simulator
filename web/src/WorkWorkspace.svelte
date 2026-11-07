@@ -20,7 +20,9 @@
     const result = planWorkActionInNextFreeTime(character, workAction, jobId);
     if (result.issue) { onNotify(result.message ?? 'That work activity could not be scheduled.'); return; }
     onChange(result.character);
-    onNotify(workAction === 'apply' ? 'Application added to this week’s schedule.' : 'Interview added to this week’s schedule.');
+    const slot = result.scheduledActivity;
+    const when = slot ? slot.date + ' (' + slot.startPeriod + ')' : 'this week';
+    onNotify(workAction === 'apply' ? 'Application confirmed for ' + when + '.' : 'Interview confirmed for ' + when + '.');
   }
   function confirmLeaveJob() {
     const next = resignFromJob(character);
@@ -32,7 +34,8 @@
     const result = planActivityInNextFreeTime(character, 'career');
     if (result.issue) { onNotify(result.message ?? 'No suitable time is available this week.'); return; }
     onChange(result.character);
-    onNotify('Career development added to this week’s schedule.');
+    const slot = result.scheduledActivity;
+    onNotify(slot ? 'Career development confirmed for ' + slot.date + ' (' + slot.startPeriod + ').' : 'Career development confirmed.');
   }
   function acceptOffer(id: string) {
     const next = acceptJobOffer(character, id);
@@ -79,7 +82,7 @@
         </div>
         <p class="work-note">Regular shifts: {character.employment.type === 'full-time' ? 'Monday–Friday, mornings and afternoons' : character.employment.type === 'part-time' ? 'Monday, Wednesday and Friday afternoons' : 'Tuesday, Thursday and Saturday mornings'}.</p>
         <p class="work-note">Pay is shown as annual base salary. Payroll is currently settled annually; monthly payroll and benefits are planned separately.</p>
-        <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>Plan career development session</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
+        <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>Career development session</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
         {#if confirmResignation}<div class="resign-confirm"><strong>Leave {character.employment.title}?</strong><p>You will become unemployed. Your career experience and history will be kept.</p><div><button class="work-primary" onclick={confirmLeaveJob}>Confirm resignation</button><button class="work-secondary" onclick={() => confirmResignation = false}>Keep job</button></div></div>{/if}
       </section>
     {:else}
@@ -102,8 +105,8 @@
       <div class="work-section-heading"><div><span class="eyebrow">NEXT STEP</span><h2>Interview invitations</h2></div></div>
       {#each (character.jobApplications ?? []).filter((application) => application.status === 'interview') as application (application.id)}
         <article class="work-listing">
-          <div class="listing-main"><div class="eyebrow">{application.employer}</div><h3>{application.title}</h3><p>Your application was shortlisted. Reserve time for an interview.</p></div>
-          <button class="work-primary" onclick={() => planWork('interview', application.id)}>Schedule interview · 2 periods</button>
+          <div class="listing-main"><div class="eyebrow">{application.employer}</div><h3>{application.title}</h3><p>Your application was shortlisted. Confirm the interview; the game will find two consecutive free periods.</p></div>
+          <button class="work-primary" onclick={() => planWork('interview', application.id)}>Confirm interview</button>
         </article>
       {/each}
     {/if}
@@ -126,7 +129,7 @@
               {/each}
             </div>
             <div class="listing-actions">
-              <button class="work-primary" disabled={!eligible || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : eligible ? 'Plan application · 1 period' : 'Requirements not met'}</button>
+              <button class="work-primary" disabled={!eligible || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : eligible ? 'Apply' : 'Requirements not met'}</button>
             </div>
           </article>
         {/each}

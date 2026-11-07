@@ -31,7 +31,6 @@
   let pendingSlotId = $state<SaveSlotId | null>(null);
   let debugCopying = $state(false);
   let advanceReviewOpen = $state(false);
-  let lifeInitialView = $state<'overview' | 'schedule'>('overview');
   onMount(() => {
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
@@ -75,7 +74,7 @@
     return [...groups.values()].sort((a, b) => b.sortDate.localeCompare(a.sortDate));
   }
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
-  function navigateTab(tab: string) { if (tab === 'life') lifeInitialView = 'overview'; activeTab = tab; }
+  function navigateTab(tab: string) { activeTab = tab; }
   function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
   function startLife(nextCharacter: Character) {
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
@@ -183,8 +182,9 @@
     if (!character) return;
     const planned = planActivityInNextFreeTime(character, id);
     if (planned.issue) { notify(planned.message ?? 'No suitable time is available this week.'); return; }
-    persist(planned.character); lifeInitialView = 'schedule'; activeTab = 'life'; playSound('action');
-    notify('Added to this week’s schedule.');
+    persist(planned.character); playSound('action');
+    const slot = planned.scheduledActivity;
+    notify(slot ? 'Study session confirmed for ' + slot.date + ' (' + slot.startPeriod + ').' : 'Study session confirmed.');
   }
   function chooseLifeEvent(choiceId: string) {
     if (!character) return;
@@ -192,7 +192,8 @@
     if (planned.issue) { notify(planned.message ?? 'That decision could not be scheduled.'); return; }
     const immediate = character.pendingGameEvent?.choices.find((choice) => choice.id === choiceId)?.timeBlocks === 0;
     persist(planned.character); playSound('action');
-    notify(immediate ? 'Decision recorded.' : 'Decision scheduled for this week.');
+    const slot = planned.scheduledActivity;
+    notify(immediate ? 'Decision recorded.' : slot ? 'Decision confirmed for ' + slot.date + ' (' + slot.startPeriod + ').' : 'Decision confirmed.');
   }
   function openAdvanceReview() { if (!character) return; activeTab = 'home'; advanceReviewOpen = true; }
   function closeAdvanceReview() { advanceReviewOpen = false; }
@@ -415,14 +416,14 @@
             <div class="meter"><span class="blue" style="width:{character.educationProgress ?? 0}%"></span></div>
             <div class="domain-note">{character.age < 18 ? 'Study sessions build knowledge as you progress through school stages.' : 'Study sessions build knowledge and can unlock higher education.'}</div>
           </section>
-          <div class="section-heading"><div><span class="section-index">01</span><h3>Study options</h3></div><span class="section-hint">Plan activities in your weekly schedule</span></div>
+          <div class="section-heading"><div><span class="section-index">01</span><h3>Study options</h3></div><span class="section-hint">Confirm a session; time is placed automatically</span></div>
           <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => activity.id === 'study' && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={!canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
         {:else if character && activeTab==='work' && character.age >= 16}
           <WorkWorkspace {character} onChange={persist} onNotify={notify} />
 
         {:else if character && activeTab==='life'}
-          <LifeWorkspace {character} onChange={persist} initialView={lifeInitialView} />
+          <LifeWorkspace {character} onChange={persist} />
         {:else if character && activeTab==='finances'}
           <FinanceWorkspace {character} onChange={persist} />
         {/if}

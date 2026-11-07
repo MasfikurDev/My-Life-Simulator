@@ -4,7 +4,7 @@
 
 ## Core loop
 1. Review the current week, calendar, actual commitments, free-time blocks, and relevant situations.
-2. Choose activities in their own domain workspaces and place them into available time.
+2. Confirm actions in their own domain workspaces; the simulation automatically places time-consuming actions into suitable free periods.
 3. Pay validated costs (time, money, and only modeled resource costs such as energy).
 4. Resolve commitments, events, due payments, and consequences when the player advances the week.
 5. Review the weekly recap and persistent history.
@@ -57,7 +57,7 @@ Current action eligibility: learning/study becomes available at age 3; one-off e
 
 ### Education progression
 - Education status follows the age bands: not started (0–2), early learning (3–5), primary education (6–12), secondary education (13–17), and secondary education completed at 18.
-- Study consumes an annual action, improves intelligence, and advances learning progress. Progress resets at the next school-stage boundary.
+- A confirmed study session automatically reserves two consecutive free periods in the current week. It improves intelligence and advances learning progress when the week resolves. Progress resets at the next school-stage boundary.
 - From age 18, five study actions (20 progress each) can complete the higher-education qualification. Higher education improves access to professional roles and application odds.
 - Education is a game progression model, not a detailed curriculum, school attendance simulation, or real qualification equivalency.
 
@@ -175,7 +175,7 @@ Keep the first version focused on fictional models, understandable capability ti
 
 Family is a connected life system built around persistent people, kinship/guardianship links, relationship bonds, household membership, dependency, and family history. It is not a single relationship score or an assumed spouse-and-children template. See [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md) for the complete domain specification and implementation stages.
 
-The current code implements family-of-origin generation, graph validation, and a small targeted interaction loop. New characters may begin with parents/guardians and siblings; partners and children are never assumed. Existing saves require explicit family-background initialization. Interactions change only the selected bond and record history; adult financial support debits cash and writes to the common Finance ledger. The annual action allowance is transitional until weekly time blocks exist.
+The current code implements family-of-origin generation, graph validation, and a small targeted interaction loop. New characters may begin with parents/guardians and siblings; partners and children are never assumed. Existing saves require explicit family-background initialization. Interactions change only the selected bond and record history; adult financial support debits cash and writes to the common Finance ledger. Family interactions are confirmed in the Family workspace and automatically placed into suitable weekly free time by the shared simulation planner.
 
 Partnership, parenthood, adoption, caregiving, family mortality, inheritance, and legacy remain unimplemented until they have complete simulation rules and tests. Do not present UI-only placeholders as working mechanics.
 

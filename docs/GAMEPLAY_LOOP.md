@@ -88,10 +88,11 @@ The simulation now has a reusable, save-compatible weekly schedule model:
 - Planned activities reserve dated periods in the selected week and must remain within that week.
 - The pure schedule resolver expands commitments, identifies free periods, and reports duplicate IDs, invalid dates/durations, out-of-week activities, and overlapping placements.
 - New characters receive an empty versioned schedule. Legacy saves are migrated without discarding character or slot data; saves that lack calendar data are anchored to the first Monday on or after January 1 of their stored year, and the obsolete annual action counter is removed.
-- The Life workspace now exposes a seven-day planner. Players can reserve age-available activities in morning/afternoon/evening periods, see the duration each activity reserves, remove plans, and receive a conflict message when a placement overlaps an existing reservation. The schedule is saved with the character.
-- Activity time requirements now come from one shared simulation catalogue: study and extra work take two consecutive periods; exercise, socializing, job applications, and career development take one.
-- The simulation exposes validated planning operations for personal activities, family interactions, business management, and time-consuming event choices. They enforce eligibility, current-week dates, duration fit, no overlap with commitments or other activities, and enough cash for combined planned costs.
-- The planner shows each activity's duration and estimated cost, plus the cash remaining after all planned costs. Removing an activity releases its time and planned budget.
+- Routine actions are initiated from their owning domains: study in School, applications/interviews and career development in Work, family interactions in Family, business management in Business, and personal activities in Life. Confirming the action is the only scheduling input required.
+- A shared simulation planner finds the earliest suitable contiguous free period in the current week, validates eligibility, duration, recurring commitments, overlaps, and aggregate planned costs, then returns the exact placement to the owning screen. The player never chooses a date or time for routine actions.
+- The Schedule workspace is a review surface: it shows the seven-day/21-period view, recurring commitments, reservations, available periods, and planned costs. It supports removing a reservation; it is not a second place to initiate routine actions.
+- Study and extra work take two consecutive periods; exercise, socializing, job applications, and career development take one. Family interactions take one; business management takes two; event choices use their authored duration or resolve immediately when no time is required.
+- A failed placement leaves the save and existing reservations unchanged and explains why the action could not be placed.
 - The current slice permits one planned interaction per family member and one management session per business in a week, preventing repeated identical relationship/business actions from being stacked into the same turn. Different people and different businesses remain independent.
 - Planned activities, family interactions, business sessions, and time-consuming event choices resolve through the weekly loop. Costs and effects are applied at resolution, reservations are cleared, and the calendar advances by seven days. If a reservation becomes invalid after planning, the turn is rejected and the plan is preserved for repair instead of being silently discarded. Annual income, household expenses, taxes, asset settlement, and financial products still settle at the year boundary; age and birthday-triggered life-stage eligibility update on the actual birthday.
 
@@ -184,9 +185,11 @@ The final order may be adjusted to satisfy domain dependencies, but it must rema
 
 A playable weekly loop is not complete until:
 1. A new player can understand the current week, commitments, free time, and next action without reading documentation.
-2. The player can schedule at least two different activities with different time costs and see that they cannot overlap.
-3. School/work commitments reserve time only when actual schedule data exists.
-4. A weekly activity can create a meaningful immediate effect and a persistent delayed consequence.
+2. Confirming an action from School, Work, Family, Business, Events, or Life automatically places it in the earliest suitable contiguous free period and reports that placement in the originating domain.
+3. The player is never required to choose a date or period for a routine action; Schedule is used to review or cancel existing reservations.
+4. The player can confirm at least two different actions with different time costs and see that they cannot overlap.
+5. School/work recurring commitments reserve time only when actual schedule data exists.
+6. A weekly activity can create a meaningful immediate effect and a persistent delayed consequence.
 5. One week advances exactly once; retry/reload cannot duplicate income, bills, effects, or history.
 6. Crossing month-end processes monthly payments once; crossing year-end processes annual systems once.
 7. A birthday changes age and eligibility on the correct date, not simply every 52 button presses.

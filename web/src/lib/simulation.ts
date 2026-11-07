@@ -687,6 +687,8 @@ export interface ActivityPlanningResult {
   character: Character;
   issue: ActivityPlanningIssue | null;
   message: string | null;
+  /** The automatically selected placement, when this action reserves time. */
+  scheduledActivity?: PlannedActivity;
 }
 
 /**
@@ -795,14 +797,20 @@ export function planWorkAction(character: Character, workAction: 'apply' | 'inte
 
 function planInNextFreeTime(character: Character, attempt: (date: string, period: DayPeriod) => ActivityPlanningResult): ActivityPlanningResult {
   const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  const grid = buildWeeklySchedule(week, getWeeklySchedule(character.weeklySchedule));
+  const schedule = getWeeklySchedule(character.weeklySchedule);
+  const grid = buildWeeklySchedule(week, schedule);
   if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
+  const existingIds = new Set(schedule.activities.map((item) => item.id));
   for (const block of grid.blocks) {
     if (block.entryId) continue;
     const result = attempt(block.date, block.period);
-    if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
+    if (!result.issue) {
+      const scheduledActivity = result.character.weeklySchedule?.activities.find((item) => !existingIds.has(item.id));
+      return { ...result, scheduledActivity };
+    }
+    if (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict') return result;
   }
-  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week. Existing plans have not been changed.' };
 }
 
 export function planWorkActionInNextFreeTime(character: Character, workAction: 'apply' | 'interview', jobId: string): ActivityPlanningResult {

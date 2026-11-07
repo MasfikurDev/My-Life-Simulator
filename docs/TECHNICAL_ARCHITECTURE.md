@@ -212,18 +212,19 @@ The target gameplay clock is date-based and weekly, not annual-action-based. The
 
 - Keep calendar/date logic in pure TypeScript domain modules, independent of Svelte, browser APIs, and Android. Use explicit date helpers for week boundaries, month/year boundaries, leap years, birthdays, and age calculation.
 - Persist an explicit current game date and the minimum stable identity needed to derive age. Do not increment age once per week or assume every year is exactly 52 weeks.
-- A weekly schedule represents meaningful commitments and discretionary time blocks; it is not a 168-hour real-time simulation. School and Work own their recurring schedules. A domain must not reserve time until its schedule is actually modeled.
-- Validate time-block conflicts and activity prerequisites in simulation functions. UI availability is advisory; the simulation is authoritative.
+- A weekly schedule represents meaningful commitments and discretionary time blocks; it is not a 168-hour real-time simulation. Each domain owns its action definitions and any real recurring commitments; do not invent school or household schedules before those systems exist.
+- Domain screens initiate their own actions. A shared simulation scheduling operation finds the earliest suitable contiguous free period, validates prerequisites, durations, recurring commitments, overlaps, and aggregate affordability, then returns the chosen placement. UI availability is advisory; the simulation is authoritative.
+- The Schedule workspace is a read/review and cancellation surface, not a generic action-entry form. A successful scheduling result must expose the reserved date, start period, and duration to the originating domain. A failed attempt must preserve the entire prior Character state.
 - Weekly advancement must be a single deterministic domain transaction returning updated state, financial ledger entries, history, event effects, and recap data. Repeated calls/reloads must not duplicate a resolved week.
 - Monthly and annual settlement must have explicit date-based due rules and idempotency keys/period markers. Never run annual finance settlement in addition to monthly installments for the same obligation.
 - Do not divide existing annual costs/salary/interest by 12 without modeling rounding, due dates, inflation, payment failures, and save migration.
 - Multi-week advancement must call the same weekly resolver sequentially and stop at any decision boundary. It must not skip weeks with a coarse approximation.
 - Save migration must preserve legacy annual saves, all three slots, financial ledgers, liabilities/assets, event state, and history. Migration rules must be deterministic and tested before the UI switches to weekly progression.
-- Keep the current annual simulation path available during development until weekly scenario tests pass; do not partially switch the live save format or mix weekly and annual settlement paths.
+- The weekly cycle is the live playable time model. Annual mechanics remain only where their own cadence is intentional (birthdays, annual payroll/settlement, taxes, and life review); do not reintroduce annual action tokens or duplicate weekly effects through an annual fallback.
 
 Suggested future module boundaries (do not create empty abstractions prematurely):
 - `calendar.ts`: pure calendar/date/birthday helpers.
-- `schedule.ts`: recurring commitments, free-time blocks, overlap and availability validation.
+- `weekly-schedule.ts`: recurring commitments, free-time blocks, overlap and availability validation.
 - `week-cycle.ts`: orchestration of weekly phases and exactly-once advancement.
 - Domain modules own their own schedule definitions and effects; the cycle coordinator orchestrates them without duplicating their rules.
 - Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups only when weekly migration is underway.
@@ -269,7 +270,7 @@ The Family domain lives in the pure TypeScript module family.ts and is independe
 - Relative age is derived from birth year and the current simulation year. Family state does not run a second clock or independently age NPCs.
 - New characters receive a generated family-of-origin context; existing saves without family data require an explicit one-time initialization action. No partner or children are invented.
 - Historical deaths in generated family background are fixed past facts only. Future family mortality must use the global mortality system.
-- The current interaction budget still uses the legacy annual action counter. Migrate family activities to the canonical weekly time-block model when that foundation is implemented.
+- Family interactions use the shared weekly time-block model. The Family workspace confirms the interaction; the simulation places it automatically in suitable free time and resolves its effects during weekly advancement.
 - Keep partnership, parenthood, adoption, care, shared household finances, and inheritance out of the implementation until their full simulation contracts and tests are ready.
 
 Detailed domain rules: [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md).

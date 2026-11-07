@@ -31,12 +31,10 @@
       activityFeedback = planned.message ?? 'No suitable time is available this week.';
       return;
     }
-    const scheduled = planned.character.weeklySchedule?.activities.find((item) =>
-      !character.weeklySchedule?.activities.some((existing) => existing.id === item.id)
-    );
     onChange(planned.character);
+    const slot = planned.scheduledActivity;
     activityFeedback = getActivityDefinition(activityId).title + ' confirmed for ' +
-      (scheduled ? scheduled.date + ' (' + scheduled.startPeriod + ')' : 'this week') + '.';
+      (slot ? slot.date + ' (' + slot.startPeriod + ')' : 'this week') + '.';
   }
 </script>
 
@@ -88,7 +86,7 @@
     <div class="activity-grid activity-grid-large">
       {#each availablePersonalActivities as activity}
         <button class="activity-card" onclick={() => scheduleActivity(activity.id)}>
-          <span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">Confirm & schedule <span>→</span></span>
+          <span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">Confirm activity <span>→</span></span>
         </button>
       {/each}
     </div>

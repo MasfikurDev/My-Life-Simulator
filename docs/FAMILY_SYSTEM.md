@@ -104,7 +104,7 @@ Adding a child, partner, guardian, or adoptive relationship must be an atomic gr
 - **Education:** guardian/dependent state can influence school access, fees, attendance, and support when those mechanics exist.
 - **Work:** caregiving or family events may affect availability only when the time/schedule model supports it.
 - **Personal Technology:** device access may enable communication, but no family interaction should require owning a phone unless the specific activity genuinely requires it; provide alternatives.
-- **Time:** the current annual action system is transitional. When the weekly calendar is implemented, family interactions and caregiving must consume real available time blocks and avoid overlap.
+- **Time:** family interactions use the implemented weekly calendar now. The player confirms an interaction in Family; the simulation automatically reserves the earliest suitable free period and resolves it during the weekly turn. Future caregiving must use the same shared placement rules when its mechanics exist.
 
 ## Generation and representation
 

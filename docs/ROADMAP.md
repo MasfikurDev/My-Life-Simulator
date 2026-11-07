@@ -50,9 +50,11 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
 - [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment now adds type-based recurring Work shifts; School attendance remains unmodeled until its own schedule loop exists.
-- [x] Add a visible Life → Schedule planner with a seven-day, 21-period grid, age-available activity planning, duration-based reservations, conflict prevention, removal, and weekly resolution.
+- [x] Add a Schedule review workspace with a seven-day, 21-period grid, recurring commitments, automatic reservations, duration visibility, planned-cost summary, and reservation removal. Routine actions are initiated only from their owning domain.
 - [x] Centralize per-activity time requirements and validate planned activities in the simulation: life-stage eligibility, current-week boundaries, duration fit, overlaps, and aggregate planned cash costs.
-- [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, and business management.
+- [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, business management, and contextual Work actions.
+- [x] Make routine scheduling contextual and automatic across School, Work, Family, Business, Events, and Life; return the chosen date/period to the originating screen and keep the player out of generic date/time forms.
+- [x] Keep Schedule as a review/cancellation surface rather than a generic action launcher.
 - [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once; reject and preserve a turn if a reservation becomes stale before resolution.
 - [x] Add deterministic, exactly-once weekly resolution with history, recap, and seven-day calendar advancement.
 - [ ] Adapt contextual events, deadlines, and delayed consequences to date/week boundaries.
