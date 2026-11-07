@@ -51,6 +51,30 @@
     const day = Number(date.split('-')[2]);
     return Number.isFinite(day) && day > 0 ? Math.min(4, Math.ceil(day / 7)) : 1;
   }
+
+  function activityWeekKey(date: string | undefined) {
+    if (!date) return 'earlier';
+    const [year, month, day] = date.split('-').map(Number);
+    if (!year || !month || !day) return 'earlier';
+    return year + '-' + String(month).padStart(2, '0') + '-week-' + Math.min(4, Math.ceil(day / 7));
+  }
+  function groupActivityHistory(items: Character['history']) {
+    const groups = new Map<string, { key: string; label: string; sortDate: string; items: Character['history'] }>();
+    for (const item of items) {
+      const key = activityWeekKey(item.date);
+      const date = item.date;
+      let label = 'Earlier records';
+      if (date && key !== 'earlier') {
+        const [year, month, day] = date.split('-').map(Number);
+        const monthName = new Intl.DateTimeFormat('en', { month: 'long', timeZone: 'UTC' }).format(new Date(Date.UTC(year, month - 1, 1)));
+        label = monthName + ' · Week ' + Math.min(4, Math.ceil(day / 7)) + ', ' + year;
+      }
+      const group = groups.get(key) ?? { key, label, sortDate: date ?? '0000-00-00', items: [] };
+      group.items.push(item);
+      groups.set(key, group);
+    }
+    return [...groups.values()].sort((a, b) => b.sortDate.localeCompare(a.sortDate));
+  }
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
   function navigateTab(tab: string) { if (tab === 'life') lifeInitialView = 'overview'; activeTab = tab; }
   function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
@@ -365,11 +389,20 @@
               <div class="year-review-actions"><button class="secondary-button" onclick={closeAdvanceReview}>Back to this week</button><button class="primary-button" onclick={advanceWeekNow}>Resolve week and continue</button></div>
             </section>
           {/if}
+          {@const activities = character.history.filter((item) => item.kind === 'activity')}
+          {@const activityWeeks = groupActivityHistory(activities)}
           <section class="history-card overview-activity-feed" aria-label="All activities">
-            <div class="page-heading"><div><div class="eyebrow">EVERYDAY LIFE</div><h2>Activities</h2><p>Your recorded actions and everyday moments, newest first.</p></div><span class="year-pill">{character.history.filter((item) => item.kind === 'activity').length} ACTIVITIES</span></div>
-            {#if character.history.some((item) => item.kind === 'activity')}
-              {#each character.history.filter((item) => item.kind === 'activity') as item}
-                <div class="timeline-item"><span class="timeline-dot activity"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>
+            <div class="page-heading"><div><div class="eyebrow">EVERYDAY LIFE</div><h2>Activities</h2><p>Your recorded actions, grouped by week.</p></div><span class="year-pill">{activities.length} ACTIVITIES</span></div>
+            {#if activityWeeks.length}
+              {#each activityWeeks as group}
+                <details class="activity-week-group" open={group.key === activityWeekKey(character.calendar?.currentDate)}>
+                  <summary><span>{group.label}</span><span class="activity-week-meta">{group.items.length} {group.items.length === 1 ? 'ACTIVITY' : 'ACTIVITIES'} <i aria-hidden="true"></i></span></summary>
+                  <div class="activity-week-items">
+                    {#each group.items as item}
+                      <div class="timeline-item"><span class="timeline-dot activity"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>
+                    {/each}
+                  </div>
+                </details>
               {/each}
             {:else}
               <p class="overview-empty-activities">Activities will appear here as you make choices and spend time.</p>
