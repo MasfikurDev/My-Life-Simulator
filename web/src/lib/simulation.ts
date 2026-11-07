@@ -124,8 +124,8 @@ function createEmployment(character: Character): Employment {
     type: flexible ? 'flexible' : 'full-time',
     annualSalary: Math.round(baseSalary * scale * (flexible ? 0.65 : 1)),
     experienceYears: 0, performance: 60, promotions: 0, startedAtAge: character.age,
-    roleId: qualified ? 'operations-coordinator' : 'operations-assistant', careerPathId: 'operations', employer: 'Local employer',
-    level: qualified ? 2 : 1, startedAtDate: character.calendar?.currentDate
+    roleId: !flexible && qualified ? 'operations-coordinator' : 'operations-assistant', careerPathId: 'operations', employer: 'Local employer',
+    level: !flexible && qualified ? 2 : 1, startedAtDate: character.calendar?.currentDate
   };
 }
 
