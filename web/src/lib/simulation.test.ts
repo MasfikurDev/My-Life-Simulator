@@ -333,7 +333,7 @@ describe('life simulation', () => {
     expect(graduate.education).toBe('Higher education');
     expect(graduate.educationProgress).toBe(0);
     const hired = performActivity(graduate, 'apply-job', () => 0);
-    expect(hired.employment?.title).toBe('Professional associate');
+    expect(hired.employment?.title).toBe('Operations coordinator');
     expect(hired.employment?.annualSalary).toBe(28000);
   });
   it('credits annual salary and living costs when the year advances', () => {
