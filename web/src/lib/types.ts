@@ -43,6 +43,8 @@ export interface FinancialTransaction {
   from: string;
   to: string;
 }
+export type CareerPathId = 'customer-service' | 'operations' | 'technology' | 'sales';
+export type JobApplicationStatus = 'interview' | 'rejected' | 'offered' | 'accepted' | 'declined' | 'expired';
 export interface Employment {
   title: string;
   type: EmploymentType;
@@ -51,6 +53,41 @@ export interface Employment {
   performance: number;
   promotions: number;
   startedAtAge: number;
+  roleId?: string;
+  careerPathId?: CareerPathId;
+  employer?: string;
+  level?: number;
+  startedAtDate?: string;
+}
+export interface JobApplication {
+  id: string;
+  listingId: string;
+  roleId: string;
+  title: string;
+  employer: string;
+  type: EmploymentType;
+  annualSalary: number;
+  appliedAt: string;
+  status: JobApplicationStatus;
+  outcome?: string;
+}
+export interface JobOffer {
+  id: string;
+  applicationId: string;
+  roleId: string;
+  title: string;
+  employer: string;
+  type: EmploymentType;
+  annualSalary: number;
+  issuedAt: string;
+  expiresAt: string;
+}
+export interface PromotionOffer {
+  roleId: string;
+  title: string;
+  annualSalary: number;
+  issuedAt: string;
+  expiresAt: string;
 }
 
 export interface GameEventEffects {
@@ -78,7 +115,7 @@ export interface GameEventChoice {
   id: string;
   label: string;
   detail: string;
-  actionCost: number;
+  timeBlocks: number;
   moneyCost: number;
   effects: GameEventEffects;
   familyBondEffect?: FamilyBondEffect;
@@ -155,12 +192,20 @@ export interface WeeklyCommitment {
   startPeriod: DayPeriod;
   durationBlocks: number;
 }
+export type PlannedAction =
+  | { kind: 'activity' }
+  | { kind: 'family'; personId: string; interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support'; supportAmount?: number }
+  | { kind: 'business'; businessId: string }
+  | { kind: 'event'; eventId: string; choiceId: string }
+  | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string };
+
 export interface PlannedActivity {
   id: string;
-  activityId: ActivityId;
+  activityId: ActivityId | 'family' | 'business' | 'event';
   date: string;
   startPeriod: DayPeriod;
   durationBlocks: number;
+  action?: PlannedAction;
 }
 export interface WeeklySchedule {
   version: 1;
@@ -169,12 +214,15 @@ export interface WeeklySchedule {
 }
 export interface Character {
   name: string; age: number; year: number; health: number; happiness: number;
-  intelligence: number; fitness: number; money: number; actionsRemaining: number;
+  intelligence: number; fitness: number; money: number;
   calendar?: GameCalendar;
   weeklySchedule?: WeeklySchedule;
+  lastResolvedWeekStart?: string;
+  lastWeekRecap?: string[];
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
   educationProgress?: number; employment?: Employment | null;
+  careerExperienceYears?: number; jobApplications?: JobApplication[]; jobOffers?: JobOffer[]; promotionOffer?: PromotionOffer | null;
   lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number; lastYearTax?: number; taxBalance?: number;
   householdArrangement?: HouseholdArrangement; savingsGoalMonths?: SavingsGoalMonths | null;
   bankAccounts?: BankAccount[];

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { advanceYear, getAnnualReview, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
-import { getAvailableActivityIds, getLifeStage } from './progression';
+import { advanceWeek, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
+import { getCareerRole, getJobListings, isEligibleForRole } from './work';
 import { prepareGameEvent, resolveGameEvent } from './events';
 
 describe('life simulation', () => {
@@ -16,19 +17,190 @@ describe('life simulation', () => {
     expect(canAffordActivity(adult, 'study')).toBe(true);
     expect(canAffordActivity({ ...adult, money: 3499 }, 'study')).toBe(false);
   });
+  it('defines different time requirements for activities', () => {
+    expect(getActivityDefinition('study').durationBlocks).toBe(2);
+    expect(getActivityDefinition('work').durationBlocks).toBe(2);
+    expect(getActivityDefinition('exercise').durationBlocks).toBe(1);
+    expect(getActivityDefinition('apply-job').durationBlocks).toBe(1);
+  });
+  it('plans activities into the current week without spending annual action tokens or cash early', () => {
+    const adult = { ...createCharacter('Planner', 30), money: 100, currencyScale: 1 };
+    const result = planActivity(adult, 'study', '2026-01-05', 'morning');
+    expect(result.issue).toBeNull();
+    expect(result.character.weeklySchedule?.activities).toHaveLength(1);
+    expect(result.character.weeklySchedule?.activities[0]).toMatchObject({
+      activityId: 'study', date: '2026-01-05', startPeriod: 'morning', durationBlocks: 2
+    });
+    expect(result.character.money).toBe(100);
+    expect(adult.weeklySchedule?.activities).toHaveLength(0);
+  });
+  it('rejects overlapping activity reservations without changing the save', () => {
+    const adult = createCharacter('Planner', 30);
+    const first = planActivity(adult, 'exercise', '2026-01-05', 'morning');
+    const conflict = planActivity(first.character, 'socialize', '2026-01-05', 'morning');
+    expect(first.issue).toBeNull();
+    expect(conflict.issue).toBe('time-conflict');
+    expect(conflict.character).toBe(first.character);
+  });
+  it('rejects a long activity when it cannot fit before the day ends', () => {
+    const adult = createCharacter('Planner', 30);
+    const result = planActivity(adult, 'study', '2026-01-05', 'evening');
+    expect(result.issue).toBe('invalid-time-slot');
+    expect(result.character).toBe(adult);
+  });
+  it('reserves enough cash for all planned paid activities', () => {
+    const adult = { ...createCharacter('Planner', 30), money: 50, currencyScale: 1 };
+    const first = planActivity(adult, 'study', '2026-01-05', 'morning');
+    const second = planActivity(first.character, 'socialize', '2026-01-06', 'morning');
+    expect(first.issue).toBeNull();
+    expect(second.issue).toBe('insufficient-funds');
+    expect(second.character).toBe(first.character);
+  });
+  it('enforces life-stage eligibility and current-week boundaries when planning', () => {
+    const child = createCharacter('Child', 2);
+    expect(planActivity(child, 'study', '2026-01-05', 'morning').issue).toBe('unavailable');
+    const adult = createCharacter('Adult', 30);
+    expect(planActivity(adult, 'exercise', '2026-01-12', 'morning').issue).toBe('outside-current-week');
+    expect(planActivity(adult, 'exercise', 'not-a-date', 'morning').issue).toBe('invalid-date');
+  });
+  it('removes a planned activity without affecting other reservations', () => {
+    const adult = createCharacter('Planner', 30);
+    const first = planActivity(adult, 'exercise', '2026-01-05', 'morning').character;
+    const second = planActivity(first, 'socialize', '2026-01-05', 'afternoon').character;
+    const id = second.weeklySchedule!.activities[0].id;
+    const removed = removePlannedActivity(second, id);
+    expect(removed.weeklySchedule?.activities).toHaveLength(1);
+    expect(removed.weeklySchedule?.activities[0].activityId).toBe('socialize');
+    expect(removePlannedActivity(removed, 'missing-id')).toBe(removed);
+  });
+  it('resolves a planned week once, charges costs, clears reservations and advances exactly seven days', () => {
+    const base = { ...createCharacter('Weekly', 30), money: 100, currencyScale: 1 };
+    const planned = planActivity(base, 'study', '2026-01-05', 'morning');
+    expect(planned.issue).toBeNull();
+    const resolved = advanceWeek(planned.character);
+    expect(resolved.issue).toBeNull();
+    expect(resolved.character.calendar?.currentDate).toBe('2026-01-12');
+    expect(resolved.character.age).toBe(30);
+    expect(resolved.character.money).toBe(65);
+    expect(resolved.character.intelligence).toBe(base.intelligence + 5);
+    expect(resolved.character.weeklySchedule?.activities).toHaveLength(0);
+    expect(resolved.character.lastResolvedWeekStart).toBe('2026-01-05');
+    expect(resolved.character.history[0].title).toBe('Made time to study');
+    expect(advanceWeek({ ...base, lastResolvedWeekStart: '2026-01-05' }).issue).toBe('already-resolved');
+  });
+  it('does not age at a year boundary until the actual birthday', () => {
+    let current = createCharacter('Birthday', 18);
+    for (let i = 0; i < 52; i += 1) current = advanceWeek(current).character;
+    expect(current.calendar?.currentDate).toBe('2027-01-04');
+    expect(current.year).toBe(2027);
+    expect(current.age).toBe(18);
+    current = advanceWeek(current).character;
+    expect(current.calendar?.currentDate).toBe('2027-01-11');
+    expect(current.age).toBe(19);
+  });
+  it('applies age-based milestones on the actual birthday rather than waiting for January', () => {
+    const base = createCharacter('Birthday', 17);
+    const beforeBirthday = {
+      ...base,
+      calendar: { currentDate: '2026-07-06', birthDate: '2008-07-10' }
+    };
+    const afterBirthday = advanceWeek(beforeBirthday).character;
+    expect(afterBirthday.calendar?.currentDate).toBe('2026-07-13');
+    expect(afterBirthday.age).toBe(18);
+    expect(afterBirthday.householdArrangement).toBe('family-supported');
+    expect(afterBirthday.history.some((entry) => entry.title === 'Adult opportunities unlocked')).toBe(true);
+  });
+  it('uses the correct age for annual health settlement when a birthday is not near January', () => {
+    const base = createCharacter('Older adult', 45);
+    const beforeYearBoundary = {
+      ...base,
+      calendar: { currentDate: '2026-12-28', birthDate: '1981-07-10' }
+    };
+    const afterYearBoundary = advanceWeek(beforeYearBoundary).character;
+    expect(afterYearBoundary.calendar?.currentDate).toBe('2027-01-04');
+    expect(afterYearBoundary.age).toBe(45);
+    expect(afterYearBoundary.health).toBe(beforeYearBoundary.health - 2);
+  });
+  it('reproduces random weekly outcomes from the same saved state and schedule', () => {
+    const base = { ...createCharacter('Consistent', 30), intelligence: 90, education: 'Higher education', careerExperienceYears: 5 };
+    const listing = getJobListings(base).find((item) => { const role = getCareerRole(item.roleId); return role ? isEligibleForRole(base, role) : false; })!;
+    const planned = planWorkActionInNextFreeTime(base, 'apply', listing.id).character;
+    expect(advanceWeek(planned).character).toEqual(advanceWeek(planned).character);
+  });
+  it('schedules family interactions and applies them only during weekly resolution', () => {
+    const base = generateRandomCharacter(30, () => 0.5);
+    const relative = base.family!.people.find((person) => person.id !== base.family!.playerPersonId)!;
+    const before = base.family!.bonds.find((bond) => bond.personId === relative.id)!.closeness;
+    const planned = planFamilyInteractionInNextFreeTime(base, relative.id, 'spend-time');
+    expect(planned.issue).toBeNull();
+    expect(planned.character.family!.bonds.find((bond) => bond.personId === relative.id)!.closeness).toBe(before);
+    const duplicate = planFamilyInteractionInNextFreeTime(planned.character, relative.id, 'reach-out');
+    expect(duplicate.issue).toBe('unavailable');
+    const resolved = advanceWeek(planned.character).character;
+    expect(resolved.family!.bonds.find((bond) => bond.personId === relative.id)!.closeness).toBe(Math.min(100, before + 8));
+  });
+  it('schedules business management and charges its operating investment only on weekly resolution', () => {
+    const base = { ...createCharacter('Owner', 30), money: 10000, currencyScale: 1 };
+    const started = startBusiness(base, 'Corner shop', 'retail', 2000);
+    const business = started.businesses![0];
+    const beforeCash = started.money;
+    const beforePerformance = business.performance;
+    const planned = planBusinessManagementInNextFreeTime(started, business.id);
+    expect(planned.issue).toBeNull();
+    expect(planned.character.money).toBe(beforeCash);
+    expect(planned.character.businesses![0].performance).toBe(beforePerformance);
+    const duplicate = planBusinessManagementInNextFreeTime(planned.character, business.id);
+    expect(duplicate.issue).toBe('unavailable');
+    const resolved = advanceWeek(planned.character).character;
+    expect(resolved.money).toBe(beforeCash - 20);
+    expect(resolved.businesses![0].performance).toBe(Math.min(100, beforePerformance + 8));
+    expect(resolved.financialTransactions?.some((entry) => entry.type === 'business-expense' && entry.amount === 20)).toBe(true);
+  });
+  it('keeps a stale business reservation instead of silently consuming it', () => {
+    const base = { ...createCharacter('Owner', 30), money: 10000, currencyScale: 1 };
+    const started = startBusiness(base, 'Corner shop', 'retail', 2000);
+    const business = started.businesses![0];
+    const planned = planBusinessManagementInNextFreeTime(started, business.id);
+    expect(planned.issue).toBeNull();
+    const afterSale = closeBusiness(planned.character, business.id);
+    const result = advanceWeek(afterSale);
+    expect(result.issue).toBe('unresolvable-action');
+    expect(result.character).toBe(afterSale);
+    expect(result.character.weeklySchedule?.activities).toHaveLength(1);
+    expect(result.character.calendar?.currentDate).toBe(afterSale.calendar?.currentDate);
+  });
+  it('schedules time-consuming event choices and resolves them with the week', () => {
+    const student = createCharacter('Student', 12);
+    const planned = planEventChoiceInNextFreeTime(student, 'join');
+    expect(planned.issue).toBeNull();
+    expect(planned.character.pendingGameEvent?.id).toBe('school-reading-circle');
+    const resolved = advanceWeek(planned.character).character;
+    expect(resolved.pendingGameEvent).toBeNull();
+    expect(resolved.intelligence).toBe(student.intelligence + 3);
+    expect(resolved.scheduledGameConsequences).toHaveLength(1);
+  });
+  it('rejects a week with invalid existing reservations without advancing time', () => {
+    const base = createCharacter('Planner', 30);
+    const invalid = { ...base, weeklySchedule: { version: 1 as const, commitments: [], activities: [
+      { id: 'a', activityId: 'exercise' as const, date: '2026-01-05', startPeriod: 'morning' as const, durationBlocks: 1 },
+      { id: 'b', activityId: 'study' as const, date: '2026-01-05', startPeriod: 'morning' as const, durationBlocks: 2 }
+    ] } };
+    const result = advanceWeek(invalid);
+    expect(result.issue).toBe('invalid-schedule');
+    expect(result.character).toBe(invalid);
+    expect(result.character.calendar?.currentDate).toBe('2026-01-05');
+  });
   it('rejects paid activities when the balance is insufficient', () => {
     const adult = { ...createCharacter('Adult', 30), money: 10, currencyScale: 1 };
     const study = performActivity(adult, 'study');
     const social = performActivity(adult, 'socialize');
     expect(study).toBe(adult);
     expect(social).toBe(adult);
-    expect(adult.actionsRemaining).toBe(3);
   });
   it('charges the exact cost when a paid activity is affordable', () => {
     const adult = { ...createCharacter('Adult', 30), money: 35, currencyScale: 1 };
     const next = performActivity(adult, 'study');
     expect(next.money).toBe(0);
-    expect(next.actionsRemaining).toBe(2);
     expect(next.intelligence).toBe(adult.intelligence + 5);
   });
   it('previews predictable annual income and living costs without mutating the save', () => {
@@ -51,7 +223,7 @@ describe('life simulation', () => {
 
   it('creates a character with a starting history', () => {
     const c = createCharacter('Sam');
-    expect(c.name).toBe('Sam'); expect(c.age).toBe(18); expect(c.actionsRemaining).toBe(3);
+    expect(c.name).toBe('Sam'); expect(c.age).toBe(18); expect(c.calendar).toBeDefined();
     expect(c.history).toHaveLength(1);
     expect(c.calendar?.currentDate).toBe('2026-01-05');
     expect(c.calendar?.birthDate).toBe('2008-01-05');
@@ -67,17 +239,18 @@ describe('life simulation', () => {
     expect(performActivity(child, 'work')).toBe(child);
     expect(performActivity(child, 'study').money).toBe(0);
   });
-  it('applies activity effects and consumes an action', () => {
-    const c = createCharacter('Sam'); const next = performActivity(c, 'exercise');
-    expect(next.fitness).toBe(c.fitness + 6); expect(next.actionsRemaining).toBe(2);
+  it('applies activity effects without an annual action-token limit', () => {
+    const c = createCharacter('Sam');
+    const first = performActivity(c, 'exercise');
+    const second = performActivity(first, 'exercise');
+    expect(first.fitness).toBe(c.fitness + 6);
+    expect(second.fitness).toBe(c.fitness + 12);
+    expect('actionsRemaining' in second).toBe(false);
   });
-  it('blocks activities when the yearly budget is empty', () => {
-    const c = { ...createCharacter('Sam'), actionsRemaining: 0 };
-    expect(performActivity(c, 'work')).toBe(c);
-  });
-  it('advances age and refreshes actions only when requested', () => {
+  it('keeps annual settlement available as a calendar-boundary operation', () => {
     const next = advanceYear(createCharacter('Sam'));
-    expect(next.age).toBe(19); expect(next.year).toBe(2027); expect(next.actionsRemaining).toBe(3);
+    expect(next.age).toBe(19); expect(next.year).toBe(2027);
+    expect('actionsRemaining' in next).toBe(false);
   });
   it('offers an age-appropriate school event and records a meaningful choice', () => {
     const student = createCharacter('Student', 12);
@@ -85,7 +258,6 @@ describe('life simulation', () => {
     const before = student.intelligence;
     const joined = resolveGameEvent(student, 'join');
     expect(joined.pendingGameEvent).toBeNull();
-    expect(joined.actionsRemaining).toBe(student.actionsRemaining - 1);
     expect(joined.intelligence).toBe(before + 3);
     expect(joined.scheduledGameConsequences).toHaveLength(1);
     expect(joined.scheduledGameConsequences![0].dueYear).toBe(student.year + 1);
@@ -149,13 +321,15 @@ describe('life simulation', () => {
     const partTime = performActivity(teen, 'apply-job', () => 0);
     expect(partTime.employment?.type).toBe('part-time');
     expect(partTime.employment?.annualSalary).toBe(5000);
+    expect(partTime.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(3);
     expect(getAvailableActivityIds(16, partTime.employment)).toContain('career');
     expect(getAvailableActivityIds(16, partTime.employment)).not.toContain('apply-job');
     const adult = { ...createCharacter('Adult', 18), currencyScale: 1 };
     const fullTime = performActivity(adult, 'apply-job', () => 0);
     expect(fullTime.employment?.type).toBe('full-time');
     expect(fullTime.employment?.annualSalary).toBe(18000);
-    expect(getAvailableActivityIds(18, fullTime.employment)).toContain('apply-job');
+    expect(fullTime.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
+    expect(getAvailableActivityIds(18, fullTime.employment)).not.toContain('apply-job');
   });
   it('allows higher education to unlock a better-qualified role', () => {
     const learner = { ...createCharacter('Learner', 18), education: 'Secondary education completed', educationProgress: 80, currencyScale: 1, money: 1000 };
@@ -163,8 +337,9 @@ describe('life simulation', () => {
     expect(graduate.education).toBe('Higher education');
     expect(graduate.educationProgress).toBe(0);
     const hired = performActivity(graduate, 'apply-job', () => 0);
-    expect(hired.employment?.title).toBe('Professional associate');
+    expect(hired.employment?.title).toBe('Operations coordinator');
     expect(hired.employment?.annualSalary).toBe(28000);
+    expect(hired.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
   });
   it('credits annual salary and living costs when the year advances', () => {
     const worker = {
@@ -179,17 +354,199 @@ describe('life simulation', () => {
     expect(next.history.some((item) => item.title === 'Household budget settled')).toBe(true);
     expect(next.history.some((item) => item.title === 'Annual pay received')).toBe(true);
   });
-  it('promotes experienced employees after sustained high performance', () => {
+  it('does not grant an automatic promotion and requires an explicit promotion decision', () => {
     const worker = {
       ...createCharacter('Worker', 30),
-      employment: { title: 'Operations associate', type: 'full-time' as const, annualSalary: 10000, experienceYears: 1, performance: 90, promotions: 0, startedAtAge: 30 }
+      careerExperienceYears: 2,
+      intelligence: 90,
+      employment: { title: 'Operations assistant', roleId: 'operations-assistant', careerPathId: 'operations' as const, type: 'full-time' as const, annualSalary: 10000, experienceYears: 1, performance: 90, promotions: 0, startedAtAge: 30 }
     };
-    const next = advanceYear(worker);
-    expect(next.employment?.title).toBe('Senior Operations associate');
-    expect(next.employment?.annualSalary).toBe(12000);
-    expect(next.employment?.promotions).toBe(1);
-    expect(next.history.some((item) => item.title === 'Promoted at work')).toBe(true);
+    const reviewed = advanceYear(worker);
+    expect(reviewed.employment?.title).toBe('Operations assistant');
+    expect(reviewed.promotionOffer?.title).toBe('Operations coordinator');
+    const accepted = acceptPromotionOffer(reviewed);
+    expect(accepted.employment?.title).toBe('Operations coordinator');
+    expect(accepted.employment?.annualSalary).toBeGreaterThan(10000);
+    expect(accepted.employment?.promotions).toBe(1);
+    expect(accepted.employment?.experienceYears).toBe(0);
+    expect(accepted.promotionOffer).toBeNull();
   });
+
+  it('runs job applications, interviews and offer acceptance through weekly work actions', () => {
+    const candidate = {
+      ...createCharacter('Candidate', 30),
+      intelligence: 90,
+      education: 'Higher education',
+      careerExperienceYears: 5,
+      currencyScale: 1
+    };
+    const listing = getJobListings(candidate).find((item) => {
+      const role = getCareerRole(item.roleId);
+      return role ? isEligibleForRole(candidate, role) : false;
+    });
+    expect(listing).toBeDefined();
+    const applicationPlan = planWorkActionInNextFreeTime(candidate, 'apply', listing!.id);
+    expect(applicationPlan.issue).toBeNull();
+    const applied = advanceWeek(applicationPlan.character, () => 0).character;
+    const application = applied.jobApplications?.[0];
+    expect(application?.status).toBe('interview');
+    const interviewPlan = planWorkActionInNextFreeTime(applied, 'interview', application!.id);
+    expect(interviewPlan.issue).toBeNull();
+    const interviewed = advanceWeek(interviewPlan.character, () => 0).character;
+    expect(interviewed.jobOffers).toHaveLength(1);
+    const hired = acceptJobOffer(interviewed, interviewed.jobOffers![0].id);
+    expect(hired.employment?.roleId).toBe(listing!.roleId);
+    expect(hired.employment?.employer).toBe(listing!.employer);
+    expect(hired.jobOffers).toHaveLength(0);
+    expect(hired.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
+  });
+  it('records a declined job offer in the application history', () => {
+    const candidate = {
+      ...createCharacter('Candidate', 30),
+      intelligence: 90,
+      education: 'Higher education',
+      careerExperienceYears: 5,
+      currencyScale: 1
+    };
+    const listing = getJobListings(candidate).find((item) => {
+      const role = getCareerRole(item.roleId);
+      return role ? isEligibleForRole(candidate, role) : false;
+    })!;
+    const applied = advanceWeek(planWorkActionInNextFreeTime(candidate, 'apply', listing.id).character, () => 0).character;
+    const interviewed = advanceWeek(planWorkActionInNextFreeTime(applied, 'interview', applied.jobApplications![0].id).character, () => 0).character;
+    const offerId = interviewed.jobOffers![0].id;
+    const declined = declineJobOffer(interviewed, offerId);
+    expect(declined.jobOffers).toHaveLength(0);
+    expect(declined.jobApplications?.[0].status).toBe('declined');
+    expect(declined.history[0].title).toBe('Job offer declined');
+  });
+
+  it('expires job offers after their response window passes', () => {
+    const candidate = {
+      ...createCharacter('Candidate', 30),
+      intelligence: 90,
+      education: 'Higher education',
+      careerExperienceYears: 5,
+      currencyScale: 1
+    };
+    const listing = getJobListings(candidate).find((item) => {
+      const role = getCareerRole(item.roleId);
+      return role ? isEligibleForRole(candidate, role) : false;
+    })!;
+    const applied = advanceWeek(planWorkActionInNextFreeTime(candidate, 'apply', listing.id).character, () => 0).character;
+    const interviewed = advanceWeek(planWorkActionInNextFreeTime(applied, 'interview', applied.jobApplications![0].id).character, () => 0).character;
+    const afterTwoMoreWeeks = advanceWeek(advanceWeek(interviewed).character).character;
+    expect(afterTwoMoreWeeks.jobOffers).toHaveLength(0);
+    expect(afterTwoMoreWeeks.jobApplications?.[0].status).toBe('expired');
+  });
+
+  it('allows a player to resign without erasing accumulated career experience', () => {
+    const worker = {
+      ...createCharacter('Worker', 30),
+      employment: { title: 'Operations assistant', roleId: 'operations-assistant', type: 'full-time' as const, annualSalary: 18000, experienceYears: 3, performance: 70, promotions: 0, startedAtAge: 25, employer: 'Northstar Services' }
+    };
+    const next = resignFromJob(worker);
+    expect(next.employment).toBeNull();
+    expect(next.careerExperienceYears).toBe(3);
+    expect(next.history[0].title).toBe('Left a job');
+  });
+
+  it('clears a stale promotion offer when accepting a different job', () => {
+    const candidate = {
+      ...createCharacter('Candidate', 30),
+      intelligence: 90,
+      education: 'Higher education',
+      employment: {
+        title: 'Operations assistant',
+        roleId: 'operations-assistant',
+        careerPathId: 'operations' as const,
+        type: 'full-time' as const,
+        annualSalary: 10000,
+        experienceYears: 2,
+        performance: 90,
+        promotions: 0,
+        startedAtAge: 25
+      },
+      promotionOffer: {
+        roleId: 'operations-coordinator',
+        title: 'Operations coordinator',
+        annualSalary: 20000,
+        issuedAt: '2026-01-01',
+        expiresAt: '2026-01-15'
+      },
+      jobOffers: [{
+        id: 'offer-sales',
+        applicationId: 'application-sales',
+        roleId: 'sales-associate',
+        title: 'Sales associate',
+        employer: 'MarketSquare Co.',
+        type: 'full-time' as const,
+        annualSalary: 12000,
+        issuedAt: '2026-01-01',
+        expiresAt: '2026-01-15'
+      }]
+    };
+    const changed = acceptJobOffer(candidate, 'offer-sales');
+    expect(changed.employment?.roleId).toBe('sales-associate');
+    expect(changed.promotionOffer).toBeNull();
+    expect(acceptPromotionOffer(changed)).toBe(changed);
+  });
+
+  it('rejects a promotion offer that no longer matches the current career path', () => {
+    const worker = {
+      ...createCharacter('Worker', 30),
+      intelligence: 90,
+      careerExperienceYears: 5,
+      employment: {
+        title: 'Operations assistant',
+        roleId: 'operations-assistant',
+        careerPathId: 'operations' as const,
+        type: 'full-time' as const,
+        annualSalary: 10000,
+        experienceYears: 2,
+        performance: 90,
+        promotions: 0,
+        startedAtAge: 25
+      },
+      promotionOffer: {
+        roleId: 'sales-manager',
+        title: 'Sales manager',
+        annualSalary: 40000,
+        issuedAt: '2026-01-01',
+        expiresAt: '2026-01-15'
+      }
+    };
+    expect(acceptPromotionOffer(worker)).toBe(worker);
+  });
+
+  it('removes only career-development reservations when resigning', () => {
+    const worker = {
+      ...createCharacter('Worker', 30),
+      employment: {
+        title: 'Operations assistant',
+        roleId: 'operations-assistant',
+        type: 'full-time' as const,
+        annualSalary: 18000,
+        experienceYears: 1,
+        performance: 70,
+        promotions: 0,
+        startedAtAge: 25
+      },
+      weeklySchedule: {
+        version: 1 as const,
+        commitments: [{ id: 'work-test', title: 'Work shift', domain: 'work' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 2 }],
+        activities: []
+      }
+    };
+    const planned = planActivityInNextFreeTime(worker, 'career').character;
+    expect(planned.weeklySchedule?.activities).toHaveLength(1);
+    expect(planned.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(1);
+    const resigned = resignFromJob(planned);
+    expect(resigned.employment).toBeNull();
+    expect(resigned.weeklySchedule?.activities).toHaveLength(0);
+    expect(resigned.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(0);
+  });
+
   it('improves job performance through career development', () => {
     const worker = {
       ...createCharacter('Worker', 30),
@@ -197,7 +554,6 @@ describe('life simulation', () => {
     };
     const next = performActivity(worker, 'career');
     expect(next.employment?.performance).toBe(72);
-    expect(next.actionsRemaining).toBe(2);
   });
   it('updates education status when a character crosses school-age boundaries', () => {
     expect(advanceYear(createCharacter('Child', 5)).education).toBe('Primary education');
@@ -462,7 +818,6 @@ describe('life simulation', () => {
     expect(getNetWorth(started)).toBe(getNetWorth(base));
     const managed = manageBusiness(started, started.businesses![0].id);
     expect(managed.businesses![0].performance).toBe(68);
-    expect(managed.actionsRemaining).toBe(2);
     const closed = closeBusiness(managed, managed.businesses![0].id);
     expect(closed.businesses).toHaveLength(0);
     expect(closed.money).toBe(4780);

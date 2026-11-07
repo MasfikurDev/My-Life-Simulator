@@ -29,7 +29,7 @@ describe('persistent family simulation', () => {
     expect(interactWithFamily(legacy, 'missing', 'spend-time')).toBe(legacy);
   });
 
-  it('spending time strengthens only the selected relationship and consumes one action', () => {
+  it('spending time strengthens only the selected relationship without an annual action quota', () => {
     const character = generateRandomCharacter(25, () => 0.5);
     const connection = getFamilyConnections(character).find((item) => item.living)!;
     const before = character.family!.bonds.find((bond) => bond.personId === connection.person.id)!;
@@ -37,7 +37,6 @@ describe('persistent family simulation', () => {
     const after = next.family!.bonds.find((bond) => bond.personId === connection.person.id)!;
     expect(after.closeness).toBe(Math.min(100, before.closeness + 8));
     expect(after.trust).toBe(Math.min(100, before.trust + 3));
-    expect(next.actionsRemaining).toBe(character.actionsRemaining - 1);
     expect(next.history[0].title).toContain(connection.person.name);
     expect(next.family!.history).toHaveLength(character.family!.history.length + 1);
   });

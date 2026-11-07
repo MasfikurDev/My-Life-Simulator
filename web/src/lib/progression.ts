@@ -1,5 +1,21 @@
 import type { ActivityId, Employment } from './types';
 
+export interface ActivityDefinition {
+  id: ActivityId;
+  title: string;
+  durationBlocks: number;
+  detail: string;
+}
+
+export const ACTIVITY_DEFINITIONS: Record<ActivityId, ActivityDefinition> = {
+  study: { id: 'study', title: 'Study & learning', durationBlocks: 2, detail: 'A focused session that uses two consecutive periods.' },
+  exercise: { id: 'exercise', title: 'Exercise', durationBlocks: 1, detail: 'A single period for physical activity.' },
+  socialize: { id: 'socialize', title: 'Social time', durationBlocks: 1, detail: 'A single period to spend with friends.' },
+  work: { id: 'work', title: 'Extra work', durationBlocks: 2, detail: 'A longer work session that uses two consecutive periods.' },
+  'apply-job': { id: 'apply-job', title: 'Apply for a job', durationBlocks: 1, detail: 'A single period to prepare and submit an application.' },
+  career: { id: 'career', title: 'Career development', durationBlocks: 1, detail: 'A single period for focused professional development.' }
+};
+
 export interface LifeStage { id: string; label: string; ageRange: string; description: string; nextAge: number | null; }
 
 const STAGES: Array<LifeStage & { min: number; max: number }> = [
@@ -13,6 +29,10 @@ const STAGES: Array<LifeStage & { min: number; max: number }> = [
   { id: 'midlife', label: 'Midlife', ageRange: '45–64', min: 45, max: 64, description: 'Career decisions, health and long-term financial planning become more important.', nextAge: 65 },
   { id: 'senior', label: 'Later life', ageRange: '65+', min: 65, max: 120, description: 'Later-life choices focus on health, relationships, interests and flexible work.', nextAge: null }
 ];
+
+export function getActivityDefinition(activity: ActivityId): ActivityDefinition {
+  return ACTIVITY_DEFINITIONS[activity];
+}
 
 export function getLifeStage(age: number): LifeStage {
   const safeAge = Math.max(0, Math.floor(age));
@@ -38,6 +58,6 @@ export function isActivityAvailable(age: number, activity: ActivityId, employmen
 }
 
 export function getAvailableActivityIds(age: number, employment?: Employment | null): ActivityId[] {
-  return (['study', 'exercise', 'socialize', 'work', 'apply-job', 'career'] as ActivityId[])
+  return (['study', 'exercise', 'socialize', 'work', 'career'] as ActivityId[])
     .filter((activity) => isActivityAvailable(age, activity, employment));
 }

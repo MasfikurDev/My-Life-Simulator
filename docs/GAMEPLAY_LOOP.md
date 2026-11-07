@@ -1,16 +1,17 @@
 # Gameplay Loop Redesign
 
-**Canonical game-design implementation plan · Weekly-cycle direction · 2026-11-06**
+**Canonical game-design implementation plan · Weekly-cycle direction · 2026-11-07**
 
 This document turns the gameplay audit into a staged, implementation-ready direction. It distinguishes the implemented first slice from planned mechanics.
 
-## Current implementation status · 2026-11-06
-The first event-driven gameplay slice is implemented in the web simulation:
-- Three original contextual events are selected using character/year context and age/health eligibility.
-- A pending event and its choices are persisted in the character save; choice costs and requirements are validated by the simulation.
-- Choices can consume annual actions and money, change bounded stats, and schedule a delayed next-year consequence.
-- Resolved choices and consequences are written to Life History. Unanswered situations expire with an explicit history entry when the player advances.
-- Home shows the current event and a concise recap derived from recorded year changes.
+## Current implementation status · 2026-11-07
+The first event-driven slice and the annual-action-to-weekly-turn transition are implemented in the web simulation:
+- Contextual events are selected using character/year context and age/health eligibility.
+- Pending events and choices persist in the character save; the simulation validates choice requirements and costs.
+- Personal activities, family interactions, business management, job applications, interviews, and time-consuming event choices reserve dated weekly time blocks and resolve in deterministic order.
+- Weekly resolution applies effects and costs, records Life History, clears successful reservations, and advances the calendar by seven days. A stale reservation blocks the turn and remains available for repair instead of being silently discarded.
+- Age and life-stage eligibility change on the character's birthday. Annual financial settlement and annual event expiry remain at the year boundary.
+- The save migration preserves existing slots and stores the original pre-migration payload as a recovery copy.
 
 Still planned: a full year-opening and planning phase, year-end financial preview, richer event selection/cooldowns/content, broader cross-domain consequences, and the later School/Work/Family/Health/Retirement/Death milestones. This is the first playable slice, not completion of the full redesign.
 
@@ -61,15 +62,15 @@ The player should feel that a life is unfolding, not that they are spending abst
 - New characters receive an initial calendar anchored to the first Monday on or after January 1 of their starting game year. Their birth date is placed on the same month/day in the year implied by their chosen starting age, preserving that age at creation.
 - Age is calculated from birth date and current date, not from the number of week advances. A birthday changes age only when the current date reaches the birthday.
 - For a February 29 birth date in a non-leap year, the game observes the birthday on March 1. This is a consistent game-calendar convention, not a legal-age rule.
-- Existing saves without a calendar remain valid. Their current age/year remain authoritative until the explicit migration stage adds and validates a calendar; this first slice does not silently rewrite old saves or change annual progression.
-- The calendar helpers are pure and tested. Weekly advancement, schedule consumption, date-based events, and financial cadence remain unimplemented until their own resolver/migration tests pass.
+- Existing saves are migrated to the weekly model without discarding character or slot data. Saves without calendar data are anchored to the first Monday on or after January 1 of their stored year; the original payload is retained under a separate recovery key.
+- Calendar helpers, weekly advancement, schedule consumption, and birthday-based aging are implemented and tested. Monthly settlement, date-based event deadlines, and recurring payment cadence remain future work.
 
 ### 3.2 Weekly schedule: commitments first, free time second
 
 The week is shaped by recurring commitments and the player's discretionary choices.
 
 - School, employment, household responsibilities, and other implemented commitments may reserve recurring day/period blocks. These schedules belong to their own domain workspaces.
-- The player sees the commitments that matter this week and the free-time capacity they leave.
+- The player sees the commitments that matter this week and the free-time capacity they leave. Accepting or leaving a job updates the recurring Work commitments, so career status changes the time available for personal plans.
 - Player-directed activities consume one or more free-time blocks, plus money and/or energy when appropriate. Different activities can take different amounts of time.
 - A time block is a scheduling constraint, not an action token. The same activity cannot be scheduled into overlapping time; unavailable time cannot be spent twice.
 - Do not require the player to fill every day or every block. Rest, unplanned time, and quiet weeks are valid.
@@ -83,12 +84,16 @@ The week is shaped by recurring commitments and the player's discretionary choic
 
 The simulation now has a reusable, save-compatible weekly schedule model:
 - A week is represented as seven days with three broad periods: morning, afternoon, and evening. These are planning blocks, not hourly simulation.
-- Recurring commitments reserve one or more consecutive periods on a selected weekday. They are only added when a domain has a real modeled commitment; the schedule engine does not invent school or work hours.
+- Recurring commitments reserve one or more consecutive periods on a selected weekday. Employment now generates a simple default shift pattern from the job type: full-time roles reserve weekday morning/afternoon blocks, part-time roles reserve three afternoon blocks, and flexible roles reserve three morning blocks. School hours remain unmodeled and are not invented.
 - Planned activities reserve dated periods in the selected week and must remain within that week.
 - The pure schedule resolver expands commitments, identifies free periods, and reports duplicate IDs, invalid dates/durations, out-of-week activities, and overlapping placements.
-- New characters receive an empty versioned schedule. Legacy characters without this optional field are treated as having an empty schedule; existing annual progression and saves are unchanged.
+- New characters receive an empty versioned schedule. Legacy saves are migrated without discarding character or slot data; saves that lack calendar data are anchored to the first Monday on or after January 1 of their stored year, and the obsolete annual action counter is removed.
 - The Life workspace now exposes a seven-day planner. Players can reserve age-available activities in morning/afternoon/evening periods, see the duration each activity reserves, remove plans, and receive a conflict message when a placement overlaps an existing reservation. The schedule is saved with the character.
-- Planned activities are reservations only: they do not yet apply gameplay effects, consume the old annual action tokens, or advance the calendar. The existing annual loop remains active until weekly resolution and save migration are implemented.
+- Activity time requirements now come from one shared simulation catalogue: study and extra work take two consecutive periods; exercise, socializing, job applications, and career development take one.
+- The simulation exposes validated planning operations for personal activities, family interactions, business management, and time-consuming event choices. They enforce eligibility, current-week dates, duration fit, no overlap with commitments or other activities, and enough cash for combined planned costs.
+- The planner shows each activity's duration and estimated cost, plus the cash remaining after all planned costs. Removing an activity releases its time and planned budget.
+- The current slice permits one planned interaction per family member and one management session per business in a week, preventing repeated identical relationship/business actions from being stacked into the same turn. Different people and different businesses remain independent.
+- Planned activities, family interactions, business sessions, and time-consuming event choices resolve through the weekly loop. Costs and effects are applied at resolution, reservations are cleared, and the calendar advances by seven days. If a reservation becomes invalid after planning, the turn is rejected and the plan is preserved for repair instead of being silently discarded. Annual income, household expenses, taxes, asset settlement, and financial products still settle at the year boundary; age and birthday-triggered life-stage eligibility update on the actual birthday.
 
 ### 3.3 The week in play
 
@@ -159,7 +164,7 @@ The exact order is a domain contract and must be tested. Proposed order:
 6. Resolve scheduled follow-ups due this week.
 7. Move the calendar to the next week and detect month/year/birthday boundaries.
 8. At a month boundary, process monthly settlement exactly once.
-9. At a year boundary, process annual settlement exactly once, then age/life-stage transitions and annual review.
+9. At a year boundary, process annual settlement and the annual review exactly once. Age and birthday-triggered life-stage transitions are processed on the actual birthday, including when it falls mid-year.
 10. Prepare the next week's schedule, commitments, and eligible event opportunities.
 11. Return structured effects, ledger entries, history entries, and recap data.
 
@@ -191,23 +196,22 @@ A playable weekly loop is not complete until:
 
 ### Legacy transition: annual actions to weekly schedule
 
-The current implementation uses annual actions and annual progression. That is the existing behavior, not the target design. Migration must:
-- Preserve existing age, world year, financial balances/ledger, school/work status, history, event choices, and pending consequences.
-- Establish a deterministic starting date/week for legacy saves using documented rules; never invent a birth date that changes the displayed age unexpectedly.
-- Convert annual action state safely. Do not translate "unused actions" into arbitrary extra weekly time or grant free activities. The legacy action counter should be retired from gameplay after migration.
-- Keep a backup/rollback path for the save migration and test all three save slots, including malformed/old saves.
-- Use optional fields and a versioned migration only when necessary; do not silently reinterpret annual values as monthly/weekly values.
+The annual-action-to-weekly-save migration is implemented:
+- Schema 1 single-save data and schema 2 multi-slot data migrate to schema 3 while preserving valid character records and all three slot identities.
+- Existing age and world year remain authoritative. When no calendar exists, the migration anchors the character to the first Monday on or after January 1 of the stored year and derives a matching birth date so the displayed age is unchanged at migration.
+- The obsolete annual action counter is retired; unused annual actions are not converted into extra weekly time or free activities. Pending legacy event choices convert their old action cost into an equivalent time-block requirement.
+- The exact pre-migration payload is retained under `my-life-simulator.save.pre-weekly-migration` before the new payload replaces the active save. Unknown formats are rejected without overwriting the original.
 
 ### Current implementation boundary
 
-The existing app is still the annual-action implementation: events, choices, and the year review are tied to the current annual progression. The weekly calendar, schedule, weekly activity resolution, monthly settlement, and date-based aging are planned and must not be described as implemented until code and tests prove them. The implementation sequence is in the Roadmap.
+The app has a weekly calendar, validated activity reservations, and a reproducible, exactly-once weekly resolver. Age and birthday-triggered life-stage transitions follow the character's actual birth date. Monthly settlement and date-based recurring payment schedules remain future work; annual income, expenses, taxes, asset settlement, and annual reviews still run at the year boundary.
 
 ## 4. Event and consequence system
 
 A simulated week is the basic playable turn; a month is a financial/reporting interval; a year is a life-progression chapter.
 
-### Phase A — Open the year
-Present a compact "This year" view containing:
+### Phase A — Review the current life chapter
+The annual overview remains a life-chapter summary, not the playable turn. Present a compact review containing:
 - Current age, life stage, year, and the most relevant changes since last year.
 - Current circumstances that affect decisions: school/education, work, household, money, health, and important relationships when implemented.
 - New opportunities, unresolved situations, upcoming commitments, and warnings.
@@ -221,9 +225,9 @@ The player chooses from age- and circumstance-appropriate actions in the relevan
 - Finance: banking, spending, saving, debt, assets, household planning, and business decisions.
 - Lifestyle: services, purchases, and home arrangements.
 
-Actions have explicit costs and trade-offs: limited annual action capacity, money, time, energy, risk, or an opportunity cost. Explain important costs before confirmation. Keep the current limited annual action budget as the starting rule, but tune it only through playtesting; do not add extra meters merely to make the loop feel busy.
+Actions have explicit costs and trade-offs: reserved time blocks, money, energy, risk, or an opportunity cost. Explain important costs before confirmation. Do not add an arbitrary universal weekly action quota or extra meters merely to make the loop feel busy.
 
-The player may leave actions unused and advance deliberately. Do not silently auto-spend actions or auto-advance time. If unused actions matter, explain the opportunity cost without trapping the player in a dead end.
+The player may leave free time unused and advance deliberately. Do not silently auto-spend reservations or auto-advance time. Quiet weeks must remain quick to resolve.
 
 ### Phase C — Resolve life events
 Offer a curated set of situations selected from the character's current context. An event may be:
@@ -258,7 +262,7 @@ Write important outcomes to chronological life history. The recap should make th
 
 ### Year review gate (implemented first slice)
 
-Before advancing, the player can open a review showing the current year, next age, unused actions, employment income, estimated living costs, and the cash remaining after those two predictable items. An unresolved event is called out because it will expire when the player advances. The player must explicitly confirm advancement; returning to the year leaves the save unchanged.
+Before advancing, the player can open a weekly review showing the current date, planned activity count, age, year, and available cash. It explains that accepted reservations resolve in order and that annual financial settlements remain separate. A pending event is shown as unresolved; it normally remains available until its year-boundary expiry unless a choice is scheduled. The player must explicitly confirm the week; returning to the current week leaves the save unchanged.
 
 The preview is intentionally partial. It does not claim to predict tax, recurring payments, loans, interest, property, investment, or market settlement. Those systems still resolve in the simulation and are identified as exclusions in the UI. The review is a decision aid, not a second financial ledger.
 
@@ -363,9 +367,10 @@ Replayability should come from interacting systems and different viable lives, n
 ## 9. Scope and implementation sequence
 
 Build one complete playable slice at a time:
-1. Design and implement the date-based weekly calendar and backward-compatible save migration.
-2. Replace annual action tokens with a weekly schedule/free-time model and deterministic weekly resolution.
-3. Move financial systems to explicit monthly/annual cadences without duplicate or lost settlements.
+Completed foundation: date-based weekly calendar, backward-compatible save migration, weekly schedule/free-time model, and deterministic weekly resolution.
+
+Next implementation stages:
+1. Move financial systems to explicit monthly/annual cadences without duplicate or lost settlements.
 4. Adapt events, deadlines, recaps, and bulk advancement to weekly time.
 5. Deepen School and Work into recognizable schedule-driven systems.
 6. Add persistent family/relationship loops, then meaningful health and aging consequences.
@@ -401,5 +406,5 @@ Family is a persistent simulation domain, specified in [FAMILY_SYSTEM.md](FAMILY
 
 The initial implemented slice generates a modest family-of-origin context for new characters, supports one- or two-parent backgrounds and a small sibling group, records historical family loss only when it predates the current life chapter, and provides targeted time/contact/reconciliation interactions. Adult financial support is an explicit cash outflow recorded in Finance. Existing saves without family state are initialized only through a deliberate player action.
 
-Do not assume every character has a partner or children. Partnership, parenthood, adoption, separation, caregiving, bereavement, inheritance, and generational play remain future mechanics until their full simulation loops exist. No relationship screen may claim a feature that is not represented in save data. Family actions currently consume the legacy annual action allowance; migrate them to actual weekly time blocks when the weekly calendar foundation is implemented.
+Do not assume every character has a partner or children. Partnership, parenthood, adoption, separation, caregiving, bereavement, inheritance, and generational play remain future mechanics until their full simulation loops exist. No relationship screen may claim a feature that is not represented in save data. Family interactions, event choices, business management, and personal activities now reserve weekly time and resolve through the same weekly turn.
 
