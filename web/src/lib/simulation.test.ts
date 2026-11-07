@@ -122,8 +122,9 @@ describe('life simulation', () => {
     expect(afterYearBoundary.health).toBe(beforeYearBoundary.health - 2);
   });
   it('reproduces random weekly outcomes from the same saved state and schedule', () => {
-    const base = createCharacter('Consistent', 30);
-    const planned = planActivity(base, 'apply-job', '2026-01-05', 'morning').character;
+    const base = { ...createCharacter('Consistent', 30), intelligence: 90, education: 'Higher education', careerExperienceYears: 5 };
+    const listing = getJobListings(base).find((item) => { const role = getCareerRole(item.roleId); return role ? isEligibleForRole(base, role) : false; })!;
+    const planned = planWorkActionInNextFreeTime(base, 'apply', listing.id).character;
     expect(advanceWeek(planned).character).toEqual(advanceWeek(planned).character);
   });
   it('schedules family interactions and applies them only during weekly resolution', () => {
@@ -326,7 +327,7 @@ describe('life simulation', () => {
     const fullTime = performActivity(adult, 'apply-job', () => 0);
     expect(fullTime.employment?.type).toBe('full-time');
     expect(fullTime.employment?.annualSalary).toBe(18000);
-    expect(getAvailableActivityIds(18, fullTime.employment)).toContain('apply-job');
+    expect(getAvailableActivityIds(18, fullTime.employment)).not.toContain('apply-job');
   });
   it('allows higher education to unlock a better-qualified role', () => {
     const learner = { ...createCharacter('Learner', 18), education: 'Secondary education completed', educationProgress: 80, currencyScale: 1, money: 1000 };
