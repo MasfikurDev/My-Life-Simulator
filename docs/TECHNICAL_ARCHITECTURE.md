@@ -224,7 +224,7 @@ The target gameplay clock is date-based and weekly, not annual-action-based. The
 
 Suggested future module boundaries (do not create empty abstractions prematurely):
 - `calendar.ts`: pure calendar/date/birthday helpers.
-- `schedule.ts`: recurring commitments, free-time blocks, overlap and availability validation.
+- `weekly-schedule.ts`: recurring commitments, free-time blocks, overlap and availability validation.
 - `week-cycle.ts`: orchestration of weekly phases and exactly-once advancement.
 - Domain modules own their own schedule definitions and effects; the cycle coordinator orchestrates them without duplicating their rules.
 - Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups only when weekly migration is underway.
