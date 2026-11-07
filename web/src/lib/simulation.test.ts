@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { advanceWeek, advanceYear, getAnnualReview, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceWeek, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, planWorkActionInNextFreeTime, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
-import { createGameDebugSnapshot } from './debug-export';
+import { createGameDebugSnapshot } from './debug-export';\nimport { getCareerRole, getJobListings, isEligibleForRole } from './work';
 import { prepareGameEvent, resolveGameEvent } from './events';
 
 describe('life simulation', () => {
@@ -349,16 +349,49 @@ describe('life simulation', () => {
     expect(next.history.some((item) => item.title === 'Household budget settled')).toBe(true);
     expect(next.history.some((item) => item.title === 'Annual pay received')).toBe(true);
   });
-  it('promotes experienced employees after sustained high performance', () => {
+  it('does not grant an automatic promotion and requires an explicit promotion decision', () => {
     const worker = {
       ...createCharacter('Worker', 30),
-      employment: { title: 'Operations associate', type: 'full-time' as const, annualSalary: 10000, experienceYears: 1, performance: 90, promotions: 0, startedAtAge: 30 }
+      careerExperienceYears: 2,
+      employment: { title: 'Operations assistant', roleId: 'operations-assistant', careerPathId: 'operations' as const, type: 'full-time' as const, annualSalary: 10000, experienceYears: 1, performance: 90, promotions: 0, startedAtAge: 30 }
     };
-    const next = advanceYear(worker);
-    expect(next.employment?.title).toBe('Senior Operations associate');
-    expect(next.employment?.annualSalary).toBe(12000);
-    expect(next.employment?.promotions).toBe(1);
-    expect(next.history.some((item) => item.title === 'Promoted at work')).toBe(true);
+    const reviewed = advanceYear(worker);
+    expect(reviewed.employment?.title).toBe('Operations assistant');
+    expect(reviewed.promotionOffer?.title).toBe('Operations coordinator');
+    const accepted = acceptPromotionOffer(reviewed);
+    expect(accepted.employment?.title).toBe('Operations coordinator');
+    expect(accepted.employment?.annualSalary).toBeGreaterThan(10000);
+    expect(accepted.employment?.promotions).toBe(1);
+    expect(accepted.promotionOffer).toBeNull();
+  });
+
+  it('runs job applications, interviews and offer acceptance through weekly work actions', () => {
+    const candidate = {
+      ...createCharacter('Candidate', 30),
+      intelligence: 90,
+      education: 'Higher education',
+      careerExperienceYears: 5,
+      currencyScale: 1
+    };
+    const { getJobListings, isEligibleForRole, getCareerRole } = requireWorkModule();
+    const listing = getJobListings(candidate).find((item) => {
+      const role = getCareerRole(item.roleId);
+      return role ? isEligibleForRole(candidate, role) : false;
+    });
+    expect(listing).toBeDefined();
+    const applicationPlan = planWorkActionInNextFreeTime(candidate, 'apply', listing!.id);
+    expect(applicationPlan.issue).toBeNull();
+    const applied = advanceWeek(applicationPlan.character, () => 0).character;
+    const application = applied.jobApplications?.[0];
+    expect(application?.status).toBe('interview');
+    const interviewPlan = planWorkActionInNextFreeTime(applied, 'interview', application!.id);
+    expect(interviewPlan.issue).toBeNull();
+    const interviewed = advanceWeek(interviewPlan.character, () => 0).character;
+    expect(interviewed.jobOffers).toHaveLength(1);
+    const hired = acceptJobOffer(interviewed, interviewed.jobOffers![0].id);
+    expect(hired.employment?.roleId).toBe(listing!.roleId);
+    expect(hired.employment?.employer).toBe(listing!.employer);
+    expect(hired.jobOffers).toHaveLength(0);
   });
   it('improves job performance through career development', () => {
     const worker = {
