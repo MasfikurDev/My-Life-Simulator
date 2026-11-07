@@ -12,7 +12,7 @@ The Work workspace now has a functional first recruitment and career loop:
 - Each listing has an employment type, annual base-pay amount, role description, and visible age, education, knowledge, and experience requirements. Ineligible jobs remain inspectable so players can understand future opportunities.
 - Applying for a job reserves one weekly period. The application resolves during weekly advancement into either an interview invitation or an unsuccessful application.
 - An interview reserves two weekly periods. A successful interview creates an offer; the player explicitly accepts or declines it. Offers expire after 14 calendar days.
-- Accepting an offer creates the current employment record and preserves accumulated career experience when changing jobs. A player can also resign; resignation does not erase career history or experience.
+- Accepting an offer creates the current employment record, replaces the recurring Work shifts in the weekly schedule, and preserves accumulated career experience when changing jobs. Full-time roles reserve weekday morning/afternoon periods; part-time and flexible roles use lighter three-period patterns. Resignation removes Work commitments and any now-invalid career-development reservation without erasing career history or experience.
 - Four role-based career paths provide a read-only progression preview and estimated annual salary bands.
 - Promotion readiness is based on the next role's age, education, knowledge, current-role experience and current-performance requirements. When requirements are met at annual review, the game creates a time-limited promotion offer. The player decides whether to accept it; promotion is no longer granted automatically.
 - Work applications, interviews, offers, job starts, resignation, and promotions are recorded in Life History. Recruitment and interview actions resolve through the weekly schedule.
@@ -94,7 +94,7 @@ Keep compensation transparent and consistent with Finance:
 - Promotion, job change, offer acceptance, resignation, bonus payment, and payroll events must be recorded in history and use the shared financial transaction path where money changes.
 - Do not double-count bonuses in salary previews or payroll.
 
-The existing weekly gameplay direction remains authoritative: the week is the playable unit, months own recurring finance/reporting cadence, and years own long-term life progression. Career mechanics must fit the eventual weekly schedule and payroll cadence without inventing work hours or attendance before Work schedules are implemented.
+The existing weekly gameplay direction remains authoritative: the week is the playable unit, months own recurring finance/reporting cadence, and years own long-term life progression. Work now supplies a simplified default shift pattern based on employment type; detailed shift selection, attendance, employer scheduling, and monthly payroll remain future work. School attendance remains unmodeled until its own schedule loop is implemented.
 
 ## Domain boundaries
 
@@ -111,7 +111,7 @@ This is deliberately staged. Do not present later-stage mechanics as live until 
 1. **Implemented — recruitment foundation:** job listings, requirements, scheduled applications and interviews, expiring offers, acceptance/decline, job changes, and resignation.
 2. **Implemented — career preview:** four fictional role paths with clearly labeled estimated annual salary bands. Viewing a path never changes the save or ledger.
 3. **Implemented — transparent first-pass readiness:** age, education, general knowledge, career experience, and current performance are checked separately. Detailed role-specific skills remain future work.
-4. **Implemented — player-controlled promotion:** eligible employees receive a time-limited promotion offer at annual review; the player accepts or declines.
+4. **Implemented — player-controlled promotion:** eligible employees receive a time-limited promotion offer at annual review; the player accepts or declines. A stale offer cannot promote a different job after a job change, and changing jobs clears the previous promotion offer.
 5. **Next — workplace depth:** employer structures, real vacancies, workplace decisions, performance outcomes, layoffs, and career stability.
 6. **Later — compensation depth:** monthly payroll, conditional bonuses, benefits, and negotiation only when the finance and employer rules are ready.
 
