@@ -3,7 +3,8 @@ import { advanceWeek, advanceYear, getAnnualReview, acceptJobOffer, acceptPromot
 import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
-import { createGameDebugSnapshot } from './debug-export';\nimport { getCareerRole, getJobListings, isEligibleForRole } from './work';
+import { createGameDebugSnapshot } from './debug-export';
+import { getCareerRole, getJobListings, isEligibleForRole } from './work';
 import { prepareGameEvent, resolveGameEvent } from './events';
 
 describe('life simulation', () => {
