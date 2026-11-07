@@ -4,7 +4,7 @@
 
 ## Core loop
 1. Review the current week, calendar, actual commitments, free-time blocks, and relevant situations.
-2. Choose activities in their own domain workspaces and place them into available time.
+2. Confirm actions in their own domain workspaces; the simulation automatically places time-consuming actions into suitable free periods.
 3. Pay validated costs (time, money, and only modeled resource costs such as energy).
 4. Resolve commitments, events, due payments, and consequences when the player advances the week.
 5. Review the weekly recap and persistent history.
