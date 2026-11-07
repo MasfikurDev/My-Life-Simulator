@@ -131,7 +131,7 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 73. School and Work own their schedules and recurring commitments. Never reserve time or claim attendance/work participation unless the corresponding schedule and state are actually implemented. Unimplemented domains must not invent commitments.
 74. Weekly time advancement is always explicit and deterministic. Screen visits, background time, app inactivity, save/load, and wall-clock time never advance the simulation.
 75. Monthly and annual financial settlement must have explicit due dates/cadences and exactly-once behavior. Never double-charge by running both annual and monthly versions of the same obligation. Do not divide annual values by 12 without documented rounding and migration rules.
-76. A weekly save migration must preserve age/date semantics, all three save slots, cash, accounts, assets, liabilities, ledgers, education/work state, history, event choices, and pending consequences. Do not switch live progression to weekly until migration and multi-week scenario tests pass.
+76. Weekly save migrations must preserve age/date semantics, all three save slots, cash, accounts, assets, liabilities, ledgers, education/work state, history, event choices, and pending consequences. Treat the existing migration as compatibility-critical; add tests for every new schema change and never discard recoverable legacy data.
 77. Bulk advancement must resolve each intervening week in order and stop at meaningful decisions, deadlines, events, birthdays, and payment failures. Never skip simulation by applying a coarse multi-week approximation.
 
 
