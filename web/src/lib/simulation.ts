@@ -4,7 +4,7 @@ import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, r
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
 import { createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
 import { buildWeeklySchedule, getWeeklySchedule } from './weekly-schedule';
-import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPromotionOfferState, createPromotionOffer, declineJobOffer as declineJobOfferState, declinePromotionOffer as declinePromotionOfferState, expireWorkOffers, getJobListings, getCareerRole, isEligibleForRole, resolveJobApplication, resolveJobInterview } from './work';
+import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPromotionOfferState, createPromotionOffer, declineJobOffer as declineJobOfferState, declinePromotionOffer as declinePromotionOfferState, expireWorkOffers, getJobListings, getCareerRole, isEligibleForRole, resolveJobApplication, resolveJobInterview, resignFromJob as resignFromJobState } from './work';
 
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
 
