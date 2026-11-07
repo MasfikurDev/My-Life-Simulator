@@ -1,4 +1,4 @@
-import type { CareerPathId, Character, Employment, EmploymentType, JobApplication, JobOffer, PromotionOffer } from './types';
+import type { CareerPathId, Character, Employment, EmploymentType, JobApplication, JobOffer, PromotionOffer, WeeklyCommitment } from './types';
 import { addCalendarDays } from './calendar';
 
 export interface CareerRole {
@@ -287,6 +287,28 @@ function formatSalary(character: Character, amount: number): string {
   return currency + ' ' + Math.round(amount).toLocaleString('en-US');
 }
 
+export function syncEmploymentCommitments(character: Character, employment: Employment | null): Character {
+  const schedule = character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] };
+  const nonWorkCommitments = schedule.commitments.filter((commitment) => commitment.domain !== 'work');
+  if (!employment) {
+    return { ...character, weeklySchedule: { ...schedule, commitments: nonWorkCommitments } };
+  }
+  const shifts: Array<{ weekday: 1 | 2 | 3 | 4 | 5 | 6 | 7; startPeriod: 'morning' | 'afternoon'; durationBlocks: number }> =
+    employment.type === 'full-time'
+      ? [1, 2, 3, 4, 5].map((weekday) => ({ weekday: weekday as 1 | 2 | 3 | 4 | 5, startPeriod: 'morning' as const, durationBlocks: 2 }))
+      : employment.type === 'part-time'
+        ? [1, 3, 5].map((weekday) => ({ weekday: weekday as 1 | 3 | 5, startPeriod: 'afternoon' as const, durationBlocks: 1 }))
+        : [2, 4, 6].map((weekday) => ({ weekday: weekday as 2 | 4 | 6, startPeriod: 'morning' as const, durationBlocks: 1 }));
+  const employerLabel = employment.employer ?? employment.title;
+  const commitments: WeeklyCommitment[] = shifts.map((shift) => ({
+    id: 'work-' + (employment.roleId ?? employment.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')) + '-' + shift.weekday,
+    title: 'Work · ' + employerLabel,
+    domain: 'work',
+    ...shift
+  }));
+  return { ...character, weeklySchedule: { ...schedule, commitments: [...nonWorkCommitments, ...commitments] } };
+}
+
 export function acceptJobOffer(character: Character, offerId: string): Character {
   const offer = (character.jobOffers ?? []).find((item) => item.id === offerId);
   const today = character.calendar?.currentDate ?? character.year + '-01-01';
@@ -307,7 +329,7 @@ export function acceptJobOffer(character: Character, offerId: string): Character
     level: role.level,
     startedAtDate: today
   };
-  const next = {
+  let next = {
     ...character,
     employment,
     careerExperienceYears: getCareerExperience(character),
@@ -318,6 +340,7 @@ export function acceptJobOffer(character: Character, offerId: string): Character
       : item.status === 'offered' ? { ...item, status: 'declined' as const, outcome: 'You accepted another job offer.' } : item),
     history: [...character.history]
   };
+  next = syncEmploymentCommitments(next, employment);
   next.history.unshift({
     id: 'job-start-' + offer.id,
     year: character.year,
@@ -334,12 +357,13 @@ export function resignFromJob(character: Character): Character {
   if (!character.employment) return character;
   const previous = character.employment;
   const schedule = character.weeklySchedule;
-  const next = {
-    ...character,
+  let next = syncEmploymentCommitments(character, null);
+  next = {
+    ...next,
     employment: null,
     careerExperienceYears: getCareerExperience(character),
     promotionOffer: null,
-    weeklySchedule: schedule ? { ...schedule, activities: schedule.activities.filter((item) => !(item.activityId === 'career' && item.action?.kind !== 'work')) } : schedule,
+    weeklySchedule: next.weeklySchedule ? { ...next.weeklySchedule, activities: next.weeklySchedule.activities.filter((item) => !(item.activityId === 'career' && item.action?.kind !== 'work')) } : schedule,
     history: [...character.history]
   };
   next.history.unshift({
