@@ -70,7 +70,7 @@ The player should feel that a life is unfolding, not that they are spending abst
 The week is shaped by recurring commitments and the player's discretionary choices.
 
 - School, employment, household responsibilities, and other implemented commitments may reserve recurring day/period blocks. These schedules belong to their own domain workspaces.
-- The player sees the commitments that matter this week and the free-time capacity they leave.
+- The player sees the commitments that matter this week and the free-time capacity they leave. Accepting or leaving a job updates the recurring Work commitments, so career status changes the time available for personal plans.
 - Player-directed activities consume one or more free-time blocks, plus money and/or energy when appropriate. Different activities can take different amounts of time.
 - A time block is a scheduling constraint, not an action token. The same activity cannot be scheduled into overlapping time; unavailable time cannot be spent twice.
 - Do not require the player to fill every day or every block. Rest, unplanned time, and quiet weeks are valid.
@@ -84,7 +84,7 @@ The week is shaped by recurring commitments and the player's discretionary choic
 
 The simulation now has a reusable, save-compatible weekly schedule model:
 - A week is represented as seven days with three broad periods: morning, afternoon, and evening. These are planning blocks, not hourly simulation.
-- Recurring commitments reserve one or more consecutive periods on a selected weekday. They are only added when a domain has a real modeled commitment; the schedule engine does not invent school or work hours.
+- Recurring commitments reserve one or more consecutive periods on a selected weekday. Employment now generates a simple default shift pattern from the job type: full-time roles reserve weekday morning/afternoon blocks, part-time roles reserve three afternoon blocks, and flexible roles reserve three morning blocks. School hours remain unmodeled and are not invented.
 - Planned activities reserve dated periods in the selected week and must remain within that week.
 - The pure schedule resolver expands commitments, identifies free periods, and reports duplicate IDs, invalid dates/durations, out-of-week activities, and overlapping placements.
 - New characters receive an empty versioned schedule. Legacy saves are migrated without discarding character or slot data; saves that lack calendar data are anchored to the first Monday on or after January 1 of their stored year, and the obsolete annual action counter is removed.
