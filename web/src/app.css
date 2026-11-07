@@ -696,3 +696,15 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
   .topbar-metrics{gap:9px}
   .topbar-metrics strong{font-size:8px}
 }
+
+/* Four-part month progress indicator in the unified game header. */
+.topbar-month{display:grid;grid-template-columns:auto auto;align-items:center;column-gap:8px;row-gap:4px}
+.topbar-month>span{grid-column:1/-1}
+.topbar-month strong{grid-column:1}
+.topbar-week-dots{grid-column:2;display:flex;align-items:center;gap:4px}
+.topbar-week-dots i{display:block;width:6px;height:6px;border-radius:50%;background:#354139;box-shadow:inset 0 0 0 1px #53625855}
+.topbar-week-dots i.current{background:var(--accent);box-shadow:0 0 8px #72d69a85}
+@media(max-width:560px){
+  .topbar-week-dots{gap:3px}
+  .topbar-week-dots i{width:5px;height:5px}
+}
