@@ -321,12 +321,14 @@ describe('life simulation', () => {
     const partTime = performActivity(teen, 'apply-job', () => 0);
     expect(partTime.employment?.type).toBe('part-time');
     expect(partTime.employment?.annualSalary).toBe(5000);
+    expect(partTime.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(3);
     expect(getAvailableActivityIds(16, partTime.employment)).toContain('career');
     expect(getAvailableActivityIds(16, partTime.employment)).not.toContain('apply-job');
     const adult = { ...createCharacter('Adult', 18), currencyScale: 1 };
     const fullTime = performActivity(adult, 'apply-job', () => 0);
     expect(fullTime.employment?.type).toBe('full-time');
     expect(fullTime.employment?.annualSalary).toBe(18000);
+    expect(fullTime.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
     expect(getAvailableActivityIds(18, fullTime.employment)).not.toContain('apply-job');
   });
   it('allows higher education to unlock a better-qualified role', () => {
