@@ -129,7 +129,7 @@ export interface PendingGameEvent {
   choices: GameEventChoice[];
 }
 
-export interface LifeEvent { id: string; year: number; age: number; title: string; description: string; kind: 'milestone' | 'activity' | 'event'; }
+export interface LifeEvent { id: string; year: number; age: number; date?: string; title: string; description: string; kind: 'milestone' | 'activity' | 'event'; }
 export type FamilyRelationshipType = 'parent' | 'guardian' | 'sibling' | 'partner' | 'adoptive-parent' | 'step-parent';
 export type FamilyHistoryType = 'background' | 'interaction' | 'support' | 'relationship-change' | 'milestone';
 export interface FamilyPerson {
