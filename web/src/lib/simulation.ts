@@ -816,6 +816,9 @@ export function acceptPromotionOffer(character: Character): Character {
 export function declinePromotionOffer(character: Character): Character {
   return declinePromotionOfferState(character);
 }
+export function resignFromJob(character: Character): Character {
+  return resignFromJobState(character);
+}
 
 export function planEventChoice(character: Character, choiceId: string, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
   const pending = character.pendingGameEvent;
