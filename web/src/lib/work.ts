@@ -233,6 +233,7 @@ export function resolveJobApplication(character: Character, listingId: string, r
     id: 'job-application-' + listing.id,
     year: character.year,
     age: character.age,
+    date: character.calendar?.currentDate ?? String(character.year) + '-01-01',
     title: invited ? 'Interview invitation received' : 'Job application unsuccessful',
     description: invited ? 'Your application to ' + listing.employer + ' for ' + listing.title + ' was shortlisted.' : 'Your application to ' + listing.employer + ' for ' + listing.title + ' was not selected.',
     kind: invited ? 'event' : 'activity'
@@ -275,6 +276,7 @@ export function resolveJobInterview(character: Character, applicationId: string,
     id: 'job-interview-' + application.id,
     year: character.year,
     age: character.age,
+    date: character.calendar?.currentDate ?? String(character.year) + '-01-01',
     title: passed ? 'Job offer received' : 'Interview unsuccessful',
     description: passed ? application.employer + ' offered you the ' + application.title + ' role at ' + formatSalary(character, application.annualSalary) + ' per year.' : 'The interview with ' + application.employer + ' was unsuccessful.',
     kind: passed ? 'milestone' : 'activity'
@@ -345,6 +347,7 @@ export function acceptJobOffer(character: Character, offerId: string): Character
     id: 'job-start-' + offer.id,
     year: character.year,
     age: character.age,
+    date: character.calendar?.currentDate ?? String(character.year) + '-01-01',
     title: character.employment ? 'Changed jobs' : 'Started a new job',
     description: (character.employment ? 'You moved to ' : 'You joined ') + offer.employer + ' as ' + offer.title + '. Annual pay: ' + formatSalary(character, offer.annualSalary) + '.',
     kind: 'milestone'
@@ -370,6 +373,7 @@ export function resignFromJob(character: Character): Character {
     id: 'job-resignation-' + character.year + '-' + character.history.length,
     year: character.year,
     age: character.age,
+    date: character.calendar?.currentDate ?? String(character.year) + '-01-01',
     title: 'Left a job',
     description: 'You left ' + previous.employer + ' and your role as ' + previous.title + '. Your recorded career experience remains part of your history.',
     kind: 'milestone'
@@ -422,6 +426,7 @@ export function acceptPromotionOffer(character: Character): Character {
     id: 'promotion-' + role.id + '-' + character.year,
     year: character.year,
     age: character.age,
+    date: character.calendar?.currentDate ?? String(character.year) + '-01-01',
     title: 'Promotion accepted',
     description: 'You advanced from ' + oldTitle + ' to ' + role.title + ' at ' + formatSalary(character, offer.annualSalary) + ' annual pay.',
     kind: 'milestone'
@@ -448,6 +453,7 @@ export function expireWorkOffers(character: Character, currentDate: string): Cha
     id: 'job-offer-expired-' + offer.id,
     year: character.year,
     age: character.age,
+    date: character.calendar?.currentDate ?? String(character.year) + '-01-01',
     title: 'Job offer expired',
     description: 'The offer from ' + offer.employer + ' for ' + offer.title + ' expired without a response.',
     kind: 'event'
@@ -456,6 +462,7 @@ export function expireWorkOffers(character: Character, currentDate: string): Cha
     id: 'promotion-offer-expired-' + character.year + '-' + character.employment?.promotions,
     year: character.year,
     age: character.age,
+    date: character.calendar?.currentDate ?? String(character.year) + '-01-01',
     title: 'Promotion offer expired',
     description: 'The promotion offer for ' + character.promotionOffer!.title + ' expired without a response.',
     kind: 'event'
@@ -470,6 +477,7 @@ export function declinePromotionOffer(character: Character): Character {
     id: 'promotion-declined-' + character.year + '-' + character.employment?.promotions,
     year: character.year,
     age: character.age,
+    date: character.calendar?.currentDate ?? String(character.year) + '-01-01',
     title: 'Promotion declined',
     description: 'You chose to remain in your current role for now.',
     kind: 'activity'
