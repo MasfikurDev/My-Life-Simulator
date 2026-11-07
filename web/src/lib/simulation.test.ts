@@ -373,7 +373,6 @@ describe('life simulation', () => {
       careerExperienceYears: 5,
       currencyScale: 1
     };
-    const { getJobListings, isEligibleForRole, getCareerRole } = requireWorkModule();
     const listing = getJobListings(candidate).find((item) => {
       const role = getCareerRole(item.roleId);
       return role ? isEligibleForRole(candidate, role) : false;
