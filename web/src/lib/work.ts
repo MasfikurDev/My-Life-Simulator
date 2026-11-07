@@ -87,10 +87,17 @@ export function getCareerRole(roleId?: string, title?: string): CareerRole | nul
   }
   if (title) {
     const normalized = title.toLowerCase();
-    if (normalized.includes('service')) return CAREER_ROLES.find((role) => role.id === 'service-assistant') ?? null;
-    if (normalized.includes('sales')) return CAREER_ROLES.find((role) => role.id === 'sales-associate') ?? null;
-    if (normalized.includes('developer') || normalized.includes('technician')) return CAREER_ROLES.find((role) => role.id === 'it-support') ?? null;
-    if (normalized.includes('operation') || normalized.includes('associate') || normalized.includes('assistant')) return CAREER_ROLES.find((role) => role.id === 'operations-assistant') ?? null;
+    const roleId = normalized.includes('service')
+      ? normalized.includes('supervisor') ? 'service-supervisor' : normalized.includes('specialist') ? 'service-specialist' : 'service-assistant'
+      : normalized.includes('sales')
+        ? normalized.includes('manager') ? 'sales-manager' : normalized.includes('account') ? 'account-executive' : 'sales-associate'
+        : normalized.includes('developer')
+          ? normalized.includes('senior') ? 'senior-developer' : 'software-developer'
+          : normalized.includes('technician') ? 'it-support'
+            : normalized.includes('operation')
+              ? normalized.includes('manager') ? 'operations-manager' : normalized.includes('coordinator') || normalized.includes('senior') ? 'operations-coordinator' : 'operations-assistant'
+              : normalized.includes('associate') || normalized.includes('assistant') ? 'operations-assistant' : '';
+    if (roleId) return CAREER_ROLES.find((role) => role.id === roleId) ?? null;
   }
   return null;
 }
