@@ -390,6 +390,7 @@ export function declineJobOffer(character: Character, offerId: string): Characte
     id: 'job-offer-declined-' + offer.id,
     year: character.year,
     age: character.age,
+    date: character.calendar?.currentDate ?? String(character.year) + '-01-01',
     title: 'Job offer declined',
     description: 'You declined the offer from ' + offer.employer + ' for ' + offer.title + '.',
     kind: 'activity'
