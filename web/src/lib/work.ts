@@ -357,6 +357,7 @@ export function acceptPromotionOffer(character: Character): Character {
     careerPathId: role.pathId,
     level: role.level,
     annualSalary: offer.annualSalary,
+    experienceYears: 0,
     performance: 65,
     promotions: character.employment.promotions + 1
   };
