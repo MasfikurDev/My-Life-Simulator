@@ -105,6 +105,18 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .timeline-item strong{font-size:11px;color:var(--text)}
 .timeline-item p{font-size:10px;line-height:1.55;color:var(--muted);margin:4px 0}
 .timeline-item small{font-size:8px;color:var(--subtle);letter-spacing:1px}
+.activity-week-group{border-top:1px solid var(--line);padding:0}
+.activity-week-group:last-child{border-bottom:1px solid var(--line)}
+.activity-week-group>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;cursor:pointer;list-style:none;color:var(--text);font-size:11px;font-weight:700}
+.activity-week-group>summary::-webkit-details-marker{display:none}
+.activity-week-group>summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:5px}
+.activity-week-meta{display:flex;align-items:center;gap:9px;color:var(--subtle);font-size:8px;letter-spacing:.8px;white-space:nowrap}
+.activity-week-meta i{width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);transition:transform .18s ease;margin:0 3px 3px 0}
+.activity-week-group[open] .activity-week-meta i{transform:rotate(225deg);margin-top:6px}
+.activity-week-items{padding:4px 0 15px}
+.activity-week-items .timeline-item{padding-top:5px}
+.activity-week-group:not([open])>summary{color:var(--muted)}
+
 .money-card{background:linear-gradient(145deg,#10251a,#0b1710);border-color:#25452f;color:var(--text);display:flex;flex-direction:column;justify-content:center}
 .money-label{font-size:9px;color:#9fc8a8}
 .money-value{font:700 30px Inter,ui-sans-serif,system-ui;letter-spacing:-1px;margin:12px 0 3px;color:#e6f5e9;font-variant-numeric:tabular-nums}
