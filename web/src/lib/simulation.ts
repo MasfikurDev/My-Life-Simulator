@@ -4,7 +4,7 @@ import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, r
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
 import { createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
 import { buildWeeklySchedule, getWeeklySchedule } from './weekly-schedule';
-import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPromotionOfferState, createPromotionOffer, declineJobOffer as declineJobOfferState, declinePromotionOffer as declinePromotionOfferState, expireWorkOffers, getJobListings, getCareerRole, isEligibleForRole, resolveJobApplication, resolveJobInterview, resignFromJob as resignFromJobState } from './work';
+import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPromotionOfferState, createPromotionOffer, declineJobOffer as declineJobOfferState, declinePromotionOffer as declinePromotionOfferState, expireWorkOffers, getJobListings, getCareerRole, isEligibleForRole, resolveJobApplication, resolveJobInterview, resignFromJob as resignFromJobState, syncEmploymentCommitments } from './work';
 
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
 
@@ -1015,6 +1015,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       if (random() < successChance) {
         const previous = next.employment?.title;
         next.employment = offeredJob;
+        Object.assign(next, syncEmploymentCommitments(next, offeredJob));
         next.history.unshift(event(next, previous ? 'Moved into a new role' : 'Started a new job', (previous ? 'You left ' + previous + ' for ' : 'You secured ') + offeredJob.title + '. Annual pay is ' + formatCharacterMoney(next, offeredJob.annualSalary) + ' per year.', 'milestone'));
       } else {
         next.history.unshift(event(next, 'Job application unsuccessful', 'The application did not lead to an offer. You can build experience or qualifications and try again.'));
