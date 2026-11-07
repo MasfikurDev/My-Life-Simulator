@@ -216,15 +216,17 @@
       <span class="brand-name">My Life <span class="brand-light">Simulator</span></span>
     </a>
     {#if character && activeTab !== 'settings' && activeTab !== 'create'}
-      <div class="topbar-right">
-        <div class="topbar-life" aria-label="Current life: {character.name}, age {character.age}">
+      <div class="topbar-right" aria-label="Current life status">
+        <div class="topbar-life-identity">
           <span class="topbar-life-dot" aria-hidden="true"></span>
           <span class="topbar-life-name">{character.name}</span>
-          <span class="topbar-life-age">AGE {character.age}</span>
+          <span class="topbar-life-stage">AGE {character.age} · {getLifeStage(character.age).label}</span>
         </div>
-        <button class="icon-button" aria-label="Start a new life" title="Start a new life" onclick={startNewLife}>
-          <span aria-hidden="true">＋</span>
-        </button>
+        <div class="topbar-metrics">
+          <div><span>YEAR</span><strong>{character.year}</strong></div>
+          <div><span>CASH</span><strong>{formatCharacterMoney(character)}</strong></div>
+          <div><span>DATE</span><strong>{character.calendar?.currentDate ?? character.year}</strong></div>
+        </div>
       </div>
     {/if}
   </header>
@@ -239,16 +241,6 @@
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>Active save</strong><small>Slot {activeSlotId.slice(-1)}</small></div></div>{/if}
       </aside>
       <section class="content">
-        {#if character && activeTab !== 'settings' && activeTab !== 'create'}
-          <div class="page-context-header" aria-label="Current life status">
-            <div class="page-context-identity"><strong>{character.name}</strong><span>Age {character.age} · {getLifeStage(character.age).label}</span></div>
-            <div class="page-context-metrics">
-              <div><span>YEAR</span><strong>{character.year}</strong></div>
-              <div><span>CASH</span><strong>{formatCharacterMoney(character)}</strong></div>
-              <div><span>DATE</span><strong>{character.calendar?.currentDate ?? character.year}</strong></div>
-            </div>
-          </div>
-        {/if}
         {#if activeTab==='create'}
           <CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='home'} />
         {:else if activeTab==='settings'}
