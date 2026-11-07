@@ -136,7 +136,7 @@ export function getJobListings(character: Character): JobListing[] {
   }
   const scale = character.currencyScale ?? 1;
   const type: EmploymentType = character.age < 18 ? 'part-time' : character.age >= 65 ? 'flexible' : 'full-time';
-  const location = character.birthplace ?? 'Local area';
+  const location = 'Local area';
   return shuffled.slice(0, 5).map((role, index) => {
     const employer = EMPLOYERS[(hash(week + role.id + character.name) + index) % EMPLOYERS.length];
     const salarySeed = seeded(week + role.id + character.name + '|salary');
