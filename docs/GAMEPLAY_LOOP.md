@@ -185,9 +185,11 @@ The final order may be adjusted to satisfy domain dependencies, but it must rema
 
 A playable weekly loop is not complete until:
 1. A new player can understand the current week, commitments, free time, and next action without reading documentation.
-2. The player can schedule at least two different activities with different time costs and see that they cannot overlap.
-3. School/work commitments reserve time only when actual schedule data exists.
-4. A weekly activity can create a meaningful immediate effect and a persistent delayed consequence.
+2. Confirming an action from School, Work, Family, Business, Events, or Life automatically places it in the earliest suitable contiguous free period and reports that placement in the originating domain.
+3. The player is never required to choose a date or period for a routine action; Schedule is used to review or cancel existing reservations.
+4. The player can confirm at least two different actions with different time costs and see that they cannot overlap.
+5. School/work recurring commitments reserve time only when actual schedule data exists.
+6. A weekly activity can create a meaningful immediate effect and a persistent delayed consequence.
 5. One week advances exactly once; retry/reload cannot duplicate income, bills, effects, or history.
 6. Crossing month-end processes monthly payments once; crossing year-end processes annual systems once.
 7. A birthday changes age and eligibility on the correct date, not simply every 52 button presses.
