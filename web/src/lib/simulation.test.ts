@@ -354,6 +354,7 @@ describe('life simulation', () => {
     const worker = {
       ...createCharacter('Worker', 30),
       careerExperienceYears: 2,
+      intelligence: 90,
       employment: { title: 'Operations assistant', roleId: 'operations-assistant', careerPathId: 'operations' as const, type: 'full-time' as const, annualSalary: 10000, experienceYears: 1, performance: 90, promotions: 0, startedAtAge: 30 }
     };
     const reviewed = advanceYear(worker);
