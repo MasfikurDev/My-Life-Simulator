@@ -153,7 +153,7 @@
           {@const current = character.employment?.roleId === role.id || (currentRole?.id === role.id)}
           {@const ready = isEligibleForRole(character, role)}
           <article class:current={current} class:eligible={ready} class="career-role">
-            <div class="career-level">LEVEL {role.level}</div><div><h3>{role.title}</h3><p>{role.description}</p><strong>{moneyRange(Math.round(role.annualSalaryMin * (character.currencyScale ?? 1)), Math.round(role.annualSalaryMax * (character.currencyScale ?? 1)))} <small>estimated annual pay</small></strong></div>
+            <div class="career-level">LEVEL {role.level}</div><div><h3>{role.title}</h3><p>{role.description}</p><strong>{moneyRange(Math.round(role.annualSalaryMin * (character.currencyScale ?? 1)), Math.round(role.annualSalaryMax * (character.currencyScale ?? 1)))} <small>estimated full-time annual pay</small></strong></div>
             <span class="career-state">{current ? 'Current role' : ready ? 'Meets entry requirements' : 'Future opportunity'}</span>
             {#if !current}<details><summary>View requirements</summary><ul>{#each requirements as requirement}<li class:met={requirement.met}>{requirement.met ? '✓' : '•'} {requirement.label}: {requirement.detail}</li>{/each}</ul></details>{/if}
           </article>
