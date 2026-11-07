@@ -77,6 +77,7 @@
           <div><span>Role experience</span><strong>{character.employment.experienceYears} years</strong></div>
           <div><span>Career experience</span><strong>{character.careerExperienceYears ?? character.employment.experienceYears} years</strong></div>
         </div>
+        <p class="work-note">Regular shifts: {character.employment.type === 'full-time' ? 'Monday–Friday, mornings and afternoons' : character.employment.type === 'part-time' ? 'Monday, Wednesday and Friday afternoons' : 'Tuesday, Thursday and Saturday mornings'}.</p>
         <p class="work-note">Pay is shown as annual base salary. Payroll is currently settled annually; monthly payroll and benefits are planned separately.</p>
         <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>Plan career development session</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
         {#if confirmResignation}<div class="resign-confirm"><strong>Leave {character.employment.title}?</strong><p>You will become unemployed. Your career experience and history will be kept.</p><div><button class="work-primary" onclick={confirmLeaveJob}>Confirm resignation</button><button class="work-secondary" onclick={() => confirmResignation = false}>Keep job</button></div></div>{/if}
