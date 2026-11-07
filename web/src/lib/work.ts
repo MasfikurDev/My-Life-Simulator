@@ -329,7 +329,7 @@ export function acceptJobOffer(character: Character, offerId: string): Character
     level: role.level,
     startedAtDate: today
   };
-  let next = {
+  let next: Character = {
     ...character,
     employment,
     careerExperienceYears: getCareerExperience(character),
