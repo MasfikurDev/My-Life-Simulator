@@ -6,7 +6,7 @@
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
   import FinanceWorkspace from './FinanceWorkspace.svelte';
-  import LifeWorkspace from './LifeWorkspace.svelte';
+  import LifeWorkspace from './LifeWorkspace.svelte';\n  import WorkWorkspace from './WorkWorkspace.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
   import type { ActivityId, Character, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
@@ -356,20 +356,7 @@
           <div class="section-heading"><div><span class="section-index">01</span><h3>Study options</h3></div><span class="section-hint">Plan activities in your weekly schedule</span></div>
           <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => activity.id === 'study' && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={!canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
-        {:else if character && activeTab==='work' && character.age >= 16}
-          <div class="page-heading"><div><div class="eyebrow">EMPLOYMENT</div><h1>Work</h1><p>Find work, manage your current role and develop your career.</p></div></div>
-          <section class="domain-panel">
-            {#if character.employment}
-              <div class="domain-panel-head"><div><div class="eyebrow">CURRENT POSITION</div><h2>{character.employment.title}</h2><p>{character.employment.type === 'part-time' ? 'Part-time employment' : character.employment.type === 'flexible' ? 'Flexible employment' : 'Full-time employment'} · Started at age {character.employment.startedAtAge}</p></div><span class="domain-status">EMPLOYED</span></div>
-              <div class="domain-metrics"><div><span>Annual pay</span><strong>{formatCharacterMoney(character, character.employment.annualSalary)}</strong></div><div><span>Performance</span><strong>{character.employment.performance}/100</strong></div><div><span>Experience</span><strong>{character.employment.experienceYears} yrs</strong></div><div><span>Promotions</span><strong>{character.employment.promotions}</strong></div></div>
-            {:else}
-              <div class="domain-panel-head"><div><div class="eyebrow">EMPLOYMENT STATUS</div><h2>No current role</h2><p>{character.age < 18 ? 'Part-time opportunities are available while you continue your education.' : character.age >= 65 ? 'Look for flexible work that fits later life.' : 'Search for a role that matches your education and experience.'}</p></div><span class="domain-status">JOB SEARCH</span></div>
-            {/if}
-          </section>
-          <div class="section-heading"><div><span class="section-index">01</span><h3>{character.employment ? 'Workplace & career' : 'Job opportunities'}</h3></div></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => ['apply-job','career','work'].includes(activity.id) && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={!canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
-
-        {:else if character && activeTab==='life'}
+        {:else if character && activeTab==='work' && character.age >= 16}\n          <WorkWorkspace {character} onChange={persist} onNotify={notify} />\n\n        {:else if character && activeTab==='life'}
           <LifeWorkspace {character} onChange={persist} initialView={lifeInitialView} initialActivity={lifeInitialActivity} />
         {:else if character && activeTab==='finances'}
           <FinanceWorkspace {character} onChange={persist} />
