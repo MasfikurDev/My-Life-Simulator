@@ -49,7 +49,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Design decision:** weekly is the playable time unit; monthly is the financial/reporting unit; yearly is the life-progression unit. This milestone is a foundational redesign, not a cosmetic change from "3 actions/year" to "3 actions/week".
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
-- [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour or reserve time for unimplemented school/work schedules. The first model uses three broad periods per day and validates overlaps; no school/work commitments are invented.
+- [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment now adds type-based recurring Work shifts; School attendance remains unmodeled until its own schedule loop exists.
 - [x] Add a visible Life → Schedule planner with a seven-day, 21-period grid, age-available activity planning, duration-based reservations, conflict prevention, removal, and weekly resolution.
 - [x] Centralize per-activity time requirements and validate planned activities in the simulation: life-stage eligibility, current-week boundaries, duration fit, overlaps, and aggregate planned cash costs.
 - [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, and business management.
@@ -86,7 +86,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Clarify the current-job card and add a read-only career-path preview with estimated salary/bonus ranges; see [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md).
 - [x] Connect general education, knowledge, career experience, performance, and role requirements to transparent readiness checks and player-controlled promotion offers without a universal fixed-week grind.
 - [ ] Add role-specific skills, persistent vacancies, employer decisions, and promotion outcomes tied to workplace conditions.
-- [x] Add job changes and voluntary resignation through the shared employment record.
+- [x] Add job changes and voluntary resignation through the shared employment record. Job type now controls recurring Work commitments, and changing/leaving jobs replaces or removes those commitments safely.
 - [ ] Add conditional bonuses/benefits, monthly payroll, career stability, layoffs, and deeper workplace progression only with complete finance and employer loops.
 
 **Acceptance:** Education and career choices change future options and have visible consequences; no placeholder status is shown as a real mechanic.
