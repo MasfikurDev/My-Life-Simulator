@@ -58,6 +58,6 @@ export function isActivityAvailable(age: number, activity: ActivityId, employmen
 }
 
 export function getAvailableActivityIds(age: number, employment?: Employment | null): ActivityId[] {
-  return (['study', 'exercise', 'socialize', 'work', 'apply-job', 'career'] as ActivityId[])
+  return (['study', 'exercise', 'socialize', 'work', 'career'] as ActivityId[])
     .filter((activity) => isActivityAvailable(age, activity, employment));
 }
