@@ -14,7 +14,10 @@
     const planned = planFamilyInteractionInNextFreeTime(character, personId, action, supportAmount);
     if (planned.issue) { feedback = planned.message ?? 'That interaction could not be planned.'; return; }
     onChange(planned.character);
-    feedback = 'Interaction added to this week. It will take effect when the week is resolved.';
+    const slot = planned.scheduledActivity;
+    feedback = slot
+      ? 'Confirmed for ' + slot.date + ' (' + slot.startPeriod + '). It will take effect when the week is resolved.'
+      : 'Interaction confirmed for this week.';
   }
 </script>
 
@@ -37,7 +40,7 @@
     {#if feedback}<p class="family-footnote" role="status">{feedback}</p>{/if}
     <section class="family-panel">
       <div class="family-panel-head">
-        <div><div class="eyebrow">YOUR FAMILY</div><h2>Family connections</h2><p>People and relationships recorded in this life. Family structure is not a measure of success.</p></div>
+        <div><div class="eyebrow">YOUR FAMILY</div><h2>Family connections</h2><p>People and relationships recorded in this life. Choose an interaction to confirm it; the game places it into suitable free time automatically.</p></div>
         <span class="family-count">{livingCount} living</span>
       </div>
       <div class="family-summary">
