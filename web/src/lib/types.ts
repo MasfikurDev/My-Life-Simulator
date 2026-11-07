@@ -196,7 +196,7 @@ export type PlannedAction =
   | { kind: 'activity' }
   | { kind: 'family'; personId: string; interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support'; supportAmount?: number }
   | { kind: 'business'; businessId: string }
-  | { kind: 'event'; eventId: string; choiceId: string }\n  | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string };
+  | { kind: 'event'; eventId: string; choiceId: string }\n  | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string };
 
 export interface PlannedActivity {
   id: string;
