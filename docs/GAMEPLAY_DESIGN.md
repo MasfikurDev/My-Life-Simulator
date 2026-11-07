@@ -57,7 +57,7 @@ Current action eligibility: learning/study becomes available at age 3; one-off e
 
 ### Education progression
 - Education status follows the age bands: not started (0–2), early learning (3–5), primary education (6–12), secondary education (13–17), and secondary education completed at 18.
-- Study consumes an annual action, improves intelligence, and advances learning progress. Progress resets at the next school-stage boundary.
+- A confirmed study session automatically reserves two consecutive free periods in the current week. It improves intelligence and advances learning progress when the week resolves. Progress resets at the next school-stage boundary.
 - From age 18, five study actions (20 progress each) can complete the higher-education qualification. Higher education improves access to professional roles and application odds.
 - Education is a game progression model, not a detailed curriculum, school attendance simulation, or real qualification equivalency.
 
