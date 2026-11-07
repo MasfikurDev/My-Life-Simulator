@@ -50,7 +50,7 @@
       <button onclick={() => activeView='wellbeing'}><span class="shortcut-icon">＋</span><strong>Wellbeing</strong><small>Health, happiness and fitness</small><b>View wellbeing →</b></button>
       <button onclick={() => activeView='growth'}><span class="shortcut-icon">✳</span><strong>Personal growth</strong><small>Learning and intelligence</small><b>View personal growth →</b></button>
       <button onclick={() => activeView='personal'}><span class="shortcut-icon">◎</span><strong>Personal</strong><small>Everyday activities and free time</small><b>Open personal life →</b></button>
-      <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.filter((item) => item.kind === 'milestone').length} major achievements<b>Review history →</b></button>
+      <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.filter((item) => item.kind === 'milestone').length} major achievements</small><b>Review history →</b></button>
     </div>
   {:else if activeView === 'schedule'}
     <ScheduleWorkspace {character} {onChange} initialActivity={selectedActivity} />
