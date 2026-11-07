@@ -695,7 +695,8 @@ export interface ActivityPlanningResult {
  * the later weekly resolver will apply effects and settle costs exactly once.
  */
 export function getPlannedActivityCost(character: Character, item: PlannedActivity): number {
-  if (item.action?.kind === 'work') return 0;\n  if (item.action?.kind === 'family' && item.action.interaction === 'provide-support') return item.action.supportAmount ?? 0;
+  if (item.action?.kind === 'work') return 0;
+  if (item.action?.kind === 'family' && item.action.interaction === 'provide-support') return item.action.supportAmount ?? 0;
   if (item.action?.kind === 'business') {
     const businessId = item.action.businessId;
     const business = (character.businesses ?? []).find((entry) => entry.id === businessId);
@@ -952,7 +953,8 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   const birthDate = next.calendar?.birthDate ?? createGameCalendar(next.age, next.year).birthDate;
   const nextAge = getAgeAtDate(birthDate, nextDate);
   const previousAge = next.age;
-  next = { ...next, calendar: { ...(next.calendar ?? createGameCalendar(next.age, next.year)), currentDate: nextDate } };\n  next = expireWorkOffers(next, nextDate);
+  next = { ...next, calendar: { ...(next.calendar ?? createGameCalendar(next.age, next.year)), currentDate: nextDate } };
+  next = expireWorkOffers(next, nextDate);
   if (nextYear > character.year) {
     next = settleCalendarYear(next, nextYear, nextAge, previousAge);
   } else {
