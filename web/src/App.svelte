@@ -205,9 +205,23 @@
 </script>
 <svelte:head><title>{character ? character.name + ' · My Life Simulator' : 'My Life Simulator'}</title></svelte:head>
 <div class="app-shell">
-  <header class="topbar">
-    <a class="brand" href="#home" onclick={() => activeTab=character ? 'home' : 'create'}><span class="brand-mark">L</span><span>life<span class="brand-light">story</span></span></a>
-    <div class="topbar-right">{#if activeTab !== 'settings'}<button class="icon-button" aria-label="Start a new life" title="Start a new life" onclick={startNewLife}>＋</button>{/if}</div>
+  <header class="topbar" class:topbar-game={!!character && activeTab !== 'create'}>
+    <a class="brand" href="#home" aria-label="My Life Simulator home" onclick={() => activeTab=character ? 'home' : 'create'}>
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">My Life <span class="brand-light">Simulator</span></span>
+    </a>
+    <div class="topbar-right">
+      {#if character && activeTab !== 'settings' && activeTab !== 'create'}
+        <div class="topbar-life" aria-label="Current life">
+          <span class="topbar-life-dot"></span>
+          <span class="topbar-life-name">{character.name}</span>
+          <span class="topbar-life-age">AGE {character.age}</span>
+        </div>
+      {/if}
+      {#if activeTab !== 'settings' && activeTab !== 'create'}
+        <button class="icon-button" aria-label="Start a new life" title="Start a new life" onclick={startNewLife}><span aria-hidden="true">＋</span></button>
+      {/if}
+    </div>
   </header>
   {#if !character && activeTab !== 'settings' && activeTab !== 'create'}
     <main class="welcome"><CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='settings'} /></main>
