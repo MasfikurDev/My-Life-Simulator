@@ -343,11 +343,21 @@ export function resignFromJob(character: Character): Character {
 export function declineJobOffer(character: Character, offerId: string): Character {
   const offer = (character.jobOffers ?? []).find((item) => item.id === offerId);
   if (!offer) return character;
-  return {
+  const next = {
     ...character,
     jobOffers: (character.jobOffers ?? []).filter((item) => item.id !== offerId),
-    jobApplications: (character.jobApplications ?? []).map((item) => item.id === offer.applicationId ? { ...item, status: 'declined' as const, outcome: 'You declined the offer.' } : item)
+    jobApplications: (character.jobApplications ?? []).map((item) => item.id === offer.applicationId ? { ...item, status: 'declined' as const, outcome: 'You declined the offer.' } : item),
+    history: [...character.history]
   };
+  next.history.unshift({
+    id: 'job-offer-declined-' + offer.id,
+    year: character.year,
+    age: character.age,
+    title: 'Job offer declined',
+    description: 'You declined the offer from ' + offer.employer + ' for ' + offer.title + '.',
+    kind: 'activity'
+  });
+  return next;
 }
 
 export function acceptPromotionOffer(character: Character): Character {
@@ -392,8 +402,25 @@ export function expireWorkOffers(character: Character, currentDate: string): Cha
     jobApplications: (character.jobApplications ?? []).map((application) => expiredIds.has(application.id)
       ? { ...application, status: 'expired' as const, outcome: 'The offer expired before you responded.' }
       : application),
-    promotionOffer: promotionExpired ? null : character.promotionOffer
+    promotionOffer: promotionExpired ? null : character.promotionOffer,
+    history: [...character.history]
   };
+  for (const offer of expired) next.history.unshift({
+    id: 'job-offer-expired-' + offer.id,
+    year: character.year,
+    age: character.age,
+    title: 'Job offer expired',
+    description: 'The offer from ' + offer.employer + ' for ' + offer.title + ' expired without a response.',
+    kind: 'event'
+  });
+  if (promotionExpired) next.history.unshift({
+    id: 'promotion-offer-expired-' + character.year + '-' + character.employment?.promotions,
+    year: character.year,
+    age: character.age,
+    title: 'Promotion offer expired',
+    description: 'The promotion offer for ' + character.promotionOffer!.title + ' expired without a response.',
+    kind: 'event'
+  });
   return next;
 }
 
