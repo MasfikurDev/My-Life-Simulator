@@ -43,6 +43,8 @@ export interface FinancialTransaction {
   from: string;
   to: string;
 }
+export type CareerPathId = 'customer-service' | 'operations' | 'technology' | 'sales';
+export type JobApplicationStatus = 'interview' | 'rejected' | 'offered' | 'accepted' | 'declined';
 export interface Employment {
   title: string;
   type: EmploymentType;
@@ -51,6 +53,41 @@ export interface Employment {
   performance: number;
   promotions: number;
   startedAtAge: number;
+  roleId?: string;
+  careerPathId?: CareerPathId;
+  employer?: string;
+  level?: number;
+  startedAtDate?: string;
+}
+export interface JobApplication {
+  id: string;
+  listingId: string;
+  roleId: string;
+  title: string;
+  employer: string;
+  type: EmploymentType;
+  annualSalary: number;
+  appliedAt: string;
+  status: JobApplicationStatus;
+  outcome?: string;
+}
+export interface JobOffer {
+  id: string;
+  applicationId: string;
+  roleId: string;
+  title: string;
+  employer: string;
+  type: EmploymentType;
+  annualSalary: number;
+  issuedAt: string;
+  expiresAt: string;
+}
+export interface PromotionOffer {
+  roleId: string;
+  title: string;
+  annualSalary: number;
+  issuedAt: string;
+  expiresAt: string;
 }
 
 export interface GameEventEffects {
@@ -159,7 +196,7 @@ export type PlannedAction =
   | { kind: 'activity' }
   | { kind: 'family'; personId: string; interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support'; supportAmount?: number }
   | { kind: 'business'; businessId: string }
-  | { kind: 'event'; eventId: string; choiceId: string };
+  | { kind: 'event'; eventId: string; choiceId: string }\n  | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string };
 
 export interface PlannedActivity {
   id: string;
@@ -183,7 +220,7 @@ export interface Character {
   lastWeekRecap?: string[];
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
-  educationProgress?: number; employment?: Employment | null;
+  educationProgress?: number; employment?: Employment | null;\n  careerExperienceYears?: number; jobApplications?: JobApplication[]; jobOffers?: JobOffer[]; promotionOffer?: PromotionOffer | null;
   lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number; lastYearTax?: number; taxBalance?: number;
   householdArrangement?: HouseholdArrangement; savingsGoalMonths?: SavingsGoalMonths | null;
   bankAccounts?: BankAccount[];
