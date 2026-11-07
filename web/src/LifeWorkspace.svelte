@@ -82,9 +82,9 @@
   {:else if activeView === 'lifestyle'}
     <LifestyleWorkspace {character} {onChange} />
   {:else if activeView === 'history'}
+    {@const achievements = character.history.filter((item) => item.kind === 'milestone')}
     <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h2>Life history</h2><p>Major achievements and important life-stage milestones.</p></div><span class="year-pill">{character.history.filter((item) => item.kind === 'milestone').length} ACHIEVEMENTS</span></div>
     <section class="history-card full-history">
-      {@const achievements = character.history.filter((item) => item.kind === 'milestone')}
       {#if achievements.length === 0}<p>No major achievements have been recorded yet.</p>{:else}
         {#each achievements as item}
           <div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>
