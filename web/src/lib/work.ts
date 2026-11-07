@@ -122,11 +122,11 @@ export function getJobListings(character: Character): JobListing[] {
   });
   if (!candidates.length) return [];
   const random = seeded(character.name + '|' + character.age + '|' + week + '|' + character.country);
-  const shuffled = [...candidates].sort((a, b) => {
-    const scoreA = random();
-    const scoreB = random();
-    return scoreA - scoreB;
-  });
+  const shuffled = [...candidates];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
   const scale = character.currencyScale ?? 1;
   const type: EmploymentType = character.age < 18 ? 'part-time' : character.age >= 65 ? 'flexible' : 'full-time';
   const location = character.birthplace ?? 'Local area';
@@ -346,6 +346,23 @@ export function acceptPromotionOffer(character: Character): Character {
     description: 'You advanced from ' + oldTitle + ' to ' + role.title + ' at ' + formatSalary(character, offer.annualSalary) + ' annual pay.',
     kind: 'milestone'
   });
+  return next;
+}
+
+
+export function expireWorkOffers(character: Character, currentDate: string): Character {
+  const expired = (character.jobOffers ?? []).filter((offer) => currentDate > offer.expiresAt);
+  const promotionExpired = Boolean(character.promotionOffer && currentDate > character.promotionOffer.expiresAt);
+  if (!expired.length && !promotionExpired) return character;
+  const expiredIds = new Set(expired.map((offer) => offer.applicationId));
+  const next = {
+    ...character,
+    jobOffers: (character.jobOffers ?? []).filter((offer) => currentDate <= offer.expiresAt),
+    jobApplications: (character.jobApplications ?? []).map((application) => expiredIds.has(application.id)
+      ? { ...application, status: 'expired' as const, outcome: 'The offer expired before you responded.' }
+      : application),
+    promotionOffer: promotionExpired ? null : character.promotionOffer
+  };
   return next;
 }
 
