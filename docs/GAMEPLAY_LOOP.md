@@ -258,7 +258,7 @@ After advancement, provide a compact year recap:
 - New opportunities, obligations, flags, or follow-up events.
 - Links to the owning domain for deeper details.
 
-Write important outcomes to chronological life history. The recap should make the causal link between prior choices and results visible.
+Keep the Overview activity feed as the complete chronological record of everyday actions and ordinary events. Reserve Life History for major achievements and life-stage milestones; do not duplicate routine activities there. The recap should make the causal link between prior choices and results visible.
 
 ### Year review gate (implemented first slice)
 

@@ -49,7 +49,7 @@ function stat(random: () => number): number {
   return Math.round((random() + random()) * 25 + 25);
 }
 function event(character: Character, title: string, description: string, kind: LifeEvent['kind'] = 'activity'): LifeEvent {
-  return { id: String(character.year) + '-' + String(character.history.length + 1), year: character.year, age: character.age, title, description, kind };
+  return { id: String(character.year) + '-' + String(character.history.length + 1), year: character.year, age: character.age, date: character.calendar?.currentDate ?? String(character.year) + '-01-01', title, description, kind };
 }
 
 export function generateRandomCharacter(startAge = 18, random: () => number = Math.random): Character {
