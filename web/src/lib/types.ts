@@ -196,7 +196,8 @@ export type PlannedAction =
   | { kind: 'activity' }
   | { kind: 'family'; personId: string; interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support'; supportAmount?: number }
   | { kind: 'business'; businessId: string }
-  | { kind: 'event'; eventId: string; choiceId: string }\n  | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string };
+  | { kind: 'event'; eventId: string; choiceId: string }
+  | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string };
 
 export interface PlannedActivity {
   id: string;
@@ -220,7 +221,8 @@ export interface Character {
   lastWeekRecap?: string[];
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
-  educationProgress?: number; employment?: Employment | null;\n  careerExperienceYears?: number; jobApplications?: JobApplication[]; jobOffers?: JobOffer[]; promotionOffer?: PromotionOffer | null;
+  educationProgress?: number; employment?: Employment | null;
+  careerExperienceYears?: number; jobApplications?: JobApplication[]; jobOffers?: JobOffer[]; promotionOffer?: PromotionOffer | null;
   lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number; lastYearTax?: number; taxBalance?: number;
   householdArrangement?: HouseholdArrangement; savingsGoalMonths?: SavingsGoalMonths | null;
   bankAccounts?: BankAccount[];
