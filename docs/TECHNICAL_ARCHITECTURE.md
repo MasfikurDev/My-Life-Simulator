@@ -220,7 +220,7 @@ The target gameplay clock is date-based and weekly, not annual-action-based. The
 - Do not divide existing annual costs/salary/interest by 12 without modeling rounding, due dates, inflation, payment failures, and save migration.
 - Multi-week advancement must call the same weekly resolver sequentially and stop at any decision boundary. It must not skip weeks with a coarse approximation.
 - Save migration must preserve legacy annual saves, all three slots, financial ledgers, liabilities/assets, event state, and history. Migration rules must be deterministic and tested before the UI switches to weekly progression.
-- Keep the current annual simulation path available during development until weekly scenario tests pass; do not partially switch the live save format or mix weekly and annual settlement paths.
+- The weekly cycle is the live playable time model. Annual mechanics remain only where their own cadence is intentional (birthdays, annual payroll/settlement, taxes, and life review); do not reintroduce annual action tokens or duplicate weekly effects through an annual fallback.
 
 Suggested future module boundaries (do not create empty abstractions prematurely):
 - `calendar.ts`: pure calendar/date/birthday helpers.
