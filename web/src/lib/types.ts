@@ -44,7 +44,7 @@ export interface FinancialTransaction {
   to: string;
 }
 export type CareerPathId = 'customer-service' | 'operations' | 'technology' | 'sales';
-export type JobApplicationStatus = 'interview' | 'rejected' | 'offered' | 'accepted' | 'declined';
+export type JobApplicationStatus = 'interview' | 'rejected' | 'offered' | 'accepted' | 'declined' | 'expired';
 export interface Employment {
   title: string;
   type: EmploymentType;
