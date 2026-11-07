@@ -312,6 +312,7 @@ export function acceptJobOffer(character: Character, offerId: string): Character
     employment,
     careerExperienceYears: getCareerExperience(character),
     jobOffers: [],
+    promotionOffer: null,
     jobApplications: (character.jobApplications ?? []).map((item) => item.id === offer.applicationId
       ? { ...item, status: 'accepted' as const, outcome: 'Offer accepted. You started a new role.' }
       : item.status === 'offered' ? { ...item, status: 'declined' as const, outcome: 'You accepted another job offer.' } : item),
@@ -332,7 +333,15 @@ export function acceptJobOffer(character: Character, offerId: string): Character
 export function resignFromJob(character: Character): Character {
   if (!character.employment) return character;
   const previous = character.employment;
-  const next = { ...character, employment: null, careerExperienceYears: getCareerExperience(character), promotionOffer: null, history: [...character.history] };
+  const schedule = character.weeklySchedule;
+  const next = {
+    ...character,
+    employment: null,
+    careerExperienceYears: getCareerExperience(character),
+    promotionOffer: null,
+    weeklySchedule: schedule ? { ...schedule, activities: schedule.activities.filter((item) => !(item.activityId === 'career' && item.action?.kind !== 'work')) } : schedule,
+    history: [...character.history]
+  };
   next.history.unshift({
     id: 'job-resignation-' + character.year + '-' + character.history.length,
     year: character.year,
@@ -369,7 +378,8 @@ export function acceptPromotionOffer(character: Character): Character {
   const today = character.calendar?.currentDate ?? character.year + '-01-01';
   if (!offer || today > offer.expiresAt || !character.employment) return character;
   const role = getCareerRole(offer.roleId);
-  if (!role || !getPromotionReadiness(character).ready) return character;
+  const readiness = getPromotionReadiness(character);
+  if (!role || !readiness.ready || readiness.role?.id !== offer.roleId || offer.annualSalary < character.employment.annualSalary) return character;
   const oldTitle = character.employment.title;
   const employment = {
     ...character.employment,
