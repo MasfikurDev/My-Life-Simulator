@@ -364,6 +364,7 @@ describe('life simulation', () => {
     expect(accepted.employment?.title).toBe('Operations coordinator');
     expect(accepted.employment?.annualSalary).toBeGreaterThan(10000);
     expect(accepted.employment?.promotions).toBe(1);
+    expect(accepted.employment?.experienceYears).toBe(0);
     expect(accepted.promotionOffer).toBeNull();
   });
 
