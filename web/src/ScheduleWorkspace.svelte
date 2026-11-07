@@ -34,7 +34,7 @@
 <section class="schedule-workspace">
   <header class="schedule-heading">
     <div>
-      <div class="eyebrow">WEEKLY PLANNING</div>
+      <div class="eyebrow">YOUR WEEK</div>
       <h2>Your week</h2>
       <p>This is your week at a glance. Confirm activities in their own sections; the game places them into suitable free time.</p>
     </div>
