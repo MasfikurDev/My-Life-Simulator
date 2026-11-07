@@ -181,7 +181,7 @@ export function createPromotionOffer(character: Character, issuedAt: string): Pr
   if (!character.employment || character.promotionOffer) return null;
   const readiness = getPromotionReadiness(character);
   if (!readiness.ready || !readiness.role) return null;
-  const salary = Math.max(character.employment.annualSalary, Math.round(character.employment.annualSalary * 1.15));
+  const scale = character.currencyScale ?? 1;\n  const salary = Math.max(Math.round(character.employment.annualSalary * 1.15), Math.round(readiness.role.annualSalaryMin * scale));
   return {
     roleId: readiness.role.id,
     title: readiness.role.title,
