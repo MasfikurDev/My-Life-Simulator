@@ -310,6 +310,22 @@ export function acceptJobOffer(character: Character, offerId: string): Character
   return next;
 }
 
+
+export function resignFromJob(character: Character): Character {
+  if (!character.employment) return character;
+  const previous = character.employment;
+  const next = { ...character, employment: null, promotionOffer: null, history: [...character.history] };
+  next.history.unshift({
+    id: 'job-resignation-' + character.year + '-' + (character.jobApplications?.length ?? 0),
+    year: character.year,
+    age: character.age,
+    title: 'Left a job',
+    description: 'You left ' + previous.employer + ' and your role as ' + previous.title + '. Your recorded career experience remains part of your history.',
+    kind: 'milestone'
+  });
+  return next;
+}
+
 export function declineJobOffer(character: Character, offerId: string): Character {
   const offer = (character.jobOffers ?? []).find((item) => item.id === offerId);
   if (!offer) return character;
