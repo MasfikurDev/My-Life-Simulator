@@ -106,12 +106,10 @@
     if (age >= 65 && activity.id === 'study') return 'Lifelong learning';
     if (age >= 65 && activity.id === 'exercise') return 'Stay active';
     if (age >= 45 && age < 65 && activity.id === 'socialize') return 'Social connections';
-    if (activity.id === 'apply-job') return age < 18 ? 'Find part-time work' : age >= 65 ? 'Find flexible work' : 'Apply for a job';
     if (activity.id === 'career') return 'Career development';
     return activity.title;
   }
   function activityDetail(activity: {id: ActivityId; detail: string}, age: number) {
-    if (activity.id === 'apply-job') return age < 18 ? 'Apply for an age-appropriate part-time role.' : age >= 65 ? 'Look for flexible work that fits later life.' : 'Apply for paid employment and build a career.';
     if (activity.id === 'career') return 'Improve work performance and qualify for promotions.';
     if (activity.id === 'study') {
       if (age < 6) return 'Explore letters, numbers and new ideas.';
@@ -138,7 +136,7 @@
     return 'Take an extra paid shift if it suits your circumstances.';
   }
   function activityCost(activity: {id: ActivityId; cost: string}, current: Character) {
-    if (activity.id === 'apply-job' || activity.id === 'career') return 'Time';
+    if (activity.id === 'career') return 'Time';
     if (!canAffordActivity(current, activity.id)) return 'Insufficient funds';
     if (current.age < 16 && (activity.id === 'study' || activity.id === 'socialize')) return 'Time';
     const scale = current.currencyScale ?? 1;
@@ -202,7 +200,6 @@
     {id:'exercise',title:'Exercise',detail:'Improve fitness, health, and mood.',icon:'⌁',cost:'Time'},
     {id:'socialize',title:'Socialize',detail:'Make time for the people around you.',icon:'◎',cost:'20'},
     {id:'work',title:'Extra work',detail:'Earn additional money with an extra shift.',icon:'＋',cost:'+180'},
-    {id:'apply-job',title:'Apply for a job',detail:'Find paid work suited to your age and education.',icon:'↗',cost:'Time'},
     {id:'career',title:'Career development',detail:'Improve performance and work toward a promotion.',icon:'◆',cost:'Time'}
   ];
 </script>
