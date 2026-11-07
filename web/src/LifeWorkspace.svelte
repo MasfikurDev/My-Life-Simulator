@@ -31,11 +31,8 @@
       activityFeedback = planned.message ?? 'No suitable time is available this week.';
       return;
     }
-    const scheduled = planned.character.weeklySchedule?.activities.find((item) =>
-      !character.weeklySchedule?.activities.some((existing) => existing.id === item.id)
-    );
     onChange(planned.character);
-    const slot = planned.scheduledActivity ?? scheduled;
+    const slot = planned.scheduledActivity;
     activityFeedback = getActivityDefinition(activityId).title + ' confirmed for ' +
       (slot ? slot.date + ' (' + slot.startPeriod + ')' : 'this week') + '.';
   }
