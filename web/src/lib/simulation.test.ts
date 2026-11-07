@@ -393,7 +393,7 @@ describe('life simulation', () => {
     expect(hired.employment?.employer).toBe(listing!.employer);
     expect(hired.jobOffers).toHaveLength(0);
   });
-  it('expires unanswered job offers and records the application outcome', () => {
+  it('records a declined job offer in the application history', () => {
     const candidate = {
       ...createCharacter('Candidate', 30),
       intelligence: 90,
@@ -411,6 +411,25 @@ describe('life simulation', () => {
     const declined = declineJobOffer(interviewed, offerId);
     expect(declined.jobOffers).toHaveLength(0);
     expect(declined.jobApplications?.[0].status).toBe('declined');
+  });
+
+  it('expires job offers after their response window passes', () => {
+    const candidate = {
+      ...createCharacter('Candidate', 30),
+      intelligence: 90,
+      education: 'Higher education',
+      careerExperienceYears: 5,
+      currencyScale: 1
+    };
+    const listing = getJobListings(candidate).find((item) => {
+      const role = getCareerRole(item.roleId);
+      return role ? isEligibleForRole(candidate, role) : false;
+    })!;
+    const applied = advanceWeek(planWorkActionInNextFreeTime(candidate, 'apply', listing.id).character, () => 0).character;
+    const interviewed = advanceWeek(planWorkActionInNextFreeTime(applied, 'interview', applied.jobApplications![0].id).character, () => 0).character;
+    const afterTwoMoreWeeks = advanceWeek(advanceWeek(interviewed).character).character;
+    expect(afterTwoMoreWeeks.jobOffers).toHaveLength(0);
+    expect(afterTwoMoreWeeks.jobApplications?.[0].status).toBe('expired');
   });
 
   it('allows a player to resign without erasing accumulated career experience', () => {
