@@ -74,7 +74,7 @@
     return [...groups.values()].sort((a, b) => b.sortDate.localeCompare(a.sortDate));
   }
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
-  function navigateTab(tab: string) { if (tab === 'life') lifeInitialView = 'overview'; activeTab = tab; }
+  function navigateTab(tab: string) { activeTab = tab; }
   function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
   function startLife(nextCharacter: Character) {
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
