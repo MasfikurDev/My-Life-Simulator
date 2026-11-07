@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - name: Install locked dependencies
         run: npm ci --prefer-offline --no-audit --no-fund --no-progress
-      # GitHub Pages is hosted below /<repository>/; Cloudflare uses the domain root.
+      # GitHub Pages is hosted below /<repository>/.
       - name: Check, test, and build
         env:
           VITE_BASE_PATH: /My-Life-Simulator/
