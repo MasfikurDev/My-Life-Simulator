@@ -6,7 +6,8 @@
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
   import FinanceWorkspace from './FinanceWorkspace.svelte';
-  import LifeWorkspace from './LifeWorkspace.svelte';\n  import WorkWorkspace from './WorkWorkspace.svelte';
+  import LifeWorkspace from './LifeWorkspace.svelte';
+  import WorkWorkspace from './WorkWorkspace.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
   import type { ActivityId, Character, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
@@ -356,7 +357,10 @@
           <div class="section-heading"><div><span class="section-index">01</span><h3>Study options</h3></div><span class="section-hint">Plan activities in your weekly schedule</span></div>
           <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => activity.id === 'study' && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={!canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
 
-        {:else if character && activeTab==='work' && character.age >= 16}\n          <WorkWorkspace {character} onChange={persist} onNotify={notify} />\n\n        {:else if character && activeTab==='life'}
+        {:else if character && activeTab==='work' && character.age >= 16}
+          <WorkWorkspace {character} onChange={persist} onNotify={notify} />
+
+        {:else if character && activeTab==='life'}
           <LifeWorkspace {character} onChange={persist} initialView={lifeInitialView} initialActivity={lifeInitialActivity} />
         {:else if character && activeTab==='finances'}
           <FinanceWorkspace {character} onChange={persist} />
