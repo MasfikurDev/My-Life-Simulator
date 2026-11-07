@@ -316,7 +316,7 @@ export function resignFromJob(character: Character): Character {
   const previous = character.employment;
   const next = { ...character, employment: null, promotionOffer: null, history: [...character.history] };
   next.history.unshift({
-    id: 'job-resignation-' + character.year + '-' + (character.jobApplications?.length ?? 0),
+    id: 'job-resignation-' + character.year + '-' + character.history.length,
     year: character.year,
     age: character.age,
     title: 'Left a job',
