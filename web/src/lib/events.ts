@@ -50,7 +50,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
           id: 'join',
           label: 'Join the group',
           detail: 'Spend time learning together. Your knowledge and confidence may grow.',
-          actionCost: 1,
+          timeBlocks: 1,
           moneyCost: 0,
           effects: { intelligence: 3, happiness: 2 },
           followUp: {
@@ -64,7 +64,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
           id: 'pass',
           label: 'Keep your free time',
           detail: 'Leave the invitation unanswered and spend your time elsewhere.',
-          actionCost: 0,
+          timeBlocks: 0,
           moneyCost: 0,
           effects: {}
         }
@@ -82,8 +82,8 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
         {
           id: 'take-part',
           label: 'Take part',
-          detail: 'Invest one action and ' + Math.round(50 * scale).toLocaleString('en-US') + ' in supplies. If you follow through, the experience may lead to a small payment next year.',
-          actionCost: 1,
+          detail: 'Reserve one period and spend ' + Math.round(50 * scale).toLocaleString('en-US') + ' on supplies. If you follow through, the experience may lead to a small payment next year.',
+          timeBlocks: 1,
           moneyCost: Math.round(50 * scale),
           effects: { intelligence: 2, happiness: 1 },
           followUp: {
@@ -97,7 +97,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
           id: 'pass',
           label: 'Decline for now',
           detail: 'Keep your time and money available for other priorities.',
-          actionCost: 0,
+          timeBlocks: 0,
           moneyCost: 0,
           effects: {}
         }
@@ -115,8 +115,8 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
         {
           id: 'make-time',
           label: 'Make time to recover',
-          detail: 'Use one action to rest and rebuild some health.',
-          actionCost: 1,
+          detail: 'Reserve time to rest and rebuild some health.',
+          timeBlocks: 1,
           moneyCost: 0,
           effects: { health: 6, happiness: 1 }
         },
@@ -124,7 +124,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
           id: 'carry-on',
           label: 'Carry on as planned',
           detail: 'Keep your available time for other priorities.',
-          actionCost: 0,
+          timeBlocks: 0,
           moneyCost: 0,
           effects: {}
         }
@@ -149,7 +149,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
               id: 'make-time',
               label: 'Make time for them',
               detail: 'Spend time together and strengthen your family connection.',
-              actionCost: 1,
+              timeBlocks: 1,
               moneyCost: 0,
               effects: { happiness: 2 },
               familyBondEffect: { personId: relative.person.id, closeness: 6, trust: 3, tension: -2 }
@@ -158,7 +158,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
               id: 'keep-plans',
               label: 'Keep your current plans',
               detail: 'Leave the invitation for another time.',
-              actionCost: 0,
+              timeBlocks: 0,
               moneyCost: 0,
               effects: {}
             }
@@ -184,12 +184,11 @@ export function resolveGameEvent(character: Character, choiceId: string): Charac
   const pending = character.pendingGameEvent;
   if (!pending) return character;
   const choice = pending.choices.find((item) => item.id === choiceId);
-  if (!choice || character.actionsRemaining < choice.actionCost || character.money < choice.moneyCost) return character;
+  if (!choice || character.money < choice.moneyCost) return character;
 
   let next: Character = {
     ...character,
     money: character.money - choice.moneyCost,
-    actionsRemaining: character.actionsRemaining - choice.actionCost,
     pendingGameEvent: null,
     resolvedGameEventIds: [...(character.resolvedGameEventIds ?? []), pending.id],
     scheduledGameConsequences: [...(character.scheduledGameConsequences ?? [])]
@@ -209,7 +208,6 @@ export function resolveGameEvent(character: Character, choiceId: string): Charac
   }
 
   const costParts = [];
-  if (choice.actionCost) costParts.push(choice.actionCost + ' action' + (choice.actionCost === 1 ? '' : 's'));
   if (choice.moneyCost) costParts.push('spent ' + choice.moneyCost.toLocaleString('en-US'));
   const result = costParts.length ? ' ' + costParts.join(' and ') + '.' : '';
   next.history = [

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { buyProperty, closeBusiness, formatCharacterMoney, getEconomicConditions, getMarketPrice, manageBusiness, moveIntoOwnedProperty, rentHome, sellProperty, setPropertyRental, startBusiness, tradeInvestment } from './lib/simulation';
+  import { buyProperty, closeBusiness, formatCharacterMoney, getEconomicConditions, getMarketPrice, planBusinessManagementInNextFreeTime, moveIntoOwnedProperty, rentHome, sellProperty, setPropertyRental, startBusiness, tradeInvestment } from './lib/simulation';
   import type { BusinessType, Character, PropertyType } from './lib/types';
   let { character, onChange, view = 'all' }: { character: Character; onChange: (next: Character) => void; view?: 'all' | 'property' | 'investments' | 'business' } = $props();
   const scale = $derived(character.currencyScale ?? 1);
@@ -21,6 +21,7 @@
   function buy(type:'stock-index'|'gold'){run(()=>tradeInvestment(character,type,'buy',amount(units)),'Investment purchased.');}
   function sell(type:'stock-index'|'gold'){run(()=>tradeInvestment(character,type,'sell',amount(units)),'Investment sold.');}
   function openBusiness(){run(()=>startBusiness(character,businessName,businessType,amount(businessCapital)),'Business started.');businessName='';}
+  function planManagement(businessId:string){const result=planBusinessManagementInNextFreeTime(character,businessId);if(result.issue){notice=result.message??'No suitable time is available this week.';return;}onChange(result.character);notice='Business management reserved in this week’s schedule.';}
 </script>
 <section class="assets-panel">
   <div class="assets-heading"><div><small>{view === 'property' ? 'HOUSING & PROPERTY' : view === 'investments' ? 'MARKET PORTFOLIO' : view === 'business' ? 'BUSINESS OPERATIONS' : 'LONG-TERM WEALTH'}</small><h2>{view === 'property' ? 'Property & housing' : view === 'investments' ? 'Investments' : view === 'business' ? 'Business ownership' : 'Property & investments'}</h2></div>{#if view === 'all'}<span>{properties.length} properties · {businesses.length} businesses</span>{/if}</div>
@@ -43,8 +44,8 @@
   {/if}
   {#if view === 'all' || view === 'business'}
   <details open={view !== 'all'}><summary>Start or manage a business <span>{businesses.length}/3</span></summary>
-    {#each businesses as business}<div class="asset-row"><div><strong>{business.name}</strong><small>{business.type} · value {formatCharacterMoney(character,business.valuation)} · performance {business.performance}/100</small><small>Annual operating result is based on business performance.</small></div><div class="asset-actions"><button onclick={()=>run(()=>manageBusiness(character,business.id),'Business managed.')} disabled={character.actionsRemaining<=0}>Manage</button><button class="quiet" onclick={()=>run(()=>closeBusiness(character,business.id),'Business sold.')}>Sell</button></div></div>{/each}
-    <div class="form-grid"><label>Business name<input bind:value={businessName} placeholder="My business"/></label><label>Type<select bind:value={businessType}><option value="retail">Retail shop</option><option value="online">Online business</option><option value="cafe">Cafe</option></select></label><label>Startup capital<input type="number" min={1000*scale} bind:value={businessCapital} placeholder={String(5000*scale)}/></label></div><button class="primary" onclick={openBusiness} disabled={character.age<18 || businesses.length>=3}>Start business</button><small class="hint">Annual operating results can be positive or negative. Managing a business costs one action and 1% of invested capital. Selling returns 90% of its current estimated value.</small>
+    {#each businesses as business}<div class="asset-row"><div><strong>{business.name}</strong><small>{business.type} · value {formatCharacterMoney(character,business.valuation)} · performance {business.performance}/100</small><small>Annual operating result is based on business performance.</small></div><div class="asset-actions"><button onclick={()=>planManagement(business.id)}>Schedule management</button><button class="quiet" onclick={()=>run(()=>closeBusiness(character,business.id),'Business sold.')}>Sell</button></div></div>{/each}
+    <div class="form-grid"><label>Business name<input bind:value={businessName} placeholder="My business"/></label><label>Type<select bind:value={businessType}><option value="retail">Retail shop</option><option value="online">Online business</option><option value="cafe">Cafe</option></select></label><label>Startup capital<input type="number" min={1000*scale} bind:value={businessCapital} placeholder={String(5000*scale)}/></label></div><button class="primary" onclick={openBusiness} disabled={character.age<18 || businesses.length>=3}>Start business</button><small class="hint">Annual operating results can be positive or negative. Managing a business reserves two consecutive periods and costs 1% of invested capital when the week resolves. Selling returns 90% of its current estimated value.</small>
   </details>
   {/if}
   {#if notice}<p class="notice" role="status">{notice}</p>{/if}

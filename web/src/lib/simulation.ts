@@ -1,10 +1,11 @@
-import type { ActivityId, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType } from './types';
-import { getEducationStage, isActivityAvailable } from './progression';
-import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences } from './events';
-import { advanceFamilyYear, createFamilyState } from './family';
-import { createGameCalendar } from './calendar';
+import type { ActivityId, DayPeriod, PlannedAction, PlannedActivity, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType } from './types';
+import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
+import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
+import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
+import { createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
+import { buildWeeklySchedule, getWeeklySchedule } from './weekly-schedule';
+import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPromotionOfferState, createPromotionOffer, declineJobOffer as declineJobOfferState, declinePromotionOffer as declinePromotionOfferState, expireWorkOffers, getJobListings, getCareerRole, isEligibleForRole, resolveJobApplication, resolveJobInterview, resignFromJob as resignFromJobState, syncEmploymentCommitments } from './work';
 
-export const ACTIONS_PER_YEAR = 3;
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
 
 type CountryProfile = {
@@ -85,7 +86,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     education: getEducationStage(age), educationProgress: 0, employment: null, lastYearIncome: 0, lastYearExpenses: 0, lastYearShortfall: 0,
     householdArrangement: age >= 18 ? 'family-supported' : undefined, savingsGoalMonths: null,
     health: stat(random), happiness: stat(random), intelligence: stat(random), fitness: stat(random),
-    money: Math.round(moneyBase * profile.scale * moneyMultiplier), actionsRemaining: ACTIONS_PER_YEAR, history: []
+    money: Math.round(moneyBase * profile.scale * moneyMultiplier), history: []
   };
   character.family = createFamilyState(character, random);
   character.history.push(event(character, 'A new chapter begins', name + ' begins life at age ' + age + ' in ' + character.birthplace + ', ' + profile.country + '. Their ' + background.toLowerCase() + ' family background shapes their starting circumstances, but not their future.', 'milestone'));
@@ -113,16 +114,18 @@ export function formatCharacterMoney(character: Character, amount = character.mo
 function createEmployment(character: Character): Employment {
   const scale = character.currencyScale ?? 1;
   if (character.age < 18) {
-    return { title: 'Part-time assistant', type: 'part-time', annualSalary: 5000 * scale, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: character.age };
+    return { title: 'Service assistant', type: 'part-time', annualSalary: 5000 * scale, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: character.age, roleId: 'service-assistant', careerPathId: 'customer-service', employer: 'Local employer', level: 1, startedAtDate: character.calendar?.currentDate };
   }
   const qualified = character.education === 'Higher education';
   const flexible = character.age >= 65;
   const baseSalary = qualified ? 28000 : 18000;
   return {
-    title: flexible ? 'Flexible associate' : qualified ? 'Professional associate' : 'Operations associate',
+    title: flexible ? 'Operations assistant' : qualified ? 'Operations coordinator' : 'Operations assistant',
     type: flexible ? 'flexible' : 'full-time',
     annualSalary: Math.round(baseSalary * scale * (flexible ? 0.65 : 1)),
-    experienceYears: 0, performance: 60, promotions: 0, startedAtAge: character.age
+    experienceYears: 0, performance: 60, promotions: 0, startedAtAge: character.age,
+    roleId: !flexible && qualified ? 'operations-coordinator' : 'operations-assistant', careerPathId: 'operations', employer: 'Local employer',
+    level: !flexible && qualified ? 2 : 1, startedAtDate: character.calendar?.currentDate
   };
 }
 
@@ -255,8 +258,8 @@ export function startBusiness(character: Character, name: string, type: Business
 export function manageBusiness(character: Character, businessId: string): Character {
   const business = (character.businesses ?? []).find((item) => item.id === businessId);
   const cost = business ? Math.max(1, Math.round(business.investedCapital * 0.01)) : 0;
-  if (!business || character.age < 18 || character.actionsRemaining <= 0 || character.money < cost) return character;
-  const next = { ...character, money: character.money - cost, actionsRemaining: character.actionsRemaining - 1, businesses: (character.businesses ?? []).map((item) => item.id === businessId ? { ...item, performance: clamp(item.performance + 8) } : item), history: [...character.history] };
+  if (!business || character.age < 18 || character.money < cost) return character;
+  const next = { ...character, money: character.money - cost, businesses: (character.businesses ?? []).map((item) => item.id === businessId ? { ...item, performance: clamp(item.performance + 8) } : item), history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'business-expense', cost, 'Business development expense for ' + business.name + '.', 'Cash', business.name);
   next.history.unshift(event(next, 'Managed your business', 'You invested time and ' + formatCharacterMoney(next, cost) + ' into improving ' + business.name + '.'));
   return next;
@@ -671,9 +674,303 @@ export function canAffordActivity(character: Character, activity: ActivityId): b
   return character.money >= getActivityCost(character, activity);
 }
 
+export type ActivityPlanningIssue =
+  | 'unavailable'
+  | 'invalid-date'
+  | 'outside-current-week'
+  | 'invalid-existing-schedule'
+  | 'time-conflict'
+  | 'invalid-time-slot'
+  | 'insufficient-funds';
+
+export interface ActivityPlanningResult {
+  character: Character;
+  issue: ActivityPlanningIssue | null;
+  message: string | null;
+}
+
+/**
+ * Reserve an activity in the character's current week. This is deliberately
+ * separate from activity resolution: planning consumes time capacity, while
+ * the later weekly resolver will apply effects and settle costs exactly once.
+ */
+export function getPlannedActivityCost(character: Character, item: PlannedActivity): number {
+  if (item.action?.kind === 'work') return 0;
+  if (item.action?.kind === 'family' && item.action.interaction === 'provide-support') return item.action.supportAmount ?? 0;
+  if (item.action?.kind === 'business') {
+    const businessId = item.action.businessId;
+    const business = (character.businesses ?? []).find((entry) => entry.id === businessId);
+    return business ? Math.max(1, Math.round(business.investedCapital * 0.01)) : 0;
+  }
+  if (item.action?.kind === 'event') {
+    const eventAction = item.action;
+    const choice = character.pendingGameEvent?.id === eventAction.eventId
+      ? character.pendingGameEvent.choices.find((entry) => entry.id === eventAction.choiceId) : null;
+    return choice?.moneyCost ?? 0;
+  }
+  return getActivityCost(character, item.activityId as ActivityId);
+}
+
+function reserveTimedAction(character: Character, activityId: PlannedActivity['activityId'], date: string, startPeriod: DayPeriod, durationBlocks: number, action: PlannedAction, cost: number): ActivityPlanningResult {
+  let currentWeek: string;
+  let activityWeek: string;
+  try {
+    currentWeek = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+    activityWeek = getWeekStart(date);
+  } catch {
+    return { character, issue: 'invalid-date', message: 'Choose a valid calendar date.' };
+  }
+  if (activityWeek !== currentWeek) return { character, issue: 'outside-current-week', message: 'Activities can only be planned in the current week.' };
+  const schedule = getWeeklySchedule(character.weeklySchedule);
+  if (!buildWeeklySchedule(currentWeek, schedule).valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts before adding another activity.' };
+  const alreadyReserved = schedule.activities.reduce((total, item) => total + getPlannedActivityCost(character, item), 0);
+  if (alreadyReserved + cost > character.money) return { character, issue: 'insufficient-funds', message: 'Your current cash cannot cover the planned activities this week.' };
+  let sequence = schedule.activities.length + 1;
+  let id = 'planned-' + date + '-' + startPeriod + '-' + activityId + '-' + sequence;
+  const existingIds = new Set([...schedule.commitments.map((item) => item.id), ...schedule.activities.map((item) => item.id)]);
+  while (existingIds.has(id)) { sequence += 1; id = 'planned-' + date + '-' + startPeriod + '-' + activityId + '-' + sequence; }
+  const nextSchedule = { ...schedule, activities: [...schedule.activities, { id, activityId, date, startPeriod, durationBlocks, action }] };
+  const validation = buildWeeklySchedule(currentWeek, nextSchedule);
+  if (!validation.valid) {
+    const issue = validation.issues.find((item) => item.entryId === id);
+    return { character, issue: issue?.code === 'overlap' ? 'time-conflict' : 'invalid-time-slot', message: issue?.message ?? 'That time cannot be reserved.' };
+  }
+  return { character: { ...character, weeklySchedule: nextSchedule }, issue: null, message: null };
+}
+
+export function planActivity(character: Character, activity: ActivityId, date: string, startPeriod: DayPeriod): ActivityPlanningResult {
+  if (activity === 'apply-job') return { character, issue: 'unavailable', message: 'Use Work → Jobs & applications to apply for a specific opening.' };
+  if (!isActivityAvailable(character.age, activity, character.employment)) return { character, issue: 'unavailable', message: 'This activity is not available at your current life stage.' };
+  const definition = getActivityDefinition(activity);
+  return reserveTimedAction(character, activity, date, startPeriod, definition.durationBlocks, { kind: 'activity' } as PlannedAction, getActivityCost(character, activity));
+}
+
+export function planFamilyInteraction(character: Character, personId: string, interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support', supportAmount = 0, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
+  const preview = interactWithFamily(character, personId, interaction, supportAmount);
+  if (preview === character) return { character, issue: 'unavailable', message: 'This interaction is not available for that family member right now.' };
+  if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'family' && item.action.personId === personId)) {
+    return { character, issue: 'unavailable', message: 'An interaction with this family member is already planned this week.' };
+  }
+  const family = character.family;
+  const person = family?.people.find((entry) => entry.id === personId);
+  if (!family || !person || person.id === family.playerPersonId) return { character, issue: 'unavailable', message: 'That family member is not available.' };
+  if (interaction === 'provide-support' && (!Number.isSafeInteger(supportAmount) || supportAmount <= 0)) return { character, issue: 'unavailable', message: 'Enter a valid support amount.' };
+  const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+  return reserveTimedAction(character, 'family', day, startPeriod, 1, { kind: 'family', personId, interaction, ...(interaction === 'provide-support' ? { supportAmount } : {}) }, interaction === 'provide-support' ? supportAmount : 0);
+}
+
+export function planBusinessManagement(character: Character, businessId: string, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
+  const business = (character.businesses ?? []).find((entry) => entry.id === businessId);
+  if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'business' && item.action.businessId === businessId)) {
+    return { character, issue: 'unavailable', message: 'A management session for this business is already planned this week.' };
+  }
+  if (!business || manageBusiness(character, businessId) === character) return { character, issue: 'unavailable', message: 'This business cannot be managed right now.' };
+  const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+  return reserveTimedAction(character, 'business', day, startPeriod, 2, { kind: 'business', businessId }, Math.max(1, Math.round(business.investedCapital * 0.01)));
+}
+
+export function planWorkAction(character: Character, workAction: 'apply' | 'interview', jobId: string, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
+  if (character.age < 16) return { character, issue: 'unavailable', message: 'Work opportunities are not available at this life stage.' };
+  const schedule = getWeeklySchedule(character.weeklySchedule);
+  if (schedule.activities.some((item) => item.action?.kind === 'work' && item.action.workAction === workAction && item.action.jobId === jobId)) {
+    return { character, issue: 'unavailable', message: 'This work step is already scheduled.' };
+  }
+  let title = '';
+  let duration = 1;
+  if (workAction === 'apply') {
+    const listing = getJobListings(character).find((item) => item.id === jobId);
+    const role = listing ? getCareerRole(listing.roleId) : null;
+    if (!listing || !role || !isEligibleForRole(character, role)) return { character, issue: 'unavailable', message: 'You do not currently meet the requirements for this opening.' };
+    if ((character.jobApplications ?? []).some((application) => application.listingId === jobId)) return { character, issue: 'unavailable', message: 'You have already applied for this opening.' };
+    title = listing.title;
+  } else {
+    const application = (character.jobApplications ?? []).find((item) => item.id === jobId && item.status === 'interview');
+    if (!application) return { character, issue: 'unavailable', message: 'This interview invitation is no longer available.' };
+    title = application.title;
+    duration = 2;
+  }
+  const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+  return reserveTimedAction(character, 'career', day, startPeriod, duration, { kind: 'work', workAction, jobId, title }, 0);
+}
+
+export function planWorkActionInNextFreeTime(character: Character, workAction: 'apply' | 'interview', jobId: string): ActivityPlanningResult {
+  const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+  const grid = buildWeeklySchedule(week, getWeeklySchedule(character.weeklySchedule));
+  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
+  for (const block of grid.blocks.filter((entry) => !entry.entryId)) {
+    const result = planWorkAction(character, workAction, jobId, block.date, block.period);
+    if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
+  }
+  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+}
+
+export function acceptJobOffer(character: Character, offerId: string): Character {
+  return acceptJobOfferState(character, offerId);
+}
+export function declineJobOffer(character: Character, offerId: string): Character {
+  return declineJobOfferState(character, offerId);
+}
+export function acceptPromotionOffer(character: Character): Character {
+  return acceptPromotionOfferState(character);
+}
+export function declinePromotionOffer(character: Character): Character {
+  return declinePromotionOfferState(character);
+}
+export function resignFromJob(character: Character): Character {
+  return resignFromJobState(character);
+}
+
+export function planEventChoice(character: Character, choiceId: string, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
+  const pending = character.pendingGameEvent;
+  const choice = pending?.choices.find((entry) => entry.id === choiceId);
+  if (!pending || !choice) return { character, issue: 'unavailable', message: 'That event is no longer available.' };
+  if (choice.moneyCost > character.money) return { character, issue: 'insufficient-funds', message: 'You do not have enough cash for that decision.' };
+  if (resolveGameEvent(character, choiceId) === character) return { character, issue: 'unavailable', message: 'That decision can no longer be completed.' };
+  if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'event' && item.action.eventId === pending.id)) return { character, issue: 'unavailable', message: 'A decision for this situation is already scheduled.' };
+  if (choice.timeBlocks === 0) {
+    const next = resolveGameEvent(character, choiceId);
+    return { character: next, issue: null, message: null };
+  }
+  const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+  return reserveTimedAction(character, 'event', day, startPeriod, Math.max(1, choice.timeBlocks), { kind: 'event', eventId: pending.id, choiceId }, choice.moneyCost);
+}
+
+export function planActivityInNextFreeTime(character: Character, activity: ActivityId): ActivityPlanningResult {
+  const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+  const schedule = getWeeklySchedule(character.weeklySchedule);
+  const grid = buildWeeklySchedule(week, schedule);
+  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts before planning another activity.' };
+  for (const block of grid.blocks) {
+    if (!block.entryId) {
+      const result = planActivity(character, activity, block.date, block.period);
+      if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
+    }
+  }
+  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+}
+
+export function planFamilyInteractionInNextFreeTime(character: Character, personId: string, interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support', supportAmount = 0): ActivityPlanningResult {
+  const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+  const grid = buildWeeklySchedule(week, getWeeklySchedule(character.weeklySchedule));
+  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
+  for (const block of grid.blocks.filter((entry) => !entry.entryId)) {
+    const result = planFamilyInteraction(character, personId, interaction, supportAmount, block.date, block.period);
+    if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
+  }
+  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+}
+
+export function planBusinessManagementInNextFreeTime(character: Character, businessId: string): ActivityPlanningResult {
+  const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+  const grid = buildWeeklySchedule(week, getWeeklySchedule(character.weeklySchedule));
+  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
+  for (const block of grid.blocks.filter((entry) => !entry.entryId)) {
+    const result = planBusinessManagement(character, businessId, block.date, block.period);
+    if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
+  }
+  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+}
+
+export function planEventChoiceInNextFreeTime(character: Character, choiceId: string): ActivityPlanningResult {
+  const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+  const grid = buildWeeklySchedule(week, getWeeklySchedule(character.weeklySchedule));
+  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
+  const choice = character.pendingGameEvent?.choices.find((entry) => entry.id === choiceId);
+  if (choice?.timeBlocks === 0) return planEventChoice(character, choiceId);
+  for (const block of grid.blocks.filter((entry) => !entry.entryId)) {
+    const result = planEventChoice(character, choiceId, block.date, block.period);
+    if (!result.issue || result.issue !== 'invalid-time-slot') return result;
+  }
+  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+}
+
+export function removePlannedActivity(character: Character, activityId: string): Character {
+  const schedule = getWeeklySchedule(character.weeklySchedule);
+  if (!schedule.activities.some((item) => item.id === activityId)) return character;
+  return { ...character, weeklySchedule: { ...schedule, activities: schedule.activities.filter((item) => item.id !== activityId) } };
+}
+
+export interface WeeklyResolutionResult {
+  character: Character;
+  issue: 'invalid-schedule' | 'already-resolved' | 'unresolvable-action' | null;
+  recap: string[];
+}
+
+function createWeeklyRandom(character: Character, weekStart: string): () => number {
+  const seedText = character.name + '|' + (character.calendar?.birthDate ?? '') + '|' + weekStart + '|' + JSON.stringify(getWeeklySchedule(character.weeklySchedule).activities);
+  let seed = 2166136261;
+  for (let index = 0; index < seedText.length; index += 1) {
+    seed ^= seedText.charCodeAt(index);
+    seed = Math.imul(seed, 16777619);
+  }
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let value = seed;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Resolves every accepted reservation once, then advances the world calendar by exactly seven days. */
+export function advanceWeek(character: Character, random?: () => number): WeeklyResolutionResult {
+  const currentDate = character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year);
+  const weekStart = getWeekStart(currentDate);
+  if (character.lastResolvedWeekStart === weekStart) return { character, issue: 'already-resolved', recap: character.lastWeekRecap ?? [] };
+  const schedule = getWeeklySchedule(character.weeklySchedule);
+  const weekRandom = random ?? createWeeklyRandom(character, weekStart);
+  const validation = buildWeeklySchedule(weekStart, schedule);
+  if (!validation.valid) return { character, issue: 'invalid-schedule', recap: [] };
+  let next = { ...character, history: [...character.history] };
+  const recap: string[] = [];
+  const periodOrder: Record<DayPeriod, number> = { morning: 0, afternoon: 1, evening: 2 };
+  const ordered = [...schedule.activities].sort((a, b) => a.date.localeCompare(b.date) || periodOrder[a.startPeriod] - periodOrder[b.startPeriod] || a.id.localeCompare(b.id));
+  for (const item of ordered) {
+    let result: Character;
+    if (item.action?.kind === 'work') {
+      result = item.action.workAction === 'apply'
+        ? resolveJobApplication(next, item.action.jobId, weekRandom)
+        : resolveJobInterview(next, item.action.jobId, weekRandom);
+      if (result !== next) recap.push(item.action.workAction === 'apply' ? 'Job application submitted: ' + item.action.title + '.' : 'Job interview completed: ' + item.action.title + '.');
+    } else if (item.action?.kind === 'family') {
+      result = interactWithFamily(next, item.action.personId, item.action.interaction, item.action.supportAmount ?? 0);
+      if (result !== next) recap.push('Family: ' + item.action.interaction.replace('-', ' ') + '.');
+    } else if (item.action?.kind === 'business') {
+      result = manageBusiness(next, item.action.businessId);
+      if (result !== next) recap.push('Business management session completed.');
+    } else if (item.action?.kind === 'event') {
+      result = next.pendingGameEvent?.id === item.action.eventId ? resolveGameEvent(next, item.action.choiceId) : next;
+      if (result !== next) recap.push('Event decision resolved.');
+    } else {
+      result = performActivity(next, item.activityId as ActivityId, weekRandom);
+      if (result !== next) recap.push(item.activityId + ' completed.');
+    }
+    // Never consume a reservation when its effect cannot be applied. Keep the
+    // original save and let the player remove or repair the stale plan.
+    if (result === next) return { character, issue: 'unresolvable-action', recap: [] };
+    next = result;
+  }
+  const nextSchedule = { ...schedule, activities: [] };
+  next = { ...next, weeklySchedule: nextSchedule, lastResolvedWeekStart: weekStart, lastWeekRecap: recap };
+  const nextDate = getNextWeekDate(currentDate);
+  const nextYear = Number(nextDate.slice(0, 4));
+  const birthDate = next.calendar?.birthDate ?? createGameCalendar(next.age, next.year).birthDate;
+  const nextAge = getAgeAtDate(birthDate, nextDate);
+  const previousAge = next.age;
+  next = { ...next, calendar: { ...(next.calendar ?? createGameCalendar(next.age, next.year)), currentDate: nextDate } };
+  next = expireWorkOffers(next, nextDate);
+  if (nextYear > character.year) {
+    next = settleCalendarYear(next, nextYear, nextAge, previousAge);
+  } else {
+    next = applyAgeTransition(next, previousAge, nextAge);
+    next = { ...next, year: nextYear };
+  }
+  return { character: next, issue: null, recap };
+}
+
 export function performActivity(character: Character, activity: ActivityId, random: () => number = Math.random): Character {
-  if (character.actionsRemaining <= 0 || !isActivityAvailable(character.age, activity, character.employment) || !canAffordActivity(character, activity)) return character;
-  const next = { ...character, history: [...character.history], actionsRemaining: character.actionsRemaining - 1 };
+  if (!isActivityAvailable(character.age, activity, character.employment) || !canAffordActivity(character, activity)) return character;
+  const next = { ...character, history: [...character.history] };
   const scale = character.currencyScale ?? 1;
   switch (activity) {
     case 'study':
@@ -718,6 +1015,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       if (random() < successChance) {
         const previous = next.employment?.title;
         next.employment = offeredJob;
+        Object.assign(next, syncEmploymentCommitments(next, offeredJob));
         next.history.unshift(event(next, previous ? 'Moved into a new role' : 'Started a new job', (previous ? 'You left ' + previous + ' for ' : 'You secured ') + offeredJob.title + '. Annual pay is ' + formatCharacterMoney(next, offeredJob.annualSalary) + ' per year.', 'milestone'));
       } else {
         next.history.unshift(event(next, 'Job application unsuccessful', 'The application did not lead to an offer. You can build experience or qualifications and try again.'));
@@ -786,7 +1084,6 @@ function settleAnnualTaxes(character: Character): Character {
 export type AnnualReview = {
   currentYear: number;
   nextAge: number;
-  actionsRemaining: number;
   pendingEventTitle: string | null;
   annualIncome: number;
   estimatedLivingCosts: number;
@@ -807,7 +1104,6 @@ export function getAnnualReview(character: Character): AnnualReview {
   return {
     currentYear: character.year,
     nextAge: character.age + 1,
-    actionsRemaining: character.actionsRemaining,
     pendingEventTitle: character.pendingGameEvent?.title ?? null,
     annualIncome,
     estimatedLivingCosts,
@@ -816,12 +1112,9 @@ export function getAnnualReview(character: Character): AnnualReview {
   };
 }
 
-export function advanceYear(character: Character): Character {
-  const previousHistoryLength = character.history.length;
-  const current = expirePendingGameEvent(character);
-  let next: Character = { ...current, age: current.age + 1, year: current.year + 1, actionsRemaining: ACTIONS_PER_YEAR, health: clamp(current.health - (current.age >= 45 ? 2 : 1)), history: [...current.history] };
-  next = advanceFamilyYear(next);
-  next = advanceEconomicConditions(next);
+function applyAgeTransition(character: Character, previousAge: number, targetAge: number): Character {
+  if (targetAge <= previousAge) return { ...character, age: targetAge };
+  let next: Character = { ...character, age: targetAge, history: [...character.history] };
   const educationStage = getEducationStage(next.age);
   if ([3, 6, 13, 18].includes(next.age) && next.education !== 'Higher education' && next.education !== educationStage) {
     next.education = educationStage;
@@ -832,6 +1125,18 @@ export function advanceYear(character: Character): Character {
     next.householdArrangement = 'family-supported';
     next.history.unshift(event(next, 'Household finances unlocked', 'You can now choose how you live and manage recurring household costs.', 'milestone'));
   }
+  next.history.unshift(event(next, 'Another year, another chapter', 'You turned ' + next.age + '. Your choices continue to shape what comes next.', 'milestone'));
+  if (next.age === 18) next.history.unshift(event(next, 'Adult opportunities unlocked', 'Full-time employment, higher education and household finance choices are now available.', 'milestone'));
+  if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
+  return next;
+}
+
+function settleCalendarYear(character: Character, targetYear: number, targetAge: number, previousAge: number): Character {
+  const previousHistoryLength = character.history.length;
+  const current = expirePendingGameEvent(character);
+  let next: Character = { ...current, age: targetAge, year: targetYear, health: clamp(current.health - (previousAge >= 45 ? 2 : 1)), history: [...current.history] };
+  next = advanceFamilyYear(next);
+  next = advanceEconomicConditions(next);
 
   // Existing saves without banking fields remain valid; new accounts earn simple annual interest.
   const accounts = next.bankAccounts ?? [];
@@ -887,24 +1192,24 @@ export function advanceYear(character: Character): Character {
 
   if (job) {
     job.experienceYears += 1;
-    if (job.experienceYears >= 2 && job.performance >= 85 && job.promotions < 3) {
-      const oldTitle = job.title;
-      job.title = 'Senior ' + oldTitle.replace(/^Senior /, '');
-      job.annualSalary = Math.round(job.annualSalary * 1.2);
-      job.performance = 60;
-      job.promotions += 1;
-      next.history.unshift(event(next, 'Promoted at work', 'Your results earned a promotion from ' + oldTitle + ' to ' + job.title + '. Pay increased by 20%.', 'milestone'));
-    }
+    next.careerExperienceYears = Math.max(next.careerExperienceYears ?? 0, job.experienceYears - 1) + 1;
     next.employment = job;
+    const promotion = createPromotionOffer(next, next.calendar?.currentDate ?? getFirstWeekStartOfYear(next.year));
+    if (promotion) {
+      next.promotionOffer = promotion;
+      next.history.unshift(event(next, 'Promotion opportunity', 'Your performance and experience qualify you for ' + promotion.title + '. Review the role and decide whether to accept.', 'event'));
+    }
   }
 
-  next.history.unshift(event(next, 'Another year, another chapter', 'You turned ' + next.age + '. Your choices continue to shape what comes next.', 'milestone'));
-  if (next.age === 18) next.history.unshift(event(next, 'Adult opportunities unlocked', 'Full-time employment, higher education and household finance choices are now available.', 'milestone'));
-  if (next.age === 21) next.history.unshift(event(next, 'A new stage of adulthood', 'New responsibilities and opportunities may begin to appear.', 'event'));
+  next = applyAgeTransition(next, previousAge, targetAge);
   next = resolveDueGameConsequences(next);
   next = prepareGameEvent(next);
   const recapCount = Math.max(0, next.history.length - previousHistoryLength);
   next.lastYearRecap = next.history.slice(0, recapCount).slice(0, 4).map((item) => item.title + ' — ' + item.description);
   if (!next.lastYearRecap.length) next.lastYearRecap = ['A quiet year. No major changes were recorded.'];
   return next;
+}
+
+export function advanceYear(character: Character): Character {
+  return settleCalendarYear(character, character.year + 1, character.age + 1, character.age);
 }

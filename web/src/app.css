@@ -594,3 +594,70 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .page-context-metrics strong{font-size:11px;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
 @media(max-width:620px){.page-context-header{align-items:flex-start;padding:11px 12px;margin-bottom:17px;gap:10px}.page-context-identity strong{font-size:12px}.page-context-identity span{font-size:9px}.page-context-metrics{gap:12px}.page-context-metrics span{font-size:7px}.page-context-metrics strong{font-size:10px}}
 @media(max-width:380px){.page-context-header{flex-direction:column}.page-context-metrics{width:100%;justify-content:space-between}}
+
+
+/* Global game header: persistent during play, restrained on setup and settings screens. */
+.topbar{
+  position:relative;
+  min-height:72px;
+  height:auto;
+  gap:18px;
+  border-bottom:1px solid #1c2820;
+  transition:background .18s,border-color .18s;
+}
+.topbar-persistent{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  border-bottom-color:#26372c;
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.brand{gap:12px;letter-spacing:-.45px;flex:none}
+.brand-mark{
+  width:36px;height:36px;border-radius:11px;
+  display:flex;align-items:flex-end;justify-content:center;gap:3px;
+  padding:9px 8px;background:linear-gradient(145deg,#8ce7ad,#54c985);
+  box-shadow:0 5px 18px #72d69a20;
+}
+.brand-mark span{display:block;width:4px;border-radius:3px 3px 1px 1px;background:#092013}
+.brand-mark span:nth-child(1){height:9px;opacity:.72}
+.brand-mark span:nth-child(2){height:15px}
+.brand-mark span:nth-child(3){height:11px;opacity:.85}
+.brand-name{font-size:15px;font-weight:800;letter-spacing:-.55px;white-space:nowrap}
+.brand-light{font-weight:500;color:#91a095}
+.topbar-right{display:flex;align-items:center;gap:12px;margin-left:auto}
+.topbar-life{
+  display:flex;align-items:center;gap:9px;min-height:38px;
+  max-width:min(260px,42vw);
+  padding:0 13px;border:1px solid var(--line);border-radius:999px;
+  background:#090e0b;color:var(--muted);font-size:10px;
+}
+.topbar-life-dot{width:6px;height:6px;flex:none;border-radius:50%;background:var(--accent);box-shadow:0 0 9px #72d69a65}
+.topbar-life-name{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);font-weight:700}
+.topbar-life-age{padding-left:9px;border-left:1px solid var(--line-strong);font-size:8px;letter-spacing:1px;font-weight:800;color:var(--subtle);white-space:nowrap}
+.icon-button{
+  width:40px;height:40px;margin:0;border-radius:13px;
+  display:grid;place-items:center;border:1px solid #31513b;background:#102017;
+  color:var(--accent);font-size:24px;line-height:1;
+  transition:background .18s,border-color .18s,transform .18s;
+}
+.icon-button:hover{background:#173322;border-color:#477c58;transform:translateY(-1px)}
+.icon-button:active{transform:scale(.96)}
+@media(max-width:620px){
+  .topbar{min-height:62px;gap:10px}
+  .brand{gap:9px}
+  .brand-mark{width:32px;height:32px;border-radius:10px;padding:8px 7px}
+  .brand-name{font-size:13px}
+  .topbar-right{gap:8px}
+  .topbar-life{min-height:34px;max-width:42vw;padding:0 9px;gap:7px}
+  .topbar-life-name{max-width:88px;font-size:9px}
+  .topbar-life-age{font-size:7px;padding-left:7px}
+  .icon-button{width:37px;height:37px;border-radius:11px}
+}
+@media(max-width:370px){
+  .topbar-life{gap:5px;padding:0 7px}
+  .topbar-life-name{max-width:62px}
+  .brand-name{font-size:12px}
+}

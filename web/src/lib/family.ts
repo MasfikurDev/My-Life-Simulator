@@ -271,7 +271,7 @@ function lifeEvent(character: Character, title: string, description: string): Li
 
 export function interactWithFamily(character: Character, personId: string, interaction: FamilyInteraction, supportAmount = 0): Character {
   const family = character.family;
-  if (!family || character.actionsRemaining <= 0 || validateFamilyState(family).length > 0) return character;
+  if (!family || validateFamilyState(family).length > 0) return character;
   const person = family.people.find((item) => item.id === personId);
   const bondIndex = family.bonds.findIndex((item) => item.personId === personId);
   if (!person || person.id === family.playerPersonId || !living(person, character.year) || bondIndex < 0) return character;
@@ -309,7 +309,6 @@ export function interactWithFamily(character: Character, personId: string, inter
     ...character,
     family: nextFamily,
     money,
-    actionsRemaining: character.actionsRemaining - 1,
     history: [lifeEvent(character, nextFamily.history[nextFamily.history.length - 1].title, nextFamily.history[nextFamily.history.length - 1].description), ...character.history]
   };
   if (interaction === 'provide-support') {

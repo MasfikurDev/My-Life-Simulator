@@ -41,21 +41,24 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Separate School and Work into age-gated, domain-native destinations using existing simulation actions and save fields.
 - [x] Consolidate personal wellbeing, personal growth, personal activities, and complete life history under a modular Life workspace.
 - [ ] Expand School with enrollment, attendance, classes, grades, and education history only when each mechanic has a complete simulation loop.
-- [ ] Expand Work with a real application/interview/offer flow and richer workplace interactions; do not display placeholder recruitment stages.
+- [x] Implement a weekly job board, visible role requirements, scheduled applications and interviews, expiring offers, acceptance/decline, career-path previews, player-controlled promotion offers, and voluntary resignation.
+- [ ] Add richer workplace interactions, employer structures, layoffs/job security, and persistent vacancies; do not display placeholder stages.
 
-## Milestone 3 — Replace annual actions with the weekly gameplay cycle (next priority)
+## Milestone 3 — Replace annual actions with the weekly gameplay cycle (in progress)
 
 **Design decision:** weekly is the playable time unit; monthly is the financial/reporting unit; yearly is the life-progression unit. This milestone is a foundational redesign, not a cosmetic change from "3 actions/year" to "3 actions/week".
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
-- [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour or reserve time for unimplemented school/work schedules. The first model uses three broad periods per day and validates overlaps; no school/work commitments are invented.
-- [x] Add a visible Life → Schedule planner with a seven-day, 21-period grid, age-available activity planning, duration-based reservations, conflict prevention, and removal. Planned activities are saved; they are not yet resolved or marked complete.
-- [ ] Replace annual action tokens with activity time requirements and conflict validation. Different activities may consume different time blocks and money; no arbitrary universal weekly action quota.
-- [ ] Add deterministic, exactly-once weekly resolution with structured effects, history, and recap.
+- [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment now adds type-based recurring Work shifts; School attendance remains unmodeled until its own schedule loop exists.
+- [x] Add a visible Life → Schedule planner with a seven-day, 21-period grid, age-available activity planning, duration-based reservations, conflict prevention, removal, and weekly resolution.
+- [x] Centralize per-activity time requirements and validate planned activities in the simulation: life-stage eligibility, current-week boundaries, duration fit, overlaps, and aggregate planned cash costs.
+- [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, and business management.
+- [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once; reject and preserve a turn if a reservation becomes stale before resolution.
+- [x] Add deterministic, exactly-once weekly resolution with history, recap, and seven-day calendar advancement.
 - [ ] Adapt contextual events, deadlines, and delayed consequences to date/week boundaries.
-- [ ] Move recurring payments and payroll to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries.
+- [ ] Move recurring payments, employment payroll, and business operating cash flow to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries. Until then, salary and household settlement remain annual and are a known pacing limitation of the weekly loop.
 - [ ] Prevent duplicate or skipped financial settlement across month/year boundaries; document rounding and payment-failure behavior.
-- [ ] Add safe migration for existing annual-action saves across all three slots; preserve balances, ledger, liabilities, assets, employment/education, history, pending events, and completed choices.
+- [x] Migrate schema 1 single-save and schema 2 multi-slot saves to the weekly model; preserve valid character records and all three slots, anchor missing calendars without changing displayed age, and retain the original payload as a recovery copy.
 - [ ] Add multi-week advancement only after single-week resolution is reliable; it must stop before important decisions, deadlines, events, birthdays, and payment failures.
 - [ ] Replace the year-only review with a concise weekly review, monthly Finance statement, and annual life review without duplicating domain workspaces.
 
@@ -78,10 +81,13 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 ## Milestone 5 — Deepen School and Work into playable systems
 - [ ] Add real school progression choices, enrollment, attendance, classes, grades/exams, and fees in the School workspace.
-- [ ] Add recruitment stages with applications, interviews, offers, acceptance/decline, employer identity, and workplace decisions in Work.
+- [x] Add recruitment stages with applications, interviews, offers, acceptance/decline, generated employer identity, and job-change/resignation flow in Work.
+- [ ] Add persistent employer operations, workplace decisions, layoffs/job security, and role-specific skill development.
 - [ ] Clarify the current-job card and add a read-only career-path preview with estimated salary/bonus ranges; see [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md).
-- [ ] Connect qualifications, role-specific skills, performance, experience, vacancies, and promotion decisions without using a universal fixed-week grind or guaranteeing outcomes.
-- [ ] Add conditional bonuses/benefits, career stability, job changes, layoffs, and deeper progression only with complete payroll and workplace loops.
+- [x] Connect general education, knowledge, career experience, performance, and role requirements to transparent readiness checks and player-controlled promotion offers without a universal fixed-week grind.
+- [ ] Add role-specific skills, persistent vacancies, employer decisions, and promotion outcomes tied to workplace conditions.
+- [x] Add job changes and voluntary resignation through the shared employment record. Job type now controls recurring Work commitments, and changing/leaving jobs replaces or removes those commitments safely.
+- [ ] Add conditional bonuses/benefits, monthly payroll, career stability, layoffs, and deeper workplace progression only with complete finance and employer loops.
 
 **Acceptance:** Education and career choices change future options and have visible consequences; no placeholder status is shown as a real mechanic.
 
@@ -92,7 +98,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add optional, backward-compatible family graph types and stable player/relative identities.
 - [x] Generate a modest family-of-origin context for new characters without assuming a partner or children.
 - [x] Add graph validation for identity, relationship endpoints, duplicate links, parent/guardian cycles, bonds, and history.
-- [x] Add targeted spend-time, reach-out, and conflict-reconciliation interactions with simulation-side age/action validation.
+- [x] Add targeted spend-time, reach-out, and conflict-reconciliation interactions with simulation-side age/time validation.
 - [x] Add adult financial support as a cash outflow in the shared Finance ledger.
 - [x] Add an explicit family-background initialization path for existing saves that lack family data.
 - [ ] Expand the relationship graph with explicit partnership, separation, parenthood, adoption, and guardianship lifecycle operations.
@@ -100,7 +106,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Model dependants, childcare, shared household membership, and caregiving with complete Time/Finance/Health contracts.
 - [ ] Integrate family mortality and bereavement with the global mortality/terminal-state model.
 - [ ] Add estate, inheritance, and generational continuation only after people, assets, dependants, and terminal-life state are reliable.
-- [ ] Migrate family interactions from annual actions to weekly time blocks when Milestone 3 is complete.
+- [x] Migrate family interactions from annual actions to weekly time blocks.
 
 **Acceptance:** Family is represented by real people and validated relationships, not a single score. Interactions materially affect the selected relationship and are recorded. Financial support cannot create money or hidden debt. New and legacy saves remain valid. Different family structures and child/adult/later-life scenarios are tested. No unimplemented partner, child, care, death, or inheritance state is shown as fact.
 

@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { canAffordActivity, formatCharacterMoney, performActivity } from './lib/simulation';
   import { getAvailableActivityIds, getLifeStage } from './lib/progression';
   import type { ActivityId, Character } from './lib/types';
   import LifestyleWorkspace from './LifestyleWorkspace.svelte';
   import FamilyWorkspace from './FamilyWorkspace.svelte';
   import ScheduleWorkspace from './ScheduleWorkspace.svelte';
-  let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
-  let activeView = $state('overview');
-  const views = [
+  type LifeView = 'overview' | 'schedule' | 'lifestyle' | 'family' | 'wellbeing' | 'growth' | 'personal' | 'history';
+  let { character, onChange, initialView = 'overview', initialActivity = 'exercise' }: { character: Character; onChange: (next: Character) => void; initialView?: LifeView; initialActivity?: ActivityId } = $props();
+  let activeView = $state<LifeView>(initialView);
+  let selectedActivity = $state<ActivityId>(initialActivity);
+  const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'schedule', label: 'Schedule' }, 
     { id: 'lifestyle', label: 'Lifestyle' },
@@ -23,15 +24,7 @@
   ];
   const stage = $derived(getLifeStage(character.age));
   const availablePersonalActivities = $derived(personalActivities.filter((item) => getAvailableActivityIds(character.age, character.employment).includes(item.id)));
-  function act(id: ActivityId) {
-    if (!character.actionsRemaining || !canAffordActivity(character, id)) return;
-    onChange(performActivity(character, id));
-  }
-  function cost(id: ActivityId) {
-    if (!canAffordActivity(character, id)) return 'Insufficient funds';
-    if (character.age < 16) return 'Time';
-    return id === 'exercise' ? 'Time' : formatCharacterMoney(character, 20 * (character.currencyScale ?? 1));
-  }
+  function openSchedule(activityId?: ActivityId) { if (activityId) selectedActivity = activityId; activeView = 'schedule'; }
 </script>
 
 <section class="life-workspace">
@@ -49,7 +42,7 @@
     <section class="domain-panel">
       <div class="domain-panel-head"><div><div class="eyebrow">CURRENT LIFE STAGE</div><h2>{stage.label}</h2><p>Age {character.age} · {stage.ageRange}. {stage.description}</p></div><span class="domain-status">YEAR {character.year}</span></div>
       {#if stage.nextAge !== null}<div class="domain-note">Next life stage begins at age {stage.nextAge}.</div>{/if}
-      <div class="domain-metrics"><div><span>Actions remaining</span><strong>{character.actionsRemaining}/3</strong></div><div><span>Health</span><strong>{character.health}/100</strong></div><div><span>Happiness</span><strong>{character.happiness}/100</strong></div><div><span>Fitness</span><strong>{character.fitness}/100</strong></div></div>
+      <div class="domain-metrics"><div><span>Planned this week</span><strong>{character.weeklySchedule?.activities.length ?? 0}</strong></div><div><span>Health</span><strong>{character.health}/100</strong></div><div><span>Happiness</span><strong>{character.happiness}/100</strong></div><div><span>Fitness</span><strong>{character.fitness}/100</strong></div></div>
     </section>
     <div class="finance-shortcuts life-shortcuts">
       <button onclick={() => activeView='schedule'}><span class="shortcut-icon">▦</span><strong>Weekly schedule</strong><small>Plan activities and check time conflicts</small><b>Open schedule →</b></button>
@@ -60,7 +53,7 @@
       <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.length} recorded events and milestones</small><b>Review history →</b></button>
     </div>
   {:else if activeView === 'schedule'}
-    <ScheduleWorkspace {character} {onChange} />
+    <ScheduleWorkspace {character} {onChange} initialActivity={selectedActivity} />
   {:else if activeView === 'family'}
     <FamilyWorkspace {character} {onChange} />
   {:else if activeView === 'wellbeing'}
@@ -78,11 +71,11 @@
       <div class="stats-grid"><article class="stat-card"><div class="stat-top"><span class="stat-icon blue">✳</span><span class="stat-label">Intelligence</span></div><div class="stat-value">{character.intelligence}<small>/100</small></div><div class="meter"><span class="blue" style="width:{character.intelligence}%"></span></div></article></div>
     </section>
   {:else if activeView === 'personal'}
-    <div class="page-heading"><div><div class="eyebrow">PERSONAL TIME</div><h2>Everyday activities</h2><p>Exercise and social time. Actions use the same yearly time allowance as other systems.</p></div><div class="year-pill">{character.actionsRemaining} ACTIONS LEFT</div></div>
+    <div class="page-heading"><div><div class="eyebrow">PERSONAL TIME</div><h2>Everyday activities</h2><p>Exercise and social time are planned in your weekly schedule.</p></div><div class="year-pill">{character.weeklySchedule?.activities.length ?? 0} PLANNED</div></div>
     <div class="activity-grid activity-grid-large">
       {#each availablePersonalActivities as activity}
-        <button class="activity-card" disabled={character.actionsRemaining===0 || !canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}>
-          <span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">{cost(activity.id)} <span>→</span></span>
+        <button class="activity-card" onclick={() => openSchedule(activity.id)}>
+          <span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">Plan in schedule <span>→</span></span>
         </button>
       {/each}
     </div>
