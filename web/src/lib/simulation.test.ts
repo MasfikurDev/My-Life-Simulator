@@ -447,6 +447,95 @@ describe('life simulation', () => {
     expect(next.history[0].title).toBe('Left a job');
   });
 
+  it('clears a stale promotion offer when accepting a different job', () => {
+    const candidate = {
+      ...createCharacter('Candidate', 30),
+      intelligence: 90,
+      education: 'Higher education',
+      employment: {
+        title: 'Operations assistant',
+        roleId: 'operations-assistant',
+        careerPathId: 'operations' as const,
+        type: 'full-time' as const,
+        annualSalary: 10000,
+        experienceYears: 2,
+        performance: 90,
+        promotions: 0,
+        startedAtAge: 25
+      },
+      promotionOffer: {
+        roleId: 'operations-coordinator',
+        title: 'Operations coordinator',
+        annualSalary: 20000,
+        issuedAt: '2026-01-01',
+        expiresAt: '2026-01-15'
+      },
+      jobOffers: [{
+        id: 'offer-sales',
+        applicationId: 'application-sales',
+        roleId: 'sales-associate',
+        title: 'Sales associate',
+        employer: 'MarketSquare Co.',
+        type: 'full-time' as const,
+        annualSalary: 12000,
+        issuedAt: '2026-01-01',
+        expiresAt: '2026-01-15'
+      }]
+    };
+    const changed = acceptJobOffer(candidate, 'offer-sales');
+    expect(changed.employment?.roleId).toBe('sales-associate');
+    expect(changed.promotionOffer).toBeNull();
+    expect(acceptPromotionOffer(changed)).toBe(changed);
+  });
+
+  it('rejects a promotion offer that no longer matches the current career path', () => {
+    const worker = {
+      ...createCharacter('Worker', 30),
+      intelligence: 90,
+      careerExperienceYears: 5,
+      employment: {
+        title: 'Operations assistant',
+        roleId: 'operations-assistant',
+        careerPathId: 'operations' as const,
+        type: 'full-time' as const,
+        annualSalary: 10000,
+        experienceYears: 2,
+        performance: 90,
+        promotions: 0,
+        startedAtAge: 25
+      },
+      promotionOffer: {
+        roleId: 'sales-manager',
+        title: 'Sales manager',
+        annualSalary: 40000,
+        issuedAt: '2026-01-01',
+        expiresAt: '2026-01-15'
+      }
+    };
+    expect(acceptPromotionOffer(worker)).toBe(worker);
+  });
+
+  it('removes only career-development reservations when resigning', () => {
+    const worker = {
+      ...createCharacter('Worker', 30),
+      employment: {
+        title: 'Operations assistant',
+        roleId: 'operations-assistant',
+        type: 'full-time' as const,
+        annualSalary: 18000,
+        experienceYears: 1,
+        performance: 70,
+        promotions: 0,
+        startedAtAge: 25
+      }
+    };
+    const planned = planActivityInNextFreeTime(worker, 'career').character;
+    expect(planned.weeklySchedule?.activities).toHaveLength(1);
+    const resigned = resignFromJob(planned);
+    expect(resigned.employment).toBeNull();
+    expect(resigned.weeklySchedule?.activities).toHaveLength(0);
+  });
+
   it('improves job performance through career development', () => {
     const worker = {
       ...createCharacter('Worker', 30),
