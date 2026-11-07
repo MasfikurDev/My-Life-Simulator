@@ -212,8 +212,9 @@ The target gameplay clock is date-based and weekly, not annual-action-based. The
 
 - Keep calendar/date logic in pure TypeScript domain modules, independent of Svelte, browser APIs, and Android. Use explicit date helpers for week boundaries, month/year boundaries, leap years, birthdays, and age calculation.
 - Persist an explicit current game date and the minimum stable identity needed to derive age. Do not increment age once per week or assume every year is exactly 52 weeks.
-- A weekly schedule represents meaningful commitments and discretionary time blocks; it is not a 168-hour real-time simulation. School and Work own their recurring schedules. A domain must not reserve time until its schedule is actually modeled.
-- Validate time-block conflicts and activity prerequisites in simulation functions. UI availability is advisory; the simulation is authoritative.
+- A weekly schedule represents meaningful commitments and discretionary time blocks; it is not a 168-hour real-time simulation. Each domain owns its action definitions and any real recurring commitments; do not invent school or household schedules before those systems exist.
+- Domain screens initiate their own actions. A shared simulation scheduling operation finds the earliest suitable contiguous free period, validates prerequisites, durations, recurring commitments, overlaps, and aggregate affordability, then returns the chosen placement. UI availability is advisory; the simulation is authoritative.
+- The Schedule workspace is a read/review and cancellation surface, not a generic action-entry form. A successful scheduling result must expose the reserved date, start period, and duration to the originating domain. A failed attempt must preserve the entire prior Character state.
 - Weekly advancement must be a single deterministic domain transaction returning updated state, financial ledger entries, history, event effects, and recap data. Repeated calls/reloads must not duplicate a resolved week.
 - Monthly and annual settlement must have explicit date-based due rules and idempotency keys/period markers. Never run annual finance settlement in addition to monthly installments for the same obligation.
 - Do not divide existing annual costs/salary/interest by 12 without modeling rounding, due dates, inflation, payment failures, and save migration.
