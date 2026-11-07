@@ -50,7 +50,7 @@
       <button onclick={() => activeView='wellbeing'}><span class="shortcut-icon">＋</span><strong>Wellbeing</strong><small>Health, happiness and fitness</small><b>View wellbeing →</b></button>
       <button onclick={() => activeView='growth'}><span class="shortcut-icon">✳</span><strong>Personal growth</strong><small>Learning and intelligence</small><b>View personal growth →</b></button>
       <button onclick={() => activeView='personal'}><span class="shortcut-icon">◎</span><strong>Personal</strong><small>Everyday activities and free time</small><b>Open personal life →</b></button>
-      <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.length} recorded events and milestones</small><b>Review history →</b></button>
+      <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.filter((item) => item.kind === 'milestone').length} major achievements<b>Review history →</b></button>
     </div>
   {:else if activeView === 'schedule'}
     <ScheduleWorkspace {character} {onChange} initialActivity={selectedActivity} />
@@ -82,10 +82,11 @@
   {:else if activeView === 'lifestyle'}
     <LifestyleWorkspace {character} {onChange} />
   {:else if activeView === 'history'}
-    <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h2>Life history</h2><p>Decisions, events and milestones recorded during this life.</p></div><span class="year-pill">{character.history.length} RECORDS</span></div>
+    <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h2>Life history</h2><p>Major achievements and important life-stage milestones.</p></div><span class="year-pill">{character.history.filter((item) => item.kind === 'milestone').length} ACHIEVEMENTS</span></div>
     <section class="history-card full-history">
-      {#if character.history.length === 0}<p>No life events have been recorded yet.</p>{:else}
-        {#each character.history as item}
+      {@const achievements = character.history.filter((item) => item.kind === 'milestone')}
+      {#if achievements.length === 0}<p>No major achievements have been recorded yet.</p>{:else}
+        {#each achievements as item}
           <div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>
         {/each}
       {/if}
