@@ -40,6 +40,17 @@
     soundEnabled = getSoundEnabled();
     fullscreen = getAndroidBridge()?.isFullscreen() ?? Boolean(document.fullscreenElement);
   });
+  function calendarMonth(date: string | undefined) {
+    if (!date) return '—';
+    const [year, month, day] = date.split('-').map(Number);
+    if (!year || !month || !day) return '—';
+    return new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' }).format(new Date(Date.UTC(year, month - 1, day)));
+  }
+  function calendarWeek(date: string | undefined) {
+    if (!date) return 1;
+    const day = Number(date.split('-')[2]);
+    return Number.isFinite(day) && day > 0 ? Math.min(4, Math.ceil(day / 7)) : 1;
+  }
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
   function navigateTab(tab: string) { if (tab === 'life') lifeInitialView = 'overview'; activeTab = tab; }
   function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
@@ -225,7 +236,7 @@
         <div class="topbar-metrics">
           <div><span>YEAR</span><strong>{character.year}</strong></div>
           <div><span>CASH</span><strong>{formatCharacterMoney(character)}</strong></div>
-          <div><span>DATE</span><strong>{character.calendar?.currentDate ?? character.year}</strong></div>
+          <div class="topbar-month"><span>MONTH</span><strong>{calendarMonth(character.calendar?.currentDate)}</strong><div class="topbar-week-dots" role="img" aria-label={`Week ${calendarWeek(character.calendar?.currentDate)} of 4`}>{#each [1, 2, 3, 4] as week}<i class:current={week === calendarWeek(character.calendar?.currentDate)}></i>{/each}</div></div>
         </div>
       </div>
     {/if}
