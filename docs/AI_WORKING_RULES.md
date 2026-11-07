@@ -126,8 +126,8 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 70. Before calling a milestone playable, test multiple years as a player—not only isolated functions. Include different ages and financial conditions, verify delayed consequences, replay determinism, save/load continuity, and terminal-state behavior when implemented.
 
 
-71. **Weekly time model is canonical:** the target gameplay unit is one simulated week; months own recurring finance/reporting cadence; years own birthdays, annual settlement, life-stage progression, and long-term reviews. The current annual-action implementation is legacy behavior, not the target design.
-72. Do not replace three annual action tokens with a fixed weekly action quota. Use actual recurring commitments and available discretionary time blocks; activities have explicit durations and may conflict. Do not simulate every hour or require filling every day.
+71. **Weekly time model is live and canonical:** one simulated week is the playable time unit; months own recurring finance/reporting cadence; years own birthdays, annual settlement, life-stage progression, and long-term reviews. The old annual-action system has been retired.
+72. Never impose a universal weekly action quota. Use actual recurring commitments and available discretionary time blocks; actions have explicit durations and may conflict. Do not simulate every hour or require filling every day.
 73. School and Work own their schedules and recurring commitments. Never reserve time or claim attendance/work participation unless the corresponding schedule and state are actually implemented. Unimplemented domains must not invent commitments.
 74. Weekly time advancement is always explicit and deterministic. Screen visits, background time, app inactivity, save/load, and wall-clock time never advance the simulation.
 75. Monthly and annual financial settlement must have explicit due dates/cadences and exactly-once behavior. Never double-charge by running both annual and monthly versions of the same obligation. Do not divide annual values by 12 without documented rounding and migration rules.
