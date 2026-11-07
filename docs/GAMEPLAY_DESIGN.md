@@ -175,7 +175,7 @@ Keep the first version focused on fictional models, understandable capability ti
 
 Family is a connected life system built around persistent people, kinship/guardianship links, relationship bonds, household membership, dependency, and family history. It is not a single relationship score or an assumed spouse-and-children template. See [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md) for the complete domain specification and implementation stages.
 
-The current code implements family-of-origin generation, graph validation, and a small targeted interaction loop. New characters may begin with parents/guardians and siblings; partners and children are never assumed. Existing saves require explicit family-background initialization. Interactions change only the selected bond and record history; adult financial support debits cash and writes to the common Finance ledger. The annual action allowance is transitional until weekly time blocks exist.
+The current code implements family-of-origin generation, graph validation, and a small targeted interaction loop. New characters may begin with parents/guardians and siblings; partners and children are never assumed. Existing saves require explicit family-background initialization. Interactions change only the selected bond and record history; adult financial support debits cash and writes to the common Finance ledger. Family interactions are confirmed in the Family workspace and automatically placed into suitable weekly free time by the shared simulation planner.
 
 Partnership, parenthood, adoption, caregiving, family mortality, inheritance, and legacy remain unimplemented until they have complete simulation rules and tests. Do not present UI-only placeholders as working mechanics.
 
