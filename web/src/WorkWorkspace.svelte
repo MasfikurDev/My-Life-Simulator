@@ -12,7 +12,8 @@
   const listings = $derived(getJobListings(character));
   const currentRole = $derived(getCareerRole(character.employment?.roleId, character.employment?.title));
   const promotion = $derived(getPromotionReadiness(character));
-  const careerRoles = $derived(getCareerPath(currentRole?.pathId ?? selectedPath));
+  const careerRoles = $derived(getCareerPath(selectedPath));
+  $effect(() => { if (currentRole) selectedPath = currentRole.pathId; });
   const careerEvents = $derived(character.history.filter((item) => /job|work|career|promotion|interview|employment/i.test(item.title + ' ' + item.description)));
 
   function planWork(workAction: 'apply' | 'interview', jobId: string) {
@@ -141,13 +142,11 @@
   {:else if activeView === 'career'}
     <section class="work-panel">
       <div class="work-panel-heading"><div><div class="eyebrow">CAREER PROGRESSION</div><h2>{currentRole?.pathName ?? 'Explore career paths'}</h2><p>Career paths are guides, not promises. Estimated salary bands are not job offers.</p></div></div>
-      {#if !currentRole}
-        <label class="path-picker">Career path
+      <label class="path-picker">Career path
           <select bind:value={selectedPath}>
             <option value="operations">Operations</option><option value="customer-service">Customer service</option><option value="technology">Technology</option><option value="sales">Sales</option>
           </select>
-        </label>
-      {/if}
+      </label>
       <div class="career-path">
         {#each careerRoles as role, index (role.id)}
           {@const requirements = getCareerRequirements(character, role)}
