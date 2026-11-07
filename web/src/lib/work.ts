@@ -295,6 +295,7 @@ export function acceptJobOffer(character: Character, offerId: string): Character
   const next = {
     ...character,
     employment,
+    careerExperienceYears: getCareerExperience(character),
     jobOffers: (character.jobOffers ?? []).filter((item) => item.id !== offerId),
     jobApplications: (character.jobApplications ?? []).map((item) => item.id === offer.applicationId ? { ...item, status: 'accepted' as const, outcome: 'Offer accepted. You started a new role.' } : item),
     history: [...character.history]
@@ -314,7 +315,7 @@ export function acceptJobOffer(character: Character, offerId: string): Character
 export function resignFromJob(character: Character): Character {
   if (!character.employment) return character;
   const previous = character.employment;
-  const next = { ...character, employment: null, promotionOffer: null, history: [...character.history] };
+  const next = { ...character, employment: null, careerExperienceYears: getCareerExperience(character), promotionOffer: null, history: [...character.history] };
   next.history.unshift({
     id: 'job-resignation-' + character.year + '-' + character.history.length,
     year: character.year,
