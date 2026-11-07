@@ -41,7 +41,8 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Separate School and Work into age-gated, domain-native destinations using existing simulation actions and save fields.
 - [x] Consolidate personal wellbeing, personal growth, personal activities, and complete life history under a modular Life workspace.
 - [ ] Expand School with enrollment, attendance, classes, grades, and education history only when each mechanic has a complete simulation loop.
-- [x] Implement a weekly job board, visible role requirements, scheduled applications and interviews, expiring offers, acceptance/decline, career-path previews, player-controlled promotion offers, and voluntary resignation.\n- [ ] Add richer workplace interactions, employer structures, layoffs/job security, and persistent vacancies; do not display placeholder stages.
+- [x] Implement a weekly job board, visible role requirements, scheduled applications and interviews, expiring offers, acceptance/decline, career-path previews, player-controlled promotion offers, and voluntary resignation.
+- [ ] Add richer workplace interactions, employer structures, layoffs/job security, and persistent vacancies; do not display placeholder stages.
 
 ## Milestone 3 — Replace annual actions with the weekly gameplay cycle (in progress)
 
@@ -80,10 +81,13 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 ## Milestone 5 — Deepen School and Work into playable systems
 - [ ] Add real school progression choices, enrollment, attendance, classes, grades/exams, and fees in the School workspace.
-- [x] Add recruitment stages with applications, interviews, offers, acceptance/decline, generated employer identity, and job-change/resignation flow in Work.\n- [ ] Add persistent employer operations, workplace decisions, layoffs/job security, and role-specific skill development.
+- [x] Add recruitment stages with applications, interviews, offers, acceptance/decline, generated employer identity, and job-change/resignation flow in Work.
+- [ ] Add persistent employer operations, workplace decisions, layoffs/job security, and role-specific skill development.
 - [ ] Clarify the current-job card and add a read-only career-path preview with estimated salary/bonus ranges; see [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md).
-- [x] Connect general education, knowledge, career experience, performance, and role requirements to transparent readiness checks and player-controlled promotion offers without a universal fixed-week grind.\n- [ ] Add role-specific skills, persistent vacancies, employer decisions, and promotion outcomes tied to workplace conditions.
-- [x] Add job changes and voluntary resignation through the shared employment record.\n- [ ] Add conditional bonuses/benefits, monthly payroll, career stability, layoffs, and deeper workplace progression only with complete finance and employer loops.
+- [x] Connect general education, knowledge, career experience, performance, and role requirements to transparent readiness checks and player-controlled promotion offers without a universal fixed-week grind.
+- [ ] Add role-specific skills, persistent vacancies, employer decisions, and promotion outcomes tied to workplace conditions.
+- [x] Add job changes and voluntary resignation through the shared employment record.
+- [ ] Add conditional bonuses/benefits, monthly payroll, career stability, layoffs, and deeper workplace progression only with complete finance and employer loops.
 
 **Acceptance:** Education and career choices change future options and have visible consequences; no placeholder status is shown as a real mechanic.
 
