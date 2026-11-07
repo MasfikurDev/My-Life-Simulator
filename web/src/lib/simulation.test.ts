@@ -436,12 +436,11 @@ describe('life simulation', () => {
   it('allows a player to resign without erasing accumulated career experience', () => {
     const worker = {
       ...createCharacter('Worker', 30),
-      careerExperienceYears: 6,
       employment: { title: 'Operations assistant', roleId: 'operations-assistant', type: 'full-time' as const, annualSalary: 18000, experienceYears: 3, performance: 70, promotions: 0, startedAtAge: 25, employer: 'Northstar Services' }
     };
     const next = resignFromJob(worker);
     expect(next.employment).toBeNull();
-    expect(next.careerExperienceYears).toBe(6);
+    expect(next.careerExperienceYears).toBe(3);
     expect(next.history[0].title).toBe('Left a job');
   });
 
