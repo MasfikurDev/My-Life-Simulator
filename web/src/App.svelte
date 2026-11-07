@@ -365,6 +365,16 @@
               <div class="year-review-actions"><button class="secondary-button" onclick={closeAdvanceReview}>Back to this week</button><button class="primary-button" onclick={advanceWeekNow}>Resolve week and continue</button></div>
             </section>
           {/if}
+          <section class="history-card overview-activity-feed" aria-label="All activities">
+            <div class="page-heading"><div><div class="eyebrow">EVERYDAY LIFE</div><h2>Activities</h2><p>Your recorded actions and everyday moments, newest first.</p></div><span class="year-pill">{character.history.filter((item) => item.kind === 'activity').length} ACTIVITIES</span></div>
+            {#if character.history.some((item) => item.kind === 'activity')}
+              {#each character.history.filter((item) => item.kind === 'activity') as item}
+                <div class="timeline-item"><span class="timeline-dot activity"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>
+              {/each}
+            {:else}
+              <p class="overview-empty-activities">Activities will appear here as you make choices and spend time.</p>
+            {/if}
+          </section>
         {:else if character && activeTab==='school' && character.age >= 3}
           <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div></div>
           <section class="domain-panel">
