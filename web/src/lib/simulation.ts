@@ -739,6 +739,7 @@ function reserveTimedAction(character: Character, activityId: PlannedActivity['a
 }
 
 export function planActivity(character: Character, activity: ActivityId, date: string, startPeriod: DayPeriod): ActivityPlanningResult {
+  if (activity === 'apply-job') return { character, issue: 'unavailable', message: 'Use Work → Jobs & applications to apply for a specific opening.' };
   if (!isActivityAvailable(character.age, activity, character.employment)) return { character, issue: 'unavailable', message: 'This activity is not available at your current life stage.' };
   const definition = getActivityDefinition(activity);
   return reserveTimedAction(character, activity, date, startPeriod, definition.durationBlocks, { kind: 'activity' } as PlannedAction, getActivityCost(character, activity));
