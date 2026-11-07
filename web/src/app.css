@@ -661,3 +661,38 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
   .topbar-life-name{max-width:62px}
   .brand-name{font-size:12px}
 }
+
+
+/* Unified game header: keep life identity and key status in one compact row. */
+.topbar-right{min-width:0;gap:clamp(12px,2.5vw,30px)}
+.topbar-life-identity{display:flex;align-items:center;gap:9px;min-width:0}
+.topbar-life-name{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);font-size:11px;font-weight:750}
+.topbar-life-stage{padding-left:9px;border-left:1px solid var(--line-strong);color:var(--muted);font-size:9px;white-space:nowrap}
+.topbar-metrics{display:flex;align-items:center;gap:clamp(12px,2.2vw,25px)}
+.topbar-metrics>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.topbar-metrics span{font-size:7px;letter-spacing:1px;color:var(--subtle);font-weight:800}
+.topbar-metrics strong{font-size:10px;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:760px){
+  .topbar{min-height:76px;padding:9px 0;align-items:center}
+  .topbar-right{gap:12px}
+  .topbar-life-identity{gap:6px}
+  .topbar-life-name{max-width:110px;font-size:10px}
+  .topbar-life-stage{font-size:8px;padding-left:6px}
+  .topbar-metrics{gap:11px}
+  .topbar-metrics span{font-size:6px}
+  .topbar-metrics strong{font-size:9px}
+}
+@media(max-width:560px){
+  .topbar{align-items:flex-start;flex-direction:column;gap:9px;padding:10px 0}
+  .topbar-right{width:100%;justify-content:space-between;gap:8px}
+  .topbar-life-identity{flex:1;min-width:0}
+  .topbar-life-name{max-width:115px}
+  .topbar-life-stage{overflow:hidden;text-overflow:ellipsis}
+  .topbar-metrics{flex:none;gap:clamp(9px,3vw,16px)}
+  .topbar-metrics strong{font-size:9px}
+}
+@media(max-width:360px){
+  .topbar-life-stage{display:none}
+  .topbar-metrics{gap:9px}
+  .topbar-metrics strong{font-size:8px}
+}
