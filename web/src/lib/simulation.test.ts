@@ -337,6 +337,7 @@ describe('life simulation', () => {
     const hired = performActivity(graduate, 'apply-job', () => 0);
     expect(hired.employment?.title).toBe('Operations coordinator');
     expect(hired.employment?.annualSalary).toBe(28000);
+    expect(hired.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
   });
   it('credits annual salary and living costs when the year advances', () => {
     const worker = {
