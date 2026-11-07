@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceWeek, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, planWorkActionInNextFreeTime, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceWeek, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
@@ -393,6 +393,38 @@ describe('life simulation', () => {
     expect(hired.employment?.employer).toBe(listing!.employer);
     expect(hired.jobOffers).toHaveLength(0);
   });
+  it('expires unanswered job offers and records the application outcome', () => {
+    const candidate = {
+      ...createCharacter('Candidate', 30),
+      intelligence: 90,
+      education: 'Higher education',
+      careerExperienceYears: 5,
+      currencyScale: 1
+    };
+    const listing = getJobListings(candidate).find((item) => {
+      const role = getCareerRole(item.roleId);
+      return role ? isEligibleForRole(candidate, role) : false;
+    })!;
+    const applied = advanceWeek(planWorkActionInNextFreeTime(candidate, 'apply', listing.id).character, () => 0).character;
+    const interviewed = advanceWeek(planWorkActionInNextFreeTime(applied, 'interview', applied.jobApplications![0].id).character, () => 0).character;
+    const offerId = interviewed.jobOffers![0].id;
+    const declined = declineJobOffer(interviewed, offerId);
+    expect(declined.jobOffers).toHaveLength(0);
+    expect(declined.jobApplications?.[0].status).toBe('declined');
+  });
+
+  it('allows a player to resign without erasing accumulated career experience', () => {
+    const worker = {
+      ...createCharacter('Worker', 30),
+      careerExperienceYears: 6,
+      employment: { title: 'Operations assistant', roleId: 'operations-assistant', type: 'full-time' as const, annualSalary: 18000, experienceYears: 3, performance: 70, promotions: 0, startedAtAge: 25, employer: 'Northstar Services' }
+    };
+    const next = resignFromJob(worker);
+    expect(next.employment).toBeNull();
+    expect(next.careerExperienceYears).toBe(6);
+    expect(next.history[0].title).toBe('Left a job');
+  });
+
   it('improves job performance through career development', () => {
     const worker = {
       ...createCharacter('Worker', 30),
