@@ -49,9 +49,10 @@ describe('life simulation', () => {
     };
     const planned = planActivityInNextFreeTime(base, 'study');
     expect(planned.issue).toBeNull();
-    expect(planned.character.weeklySchedule?.activities[0]).toMatchObject({
+    expect(planned.scheduledActivity).toMatchObject({
       activityId: 'study', date: '2026-01-06', startPeriod: 'morning', durationBlocks: 2
     });
+    expect(planned.character.weeklySchedule?.activities[0]).toEqual(planned.scheduledActivity);
   });
   it('rejects overlapping activity reservations without changing the save', () => {
     const adult = createCharacter('Planner', 30);
