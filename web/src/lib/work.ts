@@ -178,11 +178,12 @@ export function getPromotionReadiness(character: Character): { role: CareerRole 
   const performanceMet = employment.performance >= 80;
   requirements.push({ label: 'Performance', met: performanceMet, detail: 'Performance 80/100 or higher' });
   const scale = character.currencyScale ?? 1;
+  const employmentFactor = employment.type === 'part-time' ? 0.45 : employment.type === 'flexible' ? 0.7 : 1;
   return {
     role,
     requirements,
     ready: requirements.every((requirement) => requirement.met),
-    salaryEstimate: { min: Math.round(role.annualSalaryMin * scale), max: Math.round(role.annualSalaryMax * scale) }
+    salaryEstimate: { min: Math.round(role.annualSalaryMin * scale * employmentFactor), max: Math.round(role.annualSalaryMax * scale * employmentFactor) }
   };
 }
 
@@ -191,8 +192,11 @@ export function createPromotionOffer(character: Character, issuedAt: string): Pr
   const readiness = getPromotionReadiness(character);
   if (!readiness.ready || !readiness.role) return null;
   const scale = character.currencyScale ?? 1;
-  const proposedSalary = Math.max(Math.round(character.employment.annualSalary * 1.15), Math.round(readiness.role.annualSalaryMin * scale));
-  const salary = Math.max(character.employment.annualSalary, Math.min(proposedSalary, Math.round(readiness.role.annualSalaryMax * scale)));
+  const employmentFactor = character.employment.type === 'part-time' ? 0.45 : character.employment.type === 'flexible' ? 0.7 : 1;
+  const roleMinimum = Math.round(readiness.role.annualSalaryMin * scale * employmentFactor);
+  const roleMaximum = Math.round(readiness.role.annualSalaryMax * scale * employmentFactor);
+  const proposedSalary = Math.max(Math.round(character.employment.annualSalary * 1.15), roleMinimum);
+  const salary = Math.max(character.employment.annualSalary, Math.min(proposedSalary, roleMaximum));
   return {
     roleId: readiness.role.id,
     title: readiness.role.title,
