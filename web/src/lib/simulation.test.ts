@@ -414,6 +414,7 @@ describe('life simulation', () => {
     const declined = declineJobOffer(interviewed, offerId);
     expect(declined.jobOffers).toHaveLength(0);
     expect(declined.jobApplications?.[0].status).toBe('declined');
+    expect(declined.history[0].title).toBe('Job offer declined');
   });
 
   it('expires job offers after their response window passes', () => {
