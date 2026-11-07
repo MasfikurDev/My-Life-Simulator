@@ -8,7 +8,7 @@ This document turns the gameplay audit into a staged, implementation-ready direc
 The first event-driven slice and the annual-action-to-weekly-turn transition are implemented in the web simulation:
 - Contextual events are selected using character/year context and age/health eligibility.
 - Pending events and choices persist in the character save; the simulation validates choice requirements and costs.
-- Personal activities, family interactions, business management, and time-consuming event choices reserve dated weekly time blocks and resolve in deterministic order.
+- Personal activities, family interactions, business management, job applications, interviews, and time-consuming event choices reserve dated weekly time blocks and resolve in deterministic order.
 - Weekly resolution applies effects and costs, records Life History, clears successful reservations, and advances the calendar by seven days. A stale reservation blocks the turn and remains available for repair instead of being silently discarded.
 - Age and life-stage eligibility change on the character's birthday. Annual financial settlement and annual event expiry remain at the year boundary.
 - The save migration preserves existing slots and stores the original pre-migration payload as a recovery copy.
