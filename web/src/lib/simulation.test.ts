@@ -34,6 +34,25 @@ describe('life simulation', () => {
     expect(result.character.money).toBe(100);
     expect(adult.weeklySchedule?.activities).toHaveLength(0);
   });
+  it('automatically finds the first contiguous slot that fits an activity', () => {
+    const base = {
+      ...createCharacter('Auto planner', 30),
+      calendar: { currentDate: '2026-01-05', birthDate: '1996-01-05' },
+      weeklySchedule: {
+        version: 1 as const,
+        commitments: [
+          { id: 'work-morning', title: 'Work', domain: 'work' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 1 },
+          { id: 'work-afternoon', title: 'Work', domain: 'work' as const, weekday: 1 as const, startPeriod: 'afternoon' as const, durationBlocks: 1 }
+        ],
+        activities: []
+      }
+    };
+    const planned = planActivityInNextFreeTime(base, 'study');
+    expect(planned.issue).toBeNull();
+    expect(planned.character.weeklySchedule?.activities[0]).toMatchObject({
+      activityId: 'study', date: '2026-01-06', startPeriod: 'morning', durationBlocks: 2
+    });
+  });
   it('rejects overlapping activity reservations without changing the save', () => {
     const adult = createCharacter('Planner', 30);
     const first = planActivity(adult, 'exercise', '2026-01-05', 'morning');

@@ -227,6 +227,8 @@ The player chooses from age- and circumstance-appropriate actions in the relevan
 
 Actions have explicit costs and trade-offs: reserved time blocks, money, energy, risk, or an opportunity cost. Explain important costs before confirmation. Do not add an arbitrary universal weekly action quota or extra meters merely to make the loop feel busy.
 
+**Contextual scheduling is the default interaction contract.** Offer an action in the domain where its purpose is clear (for example, an interview in Work, a family interaction in Family, or exercise in Personal). The player's confirmation is the scheduling decision: the simulation automatically finds the earliest suitable contiguous free period, validates duration, recurring commitments, overlaps, eligibility, and affordability, then records the reservation. Do not send the player to a generic planner to choose a date and time for routine actions. The Schedule workspace is for reviewing commitments, spotting conflicts, and removing a reservation—not the primary place to initiate domain actions. A failed placement must explain the constraint and leave the save unchanged.
+
 The player may leave free time unused and advance deliberately. Do not silently auto-spend reservations or auto-advance time. Quiet weeks must remain quick to resolve.
 
 ### Phase C — Resolve life events

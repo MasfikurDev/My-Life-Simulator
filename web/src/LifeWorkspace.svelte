@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { getAvailableActivityIds, getLifeStage } from './lib/progression';
+  import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './lib/progression';
+  import { planActivityInNextFreeTime } from './lib/simulation';
   import type { ActivityId, Character } from './lib/types';
   import LifestyleWorkspace from './LifestyleWorkspace.svelte';
   import FamilyWorkspace from './FamilyWorkspace.svelte';
   import ScheduleWorkspace from './ScheduleWorkspace.svelte';
   type LifeView = 'overview' | 'schedule' | 'lifestyle' | 'family' | 'wellbeing' | 'growth' | 'personal' | 'history';
-  let { character, onChange, initialView = 'overview', initialActivity = 'exercise' }: { character: Character; onChange: (next: Character) => void; initialView?: LifeView; initialActivity?: ActivityId } = $props();
+  let { character, onChange, initialView = 'overview' }: { character: Character; onChange: (next: Character) => void; initialView?: LifeView } = $props();
   let activeView = $state<LifeView>(initialView);
-  let selectedActivity = $state<ActivityId>(initialActivity);
+  let activityFeedback = $state('');
   const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'schedule', label: 'Schedule' }, 
@@ -24,7 +25,19 @@
   ];
   const stage = $derived(getLifeStage(character.age));
   const availablePersonalActivities = $derived(personalActivities.filter((item) => getAvailableActivityIds(character.age, character.employment).includes(item.id)));
-  function openSchedule(activityId?: ActivityId) { if (activityId) selectedActivity = activityId; activeView = 'schedule'; }
+  function scheduleActivity(activityId: ActivityId) {
+    const planned = planActivityInNextFreeTime(character, activityId);
+    if (planned.issue) {
+      activityFeedback = planned.message ?? 'No suitable time is available this week.';
+      return;
+    }
+    const scheduled = planned.character.weeklySchedule?.activities.find((item) =>
+      !character.weeklySchedule?.activities.some((existing) => existing.id === item.id)
+    );
+    onChange(planned.character);
+    activityFeedback = getActivityDefinition(activityId).title + ' confirmed for ' +
+      (scheduled ? scheduled.date + ' (' + scheduled.startPeriod + ')' : 'this week') + '.';
+  }
 </script>
 
 <section class="life-workspace">
@@ -53,7 +66,7 @@
       <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.filter((item) => item.kind === 'milestone').length} major achievements</small><b>Review history →</b></button>
     </div>
   {:else if activeView === 'schedule'}
-    <ScheduleWorkspace {character} {onChange} initialActivity={selectedActivity} />
+    <ScheduleWorkspace {character} {onChange} />
   {:else if activeView === 'family'}
     <FamilyWorkspace {character} {onChange} />
   {:else if activeView === 'wellbeing'}
@@ -71,14 +84,15 @@
       <div class="stats-grid"><article class="stat-card"><div class="stat-top"><span class="stat-icon blue">✳</span><span class="stat-label">Intelligence</span></div><div class="stat-value">{character.intelligence}<small>/100</small></div><div class="meter"><span class="blue" style="width:{character.intelligence}%"></span></div></article></div>
     </section>
   {:else if activeView === 'personal'}
-    <div class="page-heading"><div><div class="eyebrow">PERSONAL TIME</div><h2>Everyday activities</h2><p>Exercise and social time are planned in your weekly schedule.</p></div><div class="year-pill">{character.weeklySchedule?.activities.length ?? 0} PLANNED</div></div>
+    <div class="page-heading"><div><div class="eyebrow">PERSONAL TIME</div><h2>Everyday activities</h2><p>Choose an activity here. The game finds a suitable free period automatically.</p></div><div class="year-pill">{character.weeklySchedule?.activities.length ?? 0} PLANNED</div></div>
     <div class="activity-grid activity-grid-large">
       {#each availablePersonalActivities as activity}
-        <button class="activity-card" onclick={() => openSchedule(activity.id)}>
-          <span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">Plan in schedule <span>→</span></span>
+        <button class="activity-card" onclick={() => scheduleActivity(activity.id)}>
+          <span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">Confirm & schedule <span>→</span></span>
         </button>
       {/each}
     </div>
+    {#if activityFeedback}<p class="domain-note" role="status">{activityFeedback}</p>{/if}
   {:else if activeView === 'lifestyle'}
     <LifestyleWorkspace {character} {onChange} />
   {:else if activeView === 'history'}

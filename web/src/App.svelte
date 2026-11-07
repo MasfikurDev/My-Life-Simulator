@@ -32,7 +32,6 @@
   let debugCopying = $state(false);
   let advanceReviewOpen = $state(false);
   let lifeInitialView = $state<'overview' | 'schedule'>('overview');
-  let lifeInitialActivity = $state<ActivityId>('exercise');
   onMount(() => {
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
@@ -184,7 +183,7 @@
     if (!character) return;
     const planned = planActivityInNextFreeTime(character, id);
     if (planned.issue) { notify(planned.message ?? 'No suitable time is available this week.'); return; }
-    persist(planned.character); lifeInitialActivity = id; lifeInitialView = 'schedule'; activeTab = 'life'; playSound('action');
+    persist(planned.character); lifeInitialView = 'schedule'; activeTab = 'life'; playSound('action');
     notify('Added to this week’s schedule.');
   }
   function chooseLifeEvent(choiceId: string) {
@@ -423,7 +422,7 @@
           <WorkWorkspace {character} onChange={persist} onNotify={notify} />
 
         {:else if character && activeTab==='life'}
-          <LifeWorkspace {character} onChange={persist} initialView={lifeInitialView} initialActivity={lifeInitialActivity} />
+          <LifeWorkspace {character} onChange={persist} initialView={lifeInitialView} />
         {:else if character && activeTab==='finances'}
           <FinanceWorkspace {character} onChange={persist} />
         {/if}

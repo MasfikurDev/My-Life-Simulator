@@ -793,15 +793,20 @@ export function planWorkAction(character: Character, workAction: 'apply' | 'inte
   return reserveTimedAction(character, 'career', day, startPeriod, duration, { kind: 'work', workAction, jobId, title }, 0);
 }
 
-export function planWorkActionInNextFreeTime(character: Character, workAction: 'apply' | 'interview', jobId: string): ActivityPlanningResult {
+function planInNextFreeTime(character: Character, attempt: (date: string, period: DayPeriod) => ActivityPlanningResult): ActivityPlanningResult {
   const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
   const grid = buildWeeklySchedule(week, getWeeklySchedule(character.weeklySchedule));
   if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
-  for (const block of grid.blocks.filter((entry) => !entry.entryId)) {
-    const result = planWorkAction(character, workAction, jobId, block.date, block.period);
+  for (const block of grid.blocks) {
+    if (block.entryId) continue;
+    const result = attempt(block.date, block.period);
     if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
   }
   return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+}
+
+export function planWorkActionInNextFreeTime(character: Character, workAction: 'apply' | 'interview', jobId: string): ActivityPlanningResult {
+  return planInNextFreeTime(character, (date, period) => planWorkAction(character, workAction, jobId, date, period));
 }
 
 export function acceptJobOffer(character: Character, offerId: string): Character {
@@ -836,52 +841,21 @@ export function planEventChoice(character: Character, choiceId: string, date?: s
 }
 
 export function planActivityInNextFreeTime(character: Character, activity: ActivityId): ActivityPlanningResult {
-  const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  const schedule = getWeeklySchedule(character.weeklySchedule);
-  const grid = buildWeeklySchedule(week, schedule);
-  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts before planning another activity.' };
-  for (const block of grid.blocks) {
-    if (!block.entryId) {
-      const result = planActivity(character, activity, block.date, block.period);
-      if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
-    }
-  }
-  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+  return planInNextFreeTime(character, (date, period) => planActivity(character, activity, date, period));
 }
 
 export function planFamilyInteractionInNextFreeTime(character: Character, personId: string, interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support', supportAmount = 0): ActivityPlanningResult {
-  const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  const grid = buildWeeklySchedule(week, getWeeklySchedule(character.weeklySchedule));
-  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
-  for (const block of grid.blocks.filter((entry) => !entry.entryId)) {
-    const result = planFamilyInteraction(character, personId, interaction, supportAmount, block.date, block.period);
-    if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
-  }
-  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+  return planInNextFreeTime(character, (date, period) => planFamilyInteraction(character, personId, interaction, supportAmount, date, period));
 }
 
 export function planBusinessManagementInNextFreeTime(character: Character, businessId: string): ActivityPlanningResult {
-  const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  const grid = buildWeeklySchedule(week, getWeeklySchedule(character.weeklySchedule));
-  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
-  for (const block of grid.blocks.filter((entry) => !entry.entryId)) {
-    const result = planBusinessManagement(character, businessId, block.date, block.period);
-    if (!result.issue || (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict')) return result;
-  }
-  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+  return planInNextFreeTime(character, (date, period) => planBusinessManagement(character, businessId, date, period));
 }
 
 export function planEventChoiceInNextFreeTime(character: Character, choiceId: string): ActivityPlanningResult {
-  const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  const grid = buildWeeklySchedule(week, getWeeklySchedule(character.weeklySchedule));
-  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
   const choice = character.pendingGameEvent?.choices.find((entry) => entry.id === choiceId);
   if (choice?.timeBlocks === 0) return planEventChoice(character, choiceId);
-  for (const block of grid.blocks.filter((entry) => !entry.entryId)) {
-    const result = planEventChoice(character, choiceId, block.date, block.period);
-    if (!result.issue || result.issue !== 'invalid-time-slot') return result;
-  }
-  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week.' };
+  return planInNextFreeTime(character, (date, period) => planEventChoice(character, choiceId, date, period));
 }
 
 export function removePlannedActivity(character: Character, activityId: string): Character {
