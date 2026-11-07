@@ -165,7 +165,9 @@ export function getPromotionReadiness(character: Character): { role: CareerRole 
   if (!employment) return { role: null, requirements: [], ready: false, salaryEstimate: null };
   const role = getNextCareerRole(employment);
   if (!role) return { role: null, requirements: [], ready: false, salaryEstimate: null };
-  const requirements = getCareerRequirements(character, role);
+  const requirements = getCareerRequirements(character, role).map((requirement) => requirement.label === 'Experience'
+    ? { ...requirement, met: employment.experienceYears >= role.minExperienceYears, detail: role.minExperienceYears + '+ years in the current role' }
+    : requirement);
   const performanceMet = employment.performance >= 80;
   requirements.push({ label: 'Performance', met: performanceMet, detail: 'Performance 80/100 or higher' });
   const scale = character.currencyScale ?? 1;
@@ -182,7 +184,8 @@ export function createPromotionOffer(character: Character, issuedAt: string): Pr
   const readiness = getPromotionReadiness(character);
   if (!readiness.ready || !readiness.role) return null;
   const scale = character.currencyScale ?? 1;
-  const salary = Math.max(Math.round(character.employment.annualSalary * 1.15), Math.round(readiness.role.annualSalaryMin * scale));
+  const proposedSalary = Math.max(Math.round(character.employment.annualSalary * 1.15), Math.round(readiness.role.annualSalaryMin * scale));
+  const salary = Math.max(character.employment.annualSalary, Math.min(proposedSalary, Math.round(readiness.role.annualSalaryMax * scale)));
   return {
     roleId: readiness.role.id,
     title: readiness.role.title,
@@ -297,16 +300,18 @@ export function acceptJobOffer(character: Character, offerId: string): Character
     ...character,
     employment,
     careerExperienceYears: getCareerExperience(character),
-    jobOffers: (character.jobOffers ?? []).filter((item) => item.id !== offerId),
-    jobApplications: (character.jobApplications ?? []).map((item) => item.id === offer.applicationId ? { ...item, status: 'accepted' as const, outcome: 'Offer accepted. You started a new role.' } : item),
+    jobOffers: [],
+    jobApplications: (character.jobApplications ?? []).map((item) => item.id === offer.applicationId
+      ? { ...item, status: 'accepted' as const, outcome: 'Offer accepted. You started a new role.' }
+      : item.status === 'offered' ? { ...item, status: 'declined' as const, outcome: 'You accepted another job offer.' } : item),
     history: [...character.history]
   };
   next.history.unshift({
     id: 'job-start-' + offer.id,
     year: character.year,
     age: character.age,
-    title: 'Started a new job',
-    description: 'You joined ' + offer.employer + ' as ' + offer.title + '. Annual pay: ' + formatSalary(character, offer.annualSalary) + '.',
+    title: character.employment ? 'Changed jobs' : 'Started a new job',
+    description: (character.employment ? 'You moved to ' : 'You joined ') + offer.employer + ' as ' + offer.title + '. Annual pay: ' + formatSalary(character, offer.annualSalary) + '.',
     kind: 'milestone'
   });
   return next;
