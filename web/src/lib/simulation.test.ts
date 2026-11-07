@@ -395,6 +395,7 @@ describe('life simulation', () => {
     expect(hired.employment?.roleId).toBe(listing!.roleId);
     expect(hired.employment?.employer).toBe(listing!.employer);
     expect(hired.jobOffers).toHaveLength(0);
+    expect(hired.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
   });
   it('records a declined job offer in the application history', () => {
     const candidate = {
@@ -527,13 +528,20 @@ describe('life simulation', () => {
         performance: 70,
         promotions: 0,
         startedAtAge: 25
+      },
+      weeklySchedule: {
+        version: 1 as const,
+        commitments: [{ id: 'work-test', title: 'Work shift', domain: 'work' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 2 }],
+        activities: []
       }
     };
     const planned = planActivityInNextFreeTime(worker, 'career').character;
     expect(planned.weeklySchedule?.activities).toHaveLength(1);
+    expect(planned.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(1);
     const resigned = resignFromJob(planned);
     expect(resigned.employment).toBeNull();
     expect(resigned.weeklySchedule?.activities).toHaveLength(0);
+    expect(resigned.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(0);
   });
 
   it('improves job performance through career development', () => {
