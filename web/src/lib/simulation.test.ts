@@ -54,6 +54,28 @@ describe('life simulation', () => {
     });
     expect(planned.character.weeklySchedule?.activities[0]).toEqual(planned.scheduledActivity);
   });
+  it('leaves the save untouched when no suitable free period exists', () => {
+    const base = {
+      ...createCharacter('Fully booked', 30),
+      calendar: { currentDate: '2026-01-05', birthDate: '1996-01-05' },
+      weeklySchedule: {
+        version: 1 as const,
+        commitments: Array.from({ length: 21 }, (_, index) => ({
+          id: 'busy-' + index,
+          title: 'Existing commitment',
+          domain: 'other' as const,
+          weekday: (Math.floor(index / 3) + 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7,
+          startPeriod: (['morning', 'afternoon', 'evening'] as const)[index % 3],
+          durationBlocks: 1
+        })),
+        activities: []
+      }
+    };
+    const result = planActivityInNextFreeTime(base, 'exercise');
+    expect(result.issue).toBe('time-conflict');
+    expect(result.character).toBe(base);
+    expect(result.character.weeklySchedule?.activities).toHaveLength(0);
+  });
   it('rejects overlapping activity reservations without changing the save', () => {
     const adult = createCharacter('Planner', 30);
     const first = planActivity(adult, 'exercise', '2026-01-05', 'morning');
