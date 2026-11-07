@@ -1,8 +1,23 @@
 # Career Progression Design
 
-**Status: approved direction · detailed mechanics intentionally immature · 2026-11-06**
+**Status: first playable recruitment and career slice implemented · 2026-11-07**
 
-This document preserves the intended player experience for career growth. It is a design direction, not a claim that the current Work system already supports these mechanics. Do not implement the entire model in one pass.
+This document defines the intended player experience and records the current implementation boundary. The first playable Jobs & Career slice is now implemented; the deeper workplace, compensation, and labor-market systems remain staged rather than implied to be complete.
+
+## Current implementation · 2026-11-07
+
+The Work workspace now has a functional first recruitment and career loop:
+
+- A deterministic weekly job board generates a small set of fictional openings across Customer service, Operations, Technology, and Sales. Listings refresh with the game week; employer names and salary values are generated game data, not real companies or real-world market claims.
+- Each listing has an employment type, annual base-pay amount, role description, and visible age, education, knowledge, and experience requirements. Ineligible jobs remain inspectable so players can understand future opportunities.
+- Applying for a job reserves one weekly period. The application resolves during weekly advancement into either an interview invitation or an unsuccessful application.
+- An interview reserves two weekly periods. A successful interview creates an offer; the player explicitly accepts or declines it. Offers expire after 14 calendar days.
+- Accepting an offer creates the current employment record and preserves accumulated career experience when changing jobs. A player can also resign; resignation does not erase career history or experience.
+- Four role-based career paths provide a read-only progression preview and estimated annual salary bands.
+- Promotion readiness is based on the next role's age, education, knowledge, career-experience and current-performance requirements. When requirements are met at annual review, the game creates a time-limited promotion offer. The player decides whether to accept it; promotion is no longer granted automatically.
+- Work applications, interviews, offers, job starts, resignation, and promotions are recorded in Life History. Recruitment and interview actions resolve through the weekly schedule.
+
+Current limitations are intentional and visible: payroll and household settlement still occur annually; salary is displayed as annual base pay; employer operations, vacancies as persistent company state, workplace decisions, layoffs, bonuses, benefits, negotiations, and monthly payroll are not implemented yet. The current role catalogue uses general intelligence and education as broad qualification signals rather than a detailed skill inventory.
 
 ## Design intent
 
@@ -21,7 +36,7 @@ Progression should emerge from a coherent career and workplace simulation, not f
 
 The Work workspace may retain a prominent Current Job card with:
 - position title and career/occupation path;
-- employer, once employer identity is actually modeled;
+- employer identity from the generated job offer, when available;
 - pay with an explicit cadence (weekly, monthly, or annual);
 - current performance or another clearly named, authoritative metric;
 - current level/rank only when the career model defines what it means;
@@ -76,7 +91,7 @@ Keep compensation transparent and consistent with Finance:
 - Career previews show estimates/ranges only; they do not change cash, create expected income in the ledger, or imply a promotion has occurred.
 - Bonuses are separate from base salary and are paid only when an implemented rule or actual offer says they are due.
 - Benefits should be introduced only when their gameplay and financial effects are modeled.
-- Promotion, job change, offer acceptance, bonus payment, and payroll events must be recorded in history and use the shared financial transaction path where money changes.
+- Promotion, job change, offer acceptance, resignation, bonus payment, and payroll events must be recorded in history and use the shared financial transaction path where money changes.
 - Do not double-count bonuses in salary previews or payroll.
 
 The existing weekly gameplay direction remains authoritative: the week is the playable unit, months own recurring finance/reporting cadence, and years own long-term life progression. Career mechanics must fit the eventual weekly schedule and payroll cadence without inventing work hours or attendance before Work schedules are implemented.
@@ -93,12 +108,12 @@ The existing weekly gameplay direction remains authoritative: the week is the pl
 
 This is deliberately staged. Do not present later-stage mechanics as live until implemented and tested.
 
-1. **Clarity first:** improve the current job presentation using only existing, authoritative save data. Label performance, pay cadence, and current position accurately. Remove unexplained or misleading progress percentages.
-2. **Read-only career preview:** define a small fictional career path catalogue with role descriptions and clearly labeled estimated compensation ranges. No promotion or salary changes are caused by viewing it.
-3. **Transparent readiness:** introduce role-specific skills/qualification/performance requirements and show known gaps. Keep the calculation explainable and deterministic where possible.
-4. **Real promotion decisions:** connect eligibility to workplace state, employer vacancies/structure, player decisions, and outcomes. Record decisions and consequences.
-5. **Compensation depth:** add conditional bonuses and benefits only when the payroll, finance, and employer rules are ready.
-6. **Broader career play:** add branching paths, job changes, recruitment, negotiations, setbacks, and long-term career history as complete playable loops.
+1. **Implemented — recruitment foundation:** job listings, requirements, scheduled applications and interviews, expiring offers, acceptance/decline, job changes, and resignation.
+2. **Implemented — career preview:** four fictional role paths with clearly labeled estimated annual salary bands. Viewing a path never changes the save or ledger.
+3. **Implemented — transparent first-pass readiness:** age, education, general knowledge, career experience, and current performance are checked separately. Detailed role-specific skills remain future work.
+4. **Implemented — player-controlled promotion:** eligible employees receive a time-limited promotion offer at annual review; the player accepts or declines.
+5. **Next — workplace depth:** employer structures, real vacancies, workplace decisions, performance outcomes, layoffs, and career stability.
+6. **Later — compensation depth:** monthly payroll, conditional bonuses, benefits, and negotiation only when the finance and employer rules are ready.
 
 ## Out of scope for the initial career preview
 
@@ -111,7 +126,7 @@ This is deliberately staged. Do not present later-stage mechanics as live until 
 
 ## Acceptance principles
 
-- A player can tell what their current job is and exactly how much it pays, including pay cadence.
+- A player can tell what their current job is and exactly how much its annual base pay is; the UI labels the annual cadence and current annual payroll limitation.
 - Every progress indicator has one clear, implemented meaning.
 - The player can inspect plausible future roles and understand that compensation is estimated.
 - Previewing a role never mutates the save or financial ledger.
