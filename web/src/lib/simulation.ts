@@ -1,9 +1,11 @@
-import type { ActivityId, DayPeriod, PlannedAction, PlannedActivity, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType } from './types';
+import type { ActivityId, DayPeriod, PlannedAction, PlannedActivity, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
 import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
 import { createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
 import { buildWeeklySchedule, getWeeklySchedule } from './weekly-schedule';
+import { resolveEducationWeek } from './education';
+import { resolveCareAction, resolveWeeklyWellbeing } from './wellbeing';
 import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPromotionOfferState, createPromotionOffer, declineJobOffer as declineJobOfferState, declinePromotionOffer as declinePromotionOfferState, expireWorkOffers, getJobListings, getCareerRole, isEligibleForRole, resolveJobApplication, resolveJobInterview, resignFromJob as resignFromJobState, syncEmploymentCommitments } from './work';
 
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
@@ -849,6 +851,26 @@ export function planEventChoice(character: Character, choiceId: string, date?: s
   return reserveTimedAction(character, 'event', day, startPeriod, Math.max(1, choice.timeBlocks), { kind: 'event', eventId: pending.id, choiceId }, choice.moneyCost);
 }
 
+export function planEducationTaskInNextFreeTime(character: Character, taskType: EducationTaskType): ActivityPlanningResult {
+  if (!character.educationEnrollment) return { character, issue: 'unavailable', message: 'Enroll in an education programme before planning academic work.' };
+  if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'education' && item.action.taskType === taskType)) {
+    return { character, issue: 'unavailable', message: 'This type of academic task is already planned this week.' };
+  }
+  const scale = character.currencyScale ?? 1;
+  const cost = Math.round(35 * scale);
+  return planInNextFreeTime(character, (date, period) => reserveTimedAction(character, 'study', date, period, 1, { kind: 'education', taskType }, cost));
+}
+
+export function planCareActionInNextFreeTime(character: Character, careType: CareActionType): ActivityPlanningResult {
+  const scale = character.currencyScale ?? 1;
+  const cost = careType === 'medical-checkup' ? Math.round(120 * scale) : careType === 'counselling' ? Math.round(90 * scale) : 0;
+  if (character.money < cost) return { character, issue: 'insufficient-funds', message: 'You do not have enough cash for this care appointment.' };
+  if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'care' && item.action.careType === careType)) {
+    return { character, issue: 'unavailable', message: 'This care activity is already planned this week.' };
+  }
+  return planInNextFreeTime(character, (date, period) => reserveTimedAction(character, 'exercise', date, period, 1, { kind: 'care', careType }, cost));
+}
+
 export function planActivityInNextFreeTime(character: Character, activity: ActivityId): ActivityPlanningResult {
   return planInNextFreeTime(character, (date, period) => planActivity(character, activity, date, period));
 }
@@ -906,11 +928,21 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   if (!validation.valid) return { character, issue: 'invalid-schedule', recap: [] };
   let next = { ...character, history: [...character.history] };
   const recap: string[] = [];
+  const educationTasks: EducationTaskType[] = [];
   const periodOrder: Record<DayPeriod, number> = { morning: 0, afternoon: 1, evening: 2 };
   const ordered = [...schedule.activities].sort((a, b) => a.date.localeCompare(b.date) || periodOrder[a.startPeriod] - periodOrder[b.startPeriod] || a.id.localeCompare(b.id));
   for (const item of ordered) {
     let result: Character;
-    if (item.action?.kind === 'work') {
+    if (item.action?.kind === 'education') {
+      result = performActivity(next, 'study', weekRandom);
+      if (result !== next) {
+        educationTasks.push(item.action.taskType);
+        recap.push(item.action.taskType === 'assignment' ? 'Completed an education assignment.' : item.action.taskType === 'exam' ? 'Completed an academic exam.' : 'Completed a focused study session.');
+      }
+    } else if (item.action?.kind === 'care') {
+      result = resolveCareAction(next, item.action.careType, weekStart);
+      recap.push('Health and wellbeing: ' + item.action.careType.replace('-', ' ') + '.');
+    } else if (item.action?.kind === 'work') {
       result = item.action.workAction === 'apply'
         ? resolveJobApplication(next, item.action.jobId, weekRandom)
         : resolveJobInterview(next, item.action.jobId, weekRandom);
@@ -935,6 +967,14 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   }
   const nextSchedule = { ...schedule, activities: [] };
   next = { ...next, weeklySchedule: nextSchedule, lastResolvedWeekStart: weekStart, lastWeekRecap: recap };
+  const occupiedBlocks = validation.blocks.filter((block) => block.entryId !== null).length;
+  const academic = resolveEducationWeek(next, educationTasks, weekStart, occupiedBlocks);
+  next = academic.character;
+  recap.push(...academic.recap);
+  const wellbeing = resolveWeeklyWellbeing(next, occupiedBlocks, weekStart);
+  next = wellbeing.character;
+  recap.push(...wellbeing.recap);
+  next.lastWeekRecap = recap;
   const nextDate = getNextWeekDate(currentDate);
   const nextYear = Number(nextDate.slice(0, 4));
   const birthDate = next.calendar?.birthDate ?? createGameCalendar(next.age, next.year).birthDate;
@@ -964,16 +1004,11 @@ export function performActivity(character: Character, activity: ActivityId, rand
       next.stamina = clamp((next.stamina ?? 50) - 2);
       next.stress = Math.min(100, (next.stress ?? 30) + 1);
       if (next.age >= 16) next.money -= getActivityCost(next, 'study');
-      next.educationProgress = Math.min(100, (next.educationProgress ?? 0) + (next.age < 6 ? 25 : next.age < 13 ? 15 : next.age < 18 ? 12 : 20));
-      if (next.age >= 18 && next.educationProgress >= 100 && next.education !== 'Higher education') {
-        next.education = 'Higher education';
-        next.educationProgress = 0;
-        next.history.unshift(event(next, 'Completed higher education', 'Your qualification has improved and more skilled roles are now available.', 'milestone'));
-      } else if (next.educationProgress >= 100) {
-        next.educationProgress = 0;
-        next.history.unshift(event(next, 'Learning milestone', 'Consistent study strengthened your education and knowledge.', 'milestone'));
+      if (next.educationEnrollment) {
+        next.history.unshift(event(next, 'Studied for your programme', 'You invested time in your current studies and strengthened your knowledge.'));
       } else {
-        next.history.unshift(event(next, 'Made time to study', 'You invested time in education and improved your knowledge.'));
+        next.educationProgress = Math.min(100, (next.educationProgress ?? 0) + (next.age < 18 ? 8 : 12));
+        next.history.unshift(event(next, 'Independent learning', 'You invested time in self-directed learning and improved your knowledge.'));
       }
       break;
     case 'exercise':
