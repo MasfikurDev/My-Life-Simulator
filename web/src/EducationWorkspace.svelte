@@ -55,7 +55,7 @@
 
   {#if enrollment.status === 'enrolled'}
   <section class="education-task-section">
-    <div class="section-heading"><div><span class="section-index">01</span><h3>This week's academic work</h3></div><span class="section-hint">{plannedTasks.length} tasks scheduled</span></div>
+    <div class="section-heading"><div><span class="section-index">01</span><h3>This week's academic work</h3></div><span class="section-hint">{plannedTasks.length} tasks selected</span></div>
 
         <div class="education-task-grid">
       <button class="education-task-card" class:planned={taskPlanned('study')}  onclick={() => planTask('study')}><span class="education-task-icon">↗</span><strong>{enrollment.level === 'early-learning' ? 'Guided play' : 'Focused study'}</strong><small>{enrollment.level === 'early-learning' ? 'Build curiosity, language and coordination through play' : 'Review lessons and strengthen understanding'}</small><b>{taskPlanned('study') ? 'REMOVE FROM WEEK' : 'ADD STUDY · 8 STAMINA'}</b></button>
