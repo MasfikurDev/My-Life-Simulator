@@ -191,7 +191,3 @@ export function resolveEducationWeek(character: Character, tasks: EducationTaskT
   }
   return { character: { ...character, educationEnrollment: nextEnrollment }, recap };
 }
-export function pauseEducation(character: Character): Character {
-  if (!character.educationEnrollment) return character;
-  return { ...character, educationEnrollment: null, educationRecords: (character.educationRecords ?? []).map((record) => record.status === 'enrolled' && record.level === character.educationEnrollment?.level ? { ...record, status: 'paused' } : record), weeklySchedule: { ...(character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] }), commitments: (character.weeklySchedule?.commitments ?? []).filter((item) => item.domain !== 'school') } };
-}
