@@ -1123,3 +1123,14 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
 .education-task-card:disabled::after,.health-care-card:disabled::after{content:"PLANNED";position:absolute;inset:0;z-index:2;display:grid;place-items:center;background:rgba(9,12,10,.58);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);border:1px solid rgba(170,180,172,.16);border-radius:inherit;color:#d0d5d1;font-size:9px;font-weight:850;letter-spacing:1.5px;text-shadow:0 1px 5px #000}
 @media(max-width:620px){.education-task-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.health-care-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.education-task-card,.health-care-card{padding:9px}.education-task-card strong,.health-care-card strong{font-size:10px}.education-task-card small,.health-care-card p{font-size:8px}}
 @media(max-width:360px){.education-task-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* Shared theme picker layout. */
+.theme-option-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+@media(max-width:360px){.theme-option-grid{grid-template-columns:1fr}}
+:root[data-theme="paper"] .theme-option{background:var(--surface);border-color:var(--line);color:var(--text)}
+:root[data-theme="paper"] .theme-option:hover{background:var(--surface-hover)}
+:root[data-theme="paper"] .theme-option-copy strong{color:var(--text)}
+:root[data-theme="paper"] .theme-option-copy small{color:var(--muted)}
+:root[data-theme="paper"] .settings-section-heading h3,:root[data-theme="paper"] .settings-section-heading p{color:var(--text)}
+:root[data-theme="paper"] .setting-note,:root[data-theme="paper"] .settings-version{color:var(--muted)}
