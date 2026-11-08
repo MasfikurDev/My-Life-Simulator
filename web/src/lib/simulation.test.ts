@@ -241,7 +241,7 @@ describe('life simulation', () => {
     expect(social).toBe(adult);
   });
   it('charges the exact cost when a paid activity is affordable', () => {
-    const adult = { ...createCharacter('Adult', 30), money: 35, currencyScale: 1 };
+    const adult = { ...createCharacter('Adult', 30), money: 35, currencyScale: 1, stress: 20, stamina: 80 };
     const next = performActivity(adult, 'study');
     expect(next.money).toBe(0);
     expect(next.intelligence).toBe(adult.intelligence + 5);
