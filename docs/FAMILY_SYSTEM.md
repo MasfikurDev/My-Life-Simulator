@@ -116,13 +116,13 @@ Adding a child, partner, guardian, or adoptive relationship must be an atomic gr
 
 ## Persistence and invariants
 
-Family state is optional on legacy Character saves and versioned independently from the top-level save format until a real migration is needed. Validate unique stable person and relationship IDs; existing relationship endpoints; no self-links or duplicate active edges; acyclic parent/guardian graph; plausible age ordering; finite integer bond values in 0–100; valid household/dependent IDs; unique player ID; support bounded by available funds and recorded once in Finance; and historical end/death dates not before birth/start dates.
+Family state is represented in the current Character schema and validated as part of the current save. Incompatible shape changes require a top-level schema update; old saves are not migrated. Validate unique stable person and relationship IDs; existing relationship endpoints; no self-links or duplicate active edges; acyclic parent/guardian graph; plausible age ordering; finite integer bond values in 0–100; valid household/dependent IDs; unique player ID; support bounded by available funds and recorded once in Finance; and historical end/death dates not before birth/start dates.
 
 Save/load, all three slots, debug snapshot, and history must preserve the graph without losing or duplicating data.
 
 ## Staged implementation
 
-1. **Implemented — domain foundation:** person/relationship/bond/household/dependency types; graph validation; family-of-origin generation for new saves; backward-compatible persistence.
+1. **Implemented — domain foundation:** person/relationship/bond/household/dependency types; graph validation; family-of-origin generation for new saves; current-schema persistence.
 2. **Implemented — playable relationship loop:** targeted interactions, action/time validation, bond changes, family history, and auditable support transactions.
 3. **Family lifecycle:** explicit partnership, separation, parenthood, adoption, guardianship, and household changes with graph invariants.
 4. **Dependants and care:** childcare, education support, caregiving, shared household costs, and time/finance consequences.
