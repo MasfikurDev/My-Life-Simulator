@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Character, EducationTaskType } from './lib/types';
   import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation } from './lib/education';
-  import { formatCharacterMoney, planEducationTaskInNextFreeTime } from './lib/simulation';
+  import { formatCharacterMoney, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   let selectedProgramId = $state('');
   let selectedField = $state('');
@@ -25,6 +25,7 @@
     onChange(result.character); onNotify('Academic task added to this week.');
   }
   function taskPlanned(task: EducationTaskType) { return plannedTasks.some((item) => item.action?.kind === 'education' && item.action.taskType === task); }
+  function removeTask(id: string) { onChange(removePlannedActivity(character, id)); onNotify('Academic task removed from this week.'); }
   function pause() { onChange(pauseEducation(character)); onNotify('Education paused. Progress has been saved.'); }
   function resume() { const result = resumeEducation(character); if (result.issue) { onNotify(result.issue); return; } onChange(result.character); onNotify('Programme resumed. Classes have been arranged automatically.'); }
   function gradeLabel(value: number) { if (enrollment?.level === 'early-learning') return value >= 75 ? 'Developing well' : value >= 50 ? 'On track' : 'Needs more support'; return value >= 85 ? 'Excellent' : value >= 70 ? 'Good' : value >= 60 ? 'Pass' : value >= 45 ? 'At risk' : 'Critical'; }
@@ -55,7 +56,7 @@
   <section class="education-task-section">
     <div class="section-heading"><div><span class="section-index">01</span><h3>This week's academic work</h3></div><span class="section-hint">{plannedTasks.length} tasks scheduled</span></div>
     <p class="education-section-copy">Choose the work you can realistically complete. Each task is automatically placed in free time around classes, work and other commitments.</p>
-    {#if plannedTasks.length}<div class="education-planned-list"><strong>Already planned</strong>{#each plannedTasks as task}<span>{task.date} · {task.startPeriod} · {task.action?.kind === 'education' ? task.action.taskType.replaceAll('-', ' ') : 'Academic task'}</span>{/each}</div>{/if}
+    {#if plannedTasks.length}<div class="education-planned-list"><strong>Already planned</strong>{#each plannedTasks as task}<div class="education-planned-row"><span>{task.date} · {task.startPeriod} · {task.action?.kind === 'education' ? task.action.taskType.replaceAll('-', ' ') : 'Academic task'}</span><button class="text-button" onclick={() => removeTask(task.id)}>Remove</button></div>{/each}</div>{/if}
     <div class="education-task-grid">
       <button class="education-task-card" disabled={taskPlanned('study')} onclick={() => planTask('study')}><span class="education-task-icon">↗</span><strong>{enrollment.level === 'early-learning' ? 'Guided play' : 'Focused study'}</strong><small>{enrollment.level === 'early-learning' ? 'Build curiosity, language and coordination through play · 1 time block' : 'Review lessons and strengthen understanding · 1 time block'}</small><b>{taskPlanned('study') ? 'Scheduled' : enrollment.level === 'early-learning' ? 'Plan play session' : 'Plan study'}</b></button>
       <button class="education-task-card" disabled={taskPlanned('assignment')} onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>{enrollment.level === 'early-learning' ? 'Story time' : 'Assignment'}</strong><small>{enrollment.level === 'early-learning' ? 'Build language and communication with shared stories · 1 time block' : 'Complete coursework and practical exercises · 1 time block'}</small><b>{taskPlanned('assignment') ? 'Scheduled' : enrollment.level === 'early-learning' ? 'Plan story time' : 'Plan assignment'}</b></button>
