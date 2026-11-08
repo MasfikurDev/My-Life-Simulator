@@ -696,7 +696,7 @@ export interface ActivityPlanningResult {
   issue: ActivityPlanningIssue | null;
   message: string | null;
   /** The newly selected action, returned for domain-workspace feedback. */
-  scheduledActivity?: PlannedActivity;
+  plannedActivity?: PlannedActivity;
 }
 
 /**
@@ -787,8 +787,8 @@ function addWeeklyAction(character: Character, activityId: PlannedActivity['acti
   }
   if (activityWeek !== currentWeek) return { character, issue: 'outside-current-week', message: 'Activities can only be added to the current week.' };
   const schedule = getWeeklyPlan(character.weeklyPlan);
-  const alreadyReserved = schedule.activities.reduce((total, item) => total + getPlannedActivityCost(character, item), 0);
-  if (alreadyReserved + cost > character.money) return { character, issue: 'insufficient-funds', message: 'Your current cash cannot cover the planned activities this week.' };
+  const alreadyPlannedCost = schedule.activities.reduce((total, item) => total + getPlannedActivityCost(character, item), 0);
+  if (alreadyPlannedCost + cost > character.money) return { character, issue: 'insufficient-funds', message: 'Your current cash cannot cover the planned activities this week.' };
   let sequence = schedule.activities.length + 1;
   let id = 'planned-' + currentWeek + '-' + activityId + '-' + sequence;
   const existingIds = new Set(schedule.activities.map((item) => item.id));
@@ -837,7 +837,7 @@ export function planWorkAction(character: Character, workAction: 'apply' | 'inte
   if (character.age < 16) return { character, issue: 'unavailable', message: 'Work opportunities are not available at this life stage.' };
   const schedule = getWeeklyPlan(character.weeklyPlan);
   if (schedule.activities.some((item) => item.action?.kind === 'work' && item.action.workAction === workAction && item.action.jobId === jobId)) {
-    return { character, issue: 'unavailable', message: 'This work step is already scheduled.' };
+    return { character, issue: 'unavailable', message: 'This work step is already planned.' };
   }
   let title = '';
     if (workAction === 'apply') {
@@ -860,8 +860,8 @@ function planForCurrentWeek(character: Character, attempt: (date: string) => Act
   const existingIds = new Set(getWeeklyPlan(character.weeklyPlan).activities.map((item) => item.id));
   const result = attempt(week);
   if (result.issue) return result;
-  const scheduledActivity = result.character.weeklyPlan?.activities.find((item) => !existingIds.has(item.id));
-  return { ...result, scheduledActivity };
+  const plannedActivity = result.character.weeklyPlan?.activities.find((item) => !existingIds.has(item.id));
+  return { ...result, plannedActivity };
 }
 
 export function planWorkActionInNextFreeTime(character: Character, workAction: 'apply' | 'interview', jobId: string): ActivityPlanningResult {
@@ -890,7 +890,7 @@ export function planEventChoice(character: Character, choiceId: string, date?: s
   if (!pending || !choice) return { character, issue: 'unavailable', message: 'That event is no longer available.' };
   if (choice.moneyCost > character.money) return { character, issue: 'insufficient-funds', message: 'You do not have enough cash for that decision.' };
   if (resolveGameEvent(character, choiceId) === character) return { character, issue: 'unavailable', message: 'That decision can no longer be completed.' };
-  if (getWeeklyPlan(character.weeklyPlan).activities.some((item) => item.action?.kind === 'event' && item.action.eventId === pending.id)) return { character, issue: 'unavailable', message: 'A decision for this situation is already scheduled.' };
+  if (getWeeklyPlan(character.weeklyPlan).activities.some((item) => item.action?.kind === 'event' && item.action.eventId === pending.id)) return { character, issue: 'unavailable', message: 'A decision for this situation is already planned.' };
   if (choice.staminaCost === 0) {
     const next = resolveGameEvent(character, choiceId);
     return { character: next, issue: null, message: null };
@@ -944,7 +944,7 @@ export function removePlannedActivity(character: Character, activityId: string):
 
 export interface WeeklyResolutionResult {
   character: Character;
-  issue: 'invalid-schedule' | 'already-resolved' | 'unresolvable-action' | 'insufficient-stamina' | null;
+  issue: 'invalid-plan' | 'already-resolved' | 'unresolvable-action' | 'insufficient-stamina' | null;
   recap: string[];
 }
 
@@ -1142,7 +1142,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   else if (projectedStress >= 60 && projectedStress > currentStress) warnings.push('Stress is projected to rise into an elevated range.');
   if (projected.health < character.health) warnings.push('Physical health is projected to decline this week.');
   if (projected.happiness < character.happiness) warnings.push('Happiness is projected to decline this week.');
-  if (preview.issue) warnings.push(preview.issue === 'insufficient-stamina' ? 'The plan exceeds the available stamina budget.' : preview.issue === 'invalid-schedule' ? 'Legacy timetable data must be repaired before the week can resolve.' : preview.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action can no longer be completed. Review the plan before continuing.');
+  if (preview.issue) warnings.push(preview.issue === 'insufficient-stamina' ? 'The plan exceeds the available stamina budget.' : preview.issue === 'invalid-plan' ? 'Legacy timetable data must be repaired before the week can resolve.' : preview.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action can no longer be completed. Review the plan before continuing.');
   return {
     issue: preview.issue,
     weekStart,
