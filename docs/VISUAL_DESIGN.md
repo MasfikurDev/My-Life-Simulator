@@ -96,4 +96,4 @@ Do not render multiple controls or components for the same action or destination
 - Shared UI primitives live in `web/src/components/`; theme metadata and local preference handling live in `web/src/lib/theme.ts` and `web/src/lib/storage.ts`.
 - Shared tokens and theme palettes are defined in `web/src/styles/`. Domain-specific components remain in their owning workspaces and consume shared primitives/tokens where appropriate.
 - Build new UI from existing primitives before introducing one-off markup or CSS. Add variants only for genuinely shared behavior; do not flatten domain-native experiences into generic cards.
-- Theme changes must cover navigation, forms, dialogs, activity states, financial displays, and overlays. Maintain accessible contrast and visible focus in every palette.
+- All existing screen and workspace styles are migrated to semantic theme tokens; new and revised UI must use shared tokens rather than hard-coded palette colors. Theme coverage includes navigation, forms, dialogs, activity states, financial displays, and overlays. Maintain accessible contrast and visible focus in every palette.
