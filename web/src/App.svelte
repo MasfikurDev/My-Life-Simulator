@@ -263,8 +263,8 @@
           <span class="topbar-life-stage">AGE {character.age} · {getLifeStage(character.age).label}</span>
         </div>
         <div class="topbar-metrics">
-          <div><span>YEAR</span><strong>{character.year}</strong></div>
           <div><span>CASH</span><strong>{formatCharacterMoney(character)}</strong></div>
+          <div><span>YEAR</span><strong>{character.year}</strong></div>
           <div class="topbar-month"><span>MONTH</span><strong>{calendarMonth(character.calendar?.currentDate)}</strong><div class="topbar-week-dots" role="img" aria-label={`Week ${calendarWeek(character.calendar?.currentDate)} of 4`}>{#each [1, 2, 3, 4] as week}<i class:current={week === calendarWeek(character.calendar?.currentDate)}></i>{/each}</div></div>
         </div>
       </div>
