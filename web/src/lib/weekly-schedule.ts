@@ -139,20 +139,8 @@ export function buildWeeklySchedule(weekStart: string, schedule: WeeklySchedule)
       issues.push({ code: 'invalid-duration', entryId: activity.id, date: activity.date, message: 'An activity must occupy one or more available periods on the same day.' });
       continue;
     }
-    placements.push({
-      id: activity.id,
-      title: activity.action?.kind === 'work'
-        ? (activity.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + activity.action.title
-        : activity.action?.kind === 'education'
-          ? (activity.action.taskType === 'assignment' ? 'Education assignment' : activity.action.taskType === 'exam' ? 'Academic assessment' : 'Focused study')
-          : activity.action?.kind === 'care'
-            ? ({ rest: 'Rest & recovery', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up', mindfulness: 'Mindfulness' }[activity.action.careType])
-            : activity.activityId,
-      domain: 'activity',
-      date: activity.date,
-      startPeriod: activity.startPeriod,
-      durationBlocks: activity.durationBlocks
-    });
+    // Discretionary actions use stamina, not calendar slots. Only real recurring commitments occupy this grid.
+    // Keep validating legacy date/period fields so existing saves remain safe to load.
   }
 
   for (const placement of placements) {
