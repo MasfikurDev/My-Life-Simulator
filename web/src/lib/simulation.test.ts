@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { enrollInEducation, resolveEducationWeek } from './education';
 import { advanceWeek, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './progression';
 import { loadPrepaidCard } from './simulation';
@@ -373,11 +374,11 @@ describe('life simulation', () => {
     expect(fullTime.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
     expect(getAvailableActivityIds(18, fullTime.employment)).not.toContain('apply-job');
   });
-  it('allows higher education to unlock a better-qualified role', () => {
-    const learner = { ...createCharacter('Learner', 18), education: 'Secondary education completed', educationProgress: 80, currencyScale: 1, money: 1000 };
-    const graduate = performActivity(learner, 'study');
-    expect(graduate.education).toBe('Higher education');
-    expect(graduate.educationProgress).toBe(0);
+  it('uses completed university education to unlock a better-qualified role', () => {
+    const learner = { ...createCharacter('Learner', 18), intelligence: 90, focus: 90, discipline: 90, currencyScale: 1, money: 5000 };
+    const enrolled = enrollInEducation(learner, 'bachelor-degree', 'Computer science');
+    expect(enrolled.issue).toBeNull();
+    const graduate = resolveEducationWeek({ ...enrolled.character, educationEnrollment: { ...enrolled.character.educationEnrollment!, totalWeeks: 1 } }, ['study', 'assignment', 'exam'], '2026-11-02', 6).character;
     const hired = performActivity(graduate, 'apply-job', () => 0);
     expect(hired.employment?.title).toBe('Operations coordinator');
     expect(hired.employment?.annualSalary).toBe(28000);
