@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Character } from './lib/types';
   import { establishFamilyBackground, getFamilyConnections, validateFamilyState } from './lib/family';
+  import { getValueColor } from './lib/progression';
   import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
 
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
@@ -67,9 +68,9 @@
             </div>
             {#if connection.bond}
               <div class="bond-grid">
-                <div><span>Closeness</span><strong>{connection.bond.closeness}/100</strong><div class="bond-meter"><i style="width:{connection.bond.closeness}%"></i></div></div>
-                <div><span>Trust</span><strong>{connection.bond.trust}/100</strong><div class="bond-meter"><i style="width:{connection.bond.trust}%"></i></div></div>
-                <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><div class="bond-meter tension"><i style="width:{connection.bond.tension}%"></i></div></div>
+                <div><span>Closeness</span><strong>{connection.bond.closeness}/100</strong><div class="bond-meter"><i style="width:{connection.bond.closeness}%;background:{getValueColor(connection.bond.closeness)}"></i></div></div>
+                <div><span>Trust</span><strong>{connection.bond.trust}/100</strong><div class="bond-meter"><i style="width:{connection.bond.trust}%;background:{getValueColor(connection.bond.trust)}"></i></div></div>
+                <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><div class="bond-meter tension"><i style="width:{connection.bond.tension}%;background:{getValueColor(connection.bond.tension, true)}"></i></div></div>
               </div>
               {#if connection.bond.lastInteractionYear !== null}
                 <p class="last-contact">Last meaningful interaction: {connection.bond.lastInteractionYear}</p>
