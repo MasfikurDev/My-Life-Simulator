@@ -336,7 +336,6 @@
           {@const workDetail = character.employment
             ? character.employment.type === 'part-time' ? 'Part-time employment' : character.employment.type === 'flexible' ? 'Flexible employment' : 'Full-time employment'
             : character.age < 16 ? 'Employment unlocks at age 16' : character.age < 18 ? 'School-age work only' : character.age >= 65 ? 'Optional later-life work' : 'No current position'}
-          <div class="page-heading overview-heading"><div><div class="eyebrow">CURRENT OVERVIEW</div><h1>Your life</h1><p>{stage.label}{#if character.birthplace && character.country} · {character.birthplace}, {character.country}{/if}</p></div></div>
           <section class="overview-context" aria-label="Current situation">
             <div class="overview-context-item">
               <span>EDUCATION</span>
