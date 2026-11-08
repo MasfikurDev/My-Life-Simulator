@@ -6,12 +6,11 @@
   import FamilyWorkspace from './FamilyWorkspace.svelte';
   import LifeTreeWorkspace from './LifeTreeWorkspace.svelte';
   import HealthWorkspace from './HealthWorkspace.svelte';
-  type LifeView = 'overview' | 'health' | 'lifestyle' | 'family' | 'tree' | 'history';
+  type LifeView = 'overview' | 'lifestyle' | 'family' | 'tree' | 'history';
   let { character, onChange, onNotify, initialView = 'overview' }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifeView } = $props();
   let activeView = $state<LifeView>(initialView);
   const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
-    { id: 'health', label: 'Health & wellbeing' },
     { id: 'lifestyle', label: 'Market' },
     { id: 'family', label: 'Family' },
     { id: 'tree', label: 'Life tree' },
@@ -47,18 +46,12 @@
     <div><div class="eyebrow">LIFE</div><h1>{views.find((item) => item.id === activeView)?.label}</h1><p>Your personal wellbeing, everyday life and recorded milestones.</p></div>
     {#if activeView !== 'overview'}<button class="finance-back" onclick={() => activeView='overview'}>← Life overview</button>{/if}
   </header>
-  <nav class="finance-nav" aria-label="Life sections">
-    {#each views as item}
-      <button class:active={activeView===item.id} aria-current={activeView===item.id ? 'page' : undefined} onclick={() => activeView=item.id}>{item.label}</button>
-    {/each}
-  </nav>
-
   {#if activeView === 'overview'}
     <section class="domain-panel">
       <div class="domain-panel-head"><div><div class="eyebrow">CURRENT LIFE STAGE</div><h2>{stage.label}</h2><p>Age {character.age} · {stage.ageRange}. {stage.description}</p></div><span class="domain-status">YEAR {character.year}</span></div>
       {#if stage.nextAge !== null}<div class="domain-note">Next life stage begins at age {stage.nextAge}.</div>{/if}
-      <div class="domain-metrics"><div><span>Planned this week</span><strong>{character.weeklySchedule?.activities.length ?? 0}</strong></div><div><span>Health</span><strong>{character.health}/100</strong></div><div><span>Happiness</span><strong>{character.happiness}/100</strong></div><div><span>Fitness</span><strong>{character.fitness}/100</strong></div></div>
     </section>
+    <HealthWorkspace {character} {onChange} {onNotify} />
     <div class="finance-shortcuts life-shortcuts">
       <button onclick={() => activeView='lifestyle'}><span class="shortcut-icon">▤</span><strong>Market</strong><small>Everyday shopping, services and household needs</small><b>Open market →</b></button>
       <button onclick={() => activeView='family'}><span class="shortcut-icon">⌂</span><strong>Family</strong><small>People, bonds and family history</small><b>Open family →</b></button>
@@ -67,8 +60,6 @@
     </div>
   {:else if activeView === 'family'}
     <FamilyWorkspace {character} {onChange} />
-  {:else if activeView === 'health'}
-    <HealthWorkspace {character} {onChange} {onNotify} />
   {:else if activeView === 'tree'}
     <LifeTreeWorkspace {character} />
   {:else if activeView === 'lifestyle'}
