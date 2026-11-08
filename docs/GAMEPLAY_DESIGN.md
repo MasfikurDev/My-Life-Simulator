@@ -4,9 +4,9 @@
 
 ## Core loop
 1. Review the current week, calendar, actual commitments, free-time blocks, and relevant situations.
-2. Confirm actions in their own domain workspaces; the simulation automatically places time-consuming actions into suitable free periods.
-3. Pay validated costs (time, money, and only modeled resource costs such as energy).
-4. Resolve commitments, events, due payments, and consequences when the player advances the week.
+2. Toggle personal activities in their owning domain workspaces; school and work timetables remain automatic recurring commitments.
+3. Pay validated stamina and money costs. Personal activities do not consume calendar periods; stamina is the discretionary effort budget.
+4. Review every selected activity, its stamina cost and rewards, plus the projected combined wellbeing changes; then resolve commitments, events, due payments, and consequences when the player advances the week.
 5. Review the weekly recap and persistent history.
 6. Use monthly finance/reporting and yearly life-progression reviews at their actual calendar boundaries.
 
