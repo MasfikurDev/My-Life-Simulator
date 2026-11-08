@@ -13,6 +13,9 @@
   import WorkWorkspace from './WorkWorkspace.svelte';
   import EducationWorkspace from './EducationWorkspace.svelte';
   import ThemeOption from './components/ThemeOption.svelte';
+  import UiButton from './components/UiButton.svelte';
+  import UiCard from './components/UiCard.svelte';
+  import SectionHeader from './components/SectionHeader.svelte';
   import type { GameTheme } from './lib/theme';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, getThemePreference, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled, setThemePreference } from './lib/storage';
   import type { Character, FinancialTransaction, SaveSlot, SaveSlotId } from './lib/types';
@@ -336,8 +339,8 @@
           {/if}
           <details class="profile-settings-group">
             <summary><span><strong>{character ? 'Settings & management' : 'Game settings'}</strong><small>Appearance, sound, saves, display and game controls</small></span><i aria-hidden="true"></i></summary>
-          <section class="settings-section appearance-settings">
-            <div class="settings-section-heading"><span class="section-index">{character ? '02' : '01'}</span><div><h3>Appearance</h3><p>Choose the visual mood of your game. Your choice is saved on this device.</p></div></div>
+          <UiCard as="section" class="settings-section appearance-settings" padded={false}>
+            <SectionHeader eyebrow="APPEARANCE" title="Choose your theme" description="Choose the visual mood of your game. Your choice is saved on this device." />
             <div class="theme-option-grid" role="group" aria-label="Game theme">
               <ThemeOption theme="amoled" title="AMOLED" description="Pure black and emerald" selected={selectedTheme === 'amoled'} onSelect={chooseTheme} />
               <ThemeOption theme="midnight" title="Midnight" description="Deep navy and blue" selected={selectedTheme === 'midnight'} onSelect={chooseTheme} />
@@ -345,7 +348,7 @@
               <ThemeOption theme="paper" title="Paper" description="Warm light and forest green" selected={selectedTheme === 'paper'} onSelect={chooseTheme} />
             </div>
             <div class="setting-note">Theme changes affect the interface only. Your characters, saves and game progress are unchanged.</div>
-          </section>
+          </UiCard>
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">{character ? '03' : '02'}</span><div><h3>Sound</h3><p>Control the small audio cues used for game actions.</p></div></div>
             <div class="setting-row"><div><strong>Sound effects</strong><p>Subtle original tones for actions, starting a life and advancing a week. No background music.</p></div><button class:setting-enabled={soundEnabled} class="setting-toggle" role="switch" aria-checked={soundEnabled} onclick={() => toggleSounds(!soundEnabled)}><span></span><small>{soundEnabled ? 'ON' : 'OFF'}</small></button></div>
@@ -372,7 +375,7 @@
           </section>
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">{character ? '07' : '06'}</span><div><h3>Game controls</h3><p>Reload the hosted game or check for the newest version.</p></div></div>
-            <div class="setting-action-row"><div><strong>Reload game</strong><p>Refresh the current page without changing your saved life.</p></div><button class="secondary-button" onclick={() => window.location.reload()}>Reload</button></div>
+            <div class="setting-action-row"><div><strong>Reload game</strong><p>Refresh the current page without changing your saved life.</p></div><UiButton variant="secondary" size="small" onclick={() => window.location.reload()}>Reload</UiButton></div>
             <div class="setting-action-row"><div><strong>Check for updates</strong><p>Fetch the latest published game files and restart the game view. Your save is preserved.</p></div><button class="secondary-button" onclick={reloadLatest}>Check now</button></div>
           </section>
           <section class="settings-section danger-section">
