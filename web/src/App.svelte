@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { advanceWeek, formatCharacterMoney, planEventChoiceInNextFreeTime } from './lib/simulation';
+  import { advanceWeek, formatCharacterMoney, getWeeklyActivityReview, planEventChoiceInNextFreeTime } from './lib/simulation';
   import { addCalendarDays, getWeekStart } from './lib/calendar';
   import { getEducationStage, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
@@ -42,6 +42,7 @@
   let debugCopying = $state(false);
   let advanceReviewOpen = $state(false);
   let weeklyFinanceOpen = $state(false);
+  const weeklyReview = $derived(character ? getWeeklyActivityReview(character) : null);
   onMount(() => {
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
@@ -485,24 +486,72 @@
               <p class="game-event-footnote">Time-consuming decisions are added to this week’s schedule and take effect when the week resolves. You can also leave the situation unanswered.</p>
             </section>
           {/if}
-          {#if advanceReviewOpen}
-            {@const plannedCount = character.weeklySchedule?.activities.length ?? 0}
-            <section class="year-review-panel" aria-label="Week review">
-              <div class="game-event-top"><span class="eyebrow">WEEK REVIEW · {character.calendar?.currentDate ?? character.year}</span><span class="game-event-status">BEFORE ADVANCING</span></div>
-              <h2>Ready for the next week?</h2>
-              <p class="game-event-description">Resolve {plannedCount} planned {plannedCount === 1 ? 'activity' : 'activities'} in order, apply their effects and costs once, then move the calendar forward by seven days. Your age changes only on your birthday.</p>
-              <div class="year-review-grid">
-                <div><span>Planned activities</span><strong>{plannedCount}</strong></div>
-                <div><span>Current age</span><strong>{character.age}</strong></div>
-                <div><span>Current year</span><strong>{character.year}</strong></div>
-                <div><span>Available cash</span><strong>{formatCharacterMoney(character)}</strong></div>
-              </div>
-              {#if character.pendingGameEvent}
-                <p class="year-review-warning">Unresolved situation: {character.pendingGameEvent.title}. It remains available for now but may expire at the year boundary if left unanswered.</p>
-              {/if}
-              <p class="year-review-note">Only accepted reservations are resolved. Conflicts must be fixed before the week can advance. Annual income, household costs, taxes and long-term financial settlements remain on their yearly boundary.</p>
-              <div class="year-review-actions"><button class="secondary-button" onclick={closeAdvanceReview}>Back to this week</button><button class="primary-button" onclick={advanceWeekNow}>Resolve week and continue</button></div>
-            </section>
+          {#if advanceReviewOpen && weeklyReview}
+            <div class="modal-backdrop week-review-backdrop" role="presentation">
+              <section class="modal week-review-dialog" role="dialog" aria-modal="true" aria-labelledby="week-review-title">
+                <button class="modal-close" onclick={closeAdvanceReview} aria-label="Close weekly review">×</button>
+                <div class="eyebrow">WEEKLY SIMULATION · AGE {character.age}</div>
+                <h2 id="week-review-title">Review this week</h2>
+                <p class="game-event-description">{weeklyReview.weekStart} – {weeklyReview.weekEnd}. Review the effort, expected rewards and combined effects before resolving the week.</p>
+
+                <section class="review-section">
+                  <div class="review-section-heading"><h3>Planned activities</h3><span>{weeklyReview.activities.length} total</span></div>
+                  {#if weeklyReview.activities.length}
+                    <div class="review-activity-list">
+                      {#each weeklyReview.activities as activity}
+                        <article class="review-activity-row">
+                          <div><strong>{activity.title}</strong><small>{activity.reward}</small></div>
+                          <div class="review-activity-cost"><b>{activity.staminaCost ? '−' + activity.staminaCost + ' stamina' : 'No stamina cost'}</b>{#if activity.moneyCost > 0}<small>{formatCharacterMoney(character, activity.moneyCost)}</small>{/if}</div>
+                        </article>
+                      {/each}
+                    </div>
+                  {:else}
+                    <p class="review-empty">No personal activities are planned. Recurring school and work commitments still resolve normally.</p>
+                  {/if}
+                </section>
+
+                <section class="review-section">
+                  <div class="review-section-heading"><h3>Stamina forecast</h3><span>After activity effects and recovery</span></div>
+                  <div class="review-resource-grid">
+                    <div><small>Current</small><strong>{Math.round(weeklyReview.currentStamina)}%</strong></div>
+                    <div><small>Effort cost</small><strong>−{weeklyReview.staminaCost}</strong></div>
+                    <div><small>Projected</small><strong>{Math.round(weeklyReview.projectedStamina)}%</strong></div>
+                  </div>
+                  <div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div>
+                </section>
+
+                <section class="review-section">
+                  <div class="review-section-heading"><h3>Combined character impact</h3><span>Simulation forecast</span></div>
+                  {#if weeklyReview.changes.length}
+                    <div class="review-change-grid">
+                      {#each weeklyReview.changes as change}
+                        <div class="review-change-row">
+                          <span>{change.label}</span>
+                          <strong class:positive={change.key === 'stress' ? change.delta < 0 : change.delta > 0} class:negative={change.key === 'stress' ? change.delta > 0 : change.delta < 0}>{change.delta > 0 ? '+' : ''}{Math.round(change.delta)} <small>({Math.round(change.after)}%)</small></strong>
+                        </div>
+                      {/each}
+                    </div>
+                  {:else}
+                    <p class="review-empty">No tracked character stats are expected to change.</p>
+                  {/if}
+                  <div class="review-cash-row"><span>Projected cash</span><strong>{formatCharacterMoney(character, weeklyReview.projectedCash)}</strong></div>
+                </section>
+
+                {#if weeklyReview.warnings.length}
+                  <section class="review-warning-list" aria-label="Weekly risks">
+                    {#each weeklyReview.warnings as warning}<p>{warning}</p>{/each}
+                  </section>
+                {/if}
+                {#if character.pendingGameEvent}
+                  <p class="year-review-warning">Unresolved situation: {character.pendingGameEvent.title}. It remains available for now but may expire at the year boundary if left unanswered.</p>
+                {/if}
+                <p class="year-review-note">This preview is calculated without changing your save. Resolving applies the same weekly simulation once; annual financial settlements remain on their yearly boundary.</p>
+                <div class="year-review-actions">
+                  <button class="secondary-button" onclick={closeAdvanceReview}>Back to this week</button>
+                  <button class="primary-button" disabled={weeklyReview.issue !== null} onclick={advanceWeekNow}>Resolve reviewed week</button>
+                </div>
+              </section>
+            </div>
           {/if}
           {@const activities = character.history.filter((item) => item.kind === 'activity')}
           {@const activityWeeks = groupActivityHistory(activities)}
@@ -550,3 +599,39 @@
   {#if toast}<div class="toast" role="status">{toast}</div>{/if}
   <footer class="footer"><span>life<span class="brand-light">story</span></span><span>YOUR LIFE. YOUR STORY.</span><span>v0.1 · EARLY PLAYABLE</span></footer>
 </div>
+
+<style>
+  .week-review-backdrop{z-index:1000;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+  .week-review-dialog{width:min(680px,100%);max-height:min(90dvh,900px);overflow:auto;display:grid;gap:14px;padding:20px}
+  .week-review-dialog h2{margin:0;font-size:clamp(22px,4vw,28px);letter-spacing:-.6px}
+  .week-review-dialog .game-event-description{margin:0}
+  .review-section{display:grid;gap:9px;padding-top:12px;border-top:1px solid var(--line)}
+  .review-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .review-section-heading h3{margin:0;font-size:13px;color:var(--text)}
+  .review-section-heading>span{font-size:9px;color:var(--muted);text-align:right}
+  .review-activity-list{display:grid;gap:7px}
+  .review-activity-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+  .review-activity-row>div:first-child{display:grid;gap:4px;min-width:0}
+  .review-activity-row strong{font-size:11px;color:var(--text)}
+  .review-activity-row small{font-size:9px;line-height:1.4;color:var(--muted)}
+  .review-activity-cost{flex:none;display:grid;gap:4px;text-align:right}
+  .review-activity-cost b{font-size:10px;color:var(--text)}
+  .review-resource-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .review-resource-grid>div{display:grid;gap:4px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+  .review-resource-grid small{font-size:9px;color:var(--muted)}
+  .review-resource-grid strong{font-size:17px;color:var(--text)}
+  .review-stamina-track{height:7px;overflow:hidden;border-radius:10px;background:var(--surface-raised)}
+  .review-stamina-track span{display:block;height:100%;border-radius:inherit;background:var(--accent)}
+  .review-change-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 12px}
+  .review-change-row,.review-cash-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
+  .review-change-row>span,.review-cash-row>span{font-size:10px;color:var(--muted)}
+  .review-change-row strong,.review-cash-row strong{font-size:11px;color:var(--text);font-variant-numeric:tabular-nums}
+  .review-change-row strong.positive{color:var(--success)}
+  .review-change-row strong.negative{color:var(--danger)}
+  .review-change-row strong small{font-size:9px;color:var(--muted);font-weight:500}
+  .review-empty{margin:0;padding:10px;border-radius:9px;background:var(--surface);font-size:10px;line-height:1.5;color:var(--muted)}
+  .review-warning-list{display:grid;gap:6px;padding:10px;border:1px solid color-mix(in srgb,var(--warning) 45%,transparent);border-radius:10px;background:color-mix(in srgb,var(--warning) 8%,transparent)}
+  .review-warning-list p{margin:0;font-size:10px;line-height:1.45;color:var(--text)}
+  .week-review-dialog .year-review-note{margin:0}
+  @media(max-width:480px){.week-review-dialog{padding:15px;gap:12px}.review-activity-row{gap:8px;padding:8px}.review-change-grid{grid-template-columns:1fr}}
+</style>
