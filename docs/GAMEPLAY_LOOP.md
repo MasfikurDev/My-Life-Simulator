@@ -73,11 +73,11 @@ The week is shaped by recurring commitments and the player's discretionary choic
 
 - School, employment, household responsibilities, and other implemented commitments may reserve recurring day/period blocks. These schedules belong to their own domain workspaces.
 - The player sees the commitments that matter this week and the free-time capacity they leave. Accepting or leaving a job updates the recurring Work commitments, so career status changes the time available for personal plans.
-- Player-directed activities consume one or more free-time blocks, plus money and/or energy when appropriate. Different activities can take different amounts of time.
-- A time block is a scheduling constraint, not an action token. The same activity cannot be scheduled into overlapping time; unavailable time cannot be spent twice.
-- Do not require the player to fill every day or every block. Rest, unplanned time, and quiet weeks are valid.
+- Personal activities are weekly choices toggled from their owning workspaces. They consume activity-specific stamina, plus money where appropriate; they do not reserve individual calendar periods.
+- Calendar periods are reserved only by genuine recurring commitments such as school and work. Those commitments affect weekly workload and remain visible in the timetable.
+- Activities can be added or removed directly from their owning workspace; the central Schedule workspace provides a combined review and cancellation list. Do not require the player to fill every week. Rest and quiet weeks are valid.
 - Stamina is a bounded physical-capacity stat with explicit recovery and workload effects. Stress is inverse-scored (higher is worse) and affects learning/work efficiency. Do not add further need meters without a complete simulation and UI contract.
-- Some activities are immediate choices; others become recurring routines or commitments. A routine must show its duration, schedule, cost, benefit, and cancellation/change rules.
+- Some choices resolve immediately; others are included in the next weekly simulation. Each activity must show its stamina cost, expected stat/skill rewards, money cost where relevant, and a direct add/remove toggle. The weekly review previews the combined effects before resolution.
 - Events may interrupt or offer alternatives to a schedule. The player should understand which commitment is affected and what the trade-off is.
 
 **No arbitrary universal activity quota:** available free time is derived from the character's actual modeled commitments and schedule. Where a domain has not yet implemented a schedule, it must not invent one or pretend the character attends school/works set hours. Use a clearly labeled provisional free-time allowance only for that domain until its schedule exists, and keep that allowance consistent and testable.
