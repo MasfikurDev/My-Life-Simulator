@@ -249,12 +249,12 @@ describe('life simulation', () => {
     expect(resolved.intelligence).toBe(student.intelligence + 3);
     expect(resolved.scheduledGameConsequences).toHaveLength(1);
   });
-  it('rejects a week with invalid existing reservations without advancing time', () => {
+  it('rejects conflicting recurring commitments without advancing time', () => {
     const base = createCharacter('Planner', 30);
-    const invalid = { ...base, weeklySchedule: { version: 1 as const, commitments: [], activities: [
-      { id: 'a', activityId: 'exercise' as const, date: '2026-01-05', startPeriod: 'morning' as const, durationBlocks: 1 },
-      { id: 'b', activityId: 'study' as const, date: '2026-01-05', startPeriod: 'morning' as const, durationBlocks: 2 }
-    ] } };
+    const invalid = { ...base, weeklySchedule: { version: 1 as const, commitments: [
+      { id: 'a', title: 'Work shift', domain: 'work' as const, weekday: 0, startPeriod: 'morning' as const, durationBlocks: 2 },
+      { id: 'b', title: 'School session', domain: 'school' as const, weekday: 0, startPeriod: 'morning' as const, durationBlocks: 1 }
+    ], activities: [] } };
     const result = advanceWeek(invalid);
     expect(result.issue).toBe('invalid-schedule');
     expect(result.character).toBe(invalid);
