@@ -8,13 +8,13 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.view.Window
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import java.util.concurrent.CountDownLatch
@@ -32,22 +32,15 @@ class MainActivity : Activity() {
     private lateinit var progress: ProgressBar
     private lateinit var retry: TextView
     private lateinit var root: FrameLayout
+    private lateinit var content: FrameLayout
+    private lateinit var splashArtwork: ImageView
     private val preferences by lazy { getSharedPreferences("display_settings", MODE_PRIVATE) }
     private val gameUrl = "https://masfikurdev.github.io/My-Life-Simulator/"
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
-        splashScreen.setKeepOnScreenCondition { !pageReady }
+        installSplashScreen()
         super.onCreate(savedInstanceState)
-        splashScreen.setOnExitAnimationListener { splash ->
-            splash.view.animate()
-                .translationY(-splash.view.height.toFloat())
-                .alpha(0f)
-                .setDuration(420L)
-                .withEndAction { splash.remove() }
-                .start()
-        }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
@@ -57,6 +50,7 @@ class MainActivity : Activity() {
             setBackgroundColor(Color.BLACK)
             clipToPadding = false
         }
+        content = FrameLayout(this)
         webView = WebView(this)
         progress = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
             max = 100
@@ -69,6 +63,15 @@ class MainActivity : Activity() {
             setBackgroundColor(Color.rgb(12, 16, 13))
             visibility = View.GONE
             setOnClickListener { loadGame() }
+        }
+        splashArtwork = ImageView(this).apply {
+            setImageResource(R.drawable.splash_art)
+            // Show the original, full-aspect-ratio artwork. Never substitute or crop it
+            // into Android's square launcher/splash-icon viewport.
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setBackgroundColor(Color.BLACK)
+            contentDescription = null
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
 
         webView.settings.apply {
@@ -97,6 +100,7 @@ class MainActivity : Activity() {
                     pageReady = true
                     retry.visibility = View.VISIBLE
                     progress.visibility = View.GONE
+                    dismissSplashArtwork()
                 }
             }
 
@@ -104,6 +108,7 @@ class MainActivity : Activity() {
                 pageReady = true
                 retry.visibility = View.GONE
                 progress.visibility = View.GONE
+                dismissSplashArtwork()
             }
         }
         webView.webChromeClient = object : WebChromeClient() {
@@ -113,16 +118,17 @@ class MainActivity : Activity() {
             }
         }
 
-        root.addView(webView, FrameLayout.LayoutParams(-1, -1))
-        root.addView(progress, FrameLayout.LayoutParams(-1, 5))
-        root.addView(retry, FrameLayout.LayoutParams(-1, -2))
+        content.addView(webView, FrameLayout.LayoutParams(-1, -1))
+        content.addView(progress, FrameLayout.LayoutParams(-1, 5))
+        content.addView(retry, FrameLayout.LayoutParams(-1, -2))
+        root.addView(content, FrameLayout.LayoutParams(-1, -1))
+        // This independent top layer covers the entire display, including system-bar
+        // areas. FIT_CENTER preserves every edge of the source image.
+        root.addView(splashArtwork, FrameLayout.LayoutParams(-1, -1))
         setContentView(root)
 
-        // Android 15 enforces edge-to-edge for target SDK 35. Apply system-bar and
-        // display-cutout insets to the app container unless immersive mode is enabled.
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(content) { view, insets ->
             val immersive = preferences.getBoolean(KEY_FULLSCREEN, false)
-            // Keep camera/notch cutouts protected even while system bars are hidden.
             val safe = if (immersive) {
                 insets.getInsets(WindowInsetsCompat.Type.displayCutout())
             } else {
@@ -139,10 +145,21 @@ class MainActivity : Activity() {
             insets
         }
         applyFullscreen(preferences.getBoolean(KEY_FULLSCREEN, false))
-        // A cold launch checks the hosted build while preserving WebView's normal cache during play.
         webView.clearCache(true)
         loadGame()
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
+    }
+
+    private fun dismissSplashArtwork() {
+        if (!::splashArtwork.isInitialized || splashArtwork.visibility != View.VISIBLE) return
+        splashArtwork.animate()
+            .alpha(0f)
+            .setDuration(420L)
+            .withEndAction {
+                splashArtwork.visibility = View.GONE
+                splashArtwork.alpha = 1f
+            }
+            .start()
     }
 
     private fun applyFullscreen(enabled: Boolean) {
@@ -153,7 +170,7 @@ class MainActivity : Activity() {
             isAppearanceLightStatusBars = false
             isAppearanceLightNavigationBars = false
         }
-        ViewCompat.requestApplyInsets(root)
+        ViewCompat.requestApplyInsets(content)
     }
 
     private fun loadGame(fresh: Boolean = false) {
