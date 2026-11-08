@@ -19,9 +19,9 @@
   }
   function isPlanned(type: CareActionType) { return plannedCare.some((item) => item.action?.kind === 'care' && item.action.careType === type); }
   const stats = $derived([
-    { label: 'Physical health', value: character.health, tone: 'health' },
-    { label: 'Stamina', value: character.stamina ?? 50, tone: 'stamina' },
-    { label: 'Happiness', value: character.happiness, tone: 'happiness' },
+    { label: 'Physical health', value: character.health, tone: 'health', inverse: false },
+    { label: 'Stamina', value: character.stamina ?? 50, tone: 'stamina', inverse: false },
+    { label: 'Happiness', value: character.happiness, tone: 'happiness', inverse: false },
     { label: 'Stress', value: character.stress ?? 30, tone: 'stress', inverse: true }
   ]);
 </script>
