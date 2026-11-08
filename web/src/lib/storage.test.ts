@@ -72,6 +72,13 @@ describe('current save format', () => {
     expect(loadSave('slot-1')?.name).toBe('Fresh start');
   });
 
+  it('refuses to persist a character that fails current-schema validation', () => {
+    const values = installStorage();
+    const invalid = { ...createCharacter('Invalid', 18), weeklyPlan: { version: 1, activities: [{ id: 'bad', activityId: 'study' }] } } as never;
+    expect(() => saveCharacter(invalid, 'slot-1')).toThrow('current save format');
+    expect(values.has('my-life-simulator.save')).toBe(false);
+  });
+
   it('rejects malformed current-schema characters instead of partially loading them', () => {
     const values = installStorage();
     values.set('my-life-simulator.save', JSON.stringify({ schemaVersion: CURRENT_SCHEMA, activeSlotId: 'slot-1', slots: [
