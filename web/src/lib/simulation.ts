@@ -930,6 +930,10 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   if (!validation.valid) return { character, issue: 'invalid-schedule', recap: [] };
   let next = { ...character, history: [...character.history] };
   const recap: string[] = [];
+  const occupiedBlocks = validation.blocks.filter((block) => block.entryId !== null).length;
+  const wellbeing = resolveWeeklyWellbeing(next, occupiedBlocks, weekStart);
+  next = wellbeing.character;
+  recap.push(...wellbeing.recap);
   const educationTasks: EducationTaskType[] = [];
   const periodOrder: Record<DayPeriod, number> = { morning: 0, afternoon: 1, evening: 2 };
   const ordered = [...schedule.activities].sort((a, b) => a.date.localeCompare(b.date) || periodOrder[a.startPeriod] - periodOrder[b.startPeriod] || a.id.localeCompare(b.id));
@@ -969,13 +973,9 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   }
   const nextSchedule = { ...schedule, activities: [] };
   next = { ...next, weeklySchedule: nextSchedule, lastResolvedWeekStart: weekStart, lastWeekRecap: recap };
-  const occupiedBlocks = validation.blocks.filter((block) => block.entryId !== null).length;
   const academic = resolveEducationWeek(next, educationTasks, weekStart, occupiedBlocks);
   next = academic.character;
   recap.push(...academic.recap);
-  const wellbeing = resolveWeeklyWellbeing(next, occupiedBlocks, weekStart);
-  next = wellbeing.character;
-  recap.push(...wellbeing.recap);
   next.lastWeekRecap = recap;
   const nextDate = getNextWeekDate(currentDate);
   const nextYear = Number(nextDate.slice(0, 4));
