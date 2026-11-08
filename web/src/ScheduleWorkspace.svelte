@@ -36,18 +36,18 @@
     <div>
       <div class="eyebrow">YOUR WEEK</div>
       <h2>Your week</h2>
-      <p>This is your week at a glance. Confirm activities in their own sections; the game places them into suitable free time.</p>
+      <p>Recurring school and work commitments shape your week. Personal activities are planned separately and use stamina, not calendar slots.</p>
     </div>
     <span class="week-range">{weekStart} – {addCalendarDays(weekStart, 6)}</span>
   </header>
 
   <section class="schedule-summary" aria-label="Weekly time summary">
     <div><strong>{result.blocks.filter((block) => block.entryId === null).length}</strong><span>Free periods</span></div>
-    <div><strong>{result.blocks.filter((block) => block.domain === 'activity').length}</strong><span>Planned periods</span></div>
+    <div><strong>{schedule.activities.length}</strong><span>Planned activities</span></div>
     <div><strong>{schedule.commitments.length}</strong><span>Recurring commitments</span></div>
   </section>
 
-  <p class="schedule-budget">Planned activity costs: <strong>{formatCharacterMoney(character, plannedCost)}</strong> · Cash after planned costs: <strong>{formatCharacterMoney(character, Math.max(0, character.money - plannedCost))}</strong></p>
+  <p class="schedule-budget">Direct planned costs: <strong>{formatCharacterMoney(character, plannedCost)}</strong> · Cash after planned costs: <strong>{formatCharacterMoney(character, Math.max(0, character.money - plannedCost))}</strong></p>
 
   <section class="week-grid" aria-label="Seven day schedule">
     {#each days as day}
@@ -78,7 +78,7 @@
       {#each result.issues as issue}<p>{issue.message}</p>{/each}
     </section>
   {/if}
-  <p class="schedule-footnote">Time blocks are planning constraints, not hours. School and work routines will appear only when those systems provide real schedules. Planned actions resolve in order when you start the next week. Effects and costs are applied once. Remove a planned action here if you change your mind before the week resolves.</p>
+  <p class="schedule-footnote">Only recurring commitments reserve calendar periods. Personal activities are managed in their own workspaces, consume stamina and resolve during the weekly simulation.</p>
 </section>
 
 <style>
