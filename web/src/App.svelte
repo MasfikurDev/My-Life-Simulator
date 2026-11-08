@@ -395,19 +395,17 @@
           ]}
           <section class="character-profile-card" aria-label="Character profile">
             <div class="character-avatar" aria-hidden="true">{character.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</div>
-            <div class="character-profile-copy">
+            <div class="character-profile-copy character-profile-trigger" role="button" tabindex="0" aria-expanded={characterProfileExpanded} aria-label="Toggle character attributes" onclick={() => characterProfileExpanded = !characterProfileExpanded} onkeydown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); characterProfileExpanded = !characterProfileExpanded; } }}>
               <div class="character-profile-heading"><h2>{character.name}</h2><span class="character-age">AGE {character.age}</span></div>
               <p>{getLifeStage(character.age).label} <span>·</span> {character.country ?? character.nationality ?? 'Life in progress'}</p>
               <div class="character-profile-tags"><span>{character.employment?.title ?? 'Not employed'}</span><span>{character.educationEnrollment?.institution ?? (character.educationLevel ? character.educationLevel.replaceAll('-', ' ') : getEducationStage(character.age))}</span></div>
             </div>
             <div class="character-cash-summary"><small>AVAILABLE CASH</small><strong>{formatCharacterMoney(character)}</strong></div>
             <div class="character-profile-weekly">
-              <div><small>WEEKLY IN</small><strong class="weekly-finance-in">+{formatCharacterMoney(character, weeklyIncome)}</strong></div>
-              <div><small>WEEKLY OUT</small><strong class="weekly-finance-out">−{formatCharacterMoney(character, weeklyExpense)}</strong></div>
-              <div><small>WEEKLY NET</small><strong>{weeklyIncome - weeklyExpense < 0 ? '−' : '+'}{formatCharacterMoney(character, Math.abs(weeklyIncome - weeklyExpense))}</strong></div>
-              <button class="character-profile-breakdown" onclick={() => weeklyFinanceOpen = true}>Breakdown</button>
+              <button class="character-profile-flow character-profile-income" aria-label="Open weekly income breakdown" onclick={() => weeklyFinanceOpen = true}><small>WEEKLY IN</small><strong class="weekly-finance-in">+{formatCharacterMoney(character, weeklyIncome)}</strong></button>
+              <button class="character-profile-flow character-profile-expense" aria-label="Open weekly expense breakdown" onclick={() => weeklyFinanceOpen = true}><small>WEEKLY OUT</small><strong class="weekly-finance-out">−{formatCharacterMoney(character, weeklyExpense)}</strong></button>
+              <div class="character-profile-flow"><small>WEEKLY NET</small><strong>{weeklyIncome - weeklyExpense < 0 ? '−' : '+'}{formatCharacterMoney(character, Math.abs(weeklyIncome - weeklyExpense))}</strong></div>
             </div>
-            <button class="character-profile-toggle" aria-expanded={characterProfileExpanded} onclick={() => characterProfileExpanded = !characterProfileExpanded}>{characterProfileExpanded ? 'Hide attributes' : 'View attributes'} <span>{characterProfileExpanded ? '−' : '+'}</span></button>
           </section>
           {#if characterProfileExpanded}
           <section class="character-stats-section" aria-label="Character attributes">
