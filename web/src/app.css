@@ -1277,3 +1277,38 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
   letter-spacing: -.3px;
   margin: 0;
 }
+
+
+/* Keep workspace-level titles at one compact, consistent scale. */
+.page-heading h1,
+.page-heading h2,
+.finance-header h1,
+.lifestyle-heading h2,
+.education-hero-top h2,
+.education-intro h2,
+.work-panel-heading h2 {
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -.7px;
+}
+
+.page-heading h1,
+.page-heading h2 {
+  margin: 4px 0 6px;
+}
+
+.lifestyle-heading h2 {
+  margin: 3px 0 4px;
+}
+
+@media (max-width: 620px) {
+  .page-heading h1,
+  .page-heading h2,
+  .finance-header h1,
+  .lifestyle-heading h2,
+  .education-hero-top h2,
+  .education-intro h2,
+  .work-panel-heading h2 {
+    font-size: 22px;
+  }
+}
