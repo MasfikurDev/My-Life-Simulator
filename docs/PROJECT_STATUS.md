@@ -15,13 +15,13 @@ The playable time model is:
 
 Do not reintroduce a universal three-actions-per-week quota. Personal activities are toggled in their owning workspaces and use a shared stamina budget. Education and employment are automatic background responsibilities; there are no player-managed timetables, period reservations, or Schedule workspace.
 
-## Weekly activity model (current follow-up implementation; CI verification pending)
+## Weekly activity model (implemented in PR #88; CI passed)
 
 - Personal activities are selected with direct add/remove toggles in their owning workspaces and consume activity-specific stamina.
 - Education and employment progress automatically as background responsibilities; they no longer create calendar commitments.
 - Schema 5 migration clears legacy time-slot commitments, preserves planned personal actions, and stores an exact pre-timetable recovery copy.
 - The Advance dialog previews every selected activity's stamina/money cost, reward categories, deterministic projected stat changes, and wellbeing warnings using the same weekly resolver as actual advancement.
-- The feature branch has a pull request open; final CI verification is pending.
+- CI verified: Svelte check 0 errors (19 existing warnings), 155 tests passed, and Vite production build succeeded.
 
 ## Implementation snapshot
 
