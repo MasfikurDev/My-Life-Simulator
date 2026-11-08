@@ -602,7 +602,7 @@
 
 <style>
   .week-review-backdrop{z-index:1000;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
-  .week-review-dialog{width:min(680px,100%);max-height:min(90dvh,900px);overflow:auto;display:grid;gap:14px;padding:20px}
+  .week-review-dialog{width:min(680px,100%);max-width:none;max-height:min(90dvh,900px);overflow:auto;display:grid;gap:14px;padding:20px}
   .week-review-dialog h2{margin:0;font-size:clamp(22px,4vw,28px);letter-spacing:-.6px}
   .week-review-dialog .game-event-description{margin:0}
   .review-section{display:grid;gap:9px;padding-top:12px;border-top:1px solid var(--line)}
@@ -626,11 +626,11 @@
   .review-change-row,.review-cash-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
   .review-change-row>span,.review-cash-row>span{font-size:10px;color:var(--muted)}
   .review-change-row strong,.review-cash-row strong{font-size:11px;color:var(--text);font-variant-numeric:tabular-nums}
-  .review-change-row strong.positive{color:var(--success)}
-  .review-change-row strong.negative{color:var(--danger)}
+  .review-change-row strong.positive{color:var(--green)}
+  .review-change-row strong.negative{color:var(--coral)}
   .review-change-row strong small{font-size:9px;color:var(--muted);font-weight:500}
   .review-empty{margin:0;padding:10px;border-radius:9px;background:var(--surface);font-size:10px;line-height:1.5;color:var(--muted)}
-  .review-warning-list{display:grid;gap:6px;padding:10px;border:1px solid color-mix(in srgb,var(--warning) 45%,transparent);border-radius:10px;background:color-mix(in srgb,var(--warning) 8%,transparent)}
+  .review-warning-list{display:grid;gap:6px;padding:10px;border:1px solid color-mix(in srgb,var(--amber) 45%,transparent);border-radius:10px;background:color-mix(in srgb,var(--amber) 8%,transparent)}
   .review-warning-list p{margin:0;font-size:10px;line-height:1.45;color:var(--text)}
   .week-review-dialog .year-review-note{margin:0}
   @media(max-width:480px){.week-review-dialog{padding:15px;gap:12px}.review-activity-row{gap:8px;padding:8px}.review-change-grid{grid-template-columns:1fr}}
