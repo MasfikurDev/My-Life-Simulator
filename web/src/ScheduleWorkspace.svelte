@@ -71,9 +71,7 @@
             {#if block.entryId}
               <div class="period-entry">
                 <strong>{block.title}</strong>
-                {#if block.domain === 'activity'}
-                  <button aria-label="Remove planned activity" title="Remove planned activity" onclick={() => removeActivity(block.entryId!)}>×</button>
-                {:else}<small>Recurring commitment</small>{/if}
+                <small>Recurring commitment</small>
               </div>
             {:else}
               <span class="period-free">Available</span>
