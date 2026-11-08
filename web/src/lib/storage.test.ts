@@ -43,9 +43,9 @@ describe('save slots', () => {
     expect(loadSave('slot-1')?.name).toBe('First');
     expect(loadSave('slot-2')?.name).toBe('Second');
     expect(loadSave('slot-1')?.calendar).toBeDefined();
-    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(4);
+    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(5);
   });
-  it('migrates schema 3 employed saves to recurring Work commitments', () => {
+  it('migrates schema 3 employed saves without recreating Work timetables', () => {
     const values = installStorage();
     const worker = {
       ...createCharacter('Existing worker', 30),
@@ -71,7 +71,7 @@ describe('save slots', () => {
       ]
     }));
     const migrated = loadSave('slot-1')!;
-    expect(migrated.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
+    expect(migrated.weeklySchedule?.commitments).toHaveLength(0);
     expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(4);
     expect(values.get('my-life-simulator.save.pre-weekly-migration')).toBeTruthy();
   });
