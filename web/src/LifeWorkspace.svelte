@@ -46,18 +46,17 @@
     <div><div class="eyebrow">LIFE</div><h1>{views.find((item) => item.id === activeView)?.label}</h1><p>Your personal wellbeing, everyday life and recorded milestones.</p></div>
     {#if activeView !== 'overview'}<button class="finance-back" onclick={() => activeView='overview'}>← Life overview</button>{/if}
   </header>
+  <nav class="finance-nav" aria-label="Life sections">
+    {#each views as item}
+      <button class:active={activeView===item.id} aria-current={activeView===item.id ? 'page' : undefined} onclick={() => activeView=item.id}>{item.label}</button>
+    {/each}
+  </nav>
   {#if activeView === 'overview'}
     <section class="domain-panel">
       <div class="domain-panel-head"><div><div class="eyebrow">CURRENT LIFE STAGE</div><h2>{stage.label}</h2><p>Age {character.age} · {stage.ageRange}. {stage.description}</p></div><span class="domain-status">YEAR {character.year}</span></div>
       {#if stage.nextAge !== null}<div class="domain-note">Next life stage begins at age {stage.nextAge}.</div>{/if}
     </section>
     <HealthWorkspace {character} {onChange} {onNotify} />
-    <div class="finance-shortcuts life-shortcuts">
-      <button onclick={() => activeView='lifestyle'}><span class="shortcut-icon">▤</span><strong>Market</strong><small>Everyday shopping, services and household needs</small><b>Open market →</b></button>
-      <button onclick={() => activeView='family'}><span class="shortcut-icon">⌂</span><strong>Family</strong><small>People, bonds and family history</small><b>Open family →</b></button>
-      <button onclick={() => activeView='tree'}><span class="shortcut-icon">⑂</span><strong>Life tree</strong><small>Your decisions, paths and earned skill boosts</small><b>Explore life tree →</b></button>
-      <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.filter((item) => item.kind === 'milestone').length} major achievements</small><b>Review history →</b></button>
-    </div>
   {:else if activeView === 'family'}
     <FamilyWorkspace {character} {onChange} />
   {:else if activeView === 'tree'}
@@ -192,62 +191,6 @@
     color: var(--accent);
   }
 
-  .life-workspace .life-shortcuts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .life-workspace .life-shortcuts .shortcut-icon {
-    display: grid;
-    place-items: center;
-    width: 27px;
-    height: 27px;
-    border-radius: 8px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-size: 16px;
-    line-height: 1;
-  }
-
-  .life-workspace .life-shortcuts button {
-    display: grid;
-    justify-items: start;
-    align-content: start;
-    gap: 7px;
-    min-width: 0;
-    min-height: 126px;
-    padding: 13px;
-    border: 1px solid var(--line);
-    border-radius: 13px;
-    background: var(--surface);
-    color: var(--text);
-    text-align: left;
-    transition: border-color .18s, background .18s, transform .18s;
-  }
-
-  .life-workspace .life-shortcuts button:hover {
-    border-color: var(--line-strong);
-    background: var(--surface-raised);
-    transform: translateY(-1px);
-  }
-
-  .life-workspace .life-shortcuts strong {
-    font-size: 13px;
-    line-height: 1.3;
-  }
-
-  .life-workspace .life-shortcuts small {
-    color: var(--muted);
-    font-size: 10px;
-    line-height: 1.45;
-  }
-
-  .life-workspace .life-shortcuts b {
-    margin-top: auto;
-    color: var(--accent);
-    font-size: 10px;
-    line-height: 1.4;
-  }
-
   .life-workspace .page-heading h2 {
     margin: 8px 0 5px;
     color: var(--text);
@@ -299,34 +242,6 @@
       min-height: 40px;
       padding: 0 11px;
       font-size: 10px;
-    }
-
-    .life-workspace .life-shortcuts {
-      gap: 7px;
-    }
-
-    .life-workspace .life-shortcuts .shortcut-icon {
-      width: 25px;
-      height: 25px;
-      font-size: 15px;
-    }
-
-    .life-workspace .life-shortcuts button {
-      min-height: 116px;
-      padding: 11px;
-      border-radius: 10px;
-    }
-
-    .life-workspace .life-shortcuts strong {
-      font-size: 11px;
-    }
-
-    .life-workspace .life-shortcuts small {
-      font-size: 9px;
-    }
-
-    .life-workspace .life-shortcuts b {
-      font-size: 9px;
     }
 
     .life-workspace .page-heading h2 {
