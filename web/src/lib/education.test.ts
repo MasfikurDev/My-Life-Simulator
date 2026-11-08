@@ -82,7 +82,7 @@ describe('education progression', () => {
   });
 
   it('connects completed university qualifications to career eligibility', () => {
-    const capable = { ...createCharacter('Graduate', 30), intelligence: 90, focus: 90, discipline: 90, health: 90, stress: 20, stamina: 80, money: 5000 };
+    const capable = { ...createCharacter('Graduate', 30), intelligence: 90, focus: 90, discipline: 90, health: 90, stress: 20, stamina: 80, money: 5000, currencyScale: 1 };
     const enrollmentResult = enrollInEducation(capable, 'bachelor-degree', 'Computer science');
     expect(enrollmentResult.issue).toBeNull();
     const enrolled = enrollmentResult.character;
