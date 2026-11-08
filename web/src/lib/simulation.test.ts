@@ -249,16 +249,16 @@ describe('life simulation', () => {
     expect(resolved.intelligence).toBe(student.intelligence + 3);
     expect(resolved.scheduledGameConsequences).toHaveLength(1);
   });
-  it('rejects conflicting recurring commitments without advancing time', () => {
+  it('ignores legacy timetable conflicts during weekly resolution', () => {
     const base = createCharacter('Planner', 30);
-    const invalid = { ...base, weeklySchedule: { version: 1 as const, commitments: [
+    const legacy = { ...base, weeklySchedule: { version: 1 as const, commitments: [
       { id: 'a', title: 'Work shift', domain: 'work' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 2 },
       { id: 'b', title: 'School session', domain: 'school' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 1 }
     ], activities: [] } };
-    const result = advanceWeek(invalid);
-    expect(result.issue).toBe('invalid-schedule');
-    expect(result.character).toBe(invalid);
-    expect(result.character.calendar?.currentDate).toBe('2026-01-05');
+    const result = advanceWeek(legacy);
+    expect(result.issue).toBeNull();
+    expect(result.character.calendar?.currentDate).toBe('2026-01-12');
+    expect(result.character.weeklySchedule?.commitments).toHaveLength(0);
   });
   it('rejects paid activities when the balance is insufficient', () => {
     const adult = { ...createCharacter('Adult', 30), money: 10, currencyScale: 1 };
@@ -391,14 +391,14 @@ describe('life simulation', () => {
     const partTime = performActivity(teen, 'apply-job', () => 0);
     expect(partTime.employment?.type).toBe('part-time');
     expect(partTime.employment?.annualSalary).toBe(5000);
-    expect(partTime.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(3);
+    expect(partTime.weeklySchedule?.commitments).toHaveLength(0);
     expect(getAvailableActivityIds(16, partTime.employment)).toContain('career');
     expect(getAvailableActivityIds(16, partTime.employment)).not.toContain('apply-job');
     const adult = { ...createCharacter('Adult', 18), currencyScale: 1 };
     const fullTime = performActivity(adult, 'apply-job', () => 0);
     expect(fullTime.employment?.type).toBe('full-time');
     expect(fullTime.employment?.annualSalary).toBe(18000);
-    expect(fullTime.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
+    expect(fullTime.weeklySchedule?.commitments).toHaveLength(0);
     expect(getAvailableActivityIds(18, fullTime.employment)).not.toContain('apply-job');
   });
   it('uses completed university education to unlock a better-qualified role', () => {
@@ -409,7 +409,7 @@ describe('life simulation', () => {
     const hired = performActivity(graduate, 'apply-job', () => 0);
     expect(hired.employment?.title).toBe('Operations coordinator');
     expect(hired.employment?.annualSalary).toBe(28000);
-    expect(hired.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
+    expect(hired.weeklySchedule?.commitments).toHaveLength(0);
   });
   it('credits annual salary and living costs when the year advances', () => {
     const worker = {
