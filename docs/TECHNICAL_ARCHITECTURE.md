@@ -64,7 +64,7 @@ Core simulation inputs are game state, action/choice, and random source/seed. Ou
 - Weeks start Monday and span Monday–Sunday. The active date advances in seven-day steps; month/year boundaries are derived from dates, not assumed to align with weeks.
 - New characters receive calendar.currentDate and calendar.birthDate values. The weekly model is live: age is derived from these dates and changes on the actual birthday. The current schema requires calendar dates on every character; unsupported older saves must be explicitly reset rather than migrated.
 - February 29 birthdays are observed on March 1 in non-leap years. This convention is centralized in the pure calendar module and covered by tests.
-- Weekly time advancement, stamina-based activity selection, and deterministic weekly resolution are implemented. Monthly settlement is not yet implemented; current salary, household expenses, tax, interest, market updates, and other annual systems remain on their explicit annual cadence until a separately tested migration changes those rules.
+- Weekly time advancement, stamina-based activity selection, and deterministic weekly resolution are implemented. Monthly settlement is not yet implemented; current salary, household expenses, tax, interest, market updates, and other annual systems remain on their explicit annual cadence until a separately tested cadence change updates those rules.
 
 ## Performance
 Keep initial bundle small; avoid unnecessary dependencies. Lazy-load optional heavy features. Profile before optimizing. WASM is not automatically faster: boundary crossings, conversion, build complexity, and mobile constraints must be measured. Test on a real mid-range Android device and throttled mobile connection. Avoid blocking animations and layout shifts.
@@ -140,7 +140,7 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 
 
 ## Creditworthiness
-- Credit score is derived from the capped financial ledger, active credit-card utilization, active loan balance relative to annual income, and outstanding tax liability. It is deterministic and does not require a separate migration field.
+- Credit score is derived from the capped financial ledger, active credit-card utilization, active loan balance relative to annual income, and outstanding tax liability. It is deterministic and does not require a separate persisted migration field.
 - Loan issuance enforces age, active-loan count, minimum credit score, and a score-based minimum interest rate per loan type. The score does not yet calculate a full affordability ratio or a country-specific bureau report.
 
 
@@ -233,7 +233,7 @@ Suggested future module boundaries (do not create empty abstractions prematurely
 - `weekly-plan.ts`: owns strict weekly action-plan validation. It must not represent calendar periods or commitments.
 - Keep weekly orchestration in the existing simulation boundary until profiling or maintainability evidence justifies extracting a dedicated module.
 - Domain modules own their own eligibility, costs, effects, and automatic background progression; the cycle coordinator orchestrates them without duplicating their rules.
-- Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups as a focused follow-up to the completed weekly migration.
+- Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups as a focused follow-up to the current weekly-plan baseline.
 
 
 ## Personal Technology domain
