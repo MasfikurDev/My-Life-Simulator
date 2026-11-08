@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { advanceWeek, formatCharacterMoney, getWeeklyActivityReview, planEventChoiceInNextFreeTime } from './lib/simulation';
+  import { advanceWeek, formatCharacterMoney, getWeeklyActivityReview, planEventChoiceInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { addCalendarDays, getWeekStart } from './lib/calendar';
   import { getEducationStage, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
@@ -206,14 +206,18 @@
       oscillator.onended = () => { void context.close(); };
     } catch { /* Audio is optional and may be unavailable in a WebView. */ }
   }
+  function eventChoicePlanned(choiceId: string) {
+    return (character?.weeklySchedule?.activities ?? []).find((item) => item.action?.kind === 'event' && item.action.choiceId === choiceId);
+  }
   function chooseLifeEvent(choiceId: string) {
     if (!character) return;
+    const existing = eventChoicePlanned(choiceId);
+    if (existing) { persist(removePlannedActivity(character, existing.id)); notify('Decision removed from this week.'); return; }
     const planned = planEventChoiceInNextFreeTime(character, choiceId);
     if (planned.issue) { notify(planned.message ?? 'That decision could not be scheduled.'); return; }
     const immediate = character.pendingGameEvent?.choices.find((choice) => choice.id === choiceId)?.timeBlocks === 0;
     persist(planned.character); playSound('action');
-    const slot = planned.scheduledActivity;
-    notify(immediate ? 'Decision recorded.' : slot ? 'Decision confirmed for ' + slot.date + ' (' + slot.startPeriod + ').' : 'Decision confirmed.');
+    notify(immediate ? 'Decision recorded.' : 'Decision added to this week.');
   }
   function openAdvanceReview() { if (!character) return; activeTab = 'home'; advanceReviewOpen = true; }
   function closeAdvanceReview() { advanceReviewOpen = false; }
@@ -473,17 +477,17 @@
               <p class="game-event-description">{lifeEvent.description}</p>
               <div class="game-event-choices">
                 {#each lifeEvent.choices as choice}
-                  <button class="game-event-choice" disabled={character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
+                  <button class="game-event-choice" class:planned={!!eventChoicePlanned(choice.id)} disabled={character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
                     <span class="game-event-choice-copy"><strong>{choice.label}</strong><small>{choice.detail}</small></span>
                     <span class="game-event-choice-cost">
-                      {#if choice.timeBlocks > 0}<span>{choice.timeBlocks} time {choice.timeBlocks === 1 ? 'block' : 'blocks'}</span>{/if}
+                      {#if choice.timeBlocks > 0}<span>Stamina 5</span>{/if}
                       {#if choice.moneyCost > 0}<span>{formatCharacterMoney(character, choice.moneyCost)}</span>{/if}
-                      {#if choice.timeBlocks === 0 && choice.moneyCost === 0}<span>No cost</span>{/if}
+                      {#if choice.timeBlocks === 0 && choice.moneyCost === 0}<span>Immediate</span>{/if}
                     </span>
                   </button>
                 {/each}
               </div>
-              <p class="game-event-footnote">Time-consuming decisions are added to this week’s schedule and take effect when the week resolves. You can also leave the situation unanswered.</p>
+              <p class="game-event-footnote">Toggle a decision to include or remove it from this week. Non-immediate choices use stamina; you can also leave the situation unanswered.</p>
             </section>
           {/if}
           {#if advanceReviewOpen && weeklyReview}
