@@ -18,8 +18,8 @@ Do not reintroduce a universal three-actions-per-week quota. Personal activities
 ## Weekly activity model (current follow-up implementation; CI verification pending)
 
 - Personal activities are selected with direct add/remove toggles in their owning workspaces and consume activity-specific stamina.
-- Recurring school/work commitments remain in the calendar; personal actions do not take time slots.
-- The Schedule workspace is a combined review/cancellation surface for selected personal activities and recurring commitments.
+- Education and employment progress automatically as background responsibilities; they no longer create calendar commitments.
+- Schema 5 migration clears legacy time-slot commitments, preserves planned personal actions, and stores an exact pre-timetable recovery copy.
 - The Advance dialog previews every selected activity's stamina/money cost, reward categories, deterministic projected stat changes, and wellbeing warnings using the same weekly resolver as actual advancement.
 - The feature branch has a pull request open; final CI verification is pending.
 
