@@ -114,6 +114,11 @@ export function enrollInEducation(character: Character, programId: string, field
   const next: Character = {
     ...character, money: character.money - tuition, educationEnrollment: enrollment,
     educationRecords: [...(character.educationRecords ?? []), record],
+    financialTransactions: tuition > 0 ? [...(character.financialTransactions ?? []), {
+      id: String(character.year) + '-' + String(character.age) + '-' + String((character.financialTransactions ?? []).length + 1),
+      year: character.year, age: character.age, type: 'expense', amount: tuition,
+      description: 'Education tuition · ' + program.title, from: 'Cash', to: program.institutionType
+    }].slice(-300) : character.financialTransactions,
     weeklySchedule: { ...schedule, commitments: [...schedule.commitments.filter((item) => item.domain !== 'school'), ...planned.commitments] },
     education: program.level === 'early-learning' ? 'Early learning' : program.level === 'primary' ? 'Primary education' : program.level === 'lower-secondary' || program.level === 'upper-secondary' ? 'Secondary education' : program.title
   };
