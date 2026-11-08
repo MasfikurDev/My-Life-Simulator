@@ -40,14 +40,14 @@ Stamina is not the only limit. Background school/work responsibilities and optio
 
 Do not turn this into a universal action quota. Players can choose a demanding week, but the combined consequences should be legible and meaningful.
 
-## Save migration
+## Current save format
 
-- Upgrade existing save data non-destructively.
-- Preserve character identity, age/date, education records, employment, finance, family, history, and valid selected personal actions.
-- Remove legacy calendar commitments and their date/period placements.
-- Never regenerate school or work time-slot reservations during migration, enrollment, resume, hiring, job changes, or resignation.
-- Keep a recovery copy of the exact pre-migration payload before writing the migrated save.
-- Old date/period fields may remain as compatibility-only fields on legacy activity records until a later data-model cleanup; they must not affect gameplay or validation.
+- Schema 6 is the sole supported persisted format and contains three independent slots.
+- Each current character requires calendar dates and a versioned weekly action plan.
+- Planned actions store a stable ID, owning domain, and explicit action payload; they contain no dates, periods, durations, or recurring timetable commitments.
+- Unsupported older save schemas are rejected without changing their stored bytes. The player must explicitly confirm a reset before starting a fresh life.
+- Education and employment remain automatic background responsibilities and never create timetable reservations.
+
 
 ## Lifestyle and money
 
@@ -59,8 +59,8 @@ Money changes the quality of available choices, not only the size of a balance. 
 2. Education and work have no visible day/period schedule; both continue to progress automatically.
 3. All planned activities remain toggleable from their owning workspaces, with a visible PLANNED seal that does not block the toggle.
 4. The weekly review shows activity costs, recovery, projected stamina, combined wellbeing changes, and cash impact.
-5. Recovery can offset activity costs regardless of selection order.
+5. Planned recovery is applied before activity costs. If the current stamina plus recovery already selected cannot cover the plan, adding another action is rejected; plan recovery before actions that need it.
 6. An over-budget plan cannot resolve and never previews negative stamina.
 7. Previewing does not mutate the save; resolving applies each cost/reward exactly once.
-8. Existing saves migrate with a backup; selected actions and all non-scheduling character data remain intact.
-9. Tests cover migration, no timetable generation, budget boundaries, recovery order-independence, exactly-once recovery, and automatic education/work progression.
+8. Current-schema saves preserve selected actions and all non-scheduling character data. Unsupported old formats remain untouched and are reset only after explicit confirmation.
+9. Tests cover strict current-schema validation, no timetable generation, budget boundaries, recovery-before-cost behavior, exactly-once recovery, and automatic education/work progression.
