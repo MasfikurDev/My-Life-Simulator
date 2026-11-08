@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { acceptJobOffer, acceptPromotionOffer, declineJobOffer, declinePromotionOffer, formatCharacterMoney, planActivityInNextFreeTime, planWorkActionInNextFreeTime, resignFromJob } from './lib/simulation';
+  import { acceptJobOffer, acceptPromotionOffer, declineJobOffer, declinePromotionOffer, formatCharacterMoney, planActivityInNextFreeTime, planWorkActionInNextFreeTime, removePlannedActivity, resignFromJob } from './lib/simulation';
   import { getCareerPath, getCareerRequirements, getCareerRole, getJobListings, getPromotionReadiness, isEligibleForRole } from './lib/work';
   import type { CareerPathId, Character } from './lib/types';
   import GameChoice from './GameChoice.svelte';
@@ -16,14 +16,17 @@
   const careerRoles = $derived(getCareerPath(selectedPath));
   $effect(() => { if (currentRole) selectedPath = currentRole.pathId; });
   const careerEvents = $derived(character.history.filter((item) => /job|work|career|promotion|interview|employment/i.test(item.title + ' ' + item.description)));
+  const plannedActivities = $derived(character.weeklySchedule?.activities ?? []);
+  function plannedWorkAction(workAction: 'apply' | 'interview', jobId: string) { return plannedActivities.find((item) => item.action?.kind === 'work' && item.action.workAction === workAction && item.action.jobId === jobId); }
+  const developmentPlan = $derived(plannedActivities.find((item) => item.activityId === 'career' && item.action?.kind === 'activity'));
 
   function planWork(workAction: 'apply' | 'interview', jobId: string) {
+    const existing = plannedWorkAction(workAction, jobId);
+    if (existing) { onChange(removePlannedActivity(character, existing.id)); onNotify('Removed from this week.'); return; }
     const result = planWorkActionInNextFreeTime(character, workAction, jobId);
-    if (result.issue) { onNotify(result.message ?? 'That work activity could not be scheduled.'); return; }
+    if (result.issue) { onNotify(result.message ?? 'That work activity could not be added.'); return; }
     onChange(result.character);
-    const slot = result.scheduledActivity;
-    const when = slot ? slot.date + ' (' + slot.startPeriod + ')' : 'this week';
-    onNotify(workAction === 'apply' ? 'Application confirmed for ' + when + '.' : 'Interview confirmed for ' + when + '.');
+    onNotify(workAction === 'apply' ? 'Application added to this week.' : 'Interview added to this week.');
   }
   function confirmLeaveJob() {
     const next = resignFromJob(character);
@@ -32,11 +35,10 @@
   }
   function planDevelopment() {
     if (!character.employment) return;
+    if (developmentPlan) { onChange(removePlannedActivity(character, developmentPlan.id)); onNotify('Career development removed from this week.'); return; }
     const result = planActivityInNextFreeTime(character, 'career');
-    if (result.issue) { onNotify(result.message ?? 'No suitable time is available this week.'); return; }
-    onChange(result.character);
-    const slot = result.scheduledActivity;
-    onNotify(slot ? 'Career development confirmed for ' + slot.date + ' (' + slot.startPeriod + ').' : 'Career development confirmed.');
+    if (result.issue) { onNotify(result.message ?? 'Could not add career development.'); return; }
+    onChange(result.character); onNotify('Career development added · 8 stamina.');
   }
   function acceptOffer(id: string) {
     const next = acceptJobOffer(character, id);
@@ -79,7 +81,7 @@
         </div>
         <p class="work-note">Regular shifts: {character.employment.type === 'full-time' ? 'Monday–Friday, mornings and afternoons' : character.employment.type === 'part-time' ? 'Monday, Wednesday and Friday afternoons' : 'Tuesday, Thursday and Saturday mornings'}.</p>
         <p class="work-note">Payroll: annual settlement · Monthly pay and benefits: not implemented</p>
-        <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>Career development session</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
+        <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · 8 stamina'}</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
         {#if confirmResignation}<div class="resign-confirm"><strong>Leave {character.employment.title}?</strong><p>You will become unemployed. Your career experience and history will be kept.</p><div><button class="work-primary" onclick={confirmLeaveJob}>Confirm resignation</button><button class="work-secondary" onclick={() => confirmResignation = false}>Keep job</button></div></div>{/if}
       </section>
     {:else}
@@ -102,8 +104,8 @@
       <div class="work-section-heading"><div><span class="eyebrow">NEXT STEP</span><h2>Interview invitations</h2></div></div>
       {#each (character.jobApplications ?? []).filter((application) => application.status === 'interview') as application (application.id)}
         <article class="work-listing">
-          <div class="listing-main"><div class="eyebrow">{application.employer}</div><h3>{application.title}</h3><p>Your application was shortlisted. Confirm the interview; the game will find two consecutive free periods.</p></div>
-          <button class="work-primary" onclick={() => planWork('interview', application.id)}>Confirm interview</button>
+          <div class="listing-main"><div class="eyebrow">{application.employer}</div><h3>{application.title}</h3><p>Your application was shortlisted. Confirm the interview. It uses stamina rather than reserving calendar time.</p></div>
+          <button class="work-primary" onclick={() => planWork('interview', application.id)}>{plannedWorkAction('interview', application.id) ? 'Remove interview plan' : 'Confirm interview · 10 stamina'}</button>
         </article>
       {/each}
     {/if}
@@ -126,7 +128,7 @@
               {/each}
             </div>
             <div class="listing-actions">
-              <button class="work-primary" disabled={!eligible || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : eligible ? 'Apply' : 'Requirements not met'}</button>
+              <button class="work-primary" disabled={!eligible || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : !eligible ? 'Requirements not met' : plannedWorkAction('apply', listing.id) ? 'Remove application plan' : 'Apply · 8 stamina'}</button>
             </div>
           </article>
         {/each}
