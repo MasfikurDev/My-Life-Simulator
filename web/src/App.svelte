@@ -19,6 +19,7 @@
     isFullscreen: () => boolean;
     setFullscreen: (enabled: boolean) => void;
     reloadLatest: () => void;
+    exitApp?: () => void;
   };
   function getAndroidBridge(): AndroidBridge | undefined {
     return (window as Window & { AndroidApp?: AndroidBridge }).AndroidApp;
@@ -118,8 +119,10 @@
     pendingSlotId = empty.id; activeTab = 'custom';
   }
   function exitGame() {
+    const bridge = getAndroidBridge();
+    if (bridge?.exitApp) { bridge.exitApp(); return; }
     window.close();
-    notify('You can now close the game window.');
+    notify('If the window stays open, close it using your browser controls.');
   }
   function loadSlot(slot: SaveSlot) {
     if (!slot.character) return;
@@ -257,6 +260,7 @@
           <button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>
         {:else if activeTab==='settings'}
           <div class="page-heading"><div><div class="eyebrow">PREFERENCES & CONTROLS</div><h1>Game <em>settings.</em></h1><p>Adjust how the game appears and manage your saved story.</p></div></div>
+          {#if !character}<button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>{/if}
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">01</span><div><h3>Sound</h3><p>Control the small audio cues used for game actions.</p></div></div>
             <div class="setting-row"><div><strong>Sound effects</strong><p>Subtle original tones for actions, starting a life and advancing a week. No background music.</p></div><button class:setting-enabled={soundEnabled} class="setting-toggle" role="switch" aria-checked={soundEnabled} onclick={() => toggleSounds(!soundEnabled)}><span></span><small>{soundEnabled ? 'ON' : 'OFF'}</small></button></div>
