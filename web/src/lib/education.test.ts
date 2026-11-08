@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createCharacter } from './simulation';
-import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resolveEducationWeek } from './education';
+import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation, resolveEducationWeek } from './education';
+import { getCareerRole, isEligibleForRole } from './work';
 
 describe('education progression', () => {
   it('offers age-appropriate school, vocational and higher-education routes', () => {
