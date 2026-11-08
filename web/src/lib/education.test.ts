@@ -80,4 +80,14 @@ describe('education progression', () => {
     expect(getAvailableEducationPrograms(developing).some((program) => program.id === 'bachelor-degree')).toBe(false);
   });
 
+  it('connects completed university qualifications to career eligibility', () => {
+    const capable = { ...createCharacter('Graduate', 30), intelligence: 90, focus: 90, discipline: 90, money: 5000 };
+    const enrolled = enrollInEducation(capable, 'bachelor-degree', 'Computer science').character;
+    const shortCourse = { ...enrolled, educationEnrollment: { ...enrolled.educationEnrollment!, totalWeeks: 1 } };
+    const completed = resolveEducationWeek(shortCourse, ['study', 'assignment', 'exam'], '2026-11-02', 6).character;
+    const candidate = { ...completed, careerExperienceYears: 2 };
+    expect(candidate.qualifications?.some((item) => item.level === undefined && item.programId === 'bachelor-degree')).toBe(true);
+    expect(isEligibleForRole(candidate, getCareerRole('software-developer')!)).toBe(true);
+  });
+
 });
