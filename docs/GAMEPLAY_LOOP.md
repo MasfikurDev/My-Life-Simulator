@@ -1,10 +1,10 @@
 # Gameplay Loop Redesign
 
-**Canonical game-design implementation plan · Weekly-cycle direction · 2026-11-08**
+**Canonical game-design implementation plan · Weekly-cycle direction · Reviewed 2026-11-09**
 
 This document turns the gameplay audit into a staged, implementation-ready direction. It distinguishes the implemented first slice from planned mechanics.
 
-## Current implementation status · 2026-11-08
+## Current implementation status · 2026-11-09
 The weekly gameplay foundation and the annual-action-to-weekly-turn transition are implemented in the web simulation:
 - Contextual events are selected using character/year context and age/health eligibility.
 - Pending events and choices persist in the character save; the simulation validates choice requirements and costs.
@@ -13,7 +13,9 @@ The weekly gameplay foundation and the annual-action-to-weekly-turn transition a
 - Age and life-stage eligibility change on the character's birthday. Annual financial settlement and annual event expiry remain at the year boundary.
 - The save migration preserves existing slots and stores the original pre-migration payload as a recovery copy.
 
-Still planned: date-based event deadlines and richer event cooldown/content, monthly financial settlement and reporting, broader cross-domain consequences, family lifecycle expansion, deeper chronic-care/insurance/healthcare localization, retirement, mortality, and terminal-life completion. Education now has enrollment, class commitments, weekly academic tasks and grades; Health now has stress/workload, recovery, counselling, check-ups and basic condition/treatment loops. The complete birth-to-death redesign is not finished.
+Still planned: date-based event deadlines and richer event cooldown/content, monthly financial settlement and reporting, broader cross-domain consequences, family lifecycle expansion, deeper chronic-care/insurance/healthcare localization, retirement, mortality, and terminal-life completion. Education has enrollment, class commitments, weekly academic tasks and grades; Health has stress/workload, recovery, counselling, check-ups and basic condition/treatment loops. Work has a functional first recruitment/employment/promotion loop, but employer operations and monthly payroll are not complete. Finance has broad banking, debt, property, investment, tax, business, and credit foundations, but recurring financial settlement is still annual. The UI has moved to reusable primitives and semantic theme tokens, with visual QA still ongoing. The complete birth-to-death redesign is not finished.
+
+**Verified validation baseline (2026-11-08):** latest inspected Pages workflow passed Svelte checking with 0 errors and 19 warnings, 150 tests across 10 files, Vite production build, artifact upload, and Pages deployment. Treat this as a dated baseline; re-run CI after changes. Node.js/dependency deprecation notices remain maintenance work.
 
 ## 1. The game we are making
 
