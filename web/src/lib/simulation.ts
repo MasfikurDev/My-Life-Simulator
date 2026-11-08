@@ -859,8 +859,7 @@ export function planEducationTaskInNextFreeTime(character: Character, taskType: 
   if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'education' && item.action.taskType === taskType)) {
     return { character, issue: 'unavailable', message: 'This type of academic task is already planned this week.' };
   }
-  const scale = character.currencyScale ?? 1;
-  const cost = Math.round(35 * scale);
+  const cost = getActivityCost(character, 'study');
   return planInNextFreeTime(character, (date, period) => reserveTimedAction(character, 'study', date, period, 1, { kind: 'education', taskType }, cost));
 }
 
