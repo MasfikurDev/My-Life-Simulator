@@ -12,7 +12,7 @@
     display: grid;
     gap: 5px;
     min-width: 0;
-    padding: 14px 15px;
+    padding: var(--space-3) var(--space-4);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     background: var(--surface-raised);
