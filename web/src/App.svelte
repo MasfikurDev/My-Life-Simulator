@@ -16,7 +16,7 @@
   import EmptyState from './components/EmptyState.svelte';
   import UiCard from './components/UiCard.svelte';
   import type { GameTheme } from './lib/theme';
-  import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, getThemePreference, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled, setThemePreference } from './lib/storage';
+  import { clearSave, getActiveSlotId, getSaveFormatIssue, getSaveSlots, resetSaveData, getSoundEnabled, getThemePreference, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled, setThemePreference } from './lib/storage';
   import type { Character, FinancialTransaction, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
     isFullscreen: () => boolean;
@@ -35,6 +35,7 @@
   let showRestartConfirm = $state(false);
   let activeSlotId = $state<SaveSlotId>('slot-1');
   let slots = $state<SaveSlot[]>([]);
+  let saveFormatIssue = $state<string | null>(null);
   let soundEnabled = $state(true);
   let selectedTheme = $state<GameTheme>('amoled');
   let slotToDelete = $state<SaveSlotId | null>(null);
@@ -44,6 +45,7 @@
   let weeklyFinanceOpen = $state(false);
   const weeklyReview = $derived(character ? getWeeklyActivityReview(character) : null);
   onMount(() => {
+    saveFormatIssue = getSaveFormatIssue();
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
     character = loadSave(activeSlotId);
@@ -135,11 +137,17 @@
   function navigateTab(tab: string) { activeTab = tab; }
   function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
   function startLife(nextCharacter: Character) {
+    if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
     try {
       persist(nextCharacter);
       activeTab = 'home'; notify('Life saved.'); playSound('start');
     } catch { notify('The save could not be written. Check available device storage and try again.'); }
+  }
+  function resetUnsupportedSaves() {
+    if (!saveFormatIssue || !window.confirm('Discard the unsupported old save data on this device and start with empty slots? This cannot be undone.')) return;
+    resetSaveData(); saveFormatIssue = null; slots = getSaveSlots(); activeSlotId = 'slot-1'; setActiveSlotId('slot-1');
+    notify('Old saves cleared. You can start a new life.');
   }
   function openCreation(slotId: SaveSlotId) {
     if (slots.find((slot) => slot.id === slotId)?.character) { notify('Delete or switch that save slot before starting another life.'); return; }
