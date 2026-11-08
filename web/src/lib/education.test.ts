@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { createCharacter } from './simulation';
-import { EDUCATION_PROGRAMS, enrollInEducation, getAvailableEducationPrograms, pauseEducation, resolveEducationWeek } from './education';
+import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resolveEducationWeek } from './education';
 
 describe('education progression', () => {
   it('offers age-appropriate school, vocational and higher-education routes', () => {
     const child = createCharacter('Student', 8);
     expect(getAvailableEducationPrograms(child).map((program) => program.id)).toContain('primary-school');
     expect(getAvailableEducationPrograms(child).some((program) => program.level === 'bachelor')).toBe(false);
-    const adult = createCharacter('Adult', 30);
+    const adult = { ...createCharacter('Adult', 30), intelligence: 85, focus: 85, discipline: 85 };
     expect(getAvailableEducationPrograms(adult).map((program) => program.id)).toContain('bachelor-degree');
     expect(getAvailableEducationPrograms(adult).some((program) => program.level === 'doctorate')).toBe(false);
   });
@@ -42,7 +42,7 @@ describe('education progression', () => {
   });
 
   it('awards a qualification after a passing programme and records the result', () => {
-    const enrolled = enrollInEducation(createCharacter('Student', 25), 'professional-certificate', 'Programming').character;
+    const enrolled = enrollInEducation({ ...createCharacter('Student', 25), intelligence: 85, focus: 85, discipline: 85 }, 'professional-certificate', 'Programming').character;
     const shortCourse = { ...enrolled, educationEnrollment: { ...enrolled.educationEnrollment!, totalWeeks: 1 } };
     const result = resolveEducationWeek(shortCourse, ['study', 'assignment', 'exam'], '2026-11-02', 6);
     expect(result.character.educationEnrollment).toBeNull();
