@@ -84,12 +84,11 @@ The week is shaped by the character's automatic responsibilities and the player'
 
 **No universal action quota:** the player may plan many or few activities. Stamina, affordability, prerequisites, stress, health, and other modeled constraints determine what the character can sustain. The game does not require the player to fill a calendar.
 
-### 3.2.1 Save migration away from timetables
+### 3.2.1 Current weekly action record
 
-- Schema 5 clears legacy school/work calendar commitments while preserving the character, planned personal activities, history, finances, family, education, and employment.
-- The exact pre-migration save payload is retained under a dedicated recovery key before the migrated payload is written.
-- Enrollment, resuming education, hiring, changing jobs, and resignation do not create or remove time-slot reservations. Education and employment are represented by their domain records and automatic weekly simulation effects.
-- Legacy date/period fields on saved personal actions are compatibility-only metadata; they do not place actions on a calendar or affect weekly validation.
+- Schema 6 stores a versioned `weeklyPlan` containing contextual actions only. Each action has a stable ID, owning domain, and explicit action payload.
+- Planned actions do not contain dates, weekdays, periods, durations, or recurring commitments. The game calendar tracks week progression; it is not a timetable.
+- Enrollment, resuming education, hiring, changing jobs, and resignation update domain state only. Education and employment are automatic background responsibilities and never create time-slot reservations.
 - The old Schedule workspace and its seven-day/21-period grid are removed. The Advance review is the single consolidated plan and outcome surface.
 
 ### 3.3 The week in play
