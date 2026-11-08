@@ -1,6 +1,6 @@
 # Weekly Activity Review Dialog
 
-**Status:** Implemented on `feature/stamina-activity-review`  
+**Status:** Implemented on `feature/stamina-activity-review`; final CI verification pending  
 **Scope:** Replace the generic pre-advance review panel with a simulation-backed weekly activity and outcome review.
 
 ## Product intent
@@ -22,9 +22,11 @@ List every activity that will actually resolve this week, including automaticall
 For each activity show:
 - Activity name and relevant category.
 - Stamina cost (not time blocks).
-- Expected rewards, grouped by affected stat/skill/track, with readable deltas.
+- Its expected reward categories from the shared simulation activity definitions.
 - Any direct monetary cost, if applicable.
 - Relevant warning when the activity is unavailable, disabled, or cannot resolve.
+
+Show the combined numerical stat/skill/relationship deltas in the outcome section. Do not present isolated per-action estimates as additive guarantees; weekly interactions, workload, recovery, and action order can change the combined result.
 
 The list must reflect the exact accepted plan. Disabled activities must not appear as scheduled work. Do not show cancelled, rejected, or merely suggested activities as if they will resolve.
 
