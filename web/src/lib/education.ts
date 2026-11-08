@@ -147,7 +147,7 @@ export function pauseEducation(character: Character): Character {
     ...character,
     educationEnrollment: { ...enrollment, status: 'paused' },
     educationRecords: (character.educationRecords ?? []).map((record) => record.id === enrollment.recordId ? { ...record, status: 'paused' } : record),
-    weeklySchedule: { ...(character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] }), commitments: (character.weeklySchedule?.commitments ?? []).filter((item) => item.domain !== 'school') }
+    weeklySchedule: { ...(character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] }), commitments: (character.weeklySchedule?.commitments ?? []).filter((item) => item.domain !== 'school'), activities: (character.weeklySchedule?.activities ?? []).filter((item) => item.action?.kind !== 'education') }
   };
 }
 
