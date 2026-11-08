@@ -480,44 +480,6 @@
               <div class="year-review-actions"><button class="secondary-button" onclick={closeAdvanceReview}>Back to this week</button><button class="primary-button" onclick={advanceWeekNow}>Resolve week and continue</button></div>
             </section>
           {/if}
-          {@const milestoneGroups = groupLifeMilestones(character)}
-          <section class="life-milestones-section" aria-label="Life milestones">
-            <div class="page-heading"><div><div class="eyebrow">LIFE HISTORY</div><h2>Milestones</h2><p>Important events and financial changes across your life.</p></div><span class="year-pill">{milestoneGroups.length} PERIODS</span></div>
-            {#if milestoneGroups.length}
-              <div class="life-milestone-list">
-                {#each milestoneGroups as group, index}
-                  {@const income = group.transactions.filter((item) => financialFlow(item.type) === 'income').reduce((sum, item) => sum + item.amount, 0)}
-                  {@const expenses = group.transactions.filter((item) => financialFlow(item.type) === 'expense').reduce((sum, item) => sum + item.amount, 0)}
-                  {@const transfers = group.transactions.filter((item) => item.type === 'transfer').reduce((sum, item) => sum + item.amount, 0)}
-                  <details class="life-milestone-group" open={index === 0}>
-                    <summary><span><strong>Age {group.age}</strong><small>YEAR {group.year} · {group.events.length} {group.events.length === 1 ? 'EVENT' : 'EVENTS'}</small></span><i aria-hidden="true"></i></summary>
-                    <div class="life-milestone-content">
-                      {#if group.transactions.length}
-                        <div class="life-milestone-finance">
-                          <div><small>INCOME</small><strong class="milestone-income">+{formatCharacterMoney(character, income)}</strong></div>
-                          <div><small>EXPENSES</small><strong class="milestone-expense">−{formatCharacterMoney(character, expenses)}</strong></div>
-                          <div><small>NET</small><strong>{income - expenses < 0 ? '−' : '+'}{formatCharacterMoney(character, Math.abs(income - expenses))}</strong></div>
-                          {#if transfers > 0}<div><small>TRANSFERS</small><strong>{formatCharacterMoney(character, transfers)}</strong></div>{/if}
-                        </div>
-                      {/if}
-                      {#each group.events as event}
-                        <div class="life-milestone-event"><span class:milestone-event-dot={event.kind === 'event'}></span><div><strong>{event.title}</strong><p>{event.description}</p></div></div>
-                      {/each}
-                      {#if group.transactions.length}
-                        <details class="life-milestone-transactions"><summary>Financial records <span>{group.transactions.length}</span></summary>
-                          {#each group.transactions as transaction}
-                            <div><span><strong>{transaction.description}</strong><small>{transaction.type.replaceAll('-', ' ')}</small></span><b>{formatCharacterMoney(character, transaction.amount)}</b></div>
-                          {/each}
-                        </details>
-                      {/if}
-                    </div>
-                  </details>
-                {/each}
-              </div>
-            {:else}
-              <p class="life-milestones-empty">Major life events and financial records will appear here as your story progresses.</p>
-            {/if}
-          </section>
           {@const activities = character.history.filter((item) => item.kind === 'activity')}
           {@const activityWeeks = groupActivityHistory(activities)}
           <section class="history-card overview-activity-feed" aria-label="All activities">
