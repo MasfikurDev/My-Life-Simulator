@@ -55,11 +55,43 @@ Current life-stage bands are 0–2 early childhood, 3–5 preschool, 6–12 chil
 
 Current action eligibility: learning/study becomes available at age 3; one-off earning and part-time job applications become available at age 16; full-time employment and higher education become available at age 18; flexible employment is available as a new option from age 65. Existing jobs do not automatically end at 65. Career development is available only while employed. Adult job applications remain available for job changes. Exercise/play and social/family time remain age-adapted across stages.
 
-### Education progression
-- Education status follows the age bands: not started (0–2), early learning (3–5), primary education (6–12), secondary education (13–17), and secondary education completed at 18.
-- A confirmed study session automatically reserves two consecutive free periods in the current week. It improves intelligence and advances learning progress when the week resolves. Progress resets at the next school-stage boundary.
-- From age 18, five study actions (20 progress each) can complete the higher-education qualification. Higher education improves access to professional roles and application odds.
-- Education is a game progression model, not a detailed curriculum, school attendance simulation, or real qualification equivalency.
+### Education, qualifications and lifelong learning
+
+Education is a continuous life system, not a single study bar or one generic higher-education flag. The intended progression begins with early childhood development and can continue through advanced academic and professional specialization. A doctorate is an option, not a mandatory endpoint.
+
+- **Early development (0–5):** family care, play, language, motor development, curiosity and early-learning activities. These shape foundational attributes; they are not formal degrees.
+- **Primary education (roughly 6–11):** foundational literacy, numeracy, science and general learning.
+- **Lower secondary (roughly 12–14) and upper secondary (roughly 15–17):** broader subjects, performance, subject strengths and choices that influence later pathways.
+- **Vocational and technical routes:** practical training, trade programs, apprenticeships and industry credentials. These can lead to skilled work without requiring a university degree.
+- **Higher education:** associate/foundation programs where applicable, bachelor's degrees, master's degrees, doctorates and professional/specialist programs. Admission, duration and availability depend on age, prior qualifications, academic performance, field prerequisites, finances and the character's circumstances.
+- **Lifelong learning:** certificates, licenses, short training courses, continuing professional development and reskilling remain available throughout adult life when prerequisites are met.
+
+Formal education, vocational training, certificates/licenses and informal learning are separate records. A certificate must not silently become a degree; course completion must not grant a regulated license unless the modeled qualification explicitly represents it. Qualifications may have fields, issuers, completion ages and expiry/renewal rules.
+
+Access and outcomes should depend on relevant factors rather than one intelligence score: prior education, subject knowledge, focus, discipline, creativity, health, stamina, stress, finances, time availability and course-specific prerequisites. Performance should reflect sustained attendance/effort and choices, with room for setbacks, pauses, transfers and alternative routes. Avoid assuming every character follows one uninterrupted school-to-university path.
+
+School and training decisions originate in the Education workspace. Once confirmed, the game automatically schedules attendance, study, exams or course sessions around existing commitments. The player does not manually construct a generic timetable. Weekly learning activities produce progress; academic terms and course milestones resolve on their modeled dates. Education history remains inspectable.
+
+**Implementation boundary:** the current build only has age-derived education labels and a simplified study-progress action that can award a generic higher-education label. The complete stage ladder, enrollment, attendance, grades, subject choices, vocational paths, degree programs, course catalog, certification issuance/expiry and education history are planned, not yet live. Replace the generic study-progress shortcut incrementally; do not present the full pathway as implemented.
+
+### Character attributes and condition
+
+Character values are gameplay inputs, not decorative scores. Keep enduring abilities distinct from temporary condition:
+
+- **Core ability:** intelligence, focus, creativity, discipline, confidence and social skills.
+- **Physical condition:** health, fitness and stamina.
+- **Wellbeing:** happiness and stress (stress is inverse: lower is better).
+
+These values change through relevant weekly activities, life events, work demands, education and recovery. They should have clear, bounded effects. Health, happiness, fitness and intelligence already exist; stamina, focus, confidence, discipline, creativity, social skills and stress are now generated and receive initial weekly activity effects. Broader recovery, long-term development, diminishing returns and condition-driven event systems remain to be implemented.
+
+### Employment, careers and qualifications
+
+- Work is a connected progression from safe, age-appropriate part-time opportunities and school-compatible work to internships, apprenticeships, skilled occupations, professional careers, management and later-life flexible work. Availability must follow the game's age rules and local/legal context represented by the character's country.
+- Job eligibility is role-specific. Age, education level, relevant subject/field, certificates or licenses, character attributes, experience, practical skills and work history can all matter. A university degree must not be the universal key to every occupation; vocational routes must be equally meaningful where appropriate.
+- Training and certifications can unlock roles, improve performance or satisfy renewal requirements. A role requiring a specific license must check the actual qualification record, not a generic education string.
+- Career changes should remain possible through transferable skills, bridging courses, retraining and experience. Advancement should be based on capability, performance and opportunity, not a fixed grind timer.
+- The current job board and four starter career paths are a limited foundation. Role-specific attribute gates now supplement age, education, knowledge and experience. A full occupation catalog, qualification-linked eligibility, employer structures, internships/apprenticeships, course enrollment and training-driven career changes remain planned.
+
 
 ### Employment and recurring finances
 - At ages 16–17, a successful application creates a part-time assistant role. Adult full-time employment is not available before age 18.

@@ -86,6 +86,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     education: getEducationStage(age), educationProgress: 0, employment: null, lastYearIncome: 0, lastYearExpenses: 0, lastYearShortfall: 0,
     householdArrangement: age >= 18 ? 'family-supported' : undefined, savingsGoalMonths: null,
     health: stat(random), happiness: stat(random), intelligence: stat(random), fitness: stat(random),
+    stamina: stat(random), focus: stat(random), confidence: stat(random), discipline: stat(random), creativity: stat(random), socialSkills: stat(random), stress: Math.round((random() + random()) * 20 + 10),
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), history: []
   };
   character.family = createFamilyState(character, random);
@@ -958,6 +959,10 @@ export function performActivity(character: Character, activity: ActivityId, rand
     case 'study':
       next.intelligence = clamp(next.intelligence + 5);
       next.happiness = clamp(next.happiness - 1);
+      next.focus = clamp((next.focus ?? 50) + 3);
+      next.discipline = clamp((next.discipline ?? 50) + 1);
+      next.stamina = clamp((next.stamina ?? 50) - 2);
+      next.stress = Math.min(100, (next.stress ?? 30) + 1);
       if (next.age >= 16) next.money -= getActivityCost(next, 'study');
       next.educationProgress = Math.min(100, (next.educationProgress ?? 0) + (next.age < 6 ? 25 : next.age < 13 ? 15 : next.age < 18 ? 12 : 20));
       if (next.age >= 18 && next.educationProgress >= 100 && next.education !== 'Higher education') {
@@ -975,10 +980,14 @@ export function performActivity(character: Character, activity: ActivityId, rand
       next.fitness = clamp(next.fitness + 6);
       next.health = clamp(next.health + 2);
       next.happiness = clamp(next.happiness + 2);
+      next.stamina = clamp((next.stamina ?? 50) + 3);
+      next.stress = Math.max(0, (next.stress ?? 30) - 3);
       next.history.unshift(event(next, 'Focused on fitness', 'A good session improved your fitness and lifted your mood.'));
       break;
     case 'socialize':
       next.happiness = clamp(next.happiness + 7);
+      next.socialSkills = clamp((next.socialSkills ?? 50) + 2);
+      next.stress = Math.max(0, (next.stress ?? 30) - 2);
       if (next.age >= 16) next.money -= getActivityCost(next, 'socialize');
       next.history.unshift(event(next, 'Spent time with friends', 'You made space for people who matter.'));
       break;
@@ -986,6 +995,9 @@ export function performActivity(character: Character, activity: ActivityId, rand
       if (next.age < 16) return character;
       next.money += 180 * scale;
       next.happiness = clamp(next.happiness - 2);
+      next.stamina = clamp((next.stamina ?? 50) - 5);
+      next.confidence = clamp((next.confidence ?? 50) + 1);
+      next.stress = Math.min(100, (next.stress ?? 30) + 3);
       next.history.unshift(event(next, 'Picked up extra work', 'You earned some money, although it took time and energy.'));
       break;
     case 'apply-job': {
@@ -1008,6 +1020,10 @@ export function performActivity(character: Character, activity: ActivityId, rand
       if (!next.employment) return character;
       next.employment = { ...next.employment, performance: clamp(next.employment.performance + 12) };
       next.happiness = clamp(next.happiness + 1);
+      next.focus = clamp((next.focus ?? 50) + 2);
+      next.confidence = clamp((next.confidence ?? 50) + 1);
+      next.discipline = clamp((next.discipline ?? 50) + 1);
+      next.stress = Math.max(0, (next.stress ?? 30) - 1);
       next.history.unshift(event(next, 'Invested in career development', 'Your performance improved. Sustained results can lead to a promotion.'));
       break;
   }

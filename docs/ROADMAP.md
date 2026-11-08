@@ -17,7 +17,12 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 ## Milestone 2 — Age-specific progression and connected systems
 - [x] Establish life-stage bands and enforce initial activity eligibility in both UI and simulation.
-- [x] Add age-stage education, study progress, and higher-education qualification.
+- [x] Add the initial age-derived education labels and study-progress foundation.
+- [x] Add optional structured education-history and qualification records to the character model, plus generated stamina, focus, confidence, discipline, creativity, social skills and stress attributes.
+- [ ] Replace the generic higher-education shortcut with a complete early-learning-to-doctorate pathway, including primary, lower/upper secondary, vocational, associate/foundation, bachelor's, master's, doctoral and professional-specialist routes.
+- [ ] Build Education workspace loops for enrollment, age-appropriate attendance, subjects, grades, exams, transfers, pauses, tuition/fees and education history.
+- [ ] Add training courses, certificates, licenses, apprenticeships and qualification renewal; connect actual completed credentials to job eligibility and career changes.
+- [ ] Expand attribute simulation with meaningful long-term growth, recovery, stress management, health/stamina effects, diminishing returns and role/course-specific prerequisites.
 - [x] Add teen part-time applications, adult full-time employment, later-life flexible-work offers, and adult job changes.
 - [x] Add annual salary, estimated living costs, career performance, and promotion progression.
 - [x] Enforce affordability for paid activities in both the UI and simulation, with currency-scaled costs and no free effects when funds are insufficient.
@@ -42,6 +47,8 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Consolidate personal wellbeing, personal growth, personal activities, and complete life history under a modular Life workspace.
 - [ ] Expand School with enrollment, attendance, classes, grades, and education history only when each mechanic has a complete simulation loop.
 - [x] Implement a weekly job board, visible role requirements, scheduled applications and interviews, expiring offers, acceptance/decline, career-path previews, player-controlled promotion offers, and voluntary resignation.
+- [x] Add initial role-specific eligibility gates for focus, social skills, confidence, discipline and creativity alongside age, education, intelligence and experience.
+- [ ] Expand work into a complete age-appropriate path spanning part-time work, internships, apprenticeships, skilled occupations, professional careers, management and flexible later-life work; connect it to real education and credential records.
 - [ ] Add richer workplace interactions, employer structures, layoffs/job security, and persistent vacancies; do not display placeholder stages.
 
 ## Milestone 3 — Replace annual actions with the weekly gameplay cycle (core transition complete)

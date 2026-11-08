@@ -401,6 +401,7 @@ describe('life simulation', () => {
       ...createCharacter('Worker', 30),
       careerExperienceYears: 2,
       intelligence: 90,
+      discipline: 80,
       employment: { title: 'Operations assistant', roleId: 'operations-assistant', careerPathId: 'operations' as const, type: 'full-time' as const, annualSalary: 10000, experienceYears: 1, performance: 90, promotions: 0, startedAtAge: 30 }
     };
     const reviewed = advanceYear(worker);
@@ -1015,5 +1016,31 @@ describe('life simulation', () => {
     expect(sold.financialTransactions?.some((item)=>item.type==='fee' && item.amount===1200)).toBe(true);
     expect(sold.financialTransactions?.some((item)=>item.type==='tax' && item.amount===2000)).toBe(true);
   });
+
+
+  it('generates expanded attributes and applies relevant weekly activity effects', () => {
+    const base = createCharacter('Balanced', 30);
+    for (const key of ['stamina', 'focus', 'confidence', 'discipline', 'creativity', 'socialSkills', 'stress'] as const) {
+      expect(base[key]).toBeGreaterThanOrEqual(0);
+      expect(base[key]).toBeLessThanOrEqual(100);
+    }
+    const exercise = performActivity(base, 'exercise');
+    expect(exercise.stamina).toBe((base.stamina ?? 50) + 3);
+    expect(exercise.stress).toBe(Math.max(0, (base.stress ?? 30) - 3));
+    const study = performActivity(base, 'study');
+    expect(study.focus).toBe((base.focus ?? 50) + 3);
+    expect(study.discipline).toBe((base.discipline ?? 50) + 1);
+    const social = performActivity(base, 'socialize');
+    expect(social.socialSkills).toBe((base.socialSkills ?? 50) + 2);
+  });
+
+  it('uses role-specific attributes as additional career eligibility requirements', () => {
+    const role = getCareerRole('service-supervisor')!;
+    const developing = { ...createCharacter('Candidate', 30), intelligence: 90, socialSkills: 40, confidence: 70, careerExperienceYears: 5 };
+    expect(isEligibleForRole(developing, role)).toBe(false);
+    const qualified = { ...developing, socialSkills: 65 };
+    expect(isEligibleForRole(qualified, role)).toBe(true);
+  });
+
 
 });
