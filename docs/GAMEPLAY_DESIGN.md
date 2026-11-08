@@ -185,7 +185,7 @@ The current game has scenario-led character creation with coherent randomized id
 This is a substantial playable foundation, not a complete life simulator. The old annual action-token system is retired. Weekly turns are explicit; monthly financial settlement remains planned while the current financial settlement cadence is annual.
 
 ## Remaining major game milestones
-Full School enrollment/attendance/grades, richer date-based event chains and deadlines, monthly financial settlement, expanded family lifecycle and dependants, health/recovery depth, personal technology, retirement, mortality, terminal-life completion, generational play, broader event packs, achievements/challenges, and balance across full-life playthroughs remain staged. Cloud backup and online features are later options, not requirements for the core game.
+Richer date-based event chains and deadlines, monthly financial settlement, expanded family lifecycle and dependants, deeper chronic-care/insurance/localized healthcare, personal technology, retirement, mortality, terminal-life completion, generational play, broader event packs, achievements/challenges, and balance across full-life playthroughs remain staged. Cloud backup and online features are later options, not requirements for the core game.
 
 
 ## System boundaries and player experiences
