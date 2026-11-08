@@ -495,7 +495,12 @@ describe('life simulation', () => {
   it('expires job offers after their response window passes', () => {
     const candidate = {
       ...createCharacter('Candidate', 30),
-      intelligence: 90,
+      intelligence: 100,
+      socialSkills: 100,
+      confidence: 100,
+      discipline: 100,
+      focus: 100,
+      creativity: 100,
       education: 'Higher education',
       careerExperienceYears: 5,
       currencyScale: 1
