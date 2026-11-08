@@ -64,6 +64,12 @@ The detailed implementation rules live in `.github/skills/ui-engineering/SKILL.m
 
 A UI change is not complete merely because it compiles. Verify alignment, spacing, clipping, overflow, safe areas, and touch targets at representative phone and desktop widths. If visual preview is unavailable, state that visual verification remains outstanding rather than claiming the screen was checked.
 
+- Workspace page titles share one visual scale regardless of heading tag; section headings remain subordinate and use the same index/title alignment.
+- Section hints stay beside headings when space allows and move below the heading on narrow screens instead of clipping or squeezing the title.
+- Use the shared `EmptyState` component for empty collections so title, optional detail, surface, border, padding, and typography remain consistent. Keep empty-state copy factual and short.
+- Settings action buttons use the same secondary/danger control sizing; do not mix compact and full-size variants within one action list.
+- The title menu must fit its natural content height on phone screens. Allow scrolling only when the user expands content or the viewport is genuinely too short; do not force a fixed viewport-height minimum that hides the footer.
+
 ## Content and accessibility
 Use concise, factual, context-aware language. Every message must communicate useful game state, an available action, a cost, eligibility, a consequence, or a clear limitation. Remove generic motivational slogans, inspirational filler, and decorative copy that does not help the player decide or understand. Use semantic controls, keyboard support, visible focus, accessible names, readable scaling, and never rely on color alone.
 
