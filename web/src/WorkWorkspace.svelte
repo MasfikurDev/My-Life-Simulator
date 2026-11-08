@@ -232,4 +232,6 @@
   .career-history strong{color:var(--text);font-size:11px}.career-history p{margin:4px 0}.career-history small{color:var(--muted);font-size:9px}
   .history-dot{width:7px;height:7px;margin-top:5px;border-radius:50%;background:var(--accent)}
   @media(max-width:700px){.work-listing{grid-template-columns:minmax(0,1fr)}.listing-actions{min-width:0}.work-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.career-role{grid-template-columns:48px minmax(0,1fr)}.career-state{grid-column:2;text-align:left}.career-role details{grid-column:2}.offer-card{grid-template-columns:minmax(0,1fr)}.offer-actions{justify-content:flex-start}}
+.work-panel-heading h2{font-size:24px;line-height:1.2;letter-spacing:-.7px}
+  @media(max-width:620px){.work-panel-heading h2{font-size:22px;line-height:1.2}}
 </style>
