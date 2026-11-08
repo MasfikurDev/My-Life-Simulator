@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createCharacter } from './simulation';
 import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation, resolveEducationWeek } from './education';
-import { getCareerRole, isEligibleForRole } from './work';
+import { getCareerRequirements, getCareerRole, isEligibleForRole } from './work';
 
 describe('education progression', () => {
   it('offers age-appropriate school, vocational and higher-education routes', () => {
@@ -98,6 +98,7 @@ describe('education progression', () => {
     expect(isEligibleForRole(capable, role)).toBe(false);
     const enrolled = enrollInEducation(capable, 'professional-certificate', 'Programming').character;
     const completed = resolveEducationWeek({ ...enrolled, educationEnrollment: { ...enrolled.educationEnrollment!, totalWeeks: 1 } }, ['study', 'assignment', 'exam'], '2026-11-02', 6).character;
+    expect(getCareerRequirements(completed, role).filter((item) => !item.met).map((item) => item.label)).toEqual([]);
     expect(isEligibleForRole(completed, role)).toBe(true);
   });
 
