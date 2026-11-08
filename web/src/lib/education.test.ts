@@ -18,7 +18,7 @@ describe('education progression', () => {
     const result = enrollInEducation(student, 'primary-school', 'General studies');
     expect(result.issue).toBeNull();
     expect(result.character.educationEnrollment?.weeklyStudyTarget).toBe(2);
-    expect(result.character.weeklySchedule?.commitments).toHaveLength(0);
+    expect(result.character.weeklyPlan.activities).toHaveLength(0);
     expect(result.character.educationRecords?.[0].status).toBe('enrolled');
   });
 
@@ -56,19 +56,19 @@ describe('education progression', () => {
     const paused = pauseEducation(enrolled);
     expect(paused.educationEnrollment?.status).toBe('paused');
     expect(paused.educationEnrollment?.weeksCompleted).toBe(enrolled.educationEnrollment?.weeksCompleted);
-    expect(paused.weeklySchedule?.commitments.some((item) => item.domain === 'school')).toBe(false);
+    expect(paused.weeklyPlan.activities).toEqual(enrolled.weeklyPlan.activities);
     expect(paused.educationRecords?.[0].status).toBe('paused');
     const resumed = resumeEducation(paused);
     expect(resumed.issue).toBeNull();
     expect(resumed.character.educationEnrollment?.status).toBe('enrolled');
-    expect(resumed.character.weeklySchedule?.commitments).toHaveLength(0);
+    expect(resumed.character.weeklyPlan.activities).toEqual(enrolled.weeklyPlan.activities);
   });
   it('supports early development from birth without awarding a formal degree', () => {
     const infant = createCharacter('Infant', 1);
     expect(getAvailableEducationPrograms(infant).some((program) => program.id === 'early-development')).toBe(true);
     const enrolled = enrollInEducation(infant, 'early-development', 'Play & discovery');
     expect(enrolled.issue).toBeNull();
-    expect(enrolled.character.weeklySchedule?.commitments).toHaveLength(0);
+    expect(enrolled.character.weeklyPlan.activities).toHaveLength(0);
     const completed = resolveEducationWeek({ ...enrolled.character, educationEnrollment: { ...enrolled.character.educationEnrollment!, totalWeeks: 1 } }, ['study'], '2026-11-02', 4);
     expect(completed.character.academicHistory?.[0].outcome).toBe('completed');
     expect(completed.character.qualifications ?? []).toHaveLength(0);
