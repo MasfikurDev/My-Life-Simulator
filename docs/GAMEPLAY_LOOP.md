@@ -154,8 +154,8 @@ The player explicitly confirms **Start next week**. The simulation resolves the 
 ### 3.5 Deterministic week resolution
 
 The exact order is a domain contract and must be tested. Proposed order:
-1. Validate the week can advance and capture the current week's planned activities/commitments.
-2. Resolve scheduled attendance/work participation and player activities; reject invalid or overlapping time allocations.
+1. Validate the weekly activity plan and its non-negative stamina budget.
+2. Resolve automatic education/work responsibilities and selected player activities; no time-slot conflict resolution occurs.
 3. Resolve deadlines and events due during the week, recording choices and consequences.
 4. Apply weekly recurring income/expenses only when their due dates fall in this week.
 5. Update bounded wellbeing/skill/progression effects from what actually happened.
