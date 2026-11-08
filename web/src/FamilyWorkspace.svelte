@@ -10,6 +10,9 @@
   const family = $derived(character.family);
   const errors = $derived(family ? validateFamilyState(family) : []);
   const livingCount = $derived(connections.filter((item) => item.living).length);
+  function interactionPlanned(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
+    return (character.weeklySchedule?.activities ?? []).some((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
+  }
   function interact(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
     const existing = (character.weeklySchedule?.activities ?? []).find((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
     if (existing) { onChange(removePlannedActivity(character, existing.id)); feedback = 'Interaction removed from this week.'; return; }
@@ -75,16 +78,16 @@
               {/if}
               {#if connection.living}
                 <div class="relative-actions">
-                  <button onclick={() => interact(connection.person.id, 'spend-time')}>Spend time</button>
-                  {#if character.age >= 10}<button onclick={() => interact(connection.person.id, 'reach-out')}>Reach out</button>{/if}
-                  {#if character.age >= 13 && connection.bond.tension >= 15}<button onclick={() => interact(connection.person.id, 'reconcile')}>Work through conflict</button>{/if}
+                  <button class:planned={interactionPlanned(connection.person.id, 'spend-time')} onclick={() => interact(connection.person.id, 'spend-time')}>{interactionPlanned(connection.person.id, 'spend-time') ? 'Remove spend-time plan' : 'Spend time · 6 stamina'}</button>
+                  {#if character.age >= 10}<button class:planned={interactionPlanned(connection.person.id, 'reach-out')} onclick={() => interact(connection.person.id, 'reach-out')}>{interactionPlanned(connection.person.id, 'reach-out') ? 'Remove reach-out plan' : 'Reach out · 6 stamina'}</button>{/if}
+                  {#if character.age >= 13 && connection.bond.tension >= 15}<button class:planned={interactionPlanned(connection.person.id, 'reconcile')} onclick={() => interact(connection.person.id, 'reconcile')}>{interactionPlanned(connection.person.id, 'reconcile') ? 'Remove plan' : 'Work through conflict · 6 stamina'}</button>{/if}
                 </div>
                 {#if character.age >= 18}
                   <div class="support-row">
                     <label>Support amount
                       <input type="number" min="1" step="1" bind:value={supportAmount} />
                     </label>
-                    <button disabled={!Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money} onclick={() => interact(connection.person.id, 'provide-support')}>Provide support</button>
+                    <button disabled={!Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money} onclick={() => interact(connection.person.id, 'provide-support')}>{interactionPlanned(connection.person.id, 'provide-support') ? 'Remove support plan' : 'Provide support · 3 stamina'}</button>
                   </div>
                   <p class="support-note">Available cash: {formatCharacterMoney(character)}. Support is an actual expense and is recorded in Finance.</p>
                 {/if}
