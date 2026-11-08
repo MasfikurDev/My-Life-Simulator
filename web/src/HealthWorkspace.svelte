@@ -21,6 +21,7 @@
   function removeCare(id: string) { onChange(removePlannedActivity(character, id)); onNotify('Care appointment removed from this week.'); }
   const stats = $derived([
     { label: 'Physical health', value: character.health, tone: 'health', inverse: false },
+    { label: 'Fitness', value: character.fitness, tone: 'fitness', inverse: false },
     { label: 'Stamina', value: character.stamina ?? 50, tone: 'stamina', inverse: false },
     { label: 'Happiness', value: character.happiness, tone: 'happiness', inverse: false },
     { label: 'Stress', value: character.stress ?? 30, tone: 'stress', inverse: true }
