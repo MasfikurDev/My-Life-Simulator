@@ -6,8 +6,8 @@
 
 This is a repository-backed progress snapshot, not a claim that every visible workspace is a complete simulation system. The detailed system specifications below remain authoritative for behavior and acceptance criteria.
 
-- **Weekly simulation:** the annual-action-to-weekly-turn transition is implemented. Calendar, recurring School/Work commitments, stamina-based personal activities, deterministic weekly resolution, history, recap, and save migration are in place.
-- **Education:** playable foundation from school through higher education/professional programmes, with enrollment, class commitments, weekly study/assessment tasks, grades, tuition, and qualification records. Localization, licensing, scholarships, retakes, and apprenticeships remain incomplete.
+- **Weekly simulation:** the annual-action-to-weekly-turn transition is implemented. Date/week calendar, automatic School/Work responsibilities, stamina-based personal activities, deterministic weekly resolution, history, recap, and schema 5 timetable-removal migration are in place.
+- **Education:** playable foundation from school through higher education/professional programmes, with enrollment, automatic attendance/progression, weekly study/assessment tasks, grades, tuition, and qualification records. Localization, licensing, scholarships, retakes, and apprenticeships remain incomplete.
 - **Work:** recruitment, applications, interviews, offers, employment, job changes/resignation, career previews, and player-controlled promotion offers exist. Employer operations, persistent vacancies, workplace decisions, layoffs, benefits, bonuses, and monthly payroll remain incomplete.
 - **Finance:** broad systems exist for accounts, cards, savings, loans, recurring payments, property, investments, business ownership, taxes, credit scoring, and economic indicators. The weekly-to-monthly settlement transition is not complete; salary and household settlement remain annual, a known pacing limitation.
 - **Family:** persistent people/relationship graph, bonds, targeted interactions, family history, and ledger-backed adult support exist. Partnership, parenthood, adoption, dependants, caregiving, family mortality, inheritance, and generational play remain planned.
@@ -86,21 +86,21 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 ## Milestone 3 — Replace annual actions with the weekly gameplay cycle (core transition complete)
 
-**Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. Personal activities now use stamina rather than individual time slots; recurring school/work commitments continue to reserve the calendar. Weekly review is simulation-backed and deterministic. Remaining work is listed separately below.
+**Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. Personal activities use a stamina budget; school/work are automatic background responsibilities and do not reserve calendar periods. Weekly review is simulation-backed and deterministic. Remaining work is listed separately below.
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
 - [x] Define a compact calendar model for genuine recurring commitments only; do not simulate every hour. The player-facing model has no day/period grid. Education and employment are automatic weekly background responsibilities; workload is calculated from those obligations and selected activities.
-- [x] Add a Schedule review workspace with a seven-day, 21-period grid for recurring commitments, plus a consolidated personal-activity list with stamina/money costs and cancellation. Routine actions are initiated only from their owning domain.
+- [x] Remove the Schedule workspace and timetable grid; the Advance review is the consolidated plan/outcome surface.
 - [x] Centralize activity eligibility and validate weekly actions, stamina/money costs, and stamina allocation. Personal activities do not reserve calendar periods.
 - [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, business management, and contextual Work actions.
 - [x] Make weekly activity selection contextual across School, Work, Family, Business, Events, and Life; no date/period entry is exposed to the player.
 - [x] Retire the Schedule workspace; the Advance review is the single combined plan/outcome surface.
-- [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once; reject and preserve a turn if a reservation becomes stale before resolution.
+- [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once; reject and preserve a turn if a selected action becomes stale or exceeds the stamina budget.
 - [x] Add deterministic, exactly-once weekly resolution with history, recap, and seven-day calendar advancement.
 - [ ] Adapt remaining contextual events, deadlines, and delayed consequences to date/week boundaries.
 - [ ] Move recurring payments, employment payroll, and business operating cash flow to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries. Until then, salary and household settlement remain annual and are a known pacing limitation of the weekly loop.
 - [ ] Prevent duplicate or skipped financial settlement across month/year boundaries; document rounding and payment-failure behavior.
-- [x] Migrate schema 1 single-save and schema 2/3 multi-slot saves to the weekly model; preserve valid character records and all three slots, anchor missing calendars without changing displayed age, and retain the original payload as a recovery copy.\n- [x] Add schema 5 timetable-removal migration: preserve planned personal actions and character data, clear legacy school/work time-slot commitments, and stop regenerating them.
+- [x] Migrate schema 1 single-save and schema 2/3/4 multi-slot saves to the weekly model; preserve valid character records and all three slots, anchor missing calendars without changing displayed age, and retain the original payload as a recovery copy.\n- [x] Add schema 5 timetable-removal migration: preserve planned personal actions and character data, clear legacy school/work time-slot commitments, and stop regenerating them.
 - [ ] Add multi-week advancement only after single-week resolution is reliable; it must stop before important decisions, deadlines, events, birthdays, and payment failures.
 - [ ] Complete the concise weekly review, add a monthly Finance statement when monthly settlement is implemented, and keep the annual life review separate from weekly recap.
 
@@ -122,13 +122,13 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Acceptance:** Device ownership and costs persist accurately; failed transactions are atomic; capabilities enable specific contextual opportunities; other domains do not duplicate device management; existing saves remain valid. Detailed rules: [PERSONAL_TECHNOLOGY.md](PERSONAL_TECHNOLOGY.md).
 
 ## Milestone 5 — Deepen School and Work into playable systems
-- [x] Add education progression choices, enrollment, class commitments, weekly assignments/exams, grades, tuition and academic history in the Education workspace.
+- [x] Add education progression choices, enrollment, automatic attendance/progression, weekly assignments/exams, grades, tuition and academic history in the Education workspace.
 - [x] Add recruitment stages with applications, interviews, offers, acceptance/decline, generated employer identity, and job-change/resignation flow in Work.
 - [ ] Add persistent employer operations, workplace decisions, layoffs/job security, and role-specific skill development.
 - [ ] Clarify the current-job card and add a read-only career-path preview with estimated salary/bonus ranges; see [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md).
 - [x] Connect general education, knowledge, career experience, performance, and role requirements to transparent readiness checks and player-controlled promotion offers without a universal fixed-week grind.
 - [ ] Add role-specific skills, persistent vacancies, employer decisions, and promotion outcomes tied to workplace conditions.
-- [x] Add job changes and voluntary resignation through the shared employment record. Job type now controls recurring Work commitments, and changing/leaving jobs replaces or removes those commitments safely.
+- [x] Add job changes and voluntary resignation through the shared employment record. Employment type informs automatic background workload; job changes do not create calendar reservations.
 - [ ] Add conditional bonuses/benefits, monthly payroll, career stability, layoffs, and deeper workplace progression only with complete finance and employer loops.
 
 **Acceptance:** Education and career choices change future options and have visible consequences; no placeholder status is shown as a real mechanic.
