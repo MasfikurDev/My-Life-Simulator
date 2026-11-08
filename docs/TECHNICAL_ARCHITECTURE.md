@@ -173,7 +173,7 @@ Shared cross-domain effects are communicated through explicit simulation transac
 
 
 ## Life workspace
-The top-level Life destination is a modular UI workspace, not a new simulation subsystem. Its focused sections are Overview, Wellbeing (health, happiness, fitness), Personal Growth (intelligence), Personal (exercise and social activities), and Life History. The workspace reuses Character fields, existing activity eligibility and affordability functions, `performActivity`, and the shared chronological `history` array. Do not duplicate or migrate persisted state solely to support navigation. School and Work remain separate top-level destinations; settings may show a short recent-log preview but the complete history belongs in Life.
+The top-level Life destination is a modular UI workspace, not a new simulation subsystem. Its focused sections include Overview, Health & wellbeing (composing `HealthWorkspace.svelte` for condition monitoring, care planning, recovery and treatment), Lifestyle, Family, Schedule, Personal Growth, Personal activities, and Life History. The workspace reuses Character fields, existing activity eligibility and affordability functions, and the shared chronological `history` array. Do not duplicate or migrate persisted state solely to support navigation. Education, Work, and Finance remain independent top-level destinations. Profile is the character-and-game-management destination: it presents character identity, background, appearance and attributes first, followed by save-slot management and the complete settings controls. The settings area may show a short recent-log preview but the complete history belongs in Life.
 
 
 ## Banking and Lifestyle ownership

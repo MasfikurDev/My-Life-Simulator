@@ -6,8 +6,9 @@
   import LifestyleWorkspace from './LifestyleWorkspace.svelte';
   import FamilyWorkspace from './FamilyWorkspace.svelte';
   import ScheduleWorkspace from './ScheduleWorkspace.svelte';
-  type LifeView = 'overview' | 'schedule' | 'lifestyle' | 'family' | 'wellbeing' | 'growth' | 'personal' | 'history';
-  let { character, onChange, initialView = 'overview' }: { character: Character; onChange: (next: Character) => void; initialView?: LifeView } = $props();
+  import HealthWorkspace from './HealthWorkspace.svelte';
+  type LifeView = 'overview' | 'schedule' | 'lifestyle' | 'family' | 'health' | 'growth' | 'personal' | 'history';
+  let { character, onChange, onNotify, initialView = 'overview' }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifeView } = $props();
   let activeView = $state<LifeView>(initialView);
   let activityFeedback = $state('');
   const views: { id: LifeView; label: string }[] = [
@@ -15,7 +16,7 @@
     { id: 'schedule', label: 'Schedule' }, 
     { id: 'lifestyle', label: 'Lifestyle' },
     { id: 'family', label: 'Family' },
-    { id: 'wellbeing', label: 'Wellbeing' },
+    { id: 'health', label: 'Health & wellbeing' },
     { id: 'growth', label: 'Personal growth' },
     { id: 'personal', label: 'Personal' },
     { id: 'history', label: 'Life history' }
@@ -81,7 +82,7 @@
     <div class="finance-shortcuts life-shortcuts">
       <button onclick={() => activeView='schedule'}><span class="shortcut-icon">▦</span><strong>Weekly schedule</strong><small>Plan activities and check time conflicts</small><b>Open schedule →</b></button>
       <button onclick={() => activeView='family'}><span class="shortcut-icon">⌂</span><strong>Family</strong><small>People, bonds and family history</small><b>Open family →</b></button>
-      <button onclick={() => activeView='wellbeing'}><span class="shortcut-icon">＋</span><strong>Wellbeing</strong><small>Health, happiness and fitness</small><b>View wellbeing →</b></button>
+      <button onclick={() => activeView='health'}><span class="shortcut-icon">＋</span ><strong>Health & wellbeing</strong><small>Condition, care, recovery and treatment</small><b>Open health →</b></button>
       <button onclick={() => activeView='growth'}><span class="shortcut-icon">✳</span><strong>Personal growth</strong><small>Learning and intelligence</small><b>View personal growth →</b></button>
       <button onclick={() => activeView='personal'}><span class="shortcut-icon">◎</span><strong>Personal</strong><small>Everyday activities and free time</small><b>Open personal life →</b></button>
       <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.filter((item) => item.kind === 'milestone').length} major achievements</small><b>Review history →</b></button>
@@ -90,15 +91,8 @@
     <ScheduleWorkspace {character} {onChange} />
   {:else if activeView === 'family'}
     <FamilyWorkspace {character} {onChange} />
-  {:else if activeView === 'wellbeing'}
-    <section class="domain-panel">
-      <div class="domain-panel-head"><div><div class="eyebrow">PERSONAL CONDITION</div><h2>Wellbeing</h2><p>These indicators change through life events and personal activities.</p></div></div>
-      <div class="stats-grid">
-        {#each [{label:'Health',value:character.health,color:'mint',icon:'＋'},{label:'Happiness',value:character.happiness,color:'coral',icon:'♡'},{label:'Fitness',value:character.fitness,color:'amber',icon:'⌁'}] as stat}
-          <article class="stat-card"><div class="stat-top"><span class="stat-icon {stat.color}">{stat.icon}</span><span class="stat-label">{stat.label}</span></div><div class="stat-value">{stat.value}<small>/100</small></div><div class="meter"><span class={stat.color} style="width:{stat.value}%"></span></div></article>
-        {/each}
-      </div>
-    </section>
+  {:else if activeView === 'health'}
+    <HealthWorkspace {character} {onChange} {onNotify} />
   {:else if activeView === 'growth'}
     <section class="domain-panel">
       <div class="domain-panel-head"><div><div class="eyebrow">PERSONAL DEVELOPMENT</div><h2>Intelligence</h2><p>A general measure of accumulated learning and knowledge.</p></div></div>
