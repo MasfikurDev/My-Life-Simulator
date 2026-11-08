@@ -758,7 +758,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .education-enrol-panel h3{margin:8px 0 4px;font-size:18px}
 .education-enrol-panel p{margin:0;color:var(--muted);font-size:12px}
 .education-field-label{display:flex;flex-direction:column;gap:8px;margin:17px 0;color:var(--muted);font-size:11px}
-.education-field-label select{background:var(--surface);border:1px solid var(--line-strong);border-radius:9px;color:var(--text);padding:12px;font:inherit}
+.education-field-label>span{font-weight:700;color:var(--text)}
 .education-enrol-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
 .education-enrol-footer strong{color:var(--text)}
 .education-history-row,.health-condition-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 0;border-bottom:1px solid var(--line)}

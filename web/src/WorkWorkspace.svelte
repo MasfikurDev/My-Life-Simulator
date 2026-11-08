@@ -2,6 +2,7 @@
   import { acceptJobOffer, acceptPromotionOffer, declineJobOffer, declinePromotionOffer, formatCharacterMoney, planActivityInNextFreeTime, planWorkActionInNextFreeTime, resignFromJob } from './lib/simulation';
   import { getCareerPath, getCareerRequirements, getCareerRole, getJobListings, getPromotionReadiness, isEligibleForRole } from './lib/work';
   import type { CareerPathId, Character } from './lib/types';
+  import GameChoice from './GameChoice.svelte';
 
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   type WorkView = 'jobs' | 'career' | 'history';
@@ -146,11 +147,9 @@
   {:else if activeView === 'career'}
     <section class="work-panel">
       <div class="work-panel-heading"><div><div class="eyebrow">CAREER PROGRESSION</div><h2>{currentRole?.pathName ?? 'Explore career paths'}</h2><p>Career paths are guides, not promises. Estimated salary bands are not job offers.</p></div></div>
-      <label class="path-picker">Career path
-          <select bind:value={selectedPath}>
-            <option value="operations">Operations</option><option value="customer-service">Customer service</option><option value="technology">Technology</option><option value="sales">Sales</option>
-          </select>
-      </label>
+      <div class="path-picker"><span>Choose a career path</span>
+        <GameChoice label="Career path" value={selectedPath} options={[{value:'operations',label:'Operations',detail:'Coordination and management'},{value:'customer-service',label:'Customer service',detail:'Support and communication'},{value:'technology',label:'Technology',detail:'Technical and digital roles'},{value:'sales',label:'Sales',detail:'Business development'}]} onSelect={(path) => selectedPath = path as CareerPathId} columns={2} />
+      </div>
       <div class="career-path">
         {#each careerRoles as role, index (role.id)}
           {@const requirements = getCareerRequirements(character, role)}
@@ -223,7 +222,7 @@
   .application-list{display:grid;gap:0}.application-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;padding:10px 0;border-bottom:1px solid var(--line)}.application-row:last-child{border-bottom:0}
   .application-row strong,.application-row small{display:block}.application-row strong{color:var(--text);font-size:11px}.application-row small{margin-top:3px;color:var(--muted);font-size:9px}.application-row p{grid-column:1/-1;margin:0;font-size:10px}
   .application-status{align-self:center;color:var(--muted);font-size:9px;text-transform:capitalize}.application-status.interview,.application-status.offered{color:var(--accent)}
-  .path-picker{display:grid;gap:5px;max-width:260px;color:var(--muted);font-size:10px}.path-picker select{min-height:38px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface-raised);color:var(--text)}
+  .path-picker{display:grid;gap:5px;color:var(--muted);font-size:10px}.path-picker>span{font-weight:650}
   .career-path{display:grid;gap:0;margin-top:12px}
   .career-role{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-raised)}
   .career-role.current{border-color:var(--accent);background:var(--accent-soft)}

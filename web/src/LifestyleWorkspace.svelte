@@ -1,6 +1,7 @@
 <script lang="ts">
   import { addRecurringPayment, cancelRecurringPayment, formatCharacterMoney, makeAccountPurchase, makeCashPurchase, makeCardPurchase } from './lib/simulation';
   import FinanceLivingCosts from './FinanceLivingCosts.svelte';
+  import GameChoice from './GameChoice.svelte';
   import type { Character, PaymentSourceType } from './lib/types';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   let activeView = $state<'discover' | 'services' | 'home'>('discover');
@@ -88,8 +89,8 @@
     <section class="market-payment">
       <div><strong>Payment method</strong><small>Choose how purchases and new subscriptions are paid.</small></div>
       <div class="payment-controls">
-        <select bind:value={paymentSource} aria-label="Payment method"><option value="cash">Cash</option><option value="account">Bank account</option><option value="card">Payment card</option></select>
-        {#if paymentSource === 'account'}<select bind:value={paymentAccountId} aria-label="Choose bank account"><option value="">Choose account</option>{#each (character.bankAccounts ?? []) as account}<option value={account.id}>{account.name}</option>{/each}</select>{:else if paymentSource === 'card'}<select bind:value={paymentCardId} aria-label="Choose card"><option value="">Choose card</option>{#each activeCards as card}<option value={card.id}>{card.name} · {card.type}</option>{/each}</select>{/if}
+        <GameChoice label="Payment method" value={paymentSource} options={[{value:'cash',label:'Cash',detail:'Pay from wallet'},{value:'account',label:'Bank account',detail:'Pay from your balance'},{value:'card',label:'Payment card',detail:'Use an active card'}]} onSelect={(value) => paymentSource = value as PaymentSourceType} columns={3} compact/>
+        {#if paymentSource === 'account'}<GameChoice label="Bank account" value={paymentAccountId} options={[{value:'',label:'Choose account'},...(character.bankAccounts ?? []).map((account) => ({value:account.id,label:account.name,detail:formatCharacterMoney(character,account.balance)}))]} onSelect={(value) => paymentAccountId = value} columns={2}/>{:else if paymentSource === 'card'}<GameChoice label="Payment card" value={paymentCardId} options={[{value:'',label:'Choose card'},...activeCards.map((card) => ({value:card.id,label:card.name,detail:card.type}))]} onSelect={(value) => paymentCardId = value} columns={2}/>{/if}
       </div>
     </section>
     <nav class="market-categories" aria-label="Store categories">
