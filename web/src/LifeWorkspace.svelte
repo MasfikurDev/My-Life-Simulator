@@ -1,29 +1,21 @@
 <script lang="ts">
-  import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './lib/progression';
+  import { getLifeStage } from './lib/progression';
   import { formatCharacterMoney } from './lib/simulation';
-  import { planActivityInNextFreeTime } from './lib/simulation';
-  import type { ActivityId, Character } from './lib/types';
+  import type { Character } from './lib/types';
   import LifestyleWorkspace from './LifestyleWorkspace.svelte';
   import FamilyWorkspace from './FamilyWorkspace.svelte';
-  import ScheduleWorkspace from './ScheduleWorkspace.svelte';
+  import LifeTreeWorkspace from './LifeTreeWorkspace.svelte';
   import HealthWorkspace from './HealthWorkspace.svelte';
-  type LifeView = 'overview' | 'schedule' | 'lifestyle' | 'family' | 'health' | 'growth' | 'personal' | 'history';
+  type LifeView = 'overview' | 'health' | 'lifestyle' | 'family' | 'tree' | 'history';
   let { character, onChange, onNotify, initialView = 'overview' }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifeView } = $props();
   let activeView = $state<LifeView>(initialView);
-  let activityFeedback = $state('');
   const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
-    { id: 'schedule', label: 'Schedule' }, 
-    { id: 'lifestyle', label: 'Lifestyle' },
-    { id: 'family', label: 'Family' },
     { id: 'health', label: 'Health & wellbeing' },
-    { id: 'growth', label: 'Personal growth' },
-    { id: 'personal', label: 'Personal' },
+    { id: 'lifestyle', label: 'Market' },
+    { id: 'family', label: 'Family' },
+    { id: 'tree', label: 'Life tree' },
     { id: 'history', label: 'Life history' }
-  ];
-  const personalActivities: {id: ActivityId; title: string; detail: string; icon: string; cost: string}[] = [
-    { id: 'exercise', title: 'Exercise', detail: 'Improve fitness, health, and mood.', icon: '⌁', cost: 'Time' },
-    { id: 'socialize', title: 'Socialize', detail: 'Make time for the people around you.', icon: '◎', cost: '20' }
   ];
   const stage = $derived(getLifeStage(character.age));
   function financialFlow(type: string): 'income' | 'expense' | null {
@@ -48,18 +40,6 @@
     return [...groups.values()].filter((group) => group.events.length || group.transactions.length)
       .sort((a, b) => b.year - a.year || b.age - a.age);
   }
-  const availablePersonalActivities = $derived(personalActivities.filter((item) => getAvailableActivityIds(character.age, character.employment).includes(item.id)));
-  function scheduleActivity(activityId: ActivityId) {
-    const planned = planActivityInNextFreeTime(character, activityId);
-    if (planned.issue) {
-      activityFeedback = planned.message ?? 'No suitable time is available this week.';
-      return;
-    }
-    onChange(planned.character);
-    const slot = planned.scheduledActivity;
-    activityFeedback = getActivityDefinition(activityId).title + ' confirmed for ' +
-      (slot ? slot.date + ' (' + slot.startPeriod + ')' : 'this week') + '.';
-  }
 </script>
 
 <section class="life-workspace">
@@ -80,34 +60,17 @@
       <div class="domain-metrics"><div><span>Planned this week</span><strong>{character.weeklySchedule?.activities.length ?? 0}</strong></div><div><span>Health</span><strong>{character.health}/100</strong></div><div><span>Happiness</span><strong>{character.happiness}/100</strong></div><div><span>Fitness</span><strong>{character.fitness}/100</strong></div></div>
     </section>
     <div class="finance-shortcuts life-shortcuts">
-      <button onclick={() => activeView='schedule'}><span class="shortcut-icon">▦</span><strong>Weekly schedule</strong><small>Plan activities and check time conflicts</small><b>Open schedule →</b></button>
+      <button onclick={() => activeView='lifestyle'}><span class="shortcut-icon">▤</span><strong>Market</strong><small>Everyday shopping, services and household needs</small><b>Open market →</b></button>
       <button onclick={() => activeView='family'}><span class="shortcut-icon">⌂</span><strong>Family</strong><small>People, bonds and family history</small><b>Open family →</b></button>
-      <button onclick={() => activeView='health'}><span class="shortcut-icon">＋</span ><strong>Health & wellbeing</strong><small>Condition, care, recovery and treatment</small><b>Open health →</b></button>
-      <button onclick={() => activeView='growth'}><span class="shortcut-icon">✳</span><strong>Personal growth</strong><small>Learning and intelligence</small><b>View personal growth →</b></button>
-      <button onclick={() => activeView='personal'}><span class="shortcut-icon">◎</span><strong>Personal</strong><small>Everyday activities and free time</small><b>Open personal life →</b></button>
+      <button onclick={() => activeView='tree'}><span class="shortcut-icon">⑂</span><strong>Life tree</strong><small>Your decisions, paths and earned skill boosts</small><b>Explore life tree →</b></button>
       <button onclick={() => activeView='history'}><span class="shortcut-icon">↗</span><strong>Life history</strong><small>{character.history.filter((item) => item.kind === 'milestone').length} major achievements</small><b>Review history →</b></button>
     </div>
-  {:else if activeView === 'schedule'}
-    <ScheduleWorkspace {character} {onChange} />
   {:else if activeView === 'family'}
     <FamilyWorkspace {character} {onChange} />
   {:else if activeView === 'health'}
     <HealthWorkspace {character} {onChange} {onNotify} />
-  {:else if activeView === 'growth'}
-    <section class="domain-panel">
-      <div class="domain-panel-head"><div><div class="eyebrow">PERSONAL DEVELOPMENT</div><h2>Intelligence</h2><p>A general measure of accumulated learning and knowledge.</p></div></div>
-      <div class="stats-grid"><article class="stat-card"><div class="stat-top"><span class="stat-icon blue">✳</span><span class="stat-label">Intelligence</span></div><div class="stat-value">{character.intelligence}<small>/100</small></div><div class="meter"><span class="blue" style="width:{character.intelligence}%"></span></div></article></div>
-    </section>
-  {:else if activeView === 'personal'}
-    <div class="page-heading"><div><div class="eyebrow">PERSONAL TIME</div><h2>Everyday activities</h2><p>Choose an activity here. The game finds a suitable free period automatically.</p></div><div class="year-pill">{character.weeklySchedule?.activities.length ?? 0} PLANNED</div></div>
-    <div class="activity-grid activity-grid-large">
-      {#each availablePersonalActivities as activity}
-        <button class="activity-card" onclick={() => scheduleActivity(activity.id)}>
-          <span class="activity-icon">{activity.icon}</span><span class="activity-title">{activity.title}</span><span class="activity-detail">{activity.detail}</span><span class="activity-cost">Confirm activity <span>→</span></span>
-        </button>
-      {/each}
-    </div>
-    {#if activityFeedback}<p class="domain-note" role="status">{activityFeedback}</p>{/if}
+  {:else if activeView === 'tree'}
+    <LifeTreeWorkspace {character} />
   {:else if activeView === 'lifestyle'}
     <LifestyleWorkspace {character} {onChange} />
   {:else if activeView === 'history'}
