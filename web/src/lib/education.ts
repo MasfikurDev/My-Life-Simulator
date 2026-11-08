@@ -1,6 +1,4 @@
-import type { AcademicResult, Character, EducationEnrollment, EducationLevel, EducationRecord, EducationTaskType, Qualification, WeeklyCommitment, DayPeriod } from './types';
-import { buildWeeklySchedule } from './weekly-schedule';
-import { getWeekStart, getFirstWeekStartOfYear } from './calendar';
+import type { AcademicResult, Character, EducationEnrollment, EducationLevel, EducationRecord, EducationTaskType, Qualification } from './types';
 
 export interface EducationProgram {
   id: string;
@@ -60,34 +58,10 @@ export function getAvailableEducationPrograms(character: Character): EducationPr
 export function getEducationProgram(programId: string): EducationProgram | undefined {
   return EDUCATION_PROGRAMS.find((program) => program.id === programId);
 }
-function createClassCommitments(character: Character, program: EducationProgram, recordId: string): { commitments: WeeklyCommitment[]; issue: string | null } {
-  const schedule = character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] };
-  const baseSchedule = { ...schedule, commitments: schedule.commitments.filter((item) => item.domain !== 'school') };
-  const weekStart = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  const preferred = character.employment?.type === 'full-time'
-    ? program.schedule.slice(0, Math.min(2, program.schedule.length)).map((slot) => ({ ...slot, startPeriod: 'evening' as const, durationBlocks: 1 }))
-    : program.schedule;
-  const candidates: Array<{ weekday: 1 | 2 | 3 | 4 | 5 | 6 | 7; startPeriod: DayPeriod; durationBlocks: number }> = [];
-  for (const slot of [...preferred, ...program.schedule]) {
-    for (const period of [slot.startPeriod, 'afternoon', 'evening', 'morning'] as DayPeriod[]) {
-      const candidate = { weekday: slot.weekday, startPeriod: period, durationBlocks: Math.min(slot.durationBlocks, 1) };
-      if (!candidates.some((item) => item.weekday === candidate.weekday && item.startPeriod === candidate.startPeriod)) candidates.push(candidate);
-    }
-  }
-  const commitments: WeeklyCommitment[] = [];
-  for (const slot of candidates) {
-    if (commitments.length >= preferred.length) break;
-    if (commitments.some((item) => item.weekday === slot.weekday)) continue;
-    const candidate: WeeklyCommitment = {
-      id: 'education-' + recordId + '-' + commitments.length,
-      title: program.level === 'early-learning' ? 'Early learning' : 'Classes · ' + program.institutionType,
-      domain: 'school', ...slot
-    };
-    const trial = { ...baseSchedule, commitments: [...baseSchedule.commitments, ...commitments, candidate] };
-    if (buildWeeklySchedule(weekStart, trial).valid) commitments.push(candidate);
-  }
-  if (commitments.length < Math.min(preferred.length, 2)) return { commitments: [], issue: 'There is not enough free time for this programme alongside current commitments. Reduce other commitments or choose a more flexible course.' };
-  return { commitments, issue: null };
+function createClassCommitments(): { commitments: []; issue: null } {
+  // Education remains an automatic weekly responsibility; no player-facing
+  // class timetable or time-slot allocation is created.
+  return { commitments: [], issue: null };
 }
 
 export function enrollInEducation(character: Character, programId: string, field: string): { character: Character; issue: string | null } {
@@ -99,7 +73,7 @@ export function enrollInEducation(character: Character, programId: string, field
   const tuition = Math.round(program.tuition * scale);
   if (character.money < tuition) return { character, issue: 'You cannot afford the programme tuition right now.' };
   const id = program.id + '-' + (character.calendar?.currentDate ?? character.year + '-01-01');
-  const planned = createClassCommitments(character, program, id);
+  const planned = createClassCommitments();
   if (planned.issue) return { character, issue: planned.issue };
   const enrollment: EducationEnrollment = {
     recordId: id, status: 'enrolled', programId, institution: program.institutionType, level: program.level, field, startedAtAge: character.age,
@@ -131,7 +105,7 @@ export function resumeEducation(character: Character): { character: Character; i
   if (!enrollment || enrollment.status !== 'paused') return { character, issue: 'There is no paused programme to resume.' };
   const program = getEducationProgram(enrollment.programId);
   if (!program) return { character, issue: 'This programme is no longer available.' };
-  const planned = createClassCommitments(character, program, enrollment.recordId);
+  const planned = createClassCommitments();
   if (planned.issue) return { character, issue: planned.issue };
   const schedule = character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] };
   return {
