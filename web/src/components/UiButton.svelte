@@ -14,7 +14,7 @@
   .ui-button:hover:not(:disabled){background:var(--surface-hover);border-color:var(--line-strong)}
   .ui-button:focus-visible{outline:none;box-shadow:var(--focus-ring)}
   .ui-button:disabled{opacity:.42;cursor:not-allowed}
-  .ui-button--primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+  .ui-button--primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
   .ui-button--primary:hover:not(:disabled){filter:brightness(1.06)}
   .ui-button--danger{color:var(--danger)}
   .ui-button--quiet{background:transparent;border-color:transparent}
