@@ -87,6 +87,6 @@ export function resolveWeeklyWellbeing(character: Character, workloadUnits: numb
   return { character: next, recap };
 }
 
-export function getWellbeingLoadLabel(occupiedBlocks: number): string {
+export function getWellbeingLoadLabel(workloadUnits: number): string {
   return workloadUnits >= 17 ? 'Overloaded' : workloadUnits >= 14 ? 'Heavy' : workloadUnits >= 11 ? 'Busy' : 'Balanced';
 }
