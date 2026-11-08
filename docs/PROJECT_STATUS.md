@@ -21,6 +21,7 @@ Do not reintroduce a universal three-actions-per-week quota. Personal activities
 - Recurring school/work commitments remain in the calendar; personal actions do not take time slots.
 - The Schedule workspace is a combined review/cancellation surface for selected personal activities and recurring commitments.
 - The Advance dialog previews every selected activity's stamina/money cost, reward categories, deterministic projected stat changes, and wellbeing warnings using the same weekly resolver as actual advancement.
+- The feature branch has a pull request open; final CI verification is pending.
 
 ## Implementation snapshot
 
