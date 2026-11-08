@@ -300,7 +300,7 @@
           {#if !character}<button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>{/if}
           {#if character}
             <section class="settings-section profile-character-section">
-              <div class="settings-section-heading"><span class="section-index">{character ? '02' : '01'}</span><div><h3>Character</h3><p>Your character identity and personal background.</p></div></div>
+              <div class="settings-section-heading"><span class="section-index">01</span><div><h3>Character</h3><p>Your character identity and personal background.</p></div></div>
               <div class="character-profile-card">
                 <div class="character-avatar" aria-hidden="true">{character.name.trim().split(/\\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</div>
                 <div class="character-profile-copy"><div class="character-profile-heading"><h2>{character.name}</h2><span class="character-age">AGE {character.age}</span></div><p>{getLifeStage(character.age).label} · {character.country ?? character.nationality ?? 'Country not recorded'}</p><div class="character-profile-tags"><span>{character.gender ?? 'Gender not recorded'}</span><span>{character.nationality ?? 'Nationality not recorded'}</span></div></div>
@@ -330,7 +330,7 @@
             </section>
           {/if}
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">01</span><div><h3>Sound</h3><p>Control the small audio cues used for game actions.</p></div></div>
+            <div class="settings-section-heading"><span class="section-index">{character ? '02' : '01'}</span><div><h3>Sound</h3><p>Control the small audio cues used for game actions.</p></div></div>
             <div class="setting-row"><div><strong>Sound effects</strong><p>Subtle original tones for actions, starting a life and advancing a week. No background music.</p></div><button class:setting-enabled={soundEnabled} class="setting-toggle" role="switch" aria-checked={soundEnabled} onclick={() => toggleSounds(!soundEnabled)}><span></span><small>{soundEnabled ? 'ON' : 'OFF'}</small></button></div>
           </section>
           <section class="settings-section">
