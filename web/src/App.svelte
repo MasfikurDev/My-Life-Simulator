@@ -512,6 +512,7 @@
                   {:else}
                     <p class="review-empty">No personal activities are planned. Recurring school and work commitments still resolve normally.</p>
                   {/if}
+                  <div class="review-cash-row"><span>Total direct activity costs</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong></div>
                 </section>
 
                 <section class="review-section">
@@ -538,7 +539,7 @@
                   {:else}
                     <p class="review-empty">No tracked character stats are expected to change.</p>
                   {/if}
-                  <div class="review-cash-row"><span>Projected cash</span><strong>{formatCharacterMoney(character, weeklyReview.projectedCash)}</strong></div>
+                  <div class="review-cash-row"><span>Projected cash after weekly resolution</span><strong>{formatCharacterMoney(character, weeklyReview.projectedCash)}</strong></div>
                 </section>
 
                 {#if weeklyReview.warnings.length}
@@ -632,6 +633,7 @@
   .review-change-row strong,.review-cash-row strong{font-size:11px;color:var(--text);font-variant-numeric:tabular-nums}
   .review-change-row strong.positive{color:var(--green)}
   .review-change-row strong.negative{color:var(--coral)}
+  .game-event-choice.planned{border-color:var(--accent);background:var(--accent-soft)}
   .review-change-row strong small{font-size:9px;color:var(--muted);font-weight:500}
   .review-empty{margin:0;padding:10px;border-radius:9px;background:var(--surface);font-size:10px;line-height:1.5;color:var(--muted)}
   .review-warning-list{display:grid;gap:6px;padding:10px;border:1px solid color-mix(in srgb,var(--amber) 45%,transparent);border-radius:10px;background:color-mix(in srgb,var(--amber) 8%,transparent)}
