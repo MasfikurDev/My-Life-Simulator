@@ -90,4 +90,13 @@ describe('education progression', () => {
     expect(isEligibleForRole(candidate, getCareerRole('software-developer')!)).toBe(true);
   });
 
+  it('uses a relevant professional certificate to unlock a matching job', () => {
+    const capable = { ...createCharacter('Technician', 25), intelligence: 80, focus: 80, discipline: 80, money: 5000 };
+    const role = getCareerRole('it-support')!;
+    expect(isEligibleForRole(capable, role)).toBe(false);
+    const enrolled = enrollInEducation(capable, 'professional-certificate', 'Programming').character;
+    const completed = resolveEducationWeek({ ...enrolled, educationEnrollment: { ...enrolled.educationEnrollment!, totalWeeks: 1 } }, ['study', 'assignment', 'exam'], '2026-11-02', 6).character;
+    expect(isEligibleForRole(completed, role)).toBe(true);
+  });
+
 });
