@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Character, EducationTaskType } from './lib/types';
+  import GameChoice from './GameChoice.svelte';
   import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation } from './lib/education';
   import { formatCharacterMoney, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
@@ -80,11 +81,9 @@
       {#if selectedProgram}
         <div class="education-enrol-panel">
           <div><div class="eyebrow">PROGRAMME DETAILS</div><h3>{selectedProgram.title}</h3><p>{selectedProgram.durationWeeks} weeks · {selectedProgram.institutionType} · age {selectedProgram.minAge}{selectedProgram.maxAge < 120 ? '–' + selectedProgram.maxAge : '+'}</p></div>
-          <label class="education-field-label">Field of study
-            <select value={selectedField || selectedProgram.fieldOptions[0]} onchange={(event) => selectedField = event.currentTarget.value}>
-              {#each selectedProgram.fieldOptions as field}<option value={field}>{field}</option>{/each}
-            </select>
-          </label>
+          <div class="education-field-label"><span>Choose your field of study</span>
+            <GameChoice label="Field of study" value={selectedField || selectedProgram.fieldOptions[0]} options={selectedProgram.fieldOptions.map((field) => ({ value: field, label: field }))} onSelect={(field) => selectedField = field} columns={Math.min(3, selectedProgram.fieldOptions.length)} />
+          </div>
           <div class="education-enrol-footer"><span>Tuition: <strong>{selectedProgram.tuition ? formatCharacterMoney(character, selectedProgram.tuition * (character.currencyScale ?? 1)) : 'Free'}</strong></span><button class="primary-button" onclick={enroll}>Enroll & arrange classes</button></div>
         </div>
       {/if}
