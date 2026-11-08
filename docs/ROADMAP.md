@@ -86,12 +86,12 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 ## Milestone 3 — Replace annual actions with the weekly gameplay cycle (core transition complete)
 
-**Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. The annual-action cutover, automatic contextual placement, and deterministic weekly resolution are implemented. Remaining work is listed separately below.
+**Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. Personal activities now use stamina rather than individual time slots; recurring school/work commitments continue to reserve the calendar. Weekly review is simulation-backed and deterministic. Remaining work is listed separately below.
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
 - [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment adds type-based recurring Work shifts; Education enrollment adds recurring class commitments to the same validated schedule.
 - [x] Add a Schedule review workspace with a seven-day, 21-period grid, recurring commitments, automatic reservations, duration visibility, planned-cost summary, and reservation removal. Routine actions are initiated only from their owning domain.
-- [x] Centralize per-activity time requirements and validate planned activities in the simulation: life-stage eligibility, current-week boundaries, duration fit, overlaps, and aggregate planned cash costs.
+- [x] Centralize activity eligibility and validate weekly actions, stamina/money costs, and recurring commitment conflicts. Personal activities do not reserve calendar periods.
 - [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, business management, and contextual Work actions.
 - [x] Make routine scheduling contextual and automatic across School, Work, Family, Business, Events, and Life; return the chosen date/period to the originating screen and keep the player out of generic date/time forms.
 - [x] Keep Schedule as a review/cancellation surface rather than a generic action launcher.
