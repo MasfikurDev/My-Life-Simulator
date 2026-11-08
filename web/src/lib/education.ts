@@ -144,7 +144,7 @@ export function resolveEducationWeek(character: Character, tasks: EducationTaskT
       category: enrollment.level === 'vocational' ? 'diploma' : enrollment.programId === 'professional-certificate' ? 'certificate' : enrollment.level === 'professional-specialist' ? 'professional' : 'degree',
       issuer: enrollment.institution, field: enrollment.field, awardedAtAge: character.age
     });
-    const next: Character = { ...character, educationEnrollment: null, educationRecords: records, academicHistory: [...(character.academicHistory ?? []), result], qualifications, weeklyPlan: { ...(character.weeklyPlan ?? { version: 1 as const, commitments: [], activities: [] }), commitments: (character.weeklyPlan?.commitments ?? []).filter((item) => item.domain !== 'school') } };
+    const next: Character = { ...character, educationEnrollment: null, educationRecords: records, academicHistory: [...(character.academicHistory ?? []), result], qualifications };
     next.history = [{ id: 'education-result-' + result.programId + '-' + next.year + '-' + next.academicHistory!.length, age: next.age, year: next.year, date: next.calendar?.currentDate ?? weekStart, kind: 'milestone', title: outcome === 'completed' ? 'Completed ' + result.level + ' education' : 'Did not complete ' + result.level + ' education', description: 'Final grade: ' + grade + '%. ' + (outcome === 'completed' ? 'A qualification was awarded.' : 'The programme was not passed; a future retake or alternative route remains possible.'), }, ...next.history];
     recap.push(outcome === 'completed' ? 'Education programme completed and qualification awarded.' : 'Education programme ended without a passing grade.');
     return { character: next, recap };
