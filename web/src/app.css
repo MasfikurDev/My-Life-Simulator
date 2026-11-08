@@ -967,3 +967,78 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 @media(prefers-reduced-motion:reduce){
   .weekly-finance-card,.weekly-finance-dialog,.weekly-finance-backdrop,.weekly-finance-source summary:after{animation:none;transition:none}
 }
+
+
+/* Character profile, attributes and life milestone presentation */
+.character-profile-card{display:grid;grid-template-columns:76px minmax(0,1fr) auto;align-items:center;gap:17px;padding:20px;background:linear-gradient(120deg,#10251a,#0b120e 72%);border:1px solid #294332;border-radius:15px;margin:0 0 25px}
+.character-avatar{width:76px;height:76px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#315f43,#172b20);border:1px solid #4d795d;color:#e5f5e9;font-size:25px;font-weight:800;letter-spacing:-1px}
+.character-profile-copy{min-width:0}
+.character-profile-heading{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.character-profile-heading h2{font:750 21px Inter,ui-sans-serif,system-ui;letter-spacing:-.7px;margin:0;color:var(--text)}
+.character-age{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--accent);background:#72d69a16;border:1px solid #72d69a35;padding:5px 8px;border-radius:20px}
+.character-profile-copy>p{font-size:11px;color:var(--muted);margin:7px 0 10px}
+.character-profile-copy>p span{color:var(--subtle);padding:0 3px}
+.character-profile-tags{display:flex;gap:7px;flex-wrap:wrap}
+.character-profile-tags span{font-size:9px;color:#b6c7ba;background:#ffffff09;border:1px solid var(--line-strong);border-radius:6px;padding:5px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.character-cash-summary{align-self:stretch;min-width:145px;padding:10px 0 10px 17px;border-left:1px solid #ffffff18;display:flex;flex-direction:column;justify-content:center;gap:7px}
+.character-cash-summary small,.character-stat small{font-size:8px;letter-spacing:1px;font-weight:800;color:var(--subtle)}
+.character-cash-summary strong{font:750 19px Inter,ui-sans-serif,system-ui;color:#e6f5e9;font-variant-numeric:tabular-nums}
+.character-stats-section{margin:0 0 27px}
+.character-stats-section>.page-heading{margin-bottom:15px}
+.character-stats-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:15px 10px;padding:19px;background:var(--surface);border:1px solid var(--line);border-radius:13px}
+.character-stat{min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}
+.character-stat-ring{width:67px;height:67px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(var(--accent) var(--stat-value),#26312a 0);isolation:isolate}
+.character-stat-ring:before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--surface);z-index:-1}
+.character-stat-ring strong{font:750 17px Inter,ui-sans-serif,system-ui;color:var(--text);font-variant-numeric:tabular-nums}
+.character-stat>span{font-size:10px;font-weight:700;color:var(--muted);overflow-wrap:anywhere}
+.character-stat small{font-size:7px;letter-spacing:.2px;color:var(--coral);margin-top:-4px}
+.character-stat-ring.stress-stat{background:conic-gradient(var(--coral) var(--stat-value),#26312a 0)}
+.life-milestones-section{margin:0 0 28px}
+.life-milestones-section>.page-heading{margin-bottom:14px}
+.life-milestone-list{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface)}
+.life-milestone-group+ .life-milestone-group{border-top:1px solid var(--line)}
+.life-milestone-group>summary{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:61px;padding:12px 17px;cursor:pointer;list-style:none}
+.life-milestone-group>summary::-webkit-details-marker{display:none}
+.life-milestone-group>summary>span{display:flex;align-items:center;gap:12px;min-width:0}
+.life-milestone-group>summary strong{font:750 14px Inter,ui-sans-serif,system-ui;color:var(--text)}
+.life-milestone-group>summary small{font-size:8px;letter-spacing:.8px;color:var(--subtle);font-weight:700}
+.life-milestone-group>summary i{width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .18s;flex:none;margin:0 4px 4px}
+.life-milestone-group[open]>summary i{transform:rotate(225deg);margin-top:7px}
+.life-milestone-content{padding:0 17px 17px}
+.life-milestone-finance{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 15px}
+.life-milestone-finance>div{min-width:0;padding:11px;background:var(--surface-raised);border:1px solid var(--line);border-radius:8px}
+.life-milestone-finance small{display:block;font-size:8px;letter-spacing:.8px;font-weight:800;color:var(--subtle);margin-bottom:6px}
+.life-milestone-finance strong{display:block;font-size:12px;color:var(--text);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.milestone-income{color:var(--green)!important}.milestone-expense{color:var(--coral)!important}
+.life-milestone-event{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #ffffff0b}
+.life-milestone-event:last-of-type{border-bottom:0}
+.life-milestone-event>span{width:8px;height:8px;border-radius:50%;background:var(--blue);margin:5px 2px 0;flex:none;box-shadow:0 0 0 4px #8fb9e817}
+.life-milestone-event>span.milestone-event-dot{background:var(--amber);box-shadow:0 0 0 4px #e3bd7617}
+.life-milestone-event strong{font-size:11px;color:var(--text)}
+.life-milestone-event p{font-size:10px;line-height:1.6;color:var(--muted);margin:4px 0 0}
+.life-milestone-transactions{margin-top:11px;border-top:1px solid var(--line);padding-top:10px}
+.life-milestone-transactions>summary{display:flex;justify-content:space-between;cursor:pointer;color:var(--muted);font-size:10px;font-weight:700;list-style:none}
+.life-milestone-transactions>summary span{color:var(--subtle)}
+.life-milestone-transactions>div{display:flex;justify-content:space-between;gap:15px;padding:9px 0;border-bottom:1px solid #ffffff0a}
+.life-milestone-transactions>div span{min-width:0}
+.life-milestone-transactions>div strong,.life-milestone-transactions>div b{font-size:10px;color:var(--text)}
+.life-milestone-transactions>div small{display:block;color:var(--subtle);font-size:8px;margin-top:3px}
+.life-milestone-transactions>div b{white-space:nowrap;font-variant-numeric:tabular-nums}
+.life-milestones-empty{font-size:11px;color:var(--muted);padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+@media(max-width:760px){
+ .character-profile-card{grid-template-columns:58px minmax(0,1fr);gap:12px;padding:15px}
+ .character-avatar{width:58px;height:58px;border-radius:14px;font-size:20px}
+ .character-profile-heading h2{font-size:17px}
+ .character-cash-summary{grid-column:1/-1;border-left:0;border-top:1px solid #ffffff18;padding:11px 0 0;min-width:0;display:flex;flex-direction:row;align-items:center;justify-content:space-between}
+ .character-cash-summary strong{font-size:17px}
+ .character-stats-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 7px;padding:15px 9px}
+ .character-stat-ring{width:59px;height:59px}
+ .character-stat-ring strong{font-size:15px}
+ .character-stat>span{font-size:9px}
+}
+@media(max-width:420px){
+ .character-stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .life-milestone-group>summary>span{align-items:flex-start;flex-direction:column;gap:4px}
+ .life-milestone-finance{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){.life-milestone-group>summary i{transition:none}}
