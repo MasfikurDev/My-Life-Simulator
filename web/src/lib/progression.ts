@@ -42,7 +42,7 @@ export function getLifeStage(age: number): LifeStage {
 }
 
 export function getEducationStage(age: number): string {
-  if (age < 3) return 'Not started';
+  if (age < 3) return 'Early development';
   if (age < 6) return 'Early learning';
   if (age < 13) return 'Primary education';
   if (age < 18) return 'Secondary education';
@@ -50,7 +50,7 @@ export function getEducationStage(age: number): string {
 }
 
 export function isActivityAvailable(age: number, activity: ActivityId, employment?: Employment | null): boolean {
-  if (activity === 'study') return age >= 3;
+  if (activity === 'study') return age >= 0;
   if (activity === 'work') return age >= 16;
   if (activity === 'apply-job') return age >= 16 && (!employment || age >= 18);
   if (activity === 'career') return age >= 16 && Boolean(employment);
