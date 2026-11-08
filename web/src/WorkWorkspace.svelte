@@ -137,7 +137,7 @@
               {/each}
             </div>
             <div class="listing-actions">
-              <button class="work-primary" class:planned={!!plannedWorkAction('apply', listing.id)} disabled={!eligible || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : !eligible ? 'Requirements not met' : plannedWorkAction('apply', listing.id) ? 'Remove application plan' : 'Apply · 8 stamina'}</button>
+              <button class="work-primary" class:planned={!!plannedWorkAction('apply', listing.id)} disabled={!eligible || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : !eligible ? 'Requirements not met' : plannedWorkAction('apply', listing.id) ? 'Remove application plan' : 'Apply · ' + getActivityStaminaCost('apply-job') + ' stamina'}</button>
             </div>
           </article>
         {/each}
