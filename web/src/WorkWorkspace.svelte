@@ -47,7 +47,7 @@
     if (developmentPlan) { onChange(removePlannedActivity(character, developmentPlan.id)); onNotify('Career development removed from this week.'); return; }
     const result = planActivityInNextFreeTime(character, 'career');
     if (result.issue) { onNotify(result.message ?? 'Could not add career development.'); return; }
-    onChange(result.character); onNotify('Career development added · 8 stamina.');
+    onChange(result.character); onNotify('Career development added · ' + getActivityStaminaCost('career') + ' stamina.');
   }
   function acceptOffer(id: string) {
     const next = acceptJobOffer(character, id);
