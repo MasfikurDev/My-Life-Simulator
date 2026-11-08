@@ -2,11 +2,11 @@
 
 ## Education, qualifications, wellbeing and medical state
 
-The pure TypeScript domain modules `education.ts` and `wellbeing.ts` own education and health state transitions. The Education workspace calls domain functions for programme availability, enrollment, pause/resume and weekly academic task planning. Enrolling creates `EducationEnrollment`, an `EducationRecord`, and recurring `school` commitments in the shared weekly schedule. Programme prerequisites and minimum ability thresholds are checked by the education domain. A completed passing programme records an `AcademicResult` and a `Qualification` with its source `programId`; Work reads those records for eligibility and does not issue or mutate them.
+The pure TypeScript domain modules `education.ts` and `wellbeing.ts` own education and health state transitions. The Education workspace calls domain functions for programme availability, enrollment, pause/resume and weekly academic task planning. Enrolling creates `EducationEnrollment` and an `EducationRecord`; attendance and academic progression are automatic weekly responsibilities, not calendar reservations. Programme prerequisites and minimum ability thresholds are checked by the education domain. A completed passing programme records an `AcademicResult` and a `Qualification` with its source `programId`; Work reads those records for eligibility and does not issue or mutate them.
 
-The weekly resolver dispatches education and care actions from `PlannedAction`, applies their costs/effects, resolves academic grades against completed task points, attendance, workload, stress, stamina and health, then updates wellbeing once per week from the actual occupied schedule blocks. Missing academic targets reduces grades. Overload increases stress/fatigue and can trigger burnout/anxiety conditions; rest, mindfulness, counselling and medical check-ups are modeled as scheduled care actions. Medical conditions, treatment plans and short medication courses are stored in optional `medicalState`.
+The weekly resolver dispatches education and care actions from `PlannedAction`, applies their costs/effects, resolves academic grades against completed task points, attendance, workload, stress, stamina and health, then updates wellbeing once per week from automatic education/work responsibility load and selected activity effort. Missing academic targets reduces grades. Overload increases stress/fatigue and can trigger burnout/anxiety conditions; rest, mindfulness, counselling and medical check-ups are modeled as scheduled care actions. Medical conditions, treatment plans and short medication courses are stored in optional `medicalState`.
 
-New education and medical fields are optional and preserve old local saves without a schema bump. Keep education, healthcare and career rules in their domain modules; keep UI components independent. Shared time reservations remain in `weekly-schedule.ts` and `simulation.ts`. Do not create a second calendar or manually managed timetable.
+New education and medical fields are optional and preserve old local saves without a schema bump. Keep education, healthcare and career rules in their domain modules; keep UI components independent. Legacy timetable types/helpers remain only as compatibility scaffolding; they are not used to allocate player-facing time slots. Do not create a Schedule workspace or manually managed timetable.
 
 **Canonical implementation direction · Reviewed 2026-11-08**
 
@@ -56,7 +56,7 @@ flowchart TD
 ## Save compatibility
 Persist an explicit schema version. Validate data before use. Add forward migrations when shape changes. Malformed/unsupported data must not crash the app or silently overwrite an existing save. Keep game state separate from transient UI state. Web deployments must not reset saves without an explicit migration and documented reason.
 
-The current localStorage adapter uses schema version 4 and supports three independent save slots. Schema versions 2 and 3 store the active slot ID and each slot's character plus update timestamp; version 1's single-character save migrates into slot 1. The adapter migrates supported legacy formats to version 4, initializes weekly calendar/schedule defaults, and preserves the exact original payload under `my-life-simulator.save.pre-weekly-migration` before the first migration write. Settings such as sound preference are stored separately from game state. Saves remain device-local; no cloud sync or backup is implied.
+The current localStorage adapter uses schema version 5 and supports three independent save slots. Schema versions 2 and 3 store the active slot ID and each slot's character plus update timestamp; version 1's single-character save migrates into slot 1. The adapter migrates supported legacy formats to version 5, initializes weekly date/plan defaults, clears legacy time-slot commitments, and preserves the exact pre-timetable payload under `my-life-simulator.save.pre-timetable-migration` before the migration write. The older pre-weekly recovery key remains supported. Settings such as sound preference are stored separately from game state. Saves remain device-local; no cloud sync or backup is implied.
 
 ## Simulation boundaries
 Core simulation inputs are game state, action/choice, and random source/seed. Outputs are updated state plus explicit effects/history. No DOM, Svelte, localStorage, network, or Android imports in core simulation. Time advancement is an explicit domain operation. Use integer minor units for money once currency arithmetic expands. Validate invariants at boundaries.
@@ -173,7 +173,7 @@ Shared cross-domain effects are communicated through explicit simulation transac
 
 
 ## Life workspace
-The top-level Life destination is a modular UI workspace, not a new simulation subsystem. Its focused sections include Overview, Health & wellbeing (composing `HealthWorkspace.svelte` for condition monitoring, care planning, recovery and treatment), Lifestyle, Family, Schedule, Personal Growth, Personal activities, and Life History. The workspace reuses Character fields, existing activity eligibility and affordability functions, and the shared chronological `history` array. Do not duplicate or migrate persisted state solely to support navigation. Education, Work, and Finance remain independent top-level destinations. Profile is the character-and-game-management destination: it presents character identity, background, appearance and attributes first, followed by save-slot management and the complete settings controls. The settings area may show a short recent-log preview but the complete history belongs in Life.
+The top-level Life destination is a modular UI workspace, not a new simulation subsystem. Its focused sections include Overview, Health & wellbeing (composing `HealthWorkspace.svelte` for condition monitoring, care planning, recovery and treatment), Lifestyle, Family, Personal Growth, Personal activities, and Life History. The workspace reuses Character fields, existing activity eligibility and affordability functions, and the shared chronological `history` array. Do not duplicate or migrate persisted state solely to support navigation. Education, Work, and Finance remain independent top-level destinations. Profile is the character-and-game-management destination: it presents character identity, background, appearance and attributes first, followed by save-slot management and the complete settings controls. The settings area may show a short recent-log preview but the complete history belongs in Life.
 
 
 ## Banking and Lifestyle ownership
@@ -199,7 +199,7 @@ Planned boundaries:
 - The save currently owns optional event state, scheduled consequences, and weekly recap/history fields; preserve existing save compatibility and test every new persisted field. These additions are optional so older character saves remain readable. Add versioning/migration only when a real incompatible schema change is required.
 - Event content is data-driven where useful, but do not build a generic event scripting language or content platform before a small playable set proves the pattern.
 - The current event picker is deterministic for the same character identity, age, year, and history length; it does not consume ambient `Math.random()`. Future event systems should use an explicit persisted seed/state if richer randomness is needed.
-- Weekly resolution order must be explicit, deterministic, and tested. The live resolver validates the current week's reservations, resolves scheduled actions and their domain effects/costs, records history/recap, clears successful reservations, and advances the calendar. Monthly and annual settlement remain separate date-boundary operations; do not mix them into the weekly action transaction.
+- Weekly resolution order must be explicit, deterministic, and tested. The live resolver validates the current week's stamina budget, resolves selected actions and automatic background responsibilities with their domain effects/costs, records history/recap, clears successful actions, and advances the date calendar. Monthly and annual settlement remain separate date-boundary operations; do not mix them into the weekly action transaction.
 - Return structured effects/recap data from simulation functions so UI can explain meaningful outcomes without re-deriving rules.
 - Keep player-facing event content, consequences, and history portable across save/load. Content-version changes must not replay completed events or corrupt pending outcomes.
 
@@ -220,9 +220,9 @@ The live gameplay clock is date-based and weekly, not annual-action-based. The w
 
 - Keep calendar/date logic in pure TypeScript domain modules, independent of Svelte, browser APIs, and Android. Use explicit date helpers for week boundaries, month/year boundaries, leap years, birthdays, and age calculation.
 - Persist an explicit current game date and the minimum stable identity needed to derive age. Do not increment age once per week or assume every year is exactly 52 weeks.
-- The weekly calendar represents genuine recurring commitments only; it is not a 168-hour real-time simulation. Each domain owns its action definitions and any real recurring commitments; do not invent school or household schedules before those systems exist.
+- The weekly calendar is a date-progression model, not a timetable or 168-hour simulation. Education and employment are automatic background responsibilities; do not invent weekday/period allocations or player-managed schedules.
 - Domain screens initiate their own personal activities through add/remove toggles. The simulation validates eligibility and cash affordability, then stores the selected weekly action. Activity stamina is charged exactly once during deterministic weekly resolution; it is not a calendar reservation.
-- The Schedule workspace is a combined review/cancellation surface, not a generic action-entry form. It displays recurring commitments separately from selected personal activities. A failed action must preserve the entire prior Character state.
+- There is no Schedule workspace. The Advance review is the combined plan/outcome surface; activities are toggled in their owning domains. A failed action must preserve the entire prior Character state.
 - Weekly advancement must be a single deterministic domain transaction returning updated state, financial ledger entries, history, event effects, and recap data. Repeated calls/reloads must not duplicate a resolved week.
 - Monthly and annual settlement must have explicit date-based due rules and idempotency keys/period markers. Never run annual finance settlement in addition to monthly installments for the same obligation.
 - Do not divide existing annual costs/salary/interest by 12 without modeling rounding, due dates, inflation, payment failures, and save migration.
@@ -232,9 +232,9 @@ The live gameplay clock is date-based and weekly, not annual-action-based. The w
 
 Suggested future module boundaries (do not create empty abstractions prematurely):
 - `calendar.ts`: pure calendar/date/birthday helpers.
-- `weekly-schedule.ts`: recurring commitments, period overlap validation, and backward-compatible validation of weekly activity records.
+- `weekly-schedule.ts`: legacy schedule parsing/defaults retained for compatibility; it must not allocate or validate player-facing time slots.
 - Keep weekly orchestration in the existing simulation boundary until profiling or maintainability evidence justifies extracting a dedicated module.
-- Domain modules own their own schedule definitions and effects; the cycle coordinator orchestrates them without duplicating their rules.
+- Domain modules own their own eligibility, costs, effects, and automatic background progression; the cycle coordinator orchestrates them without duplicating their rules.
 - Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups as a focused follow-up to the completed weekly migration.
 
 
