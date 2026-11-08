@@ -9,6 +9,8 @@
   import FinanceWorkspace from './FinanceWorkspace.svelte';
   import LifeWorkspace from './LifeWorkspace.svelte';
   import WorkWorkspace from './WorkWorkspace.svelte';
+  import EducationWorkspace from './EducationWorkspace.svelte';
+  import HealthWorkspace from './HealthWorkspace.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
   import type { ActivityId, Character, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
@@ -279,7 +281,7 @@
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
-        {#each [{id:'home',label:'Overview',icon:'⌂'},...(character && character.age >= 3 ? [{id:'school',label:'School',icon:'▤'}] : []),...(character && character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'}] : []),{id:'life',label:'Life',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'settings',label:'Settings',icon:'⚙'}] as item}
+        {#each [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},{id:'health',label:'Health',icon:'♡'},...(character && character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'}] : []),{id:'life',label:'Life',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'settings',label:'Settings',icon:'⚙'}] as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => navigateTab(item.id)}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>Active save</strong><small>Slot {activeSlotId.slice(-1)}</small></div></div>{/if}
@@ -324,7 +326,7 @@
           </section>
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
         {:else if character && activeTab==='home'}
-          {@const educationStatus = character.education === 'Higher education' ? 'Higher education' : character.education ?? getEducationStage(character.age)}
+          {@const educationStatus = character.educationEnrollment ? character.educationEnrollment.field + ' · ' + character.educationEnrollment.institution : character.education ?? getEducationStage(character.age)}
           {@const workStatus = character.employment
             ? character.employment.title
             : character.age < 16
@@ -341,7 +343,7 @@
             <div class="overview-context-item">
               <span>EDUCATION</span>
               <strong>{educationStatus}</strong>
-              <small>{character.age < 3 ? 'Not started' : character.age < 6 ? 'Early learning stage' : character.age < 18 ? 'School-age learning' : character.education === 'Higher education' ? 'Qualification completed' : 'Secondary education completed'}</small>
+              <small>{character.age < 3 ? 'Not started' : character.age < 6 ? 'Early learning stage' : character.age < 18 ? 'School-age learning' : character.educationEnrollment ? Math.round(character.educationEnrollment.grade) + '% current grade' : character.academicHistory?.length ? character.academicHistory.length + ' completed programme(s)' : 'No active enrollment'}</small>
             </div>
             <div class="overview-context-item">
               <span>WORK & CAREER</span>
@@ -415,17 +417,10 @@
               <p class="overview-empty-activities">Activities will appear here as you make choices and spend time.</p>
             {/if}
           </section>
-        {:else if character && activeTab==='school' && character.age >= 3}
-          <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div></div>
-          <section class="domain-panel">
-            <div class="domain-panel-head"><div><div class="eyebrow">CURRENT EDUCATION</div><h2>{character.education ?? 'Education in progress'}</h2><p>{character.age < 6 ? 'Early learning and foundational skills.' : character.age < 13 ? 'Primary-stage learning.' : character.age < 18 ? 'Secondary-stage learning.' : character.education === 'Higher education' ? 'Higher education completed.' : 'Continuing education and personal development.'}</p></div><span class="domain-status">{character.age < 18 ? 'SCHOOL AGE' : 'LEARNING'}</span></div>
-            <div class="domain-progress-label"><span>Learning progress</span><strong>{character.educationProgress ?? 0}%</strong></div>
-            <div class="meter"><span class="blue" style="width:{character.educationProgress ?? 0}%"></span></div>
-            <div class="domain-note">{character.age < 18 ? 'Study sessions build knowledge as you progress through school stages.' : 'Study sessions build knowledge and can unlock higher education.'}</div>
-          </section>
-          <div class="section-heading"><div><span class="section-index">01</span><h3>Study options</h3></div><span class="section-hint">Confirm a session; time is placed automatically</span></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => activity.id === 'study' && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={!canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
-
+        {:else if character && activeTab==='education'}
+          <EducationWorkspace {character} onChange={persist} onNotify={notify} />
+        {:else if character && activeTab==='health'}
+          <HealthWorkspace {character} onChange={persist} onNotify={notify} />
         {:else if character && activeTab==='work' && character.age >= 16}
           <WorkWorkspace {character} onChange={persist} onNotify={notify} />
 
