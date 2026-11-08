@@ -1312,3 +1312,7 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
     font-size: 22px;
   }
 }
+
+/* Weekly activity selection states */
+.health-care-card.planned,.education-task-card.planned{border-color:var(--accent)!important;background:var(--accent-soft)!important}
+.health-care-card.planned>b,.education-task-card.planned>b{color:var(--accent)!important}
