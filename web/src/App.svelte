@@ -6,6 +6,8 @@
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
+  import MainMenu from './MainMenu.svelte';
+  import CustomCharacterCreation from './CustomCharacterCreation.svelte';
   import FinanceWorkspace from './FinanceWorkspace.svelte';
   import LifeWorkspace from './LifeWorkspace.svelte';
   import WorkWorkspace from './WorkWorkspace.svelte';
@@ -17,13 +19,14 @@
     isFullscreen: () => boolean;
     setFullscreen: (enabled: boolean) => void;
     reloadLatest: () => void;
+    exitApp?: () => void;
   };
   function getAndroidBridge(): AndroidBridge | undefined {
     return (window as Window & { AndroidApp?: AndroidBridge }).AndroidApp;
   }
 
   let character = $state<Character | null>(null);
-  let activeTab = $state('home');
+  let activeTab = $state('menu');
   let toast = $state('');
   let fullscreen = $state(false);
   let showRestartConfirm = $state(false);
@@ -38,6 +41,7 @@
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
     character = loadSave(activeSlotId);
+    activeTab = character ? 'home' : 'menu';
     soundEnabled = getSoundEnabled();
     fullscreen = getAndroidBridge()?.isFullscreen() ?? Boolean(document.fullscreenElement);
   });
@@ -99,10 +103,26 @@
     pendingSlotId = slotId;
     activeTab = 'create';
   }
+  function continueLife() {
+    const available = slots.filter((slot) => slot.character).sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+    if (!available.length) return;
+    loadSlot(available.find((slot) => slot.id === activeSlotId && slot.character) ?? available[0]);
+  }
   function startNewLife() {
     const empty = slots.find((slot) => !slot.character);
     if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
     openCreation(empty.id);
+  }
+  function openCustomLife() {
+    const empty = slots.find((slot) => !slot.character);
+    if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
+    pendingSlotId = empty.id; activeTab = 'custom';
+  }
+  function exitGame() {
+    const bridge = getAndroidBridge();
+    if (bridge?.exitApp) { bridge.exitApp(); return; }
+    window.close();
+    notify('If the window stays open, close it using your browser controls.');
   }
   function loadSlot(slot: SaveSlot) {
     if (!slot.character) return;
@@ -195,7 +215,7 @@
     class:topbar-persistent={!!character && activeTab !== 'create' && activeTab !== 'settings'}
     aria-label="Game header"
   >
-    <a class="brand" href="#home" aria-label="My Life Simulator home" onclick={() => activeTab=character ? 'home' : 'create'}>
+    <a class="brand" href="#home" aria-label="My Life Simulator home" onclick={() => activeTab=character ? 'home' : 'menu'}>
       <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
       <span class="brand-name">My Life <span class="brand-light">Simulator</span></span>
     </a>
@@ -214,8 +234,8 @@
       </div>
     {/if}
   </header>
-  {#if !character && activeTab !== 'settings' && activeTab !== 'create'}
-    <main class="welcome"><CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='settings'} /></main>
+  {#if !character && activeTab === 'menu'}
+    <MainMenu {slots} onContinue={continueLife} onNewGame={startNewLife} onPresets={startNewLife} onFullCustom={openCustomLife} onAchievements={() => activeTab='achievements'} onSettings={() => activeTab='settings'} onExit={exitGame} />
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
@@ -226,9 +246,21 @@
       </aside>
       <section class="content">
         {#if activeTab==='create'}
-          <CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='home'} />
+          <CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='menu'} />
+        {:else if activeTab==='custom'}
+          <CustomCharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='menu'} />
+        {:else if activeTab==='achievements'}
+          <div class="page-heading"><div><div class="eyebrow">MILESTONES & PROGRESS</div><h1>Achievements<em>.</em></h1><p>Milestones earned across the lives saved on this device.</p></div></div>
+          {@const allLives = slots.flatMap((slot) => slot.character ? [slot.character] : [])}
+          <div class="achievement-grid">
+            {#each [{title:'First Chapter',detail:'Start your first life.',done:allLives.length>0,mark:'✦'},{title:'Growing Up',detail:'Reach adulthood.',done:allLives.some((life)=>life.age>=18),mark:'⌁'},{title:'A Long Journey',detail:'Reach age 65.',done:allLives.some((life)=>life.age>=65),mark:'◇'},{title:'A Life Well Lived',detail:'Reach age 90.',done:allLives.some((life)=>life.age>=90),mark:'★'}] as achievement}
+              <article class:achievement-unlocked={achievement.done} class="achievement-card"><div class="achievement-mark">{achievement.mark}</div><div><strong>{achievement.title}</strong><p>{achievement.detail}</p><small>{achievement.done ? 'UNLOCKED' : 'LOCKED'}</small></div></article>
+            {/each}
+          </div>
+          <button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>
         {:else if activeTab==='settings'}
           <div class="page-heading"><div><div class="eyebrow">PREFERENCES & CONTROLS</div><h1>Game <em>settings.</em></h1><p>Adjust how the game appears and manage your saved story.</p></div></div>
+          {#if !character}<button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>{/if}
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">01</span><div><h3>Sound</h3><p>Control the small audio cues used for game actions.</p></div></div>
             <div class="setting-row"><div><strong>Sound effects</strong><p>Subtle original tones for actions, starting a life and advancing a week. No background music.</p></div><button class:setting-enabled={soundEnabled} class="setting-toggle" role="switch" aria-checked={soundEnabled} onclick={() => toggleSounds(!soundEnabled)}><span></span><small>{soundEnabled ? 'ON' : 'OFF'}</small></button></div>

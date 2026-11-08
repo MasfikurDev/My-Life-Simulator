@@ -804,3 +804,74 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 
 .education-planned-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .education-planned-row .text-button{padding:4px 7px;font-size:10px}
+
+/* Game title screen */
+.title-screen{position:relative;isolation:isolate;flex:1;min-height:calc(100vh - 137px);display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,440px);align-items:center;gap:7%;overflow:hidden;padding:48px 5.5% 56px}
+.title-screen-art{position:absolute;z-index:-1;inset:0 38% 0 0;overflow:hidden;background:radial-gradient(ellipse at 48% 42%,#183b25 0,#0b1b11 36%,#050a06 76%,transparent 100%)}
+.title-screen-art:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 50%,#000 100%)}
+.title-orbit{position:absolute;border:1px solid #83d69a25;border-radius:50%;aspect-ratio:1}
+.orbit-a{width:min(60vw,650px);left:8%;top:4%;box-shadow:0 0 0 28px #83d69a08,0 0 0 64px #83d69a06}
+.orbit-b{width:min(40vw,420px);left:20%;top:17%;background:radial-gradient(circle at 40% 40%,#9cebb04a,transparent 68%)}
+.title-sun{position:absolute;width:clamp(85px,13vw,175px);aspect-ratio:1;border-radius:50%;left:38%;top:28%;background:radial-gradient(circle at 35% 30%,#d5f4bd,#7dc98c 52%,#326b43 100%);box-shadow:0 0 85px #76d89555}
+.title-horizon{position:absolute;width:130%;height:26%;bottom:-5%;border-radius:50% 50% 0 0}
+.horizon-back{left:-12%;background:linear-gradient(120deg,#1a4229,#102819);transform:rotate(-9deg)}
+.horizon-front{left:22%;bottom:-11%;background:linear-gradient(120deg,#102719,#08140c);transform:rotate(8deg)}
+.title-art-label{position:absolute;left:8%;bottom:12%;font-size:9px;letter-spacing:3px;color:#9fc9a7;font-weight:800}
+.title-screen-content{width:100%;max-width:440px;justify-self:end}
+.title-kicker{display:flex;align-items:center;gap:9px;color:var(--accent);font-size:9px;font-weight:800;letter-spacing:2px}
+.title-kicker span{width:20px;height:1px;background:var(--accent)}
+.title-screen h1{font-size:clamp(38px,5vw,58px);line-height:.98;letter-spacing:-3px;margin:17px 0 9px;font-weight:900;color:var(--text)}
+.title-screen h1 em{font-style:normal;color:var(--accent)}
+.title-subtitle{margin:0 0 27px;color:var(--muted);font-size:12px;letter-spacing:.3px}
+.title-menu-actions{display:flex;flex-direction:column;gap:9px}
+.title-menu-button{width:100%;min-height:65px;display:grid;grid-template-columns:40px 1fr 18px;align-items:center;gap:13px;padding:11px 15px;text-align:left;border:1px solid var(--line-strong);border-radius:11px;background:linear-gradient(110deg,#101712,#090d0a);color:var(--text);transition:transform .16s,border-color .16s,background .16s}
+.title-menu-button:not(:disabled):hover{transform:translateX(3px);border-color:#477b55;background:#142019}
+.title-menu-button:disabled{opacity:.42}
+.title-menu-primary{min-height:76px;background:linear-gradient(110deg,#173c25,#102619);border-color:#376b46}
+.title-menu-icon{width:36px;height:36px;border:1px solid #31533a;border-radius:10px;background:#14251a;color:var(--accent);display:grid;place-items:center;font-size:17px}
+.title-menu-primary .title-menu-icon{background:var(--accent);color:#06130a;border-color:transparent}
+.title-menu-button strong,.title-menu-button small{display:block}
+.title-menu-button strong{font-size:13px;font-weight:800}
+.title-menu-button small{font-size:9px;color:var(--muted);margin-top:4px;line-height:1.4}
+.title-menu-button>i{font-style:normal;color:var(--accent);font-size:17px;text-align:right}
+.title-menu-secondary{min-height:57px;background:#090d0b}
+.title-menu-secondary .title-menu-icon,.title-menu-exit .title-menu-icon{width:31px;height:31px;font-size:14px}
+.title-menu-exit{min-height:49px;background:transparent;border-color:transparent}
+.title-menu-exit strong{font-size:11px;color:var(--muted)}
+.title-menu-exit small{display:none}
+.title-custom-wrap{display:flex;flex-direction:column;gap:7px}
+.menu-submenu-active{border-color:#477b55}
+.title-submenu{margin-left:18px;padding-left:17px;border-left:1px solid #31533a;display:flex;flex-direction:column;gap:6px}
+.title-submenu button{display:grid;grid-template-columns:24px 1fr 16px;align-items:center;gap:10px;text-align:left;padding:11px 12px;border:1px solid var(--line);border-radius:9px;background:#0c120e;color:var(--text)}
+.title-submenu button>span:first-child{font-size:9px;color:var(--accent);font-weight:800}
+.title-submenu strong,.title-submenu small{display:block}
+.title-submenu strong{font-size:11px}
+.title-submenu small{font-size:9px;color:var(--muted);margin-top:3px}
+.title-submenu i{font-style:normal;color:var(--accent)}
+.title-screen-foot{display:flex;justify-content:space-between;margin-top:24px;color:var(--subtle);font-size:8px;letter-spacing:1.4px;font-weight:800}
+.achievement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:24px 0}
+.achievement-card{display:flex;align-items:center;gap:14px;padding:17px;background:var(--surface);border:1px solid var(--line);border-radius:12px;opacity:.62}
+.achievement-card.achievement-unlocked{opacity:1;border-color:#315a3c;background:linear-gradient(120deg,#102016,#0b100c)}
+.achievement-mark{width:40px;height:40px;flex:none;border-radius:12px;display:grid;place-items:center;background:#171e19;color:var(--subtle);font-size:19px}
+.achievement-unlocked .achievement-mark{background:var(--accent-soft);color:var(--accent)}
+.achievement-card strong{font-size:12px}
+.achievement-card p{margin:4px 0;color:var(--muted);font-size:10px}
+.achievement-card small{font-size:8px;letter-spacing:1px;color:var(--subtle);font-weight:800}
+.achievement-unlocked small{color:var(--accent)}
+.custom-wizard-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(230px,.8fr);gap:14px;align-items:start}
+.custom-form-card,.custom-preview-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:21px}
+.custom-form-section{padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--line);display:grid;gap:13px}
+.custom-form-section>span{font-size:9px;letter-spacing:1.4px;color:var(--accent);font-weight:800}
+.custom-form-section label{display:grid;gap:7px;font-size:10px;color:var(--muted);font-weight:700}
+.custom-form-section input:not([type=range]),.custom-form-section select{width:100%;height:42px;padding:0 11px;border:1px solid var(--line-strong);border-radius:8px;background:#050806;color:var(--text);font-size:11px}
+.custom-name-row{display:flex;gap:8px}.custom-name-row input{flex:1;min-width:0}.custom-name-row .secondary-button{padding:0 12px}
+.custom-age-value{float:right;color:var(--accent)}.custom-age-range{width:100%;accent-color:var(--accent)}
+.custom-range-ends{display:flex;justify-content:space-between;color:var(--subtle)}
+.custom-form-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.custom-form-actions .primary-button{min-height:44px}
+.custom-preview-card{position:sticky;top:18px;background:linear-gradient(155deg,#102319,#0b100c)}
+.custom-avatar{width:62px;height:62px;border-radius:18px;margin:24px 0 13px;background:var(--accent);color:#07130a;display:grid;place-items:center;font-size:25px;font-weight:900}
+.custom-preview-card h2{margin:0;font-size:21px;letter-spacing:-.7px}.custom-preview-card>p{font-size:10px;color:var(--muted);margin:6px 0 20px}
+.custom-preview-list{border-top:1px solid #ffffff18}.custom-preview-list>div{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid #ffffff12;font-size:10px}
+.custom-preview-list span{color:var(--muted)}.custom-preview-list strong{text-align:right}
+@media(max-width:850px){.title-screen{grid-template-columns:1fr;min-height:calc(100vh - 130px);padding:45px 2%}.title-screen-art{inset:0 0 28% 0;opacity:.65}.title-screen-content{justify-self:center;max-width:460px}.title-screen-art:before{background:linear-gradient(180deg,transparent 25%,#000 100%)}.title-art-label{display:none}.title-sun{left:46%;top:13%}.title-screen h1{font-size:48px}.custom-wizard-grid{grid-template-columns:1fr}.custom-preview-card{position:static}}
+@media(max-width:560px){.title-screen{padding:28px 0 35px;min-height:calc(100vh - 125px)}.title-screen-art{inset:0 0 40% 0}.title-screen h1{font-size:42px}.title-menu-button{min-height:61px;padding:10px 12px}.title-menu-primary{min-height:70px}.achievement-grid{grid-template-columns:1fr}.custom-form-card,.custom-preview-card{padding:16px}}

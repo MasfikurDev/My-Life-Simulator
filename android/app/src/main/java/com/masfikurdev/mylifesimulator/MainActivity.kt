@@ -198,6 +198,11 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface
+        fun exitApp() {
+            runOnUiThread { this@MainActivity.finish() }
+        }
+
+        @JavascriptInterface
         fun reloadLatest() {
             runOnUiThread {
                 webView.clearCache(true)
