@@ -90,7 +90,6 @@ export function resumeEducation(character: Character): { character: Character; i
   if (!enrollment || enrollment.status !== 'paused') return { character, issue: 'There is no paused programme to resume.' };
   const program = getEducationProgram(enrollment.programId);
   if (!program) return { character, issue: 'This programme is no longer available.' };
-  const schedule = character.weeklyPlan ?? { version: 1 as const, commitments: [], activities: [] };
   return {
     character: {
       ...character,
