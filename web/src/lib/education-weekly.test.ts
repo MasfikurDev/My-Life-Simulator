@@ -39,7 +39,7 @@ describe('weekly education and care integration', () => {
     expect(planned.issue).toBeNull();
     const paused = pauseEducation(planned.character);
     expect(paused.educationEnrollment?.status).toBe('paused');
-    expect(paused.weeklySchedule?.activities.some((item) => item.action?.kind === 'education')).toBe(false);
+    expect(paused.weeklyPlan?.activities.some((item) => item.action?.kind === 'education')).toBe(false);
   });
 
 });
