@@ -236,8 +236,8 @@ export interface Character {
   name: string; age: number; year: number; health: number; happiness: number;
   intelligence: number; fitness: number; money: number;
   /** Ability/condition stats use 0–100; stress is inverse (lower is better). */
-  stamina?: number; focus?: number; confidence?: number; discipline?: number; creativity?: number; socialSkills?: number; stress?: number;
-  calendar?: GameCalendar;
+  stamina: number; focus: number; confidence: number; discipline: number; creativity: number; socialSkills: number; stress: number;
+  calendar: GameCalendar;
   weeklyPlan: WeeklyPlan;
   lastResolvedWeekStart?: string;
   lastWeekRecap?: string[];
