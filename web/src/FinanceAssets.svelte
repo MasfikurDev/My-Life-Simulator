@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { buyProperty, closeBusiness, formatCharacterMoney, getEconomicConditions, getMarketPrice, planBusinessManagementInNextFreeTime, moveIntoOwnedProperty, rentHome, sellProperty, setPropertyRental, startBusiness, tradeInvestment } from './lib/simulation';
+  import { buyProperty, closeBusiness, formatCharacterMoney, getEconomicConditions, getMarketPrice, planBusinessManagementInNextFreeTime, removePlannedActivity, moveIntoOwnedProperty, rentHome, sellProperty, setPropertyRental, startBusiness, tradeInvestment } from './lib/simulation';
   import type { BusinessType, Character, PropertyType } from './lib/types';
   import GameChoice from './GameChoice.svelte';
   let { character, onChange, view = 'all' }: { character: Character; onChange: (next: Character) => void; view?: 'all' | 'property' | 'investments' | 'business' } = $props();
@@ -22,7 +22,7 @@
   function buy(type:'stock-index'|'gold'){run(()=>tradeInvestment(character,type,'buy',amount(units)),'Investment purchased.');}
   function sell(type:'stock-index'|'gold'){run(()=>tradeInvestment(character,type,'sell',amount(units)),'Investment sold.');}
   function openBusiness(){run(()=>startBusiness(character,businessName,businessType,amount(businessCapital)),'Business started.');businessName='';}
-  function planManagement(businessId:string){const result=planBusinessManagementInNextFreeTime(character,businessId);if(result.issue){notice=result.message??'No suitable time is available this week.';return;}onChange(result.character);const slot=result.scheduledActivity;notice=slot?'Management confirmed for '+slot.date+' ('+slot.startPeriod+').':'Management confirmed for this week.';}
+  function planManagement(businessId:string){const existing=(character.weeklySchedule?.activities??[]).find((item)=>item.action?.kind==='business'&&item.action.businessId===businessId);if(existing){onChange(removePlannedActivity(character,existing.id));notice='Management removed from this week.';return;}const result=planBusinessManagementInNextFreeTime(character,businessId);if(result.issue){notice=result.message??'Could not add management this week.';return;}onChange(result.character);notice='Management added · 12 stamina.';}
 </script>
 <section class="assets-panel">
   <div class="assets-heading"><div><small>{view === 'property' ? 'HOUSING & PROPERTY' : view === 'investments' ? 'MARKET PORTFOLIO' : view === 'business' ? 'BUSINESS OPERATIONS' : 'LONG-TERM WEALTH'}</small><h2>{view === 'property' ? 'Property & housing' : view === 'investments' ? 'Investments' : view === 'business' ? 'Business ownership' : 'Property & investments'}</h2></div>{#if view === 'all'}<span>{properties.length} properties · {businesses.length} businesses</span>{/if}</div>
