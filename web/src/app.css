@@ -1157,7 +1157,7 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
 }
 
 .section-heading {
-  gap: 12px;
+  gap: var(--space-3);
   min-width: 0;
 }
 
@@ -1177,11 +1177,11 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
 }
 
 .profile-attributes-section {
-  margin-top: 14px;
+  margin-top: var(--space-3);
 }
 
 .profile-attributes-section .character-stats-grid {
-  margin-top: 14px;
+  margin-top: var(--space-3);
 }
 
 @media (max-width: 850px) {
@@ -1228,7 +1228,7 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
   }
 
   .title-menu-exit {
-    min-height: 42px;
+    min-height: 44px;
   }
 
   .title-menu-icon {
@@ -1243,7 +1243,7 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
   }
 
   .title-screen-foot {
-    margin-top: 14px;
+    margin-top: var(--space-3);
   }
 
   .section-heading {
@@ -1254,7 +1254,7 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
   .section-hint {
     flex-basis: 100%;
     max-width: none;
-    margin-left: 24px;
+    margin-left: var(--space-6);
     text-align: left;
   }
 }
