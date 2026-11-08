@@ -322,7 +322,6 @@
           </section>
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
         {:else if character && activeTab==='home'}
-          {@const stage = getLifeStage(character.age)}
           {@const educationStatus = character.education === 'Higher education' ? 'Higher education' : character.education ?? getEducationStage(character.age)}
           {@const workStatus = character.employment
             ? character.employment.title
