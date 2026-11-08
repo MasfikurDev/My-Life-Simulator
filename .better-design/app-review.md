@@ -55,8 +55,9 @@ Do not install a generic dashboard or catalog design system over the existing vi
 - The life-stage picker and generated identity are compact and age-aware; random generation is an intentional product choice, not a missing customization form.
 - The live HUD keeps character identity, age/life stage, cash, year, month and week-position indicators visible.
 - The Overview combines the current character, weekly financial flow, current education/work context, a contextual event, and the weekly activity history. These are game-state cues, not generic SaaS metric cards.
-- Event choices expose their time and money costs and explain the possible follow-up.
-- The Advance FAB leads to a review before resolving the week. The review shows planned activity count, age, year and cash, and the player explicitly confirms “Resolve week and continue.”
+- Event choices expose stamina and money costs and explain the possible follow-up.
+- Personal activities are toggled in their owning workspaces; they do not create calendar reservations. The central Schedule view lists selected actions for review/cancellation.
+- The Advance FAB opens a simulation-backed review dialog listing every selected activity, its stamina cost and reward categories, total direct costs, projected stat changes, and stress/health warnings. The preview uses the same deterministic weekly resolver and does not mutate the save.
 - The event decision is retained in Life Story. The Overview activity feed intentionally filters routine activity records; the absence of a declined event from that feed is not evidence that the decision was lost.
 - Three save slots are implemented. The automated first-pass suggestion that the slot label implied a single-save system was incorrect.
 - The four week dots are a compact month-position indicator. The observed display does not prove that the simulation uses 28-day months; do not describe it as a four-week calendar model.
