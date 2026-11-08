@@ -84,12 +84,12 @@
   .tree-total span{color:var(--muted)}
   .tree-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 7px;scrollbar-width:thin}
   .tree-tabs button{flex:none;min-height:39px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:10px;font-weight:700;white-space:nowrap}
-  .tree-tabs button.active{border-color:rgba(114,214,154,.5);background:var(--accent-soft);color:var(--accent)}
+  .tree-tabs button.active{border-color:color-mix(in srgb,var(--accent) 50%, transparent);background:var(--accent-soft);color:var(--accent)}
   .tree-description{margin:-8px 0 0;color:var(--muted);font-size:10px}
   .tree-path{display:grid;gap:0}
   .decision-node{display:grid;grid-template-columns:34px minmax(0,1fr);gap:9px}
   .node-rail{display:flex;flex-direction:column;align-items:center}
-  .node-marker{display:grid;place-items:center;width:28px;height:28px;border:1px solid rgba(114,214,154,.55);border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:10px;font-weight:800}
+  .node-marker{display:grid;place-items:center;width:28px;height:28px;border:1px solid color-mix(in srgb,var(--accent) 55%, transparent);border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:10px;font-weight:800}
   .node-connector{flex:1;width:2px;min-height:18px;background:linear-gradient(var(--accent),var(--line-strong))}
   .node-content{min-width:0;margin-bottom:14px;padding:13px;border:1px solid var(--line);border-radius:13px;background:var(--surface)}
   .node-meta{display:flex;justify-content:space-between;gap:8px;color:var(--muted)}
@@ -98,7 +98,7 @@
   .node-context{margin:0 0 11px;color:var(--muted);font-size:10px;line-height:1.5}
   .branch-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
   .branch-card{min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface-raised)}
-  .branch-card.chosen{border-color:rgba(114,214,154,.55);background:var(--accent-soft)}
+  .branch-card.chosen{border-color:color-mix(in srgb,var(--accent) 55%, transparent);background:var(--accent-soft)}
   .branch-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
   .branch-heading strong{color:var(--text);font-size:11px}
   .chosen-tag{flex:none;color:var(--accent)}

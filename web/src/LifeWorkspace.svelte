@@ -105,161 +105,161 @@
 
 <style>
   .life-workspace {
-    display: grid;
-    gap: 14px;
-    min-width: 0;
+    display:grid;
+    gap:14px;
+    min-width:0;
   }
 
   .life-workspace .finance-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 12px;
-    min-width: 0;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:12px;
+    min-width:0;
   }
 
   .life-workspace .finance-header > div {
-    min-width: 0;
+    min-width:0;
   }
 
   .life-workspace .finance-header h1 {
-    margin: 4px 0 3px;
-    color: var(--text);
-    font-size: clamp(24px, 4vw, 32px);
-    line-height: 1.15;
-    letter-spacing: -.8px;
+    margin:4px 0 3px;
+    color:var(--text);
+    font-size:clamp(24px, 4vw, 32px);
+    line-height:1.15;
+    letter-spacing:-.8px;
   }
 
   .life-workspace .finance-header p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1.5;
+    margin:0;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.5;
   }
 
   .life-workspace .finance-back {
-    flex: none;
-    min-height: 40px;
-    border: 1px solid var(--line);
-    border-radius: 9px;
-    padding: 9px 11px;
-    background: var(--surface);
-    color: var(--text);
-    font-size: 11px;
-    white-space: nowrap;
+    flex:none;
+    min-height:40px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:9px 11px;
+    background:var(--surface);
+    color:var(--text);
+    font-size:11px;
+    white-space:nowrap;
   }
 
   .life-workspace .finance-back:hover {
-    border-color: var(--line-strong);
-    background: var(--surface-hover);
+    border-color:var(--line-strong);
+    background:var(--surface-hover);
   }
 
   .life-workspace .finance-nav {
-    display: flex;
-    gap: 6px;
-    min-width: 0;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    -webkit-overflow-scrolling: touch;
-    padding: 2px 0 8px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--line-strong) transparent;
+    display:flex;
+    gap:6px;
+    min-width:0;
+    overflow-x:auto;
+    overscroll-behavior-inline:contain;
+    -webkit-overflow-scrolling:touch;
+    padding:2px 0 8px;
+    scrollbar-width:thin;
+    scrollbar-color:var(--line-strong) transparent;
   }
 
   .life-workspace .finance-nav button {
-    flex: 0 0 auto;
-    min-height: 42px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 0 12px;
-    background: var(--surface);
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 650;
-    white-space: nowrap;
-    transition: color .18s, background .18s, border-color .18s;
+    flex:0 0 auto;
+    min-height:42px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:0 12px;
+    background:var(--surface);
+    color:var(--muted);
+    font-size:11px;
+    font-weight:650;
+    white-space:nowrap;
+    transition:color .18s, background .18s, border-color .18s;
   }
 
   .life-workspace .finance-nav button:hover {
-    border-color: var(--line-strong);
-    color: var(--text);
+    border-color:var(--line-strong);
+    color:var(--text);
   }
 
   .life-workspace .finance-nav button.active {
-    border-color: rgba(114, 214, 154, .5);
-    background: var(--accent-soft);
-    color: var(--accent);
+    border-color:color-mix(in srgb,var(--accent) 50%, transparent);
+    background:var(--accent-soft);
+    color:var(--accent);
   }
 
   .life-workspace .page-heading h2 {
-    margin: 8px 0 5px;
-    color: var(--text);
-    font-size: clamp(23px, 3vw, 29px);
-    line-height: 1.15;
-    letter-spacing: -1px;
+    margin:8px 0 5px;
+    color:var(--text);
+    font-size:clamp(23px, 3vw, 29px);
+    line-height:1.15;
+    letter-spacing:-1px;
   }
 
   .life-workspace .page-heading p {
-    line-height: 1.5;
+    line-height:1.5;
   }
 
   .life-workspace .full-history > p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 11px;
-    line-height: 1.5;
+    margin:0;
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.5;
   }
 
   @media (max-width: 620px) {
     .life-workspace {
-      gap: 12px;
+      gap:12px;
     }
 
     .life-workspace .finance-header {
-      align-items: flex-start;
+      align-items:flex-start;
     }
 
     .life-workspace .finance-header h1 {
-      font-size: 25px;
+      font-size:25px;
     }
 
     .life-workspace .finance-header p {
-      font-size: 11px;
+      font-size:11px;
     }
 
     .life-workspace .finance-back {
-      min-height: 38px;
-      padding: 8px 9px;
-      font-size: 10px;
+      min-height:38px;
+      padding:8px 9px;
+      font-size:10px;
     }
 
     .life-workspace .finance-nav {
-      margin-right: -2px;
-      padding-bottom: 7px;
+      margin-right:-2px;
+      padding-bottom:7px;
     }
 
     .life-workspace .finance-nav button {
-      min-height: 40px;
-      padding: 0 11px;
-      font-size: 10px;
+      min-height:40px;
+      padding:0 11px;
+      font-size:10px;
     }
 
     .life-workspace .page-heading h2 {
-      font-size: 24px;
+      font-size:24px;
     }
   }
 
   @media (max-width: 360px) {
     .life-workspace .finance-header {
-      flex-wrap: wrap;
+      flex-wrap:wrap;
     }
 
     .life-workspace .finance-back {
-      margin-top: 2px;
+      margin-top:2px;
     }
 
     .life-workspace .life-shortcuts button {
-      padding: 9px;
+      padding:9px;
     }
   }
 </style>

@@ -154,3 +154,5 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 
 
 88. The shared UI design system is the source of truth for reusable presentation: semantic tokens, theme palettes, and Svelte primitives live in their documented shared locations. AMOLED remains the default; player themes are local app preferences, never character-save data. New UI must reuse shared primitives/tokens where they fit while preserving domain-native experiences. Do not add a third-party UI framework for routine styling.
+
+89. Treat `web/src/styles/tokens.css` and `web/src/styles/themes.css` as the only shared palette source. Existing and new Svelte component styles must use semantic color tokens for text, surfaces, borders, overlays, shadows, and status states; do not add hard-coded colors in CSS. Exceptions are intentional artwork and the fixed color swatches used to preview themes. Use the spacing/radius/control tokens and existing `UiButton`, `UiCard`, `SectionHeader`, and `ThemeOption` primitives where the pattern matches. Keep domain-specific structure and behavior in its owning workspace rather than forcing every screen into generic cards.
