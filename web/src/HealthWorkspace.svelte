@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { CareActionType, Character } from './lib/types';
-  import { formatCharacterMoney, planCareActionInNextFreeTime } from './lib/simulation';
+  import { formatCharacterMoney, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getWellbeingLoadLabel } from './lib/wellbeing';
   import { buildWeeklySchedule } from './lib/weekly-schedule';
   import { getWeekStart } from './lib/calendar';
@@ -18,6 +18,7 @@
     onNotify('Care appointment added to your week.');
   }
   function isPlanned(type: CareActionType) { return plannedCare.some((item) => item.action?.kind === 'care' && item.action.careType === type); }
+  function removeCare(id: string) { onChange(removePlannedActivity(character, id)); onNotify('Care appointment removed from this week.'); }
   const stats = $derived([
     { label: 'Physical health', value: character.health, tone: 'health', inverse: false },
     { label: 'Stamina', value: character.stamina ?? 50, tone: 'stamina', inverse: false },
@@ -47,7 +48,7 @@
     <article class="health-care-card"><span class="health-care-icon">♡</span><strong>Professional counselling</strong><p>Get structured support for persistent pressure, anxiety or burnout.</p><small>{character.age < 18 ? 'Family-supported' : formatCharacterMoney(character, 90 * (character.currencyScale ?? 1))} · 1 time block</small><button class="secondary-button" disabled={isPlanned('counselling')} onclick={() => plan('counselling')}>{isPlanned('counselling') ? 'Scheduled' : 'Seek support'}</button></article>
     <article class="health-care-card"><span class="health-care-icon">✚</span><strong>Medical check-up</strong><p>Review physical health, diagnose conditions and update a treatment plan.</p><small>{character.age < 18 ? 'Family-supported' : formatCharacterMoney(character, 120 * (character.currencyScale ?? 1))} · 1 time block</small><button class="secondary-button" disabled={isPlanned('medical-checkup')} onclick={() => plan('medical-checkup')}>{isPlanned('medical-checkup') ? 'Scheduled' : 'Book check-up'}</button></article>
   </div>
-  {#if plannedCare.length}<div class="education-planned-list"><strong>Appointments scheduled this week</strong>{#each plannedCare as item}<span>{item.date} · {item.startPeriod} · {item.action?.kind === 'care' ? item.action.careType.replaceAll('-', ' ') : 'Care'}</span>{/each}</div>{/if}
+  {#if plannedCare.length}<div class="education-planned-list"><strong>Appointments scheduled this week</strong>{#each plannedCare as item}<div class="education-planned-row"><span>{item.date} · {item.startPeriod} · {item.action?.kind === 'care' ? item.action.careType.replaceAll('-', ' ') : 'Care'}</span><button class="text-button" onclick={() => removeCare(item.id)}>Remove</button></div>{/each}</div>{/if}
 </section>
 
 <section class="health-conditions-section">
