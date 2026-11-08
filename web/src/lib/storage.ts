@@ -14,7 +14,7 @@ function isCurrentCharacter(value: unknown): value is Character {
   if (typeof c.name !== 'string' || !c.name.trim() || !Number.isInteger(c.age) || !Number.isInteger(c.year) ||
       !Number.isInteger(c.money) || !Array.isArray(c.history)) return false;
   if (!c.calendar || !/^\d{4}-\d{2}-\d{2}$/.test(c.calendar.currentDate) || !/^\d{4}-\d{2}-\d{2}$/.test(c.calendar.birthDate)) return false;
-  if (![c.stamina, c.focus, c.confidence, c.discipline, c.creativity, c.socialSkills, c.stress].every((value) => Number.isFinite(value) && value >= 0 && value <= 100)) return false;
+  if (![c.stamina, c.focus, c.confidence, c.discipline, c.creativity, c.socialSkills, c.stress].every((value) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100)) return false;
   if (!isValidWeeklyPlan(c.weeklyPlan)) return false;
   if (c.pendingGameEvent && (!Array.isArray(c.pendingGameEvent.choices) || c.pendingGameEvent.choices.some((choice) =>
     !Number.isFinite(choice.staminaCost) || choice.staminaCost < 0 || !Number.isFinite(choice.moneyCost) || choice.moneyCost < 0))) return false;
