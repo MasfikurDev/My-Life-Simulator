@@ -737,19 +737,16 @@ export function getPlannedActivityStaminaCost(item: PlannedActivity): number {
   return ({ study: 8, exercise: 10, socialize: 6, work: 16, 'apply-job': 8, career: 8 } as Record<ActivityId, number>)[item.activityId as ActivityId] ?? 5;
 }
 
-function getPlannedActivityTitle(item: PlannedActivity): string {
+function getPlannedActivityTitle(character: Character, item: PlannedActivity): string {
   if (item.action?.kind === 'education') return item.action.taskType === 'assignment' ? 'Education assignment' : item.action.taskType === 'exam' ? 'Academic assessment' : 'Focused study';
   if (item.action?.kind === 'care') return ({ rest: 'Rest & recovery', mindfulness: 'Mindfulness', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up' }[item.action.careType]);
   if (item.action?.kind === 'work') return (item.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + item.action.title;
   if (item.action?.kind === 'family') return ({ 'spend-time': 'Spend time with family', 'reach-out': 'Reach out to family', reconcile: 'Resolve family conflict', 'provide-support': 'Provide family support' }[item.action.interaction]);
   if (item.action?.kind === 'business') return 'Business management';
-  if (item.action?.kind === 'event') return characterEventTitle(item);
+  if (item.action?.kind === 'event') return character.pendingGameEvent?.title ?? 'Life event decision';
   return getActivityDefinition(item.activityId as ActivityId)?.title ?? item.activityId;
 }
 
-function characterEventTitle(item: PlannedActivity): string {
-  return 'Life event decision';
-}
 
 function getPlannedActivityReward(item: PlannedActivity): string {
   if (item.action?.kind === 'education') return 'Knowledge, focus, discipline and course progress';
@@ -1065,6 +1062,7 @@ export interface WeeklyActivityReview {
   activities: WeeklyActivityReviewItem[];
   currentStamina: number;
   staminaCost: number;
+  totalMoneyCost: number;
   projectedStamina: number;
   currentStress: number;
   projectedStress: number;
@@ -1093,9 +1091,26 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     const after = Number(projected[key] ?? (key === 'stress' ? 30 : key === 'stamina' ? 50 : 0));
     return { key: String(key), label, before, after, delta: after - before };
   }).filter((item) => item.delta !== 0);
+  const addChange = (key: string, label: string, beforeValue: number | undefined, afterValue: number | undefined) => {
+    const before = Number(beforeValue ?? 0);
+    const after = Number(afterValue ?? 0);
+    if (after !== before) changes.push({ key, label, before, after, delta: after - before });
+  };
+  addChange('education-grade', 'Education grade', character.educationEnrollment?.grade, projected.educationEnrollment?.grade);
+  addChange('work-performance', 'Work performance', character.employment?.performance, projected.employment?.performance);
+  const averageBond = (value: Character) => {
+    const bonds = value.family?.bonds ?? [];
+    return bonds.length ? bonds.reduce((total, bond) => total + bond.closeness, 0) / bonds.length : undefined;
+  };
+  addChange('family-closeness', 'Average family closeness', averageBond(character), averageBond(projected));
+  const averageBusiness = (value: Character) => {
+    const businesses = value.businesses ?? [];
+    return businesses.length ? businesses.reduce((total, business) => total + business.performance, 0) / businesses.length : undefined;
+  };
+  addChange('business-performance', 'Average business performance', averageBusiness(character), averageBusiness(projected));
   const activities = schedule.activities.map((item) => ({
     id: item.id,
-    title: getPlannedActivityTitle(item),
+    title: getPlannedActivityTitle(character, item),
     staminaCost: getPlannedActivityStaminaCost(item),
     moneyCost: getPlannedActivityCost(character, item),
     reward: getPlannedActivityReward(item)
@@ -1118,6 +1133,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     activities,
     currentStamina,
     staminaCost: activities.reduce((total, item) => total + item.staminaCost, 0),
+    totalMoneyCost: activities.reduce((total, item) => total + item.moneyCost, 0),
     projectedStamina,
     currentStress,
     projectedStress,
