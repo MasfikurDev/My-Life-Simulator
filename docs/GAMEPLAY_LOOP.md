@@ -223,7 +223,7 @@ Present a compact current-week view containing:
 
 ### Phase B — Make life decisions
 The player chooses from age- and circumstance-appropriate actions in the relevant domain workspaces:
-- School: study and, when implemented, enrollment, classes, attendance, exams, and education choices.
+- Education: enrollment, automatically scheduled classes, weekly study/assignment/assessment tasks, grades, course milestones and qualifications.
 - Work: job search, applications, career development, workplace choices, and later retirement decisions.
 - Life: wellbeing, personal growth, relationships, family, recreation, and personal commitments.
 - Finance: banking, spending, saving, debt, assets, household planning, and business decisions.
@@ -315,7 +315,7 @@ Keep domain workspaces separate in the UI, but connect their simulation effects.
 
 | System | What it should influence |
 |---|---|
-| Health and wellbeing | Available actions, energy/capacity, medical costs when implemented, work/study participation, later-life independence |
+| Health and wellbeing | Physical and mental condition, stamina, stress, workload, recovery, professional support, medical costs and later-life care |
 | Education | Qualifications, opportunities, career access, income potential, school relationships and milestones |
 | Work and career | Income, stability, time, stress, skills, colleagues/relationships, retirement and pension eligibility |
 | Family and relationships | Emotional support, obligations, household choices, major events, dependants, inheritance/legacy |
