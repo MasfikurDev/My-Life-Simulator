@@ -335,7 +335,7 @@
             </section>
           {/if}
           <details class="profile-settings-group">
-            <summary><span><strong>{character ? 'Settings & management' : 'Game settings'}</strong><small>Sound, saves, display and game controls</small></span><i aria-hidden="true"></i></summary>
+            <summary><span><strong>{character ? 'Settings & management' : 'Game settings'}</strong><small>Appearance, sound, saves, display and game controls</small></span><i aria-hidden="true"></i></summary>
           <section class="settings-section appearance-settings">
             <div class="settings-section-heading"><span class="section-index">{character ? '02' : '01'}</span><div><h3>Appearance</h3><p>Choose the visual mood of your game. Your choice is saved on this device.</p></div></div>
             <div class="theme-option-grid" role="group" aria-label="Game theme">
