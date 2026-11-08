@@ -89,6 +89,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     householdArrangement: age >= 18 ? 'family-supported' : undefined, savingsGoalMonths: null,
     health: stat(random), happiness: stat(random), intelligence: stat(random), fitness: stat(random),
     stamina: stat(random), focus: stat(random), confidence: stat(random), discipline: stat(random), creativity: stat(random), socialSkills: stat(random), stress: Math.round((random() + random()) * 20 + 10),
+    medicalState: { conditions: [], medications: [], highStressWeeks: 0 },
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), history: []
   };
   character.family = createFamilyState(character, random);
@@ -940,7 +941,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
         recap.push(item.action.taskType === 'assignment' ? 'Completed an education assignment.' : item.action.taskType === 'exam' ? 'Completed an academic exam.' : 'Completed a focused study session.');
       }
     } else if (item.action?.kind === 'care') {
-      result = resolveCareAction(next, item.action.careType, weekStart);
+      result = resolveCareAction({ ...next, money: next.money - (item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (next.currencyScale ?? 1) }, item.action.careType, weekStart);
       recap.push('Health and wellbeing: ' + item.action.careType.replace('-', ' ') + '.');
     } else if (item.action?.kind === 'work') {
       result = item.action.workAction === 'apply'
