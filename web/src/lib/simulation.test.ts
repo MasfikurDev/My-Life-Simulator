@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { enrollInEducation, resolveEducationWeek } from './education';
-import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getActivityDefinition, getActivityStaminaCost, getAvailableActivityIds, getLifeStage, getValueColor } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
@@ -591,7 +591,7 @@ describe('life simulation', () => {
     expect(acceptPromotionOffer(worker)).toBe(worker);
   });
 
-  it('removes only career-development reservations when resigning', () => {
+  it('removes only legacy career reservations when resigning', () => {
     const worker = {
       ...createCharacter('Worker', 30),
       employment: {
@@ -612,11 +612,39 @@ describe('life simulation', () => {
     };
     const planned = planActivityInNextFreeTime(worker, 'career').character;
     expect(planned.weeklySchedule?.activities).toHaveLength(1);
-    expect(planned.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(1);
+    expect(planned.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(0);
     const resigned = resignFromJob(planned);
     expect(resigned.employment).toBeNull();
     expect(resigned.weeklySchedule?.activities).toHaveLength(0);
     expect(resigned.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(0);
+  });
+
+  it('blocks a weekly plan whose stamina costs exceed current stamina', () => {
+    const student = { ...createCharacter('Low stamina', 12), stamina: 5 };
+    const planned = planActivityInNextFreeTime(student, 'study').character;
+    const review = getWeeklyActivityReview(planned);
+    expect(review.issue).toBe('insufficient-stamina');
+    expect(review.projectedStamina).toBe(5);
+    expect(review.warnings.some((warning) => warning.includes('stamina budget'))).toBe(true);
+    expect(advanceWeek(planned).issue).toBe('insufficient-stamina');
+  });
+
+  it('credits planned recovery before activity costs regardless of toggle order', () => {
+    const base = { ...createCharacter('Recovery planner', 12), stamina: 0 };
+    const demandingFirst = planActivityInNextFreeTime(base, 'study').character;
+    const balanced = planCareActionInNextFreeTime(demandingFirst, 'rest').character;
+    const recoveryFirst = planCareActionInNextFreeTime(base, 'rest').character;
+    const bothPlanned = planActivityInNextFreeTime(recoveryFirst, 'study').character;
+    const firstReview = getWeeklyActivityReview(balanced);
+    const secondReview = getWeeklyActivityReview(bothPlanned);
+    expect(firstReview.issue).toBeNull();
+    expect(firstReview.staminaRecovery).toBe(14);
+    expect(firstReview.staminaCost).toBe(8);
+    expect(firstReview.projectedStamina).toBe(secondReview.projectedStamina);
+    const resolved = advanceWeek(balanced);
+    expect(resolved.issue).toBeNull();
+    expect(resolved.character.stamina).toBeGreaterThanOrEqual(0);
+    expect(resolved.character.history.filter((item) => item.title === 'Took time to recover')).toHaveLength(1);
   });
 
   it('improves job performance through career development', () => {
