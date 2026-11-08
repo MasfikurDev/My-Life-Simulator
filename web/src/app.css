@@ -1269,3 +1269,11 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
     min-width: 0;
   }
 }
+
+/* Keep the activity-feed subheading subordinate to its containing workspace. */
+.overview-activity-feed .page-heading h2 {
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: -.3px;
+  margin: 0;
+}
