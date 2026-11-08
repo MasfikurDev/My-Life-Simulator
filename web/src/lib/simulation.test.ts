@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { enrollInEducation, resolveEducationWeek } from './education';
 import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
-import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './progression';
+import { getActivityDefinition, getActivityStaminaCost, getAvailableActivityIds, getLifeStage, getValueColor } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
@@ -17,6 +17,15 @@ describe('life simulation', () => {
     expect(getActivityCost(child, 'study')).toBe(0);
     expect(canAffordActivity(adult, 'study')).toBe(true);
     expect(canAffordActivity({ ...adult, money: 3499 }, 'study')).toBe(false);
+  });
+  it('uses semantic threshold colors for normal and inverse progress values', () => {
+    expect(getValueColor(15)).toBe('var(--coral)');
+    expect(getValueColor(35)).toBe('var(--amber)');
+    expect(getValueColor(55)).toBe('var(--accent)');
+    expect(getValueColor(85)).toBe('var(--green)');
+    expect(getValueColor(85, true)).toBe('var(--coral)');
+    expect(getValueColor(20, true)).toBe('var(--green)');
+    expect(getActivityStaminaCost('exercise')).toBe(10);
   });
   it('defines activity stamina costs while retaining legacy duration metadata for save compatibility', () => {
     expect(getActivityDefinition('study').staminaCost).toBe(8);
