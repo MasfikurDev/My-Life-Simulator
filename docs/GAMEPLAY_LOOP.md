@@ -13,7 +13,7 @@ The weekly gameplay foundation and the annual-action-to-weekly-turn transition a
 - Age and life-stage eligibility change on the character's birthday. Annual financial settlement and annual event expiry remain at the year boundary.
 - The save migration preserves existing slots and stores the original pre-migration payload as a recovery copy.
 
-Still planned: date-based event deadlines and richer event cooldown/content, monthly financial settlement and reporting, broader cross-domain consequences, family lifecycle expansion, deeper chronic-care/insurance/healthcare localization, retirement, mortality, and terminal-life completion. Education has enrollment, class commitments, weekly academic tasks and grades; Health has stress/workload, recovery, counselling, check-ups and basic condition/treatment loops. Work has a functional first recruitment/employment/promotion loop, but employer operations and monthly payroll are not complete. Finance has broad banking, debt, property, investment, tax, business, and credit foundations, but recurring financial settlement is still annual. The UI has moved to reusable primitives and semantic theme tokens, with visual QA still ongoing. The complete birth-to-death redesign is not finished.
+Still planned: date-based event deadlines and richer event cooldown/content, monthly financial settlement and reporting, broader cross-domain consequences, family lifecycle expansion, deeper chronic-care/insurance/healthcare localization, retirement, mortality, and terminal-life completion. Education has enrollment, automatic attendance/progression, weekly academic tasks and grades; Health has stress/workload, recovery, counselling, check-ups and basic condition/treatment loops. Work has a functional first recruitment/employment/promotion loop, but employer operations and monthly payroll are not complete. Finance has broad banking, debt, property, investment, tax, business, and credit foundations, but recurring financial settlement is still annual. The UI has moved to reusable primitives and semantic theme tokens, with visual QA still ongoing. The complete birth-to-death redesign is not finished.
 
 **Verified validation baseline (2026-11-08):** latest inspected Pages workflow passed Svelte checking with 0 errors and 19 warnings, 150 tests across 10 files, Vite production build, artifact upload, and Pages deployment. Treat this as a dated baseline; re-run CI after changes. Node.js/dependency deprecation notices remain maintenance work.
 
@@ -65,7 +65,7 @@ The player should feel that a life is unfolding, not that they are spending abst
 - Age is calculated from birth date and current date, not from the number of week advances. A birthday changes age only when the current date reaches the birthday.
 - For a February 29 birth date in a non-leap year, the game observes the birthday on March 1. This is a consistent game-calendar convention, not a legal-age rule.
 - Existing saves are migrated to the weekly model without discarding character or slot data. Saves without calendar data are anchored to the first Monday on or after January 1 of their stored year; the original payload is retained under a separate recovery key.
-- Calendar helpers, weekly advancement, schedule consumption, and birthday-based aging are implemented and tested. Monthly settlement, date-based event deadlines, and recurring payment cadence remain future work.
+- Calendar helpers, weekly advancement, weekly activity resolution, and birthday-based aging are implemented and tested. Monthly settlement, date-based event deadlines, and recurring payment cadence remain future work.
 
 ### 3.2 Weekly activity plan: stamina and automatic responsibilities
 
@@ -98,8 +98,8 @@ The week is shaped by the character's automatic responsibilities and the player'
 
 Show a compact "This week" view:
 - Date range, current age, and relevant life stage.
-- Scheduled school/work/household commitments that are actually represented in save data.
-- Recurring commitments and their contribution to workload, plus activities selected for this week.
+- Automatic education/work responsibilities where the character is enrolled or employed.
+- Background education/work responsibilities and activities selected for this week.
 - Current money position and near-term payments only when the values are modeled.
 - Pending events, opportunities, deadlines, and important consequences.
 - At most a few relevant prompts; do not duplicate whole domain dashboards.
@@ -175,7 +175,7 @@ The final order may be adjusted to satisfy domain dependencies, but it must rema
 - Bulk advancement must resolve every intervening week in order; it must not skip simulation or collapse several weeks into one approximate calculation.
 - Offer clear pause points and a way to inspect the calendar/history without advancing time.
 - Do not punish players for taking a break or for not opening the game in real time. All time is simulated only by explicit player commands.
-- Avoid mandatory repetitive attendance clicks. Once recurring schedules exist, routine participation may resolve automatically, while absences, performance choices, conflicts, and important situations require player agency.
+- Avoid mandatory repetitive attendance clicks. Routine education/work participation resolves automatically, while absences, performance choices, conflicts, and important situations require player agency.
 - Do not make every week a checklist. The player should be able to make no discretionary choice in a quiet week and continue without penalty beyond the consequences of modeled commitments.
 
 ### 3.7 Weekly loop acceptance tests
@@ -371,12 +371,12 @@ Replayability should come from interacting systems and different viable lives, n
 ## 9. Scope and implementation sequence
 
 Build one complete playable slice at a time:
-Completed foundation: date-based weekly calendar, backward-compatible save migration, recurring commitment timetable, stamina-based personal activities, and deterministic weekly resolution.
+Completed foundation: date-based weekly calendar, backward-compatible save migration, automatic background responsibilities, stamina-based personal activities, and deterministic weekly resolution.
 
 Next implementation stages:
 1. Move financial systems to explicit monthly/annual cadences without duplicate or lost settlements.
 4. Adapt events, deadlines, recaps, and bulk advancement to weekly time.
-5. Deepen School and Work into recognizable schedule-driven systems.
+5. Deepen School and Work into recognizable domain-native progression systems.
 6. Add persistent family/relationship loops, then meaningful health and aging consequences.
 7. Build sustainable retirement/later-life finances, terminal death, final-life summary, and only then inheritance/legacy.
 8. Balance and replay-test complete lives across starting stages and country profiles.
