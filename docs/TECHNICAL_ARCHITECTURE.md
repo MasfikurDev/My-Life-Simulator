@@ -296,3 +296,6 @@ The Svelte UI uses a small in-repository design system rather than a third-party
 - Updating one preference must preserve all other preferences. Settings writes merge patches into the existing settings object.
 - Apply the selected theme to the document root at startup and immediately after selection. Keep gameplay usable if local storage is unavailable.
 - Do not add an external UI framework for routine styling. Migrate repeated patterns incrementally and test both dark and light palettes.
+
+
+The legacy UI color migration is complete: all shared app and workspace CSS color declarations consume semantic tokens from `web/src/styles/tokens.css` and `web/src/styles/themes.css`. Preserve this contract when adding styles; avoid hard-coded palette colors outside intentional artwork or theme-preview swatches.
