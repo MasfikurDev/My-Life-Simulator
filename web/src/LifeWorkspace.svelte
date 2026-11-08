@@ -40,10 +40,6 @@
 </script>
 
 <section class="life-workspace">
-  <header class="finance-header">
-    <h1>{views.find((item) => item.id === activeView)?.label}</h1>
-    {#if activeView !== 'overview'}<button class="finance-back" onclick={() => activeView='overview'}>← Life</button>{/if}
-  </header>
   <nav class="finance-nav" aria-label="Life sections">
     {#each views as item}
       <button class:active={activeView===item.id} aria-current={activeView===item.id ? 'page' : undefined} onclick={() => activeView=item.id}>{item.label}</button>
