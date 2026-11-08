@@ -87,6 +87,7 @@ export function enrollInEducation(character: Character, programId: string, field
   const commitments: WeeklyCommitment[] = [];
   for (const slot of candidates) {
     if (commitments.length >= preferred.length) break;
+    if (commitments.some((item) => item.weekday === slot.weekday)) continue;
     const candidate: WeeklyCommitment = {
       id: 'education-' + id + '-' + commitments.length, title: program.level === 'early-learning' ? 'Early learning' : 'Classes · ' + program.institutionType,
       domain: 'school', ...slot
