@@ -801,3 +801,6 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .education-class-schedule,.education-planned-list{display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
 .education-class-schedule strong,.education-planned-list strong{font-size:11px;color:var(--text)}
 .education-class-schedule span,.education-planned-list span{font-size:10px;color:var(--muted)}
+
+.education-planned-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.education-planned-row .text-button{padding:4px 7px;font-size:10px}
