@@ -277,7 +277,8 @@ export interface Character {
   economy?: EconomicConditions;
   businesses?: OwnedBusiness[];
   appearance?: { height: string; build: string; hair: string; eyes: string };
-  pendingGameEvent?: PendingGameEvent | null;\n  decisionTreeHistory?: DecisionTreeRecord[];
+  pendingGameEvent?: PendingGameEvent | null;
+  decisionTreeHistory?: DecisionTreeRecord[];
   eventPreparedYear?: number;
   resolvedGameEventIds?: string[];
   scheduledGameConsequences?: ScheduledGameConsequence[];
