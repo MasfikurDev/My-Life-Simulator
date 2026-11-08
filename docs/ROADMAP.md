@@ -100,7 +100,8 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Adapt remaining contextual events, deadlines, and delayed consequences to date/week boundaries.
 - [ ] Move recurring payments, employment payroll, and business operating cash flow to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries. Until then, salary and household settlement remain annual and are a known pacing limitation of the weekly loop.
 - [ ] Prevent duplicate or skipped financial settlement across month/year boundaries; document rounding and payment-failure behavior.
-- [x] Migrate schema 1 single-save and schema 2/3/4 multi-slot saves to the weekly model; preserve valid character records and all three slots, anchor missing calendars without changing displayed age, and retain the original payload as a recovery copy.\n- [x] Add schema 5 timetable-removal migration: preserve planned personal actions and character data, clear legacy school/work time-slot commitments, and stop regenerating them.
+- [x] Migrate schema 1 single-save and schema 2/3/4 multi-slot saves to the weekly model; preserve valid character records and all three slots, anchor missing calendars without changing displayed age, and retain the original payload as a recovery copy.
+- [x] Add schema 5 timetable-removal migration: preserve planned personal actions and character data, clear legacy school/work time-slot commitments, and stop regenerating them.
 - [ ] Add multi-week advancement only after single-week resolution is reliable; it must stop before important decisions, deadlines, events, birthdays, and payment failures.
 - [ ] Complete the concise weekly review, add a monthly Finance statement when monthly settlement is implemented, and keep the annual life review separate from weekly recap.
 
