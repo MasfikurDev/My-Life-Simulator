@@ -688,16 +688,14 @@ export type ActivityPlanningIssue =
   | 'unavailable'
   | 'invalid-date'
   | 'outside-current-week'
-  | 'invalid-existing-schedule'
-  | 'time-conflict'
-  | 'invalid-time-slot'
-  | 'insufficient-funds';
+  | 'insufficient-funds'
+  | 'insufficient-stamina';
 
 export interface ActivityPlanningResult {
   character: Character;
   issue: ActivityPlanningIssue | null;
   message: string | null;
-  /** Legacy-compatible action record; personal activities no longer reserve calendar time. */
+  /** The newly selected action, returned for domain-workspace feedback. */
   scheduledActivity?: PlannedActivity;
 }
 
