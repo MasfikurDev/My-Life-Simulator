@@ -283,3 +283,16 @@ The Family domain lives in the pure TypeScript module family.ts and is independe
 
 Detailed domain rules: [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md).
 
+
+
+## UI design system and appearance preferences
+
+The Svelte UI uses a small in-repository design system rather than a third-party component framework.
+
+- Semantic design tokens and theme palettes live in `web/src/styles/`; global layout and legacy domain styling remain in `web/src/app.css` while they are migrated to tokens.
+- Reusable presentation primitives live in `web/src/components/` (buttons, panels, section headers, theme option controls). Domain-specific behavior and simulation rules stay in their existing workspaces and pure TypeScript modules.
+- Theme preference is an app-level local setting stored in the existing `my-life-simulator.settings` key, not in Character or SaveData. Theme changes do not alter saves or require a save schema migration.
+- The default and invalid-preference fallback is `amoled`. Supported themes are `amoled`, `midnight`, `graphite`, and `paper`.
+- Updating one preference must preserve all other preferences. Settings writes merge patches into the existing settings object.
+- Apply the selected theme to the document root at startup and immediately after selection. Keep gameplay usable if local storage is unavailable.
+- Do not add an external UI framework for routine styling. Migrate repeated patterns incrementally and test both dark and light palettes.
