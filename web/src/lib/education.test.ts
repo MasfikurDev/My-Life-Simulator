@@ -62,4 +62,22 @@ describe('education progression', () => {
     expect(resumed.character.educationEnrollment?.status).toBe('enrolled');
     expect(resumed.character.weeklySchedule?.commitments.some((item) => item.domain === 'school')).toBe(true);
   });
+  it('supports early development from birth without awarding a formal degree', () => {
+    const infant = createCharacter('Infant', 1);
+    expect(getAvailableEducationPrograms(infant).some((program) => program.id === 'early-development')).toBe(true);
+    const enrolled = enrollInEducation(infant, 'early-development', 'Play & discovery');
+    expect(enrolled.issue).toBeNull();
+    expect(enrolled.character.weeklySchedule?.commitments.filter((item) => item.domain === 'school')).toHaveLength(3);
+    const completed = resolveEducationWeek({ ...enrolled.character, educationEnrollment: { ...enrolled.character.educationEnrollment!, totalWeeks: 1 } }, ['study'], '2026-11-02', 4);
+    expect(completed.character.academicHistory?.[0].outcome).toBe('completed');
+    expect(completed.character.qualifications ?? []).toHaveLength(0);
+  });
+
+  it('uses character attributes as entry requirements for advanced programmes', () => {
+    const capable = { ...createCharacter('Adult', 30), intelligence: 80, focus: 80, discipline: 80 };
+    const developing = { ...capable, intelligence: 25, focus: 25, discipline: 25 };
+    expect(getAvailableEducationPrograms(capable).some((program) => program.id === 'bachelor-degree')).toBe(true);
+    expect(getAvailableEducationPrograms(developing).some((program) => program.id === 'bachelor-degree')).toBe(false);
+  });
+
 });
