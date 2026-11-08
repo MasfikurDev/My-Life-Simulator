@@ -86,8 +86,9 @@ describe('education progression', () => {
     const enrollmentResult = enrollInEducation(capable, 'bachelor-degree', 'Computer science');
     expect(enrollmentResult.issue).toBeNull();
     const enrolled = enrollmentResult.character;
-    const shortCourse = { ...enrolled, educationEnrollment: { ...enrolled.educationEnrollment!, totalWeeks: 1 } };
+    const shortCourse = { ...enrolled, educationEnrollment: { ...enrolled.educationEnrollment!, totalWeeks: 1, grade: 90, attendance: 100 } };
     const completed = resolveEducationWeek(shortCourse, ['study', 'assignment', 'exam'], '2026-11-02', 0).character;
+    expect(completed.academicHistory?.[0]?.outcome).toBe('completed');
     const candidate = { ...completed, careerExperienceYears: 2 };
     expect(candidate.qualifications?.some((item) => item.programId === 'bachelor-degree')).toBe(true);
     expect(candidate.financialTransactions?.some((item) => item.description.includes('Education tuition'))).toBe(true);
