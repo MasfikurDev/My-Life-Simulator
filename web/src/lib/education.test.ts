@@ -83,9 +83,11 @@ describe('education progression', () => {
 
   it('connects completed university qualifications to career eligibility', () => {
     const capable = { ...createCharacter('Graduate', 30), intelligence: 90, focus: 90, discipline: 90, health: 90, stress: 20, stamina: 80, money: 5000 };
-    const enrolled = enrollInEducation(capable, 'bachelor-degree', 'Computer science').character;
+    const enrollmentResult = enrollInEducation(capable, 'bachelor-degree', 'Computer science');
+    expect(enrollmentResult.issue).toBeNull();
+    const enrolled = enrollmentResult.character;
     const shortCourse = { ...enrolled, educationEnrollment: { ...enrolled.educationEnrollment!, totalWeeks: 1 } };
-    const completed = resolveEducationWeek(shortCourse, ['study', 'assignment', 'exam'], '2026-11-02', 6).character;
+    const completed = resolveEducationWeek(shortCourse, ['study', 'assignment', 'exam'], '2026-11-02', 0).character;
     const candidate = { ...completed, careerExperienceYears: 2 };
     expect(candidate.qualifications?.some((item) => item.programId === 'bachelor-degree')).toBe(true);
     expect(candidate.financialTransactions?.some((item) => item.description.includes('Education tuition'))).toBe(true);
@@ -96,8 +98,10 @@ describe('education progression', () => {
     const capable = { ...createCharacter('Technician', 25), intelligence: 80, focus: 80, discipline: 80, health: 90, stress: 20, stamina: 80, money: 5000 };
     const role = getCareerRole('it-support')!;
     expect(isEligibleForRole(capable, role)).toBe(false);
-    const enrolled = enrollInEducation(capable, 'professional-certificate', 'Programming').character;
-    const completed = resolveEducationWeek({ ...enrolled, educationEnrollment: { ...enrolled.educationEnrollment!, totalWeeks: 1 } }, ['study', 'assignment', 'exam'], '2026-11-02', 6).character;
+    const enrollmentResult = enrollInEducation(capable, 'professional-certificate', 'Programming');
+    expect(enrollmentResult.issue).toBeNull();
+    const enrolled = enrollmentResult.character;
+    const completed = resolveEducationWeek({ ...enrolled, educationEnrollment: { ...enrolled.educationEnrollment!, totalWeeks: 1 } }, ['study', 'assignment', 'exam'], '2026-11-02', 0).character;
     expect(getCareerRequirements(completed, role).filter((item) => !item.met).map((item) => item.label)).toEqual([]);
     expect(isEligibleForRole(completed, role)).toBe(true);
   });
