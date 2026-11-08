@@ -32,8 +32,6 @@
   function gradeLabel(value: number) { if (enrollment?.level === 'early-learning') return value >= 75 ? 'Developing well' : value >= 50 ? 'On track' : 'Needs more support'; return value >= 85 ? 'Excellent' : value >= 70 ? 'Good' : value >= 60 ? 'Pass' : value >= 45 ? 'At risk' : 'Critical'; }
 </script>
 
-<div class="page-heading"><div><div class="eyebrow">LEARNING & QUALIFICATIONS</div><h1>Education <em>journey.</em></h1><p>From early learning and school to vocational training, college, university and professional study.</p></div></div>
-
 {#if enrollment}
   <section class="education-hero domain-panel">
     <div class="education-hero-top"><div><div class="eyebrow">CURRENT ENROLLMENT · {enrollment.institution.toUpperCase()}</div><h2>{enrollment.level === 'bachelor' ? "Bachelor's degree" : enrollment.level === 'master' ? "Master's degree" : enrollment.level === 'doctorate' ? 'Doctoral programme' : enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">{enrollment.status === 'paused' ? 'PAUSED' : 'ENROLLED'}</span></div>
