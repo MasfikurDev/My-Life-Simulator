@@ -9,7 +9,7 @@ The weekly gameplay foundation and the annual-action-to-weekly-turn transition a
 - Contextual events are selected using character/year context and age/health eligibility.
 - Pending events and choices persist in the character save; the simulation validates choice requirements and costs.
 - Personal activities, family interactions, business management, job applications, interviews, and time-consuming event choices are selected as weekly actions, consume stamina and resolve in deterministic order.
-- Weekly resolution applies effects and costs, records Life History, clears successful reservations, and advances the calendar by seven days. A stale reservation blocks the turn and remains available for repair instead of being silently discarded.
+- Weekly resolution applies effects and costs, records Life History, clears resolved actions, and advances the calendar by seven days. A stale planned action blocks the turn and remains available for repair instead of being silently discarded.
 - Age and life-stage eligibility change on the character's birthday. Annual financial settlement and annual event expiry remain at the year boundary.
 - The current save format stores three independent slots and validates every current character before use.
 
@@ -245,7 +245,7 @@ Before advancing, show a concise weekly review:
 - Planned activity costs and available cash where relevant.
 - Unresolved situations, an over-budget or stale activity plan, or known constraints.
 
-The player explicitly chooses to advance one week. The weekly resolver validates the complete plan, resolves accepted actions and due effects in deterministic order, applies costs exactly once, clears successful reservations, advances the calendar by seven days, and returns a concise recap. Month/year boundary settlement remains separate and must run exactly once.
+The player explicitly chooses to advance one week. The weekly resolver validates the complete plan, resolves accepted actions and due effects in deterministic order, applies costs exactly once, clears resolved actions, advances the calendar by seven days, and returns a concise recap. Month/year boundary settlement remains separate and must run exactly once.
 
 ### Phase E — Show what changed
 After weekly resolution, provide a compact weekly recap:
