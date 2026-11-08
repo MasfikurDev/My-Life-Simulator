@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { advanceWeek, canAffordActivity, formatCharacterMoney, planActivityInNextFreeTime, planEventChoiceInNextFreeTime } from './lib/simulation';
+  import { addCalendarDays, getWeekStart } from './lib/calendar';
   import { getAvailableActivityIds, getEducationStage, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
@@ -52,22 +53,28 @@
 
   function activityWeekKey(date: string | undefined) {
     if (!date) return 'earlier';
-    const [year, month, day] = date.split('-').map(Number);
-    if (!year || !month || !day) return 'earlier';
-    return year + '-' + String(month).padStart(2, '0') + '-week-' + Math.min(4, Math.ceil(day / 7));
+    try { return getWeekStart(date); }
+    catch { return 'earlier'; }
+  }
+  function activityWeekLabel(weekStart: string) {
+    const weekEnd = addCalendarDays(weekStart, 6);
+    const start = new Date(weekStart + 'T00:00:00Z');
+    const end = new Date(weekEnd + 'T00:00:00Z');
+    const startMonth = new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' }).format(start);
+    const endMonth = new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' }).format(end);
+    const startDay = start.getUTCDate();
+    const endDay = end.getUTCDate();
+    const year = end.getUTCFullYear();
+    return start.getUTCMonth() === end.getUTCMonth()
+      ? startMonth + ' ' + startDay + '–' + endDay + ', ' + year
+      : startMonth + ' ' + startDay + ' – ' + endMonth + ' ' + endDay + ', ' + year;
   }
   function groupActivityHistory(items: Character['history']) {
     const groups = new Map<string, { key: string; label: string; sortDate: string; items: Character['history'] }>();
     for (const item of items) {
       const key = activityWeekKey(item.date);
-      const date = item.date;
-      let label = 'Earlier records';
-      if (date && key !== 'earlier') {
-        const [year, month, day] = date.split('-').map(Number);
-        const monthName = new Intl.DateTimeFormat('en', { month: 'long', timeZone: 'UTC' }).format(new Date(Date.UTC(year, month - 1, 1)));
-        label = monthName + ' · Week ' + Math.min(4, Math.ceil(day / 7)) + ', ' + year;
-      }
-      const group = groups.get(key) ?? { key, label, sortDate: date ?? '0000-00-00', items: [] };
+      const label = key === 'earlier' ? 'Earlier records' : activityWeekLabel(key);
+      const group = groups.get(key) ?? { key, label, sortDate: key === 'earlier' ? '0000-00-00' : key, items: [] };
       group.items.push(item);
       groups.set(key, group);
     }
