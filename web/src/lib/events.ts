@@ -221,6 +221,7 @@ export function resolveGameEvent(character: Character, choiceId: string): Charac
     money: character.money - choice.moneyCost,
     pendingGameEvent: null,
     resolvedGameEventIds: [...(character.resolvedGameEventIds ?? []), pending.id],
+    decisionTreeHistory: [...(character.decisionTreeHistory ?? []), decisionRecord(character, pending, choice)],
     scheduledGameConsequences: [...(character.scheduledGameConsequences ?? [])]
   };
   next = applyEffects(next, choice.effects);
