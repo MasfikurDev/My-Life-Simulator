@@ -100,6 +100,3 @@ Do not render multiple controls or components for the same action or destination
 - Replace removed copy with compact, real game data when available: balances, rates, grade, attendance, progress, salary, requirements, capacity, dates, and status. Never invent a metric; omit it when the simulation does not track it.
 - Use short action labels that describe the in-world action ("Enroll", "Apply", "Book", "Transfer", "Rest"), not UI instructions ("Click here to manage...").
 - Prefer meaningful in-world names over invented dramatic names. Do not add flavor text that obscures what a system does.
-- Introduce each substantial new system with a brief, skippable, step-by-step tour when the player first enters it. Tours point at real controls and explain one useful thing at a time; they do not become permanent help panels or block normal play.
-- Persist tour completion per system in local app preferences, not in character simulation state. Offer a replay entry from that system's own help/menu control. Do not repeat completed tours on every visit or force players to finish a tour before using the system.
-- Keep tours specific to implemented behavior. Never explain placeholder mechanics or promise features that do not exist.
