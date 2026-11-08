@@ -524,7 +524,7 @@
                     <div><small>Projected</small><strong>{Math.round(weeklyReview.projectedStamina)}%</strong></div>
                   </div>
                   <div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div>
-                  {#if weeklyReview.currentStamina + weeklyReview.staminaRecovery < weeklyReview.staminaCost}<p class="year-review-warning">The plan exceeds your stamina budget. Select recovery activities or remove demanding activities before resolving.</p>{/if}
+                  {#if Math.min(100, weeklyReview.currentStamina + weeklyReview.staminaRecovery) < weeklyReview.staminaCost}<p class="year-review-warning">The plan exceeds your stamina budget. Select recovery activities or remove demanding activities before resolving.</p>{/if}
                 </section>
 
                 <section class="review-section">
