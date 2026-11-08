@@ -14,6 +14,9 @@ export interface EducationProgram {
   weeklyStudyTarget: number;
   fieldOptions: string[];
   prerequisite?: EducationLevel;
+  minIntelligence?: number;
+  minFocus?: number;
+  minDiscipline?: number;
   schedule: Array<{ weekday: 1 | 2 | 3 | 4 | 5 | 6 | 7; startPeriod: 'morning' | 'afternoon' | 'evening'; durationBlocks: number }>;
 }
 
@@ -27,13 +30,13 @@ export const EDUCATION_PROGRAMS: EducationProgram[] = [
   { id: 'primary-school', title: 'Primary school', institutionType: 'Public school', level: 'primary', minAge: 6, maxAge: 11, durationWeeks: 240, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies'], schedule: schoolSchedule },
   { id: 'lower-secondary', title: 'Lower secondary school', institutionType: 'Secondary school', level: 'lower-secondary', minAge: 12, maxAge: 14, durationWeeks: 120, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies', 'Science', 'Humanities', 'Business studies'], schedule: schoolSchedule, prerequisite: 'primary' },
   { id: 'upper-secondary', title: 'Upper secondary school', institutionType: 'Secondary school / college', level: 'upper-secondary', minAge: 15, maxAge: 19, durationWeeks: 120, tuition: 0, weeklyStudyTarget: 3, fieldOptions: ['Science', 'Humanities', 'Business studies', 'Arts'], schedule: schoolSchedule, prerequisite: 'lower-secondary' },
-  { id: 'vocational-diploma', title: 'Vocational diploma', institutionType: 'Technical institute', level: 'vocational', minAge: 16, maxAge: 120, durationWeeks: 64, tuition: 360, weeklyStudyTarget: 2, fieldOptions: ['Electrical trades', 'Construction', 'Hospitality', 'Automotive', 'Information technology', 'Healthcare support'], schedule: collegeSchedule },
-  { id: 'college-associate', title: 'College diploma / associate degree', institutionType: 'College', level: 'associate', minAge: 18, maxAge: 120, durationWeeks: 96, tuition: 620, weeklyStudyTarget: 3, fieldOptions: ['Business', 'Computing', 'Engineering', 'Health sciences', 'Arts'], schedule: collegeSchedule, prerequisite: 'upper-secondary' },
-  { id: 'bachelor-degree', title: "Bachelor's degree", institutionType: 'University', level: 'bachelor', minAge: 18, maxAge: 120, durationWeeks: 160, tuition: 980, weeklyStudyTarget: 3, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Medicine & health sciences', 'Law', 'Education', 'Natural sciences', 'Social sciences', 'Arts'], schedule: collegeSchedule, prerequisite: 'upper-secondary' },
-  { id: 'masters-degree', title: "Master's degree", institutionType: 'University / graduate school', level: 'master', minAge: 21, maxAge: 120, durationWeeks: 80, tuition: 1250, weeklyStudyTarget: 3, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Public health', 'Law', 'Education', 'Research sciences'], schedule: collegeSchedule, prerequisite: 'bachelor' },
-  { id: 'doctoral-degree', title: 'Doctoral / PhD programme', institutionType: 'Graduate research school', level: 'doctorate', minAge: 24, maxAge: 120, durationWeeks: 160, tuition: 1600, weeklyStudyTarget: 3, fieldOptions: ['Computing research', 'Engineering research', 'Medical research', 'Business research', 'Natural sciences', 'Social sciences'], schedule: flexibleSchedule, prerequisite: 'master' },
-  { id: 'professional-specialist', title: 'Professional specialist programme', institutionType: 'Professional institute', level: 'professional-specialist', minAge: 21, maxAge: 120, durationWeeks: 48, tuition: 840, weeklyStudyTarget: 2, fieldOptions: ['Project management', 'Cybersecurity', 'Accounting', 'Teaching', 'Clinical specialization', 'Data science'], schedule: flexibleSchedule, prerequisite: 'bachelor' },
-  { id: 'professional-certificate', title: 'Professional certificate course', institutionType: 'Training provider', level: 'professional-specialist', minAge: 16, maxAge: 120, durationWeeks: 12, tuition: 240, weeklyStudyTarget: 2, fieldOptions: ['Digital skills', 'Programming', 'First aid', 'Workplace safety', 'Communication', 'Small business'], schedule: flexibleSchedule }
+  { id: 'vocational-diploma', title: 'Vocational diploma', institutionType: 'Technical institute', level: 'vocational', minAge: 16, maxAge: 120, durationWeeks: 64, tuition: 360, weeklyStudyTarget: 2, fieldOptions: ['Electrical trades', 'Construction', 'Hospitality', 'Automotive', 'Information technology', 'Healthcare support'], minIntelligence: 35, minDiscipline: 35, schedule: collegeSchedule },
+  { id: 'college-associate', title: 'College diploma / associate degree', institutionType: 'College', level: 'associate', minAge: 18, maxAge: 120, durationWeeks: 96, tuition: 620, weeklyStudyTarget: 3, fieldOptions: ['Business', 'Computing', 'Engineering', 'Health sciences', 'Arts'], minIntelligence: 45, minFocus: 40, schedule: collegeSchedule, prerequisite: 'upper-secondary' },
+  { id: 'bachelor-degree', title: "Bachelor's degree", institutionType: 'University', level: 'bachelor', minAge: 18, maxAge: 120, durationWeeks: 160, tuition: 980, weeklyStudyTarget: 3, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Medicine & health sciences', 'Law', 'Education', 'Natural sciences', 'Social sciences', 'Arts'], minIntelligence: 50, minFocus: 45, minDiscipline: 40, schedule: collegeSchedule, prerequisite: 'upper-secondary' },
+  { id: 'masters-degree', title: "Master's degree", institutionType: 'University / graduate school', level: 'master', minAge: 21, maxAge: 120, durationWeeks: 80, tuition: 1250, weeklyStudyTarget: 3, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Public health', 'Law', 'Education', 'Research sciences'], minIntelligence: 60, minFocus: 55, minDiscipline: 55, schedule: collegeSchedule, prerequisite: 'bachelor' },
+  { id: 'doctoral-degree', title: 'Doctoral / PhD programme', institutionType: 'Graduate research school', level: 'doctorate', minAge: 24, maxAge: 120, durationWeeks: 160, tuition: 1600, weeklyStudyTarget: 3, fieldOptions: ['Computing research', 'Engineering research', 'Medical research', 'Business research', 'Natural sciences', 'Social sciences'], minIntelligence: 70, minFocus: 65, minDiscipline: 65, schedule: flexibleSchedule, prerequisite: 'master' },
+  { id: 'professional-specialist', title: 'Professional specialist programme', institutionType: 'Professional institute', level: 'professional-specialist', minAge: 21, maxAge: 120, durationWeeks: 48, tuition: 840, weeklyStudyTarget: 2, fieldOptions: ['Project management', 'Cybersecurity', 'Accounting', 'Teaching', 'Clinical specialization', 'Data science'], minIntelligence: 55, minFocus: 50, minDiscipline: 50, schedule: flexibleSchedule, prerequisite: 'bachelor' },
+  { id: 'professional-certificate', title: 'Professional certificate course', institutionType: 'Training provider', level: 'professional-specialist', minAge: 16, maxAge: 120, durationWeeks: 12, tuition: 240, weeklyStudyTarget: 2, fieldOptions: ['Digital skills', 'Programming', 'First aid', 'Workplace safety', 'Communication', 'Small business'], minFocus: 35, minDiscipline: 35, schedule: flexibleSchedule }
 ];
 
 function completedLevels(character: Character): Set<EducationLevel> {
@@ -43,6 +46,9 @@ export function getAvailableEducationPrograms(character: Character): EducationPr
   const completed = completedLevels(character);
   return EDUCATION_PROGRAMS.filter((program) => {
     if (character.age < program.minAge || character.age > program.maxAge) return false;
+    if (program.minIntelligence && character.intelligence < program.minIntelligence) return false;
+    if (program.minFocus && (character.focus ?? 50) < program.minFocus) return false;
+    if (program.minDiscipline && (character.discipline ?? 50) < program.minDiscipline) return false;
     if (!program.prerequisite || completed.has(program.prerequisite)) return true;
     if (program.prerequisite === 'primary') return character.age >= 12;
     if (program.prerequisite === 'lower-secondary') return character.age >= 15;
@@ -134,7 +140,7 @@ export function resolveEducationWeek(character: Character, tasks: EducationTaskT
       : record);
     let qualifications: Qualification[] = [...(character.qualifications ?? [])];
     if (outcome === 'completed') qualifications.push({
-      id: 'qualification-' + enrollment.programId + '-' + (character.calendar?.currentDate ?? weekStart),
+      id: 'qualification-' + enrollment.programId + '-' + (character.calendar?.currentDate ?? weekStart), programId: enrollment.programId,
       name: getEducationProgram(enrollment.programId)?.title ?? enrollment.level,
       category: enrollment.level === 'vocational' ? 'diploma' : enrollment.level === 'professional-specialist' ? 'professional' : 'degree',
       issuer: enrollment.institution, field: enrollment.field, awardedAtAge: character.age
