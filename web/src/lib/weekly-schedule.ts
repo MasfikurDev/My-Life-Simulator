@@ -143,7 +143,11 @@ export function buildWeeklySchedule(weekStart: string, schedule: WeeklySchedule)
       id: activity.id,
       title: activity.action?.kind === 'work'
         ? (activity.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + activity.action.title
-        : activity.activityId,
+        : activity.action?.kind === 'education'
+          ? (activity.action.taskType === 'assignment' ? 'Education assignment' : activity.action.taskType === 'exam' ? 'Academic assessment' : 'Focused study')
+          : activity.action?.kind === 'care'
+            ? ({ rest: 'Rest & recovery', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up', mindfulness: 'Mindfulness' }[activity.action.careType])
+            : activity.activityId,
       domain: 'activity',
       date: activity.date,
       startPeriod: activity.startPeriod,
