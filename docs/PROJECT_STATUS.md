@@ -40,6 +40,7 @@ A workspace or UI control is not proof that its entire domain is complete. The s
 - Reusable UI primitives exist for repeated buttons, cards, section headers, empty states, and theme options.
 - Recent work has improved topbar ordering, compact activity choices, weekly finance drill-down, workspace hierarchy, spacing, and empty states.
 - Visual consistency is still under active QA. Check alignment, padding, centering, density, responsive behavior, contrast, focus states, and dialog layouts across all themes. Avoid adding one-off CSS patterns when a shared semantic token or reusable component already covers the need.
+- **Planned accessibility and responsive QA pass:** address custom-dialog keyboard/focus behavior, expose character life-stage selection state to assistive technology, add a main landmark and skip link to the title screen, review very small text on character creation, and make the exit action's wording platform-aware. Then verify gameplay workspaces on narrow phones and across all four themes. These are planned follow-ups from the 2026-11-09 Modern Web Guidance review, not yet implemented.
 
 ## Verified engineering baseline
 
