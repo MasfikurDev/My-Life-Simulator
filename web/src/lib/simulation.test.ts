@@ -117,7 +117,7 @@ describe('life simulation', () => {
     expect(removePlannedActivity(removed, 'missing-id')).toBe(removed);
   });
   it('resolves a planned week once, charges costs, clears reservations and advances exactly seven days', () => {
-    const base = { ...createCharacter('Weekly', 30), money: 100, currencyScale: 1 };
+    const base = { ...createCharacter('Weekly', 30), money: 100, currencyScale: 1, stress: 20, stamina: 80 };
     const planned = planActivity(base, 'study', '2026-01-05', 'morning');
     expect(planned.issue).toBeNull();
     const resolved = advanceWeek(planned.character);
