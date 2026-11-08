@@ -25,7 +25,7 @@
   function taskPlanned(task: EducationTaskType) { return plannedTasks.some((item) => item.action?.kind === 'education' && item.action.taskType === task); }
   function pause() { onChange(pauseEducation(character)); onNotify('Education paused. Progress has been saved.'); }
   function resume() { const result = resumeEducation(character); if (result.issue) { onNotify(result.issue); return; } onChange(result.character); onNotify('Programme resumed. Classes have been arranged automatically.'); }
-  function gradeLabel(value: number) { return value >= 85 ? 'Excellent' : value >= 70 ? 'Good' : value >= 60 ? 'Pass' : value >= 45 ? 'At risk' : 'Critical'; }
+  function gradeLabel(value: number) { if (enrollment?.level === 'early-learning') return value >= 75 ? 'Developing well' : value >= 50 ? 'On track' : 'Needs more support'; return value >= 85 ? 'Excellent' : value >= 70 ? 'Good' : value >= 60 ? 'Pass' : value >= 45 ? 'At risk' : 'Critical'; }
 </script>
 
 <div class="page-heading"><div><div class="eyebrow">LEARNING & QUALIFICATIONS</div><h1>Education <em>journey.</em></h1><p>From early learning and school to vocational training, college, university and professional study.</p></div></div>
@@ -34,7 +34,7 @@
   <section class="education-hero domain-panel">
     <div class="education-hero-top"><div><div class="eyebrow">CURRENT ENROLLMENT · {enrollment.institution.toUpperCase()}</div><h2>{enrollment.level === 'bachelor' ? "Bachelor's degree" : enrollment.level === 'master' ? "Master's degree" : enrollment.level === 'doctorate' ? 'Doctoral programme' : enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">{enrollment.status === 'paused' ? 'PAUSED' : 'ENROLLED'}</span></div>
     <div class="education-metrics">
-      <div><span>OVERALL GRADE</span><strong>{Math.round(enrollment.grade)}%</strong><small>{gradeLabel(enrollment.grade)}</small></div>
+      <div><span>{enrollment.level === 'early-learning' ? 'DEVELOPMENT' : 'OVERALL GRADE'}</span><strong>{Math.round(enrollment.grade)}%</strong><small>{gradeLabel(enrollment.grade)}</small></div>
       <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%</strong><small>Class participation</small></div>
       <div><span>COURSE PROGRESS</span><strong>{progress}%</strong><small>{enrollment.weeksCompleted}/{enrollment.totalWeeks} weeks</small></div>
     </div>
@@ -53,16 +53,16 @@
     <div class="section-heading"><div><span class="section-index">01</span><h3>This week's academic work</h3></div><span class="section-hint">{plannedTasks.length} tasks scheduled</span></div>
     <p class="education-section-copy">Choose the work you can realistically complete. Each task is automatically placed in free time around classes, work and other commitments.</p>
     <div class="education-task-grid">
-      <button class="education-task-card" disabled={taskPlanned('study')} onclick={() => planTask('study')}><span class="education-task-icon">↗</span><strong>Focused study</strong><small>Review lessons and strengthen understanding · 1 time block</small><b>{taskPlanned('study') ? 'Scheduled' : 'Plan study'}</b></button>
-      <button class="education-task-card" disabled={taskPlanned('assignment')} onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>Assignment</strong><small>Complete coursework and practical exercises · 1 time block</small><b>{taskPlanned('assignment') ? 'Scheduled' : 'Plan assignment'}</b></button>
-      <button class="education-task-card" disabled={taskPlanned('exam')} onclick={() => planTask('exam')}><span class="education-task-icon">✓</span><strong>Quiz / exam prep</strong><small>Prepare for an assessment or sit a weekly quiz · 1 time block</small><b>{taskPlanned('exam') ? 'Scheduled' : 'Plan assessment'}</b></button>
+      <button class="education-task-card" disabled={taskPlanned('study')} onclick={() => planTask('study')}><span class="education-task-icon">↗</span><strong>{enrollment.level === 'early-learning' ? 'Guided play' : 'Focused study'}</strong><small>{enrollment.level === 'early-learning' ? 'Build curiosity, language and coordination through play · 1 time block' : 'Review lessons and strengthen understanding · 1 time block'}</small><b>{taskPlanned('study') ? 'Scheduled' : enrollment.level === 'early-learning' ? 'Plan play session' : 'Plan study'}</b></button>
+      <button class="education-task-card" disabled={taskPlanned('assignment')} onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>{enrollment.level === 'early-learning' ? 'Story time' : 'Assignment'}</strong><small>{enrollment.level === 'early-learning' ? 'Build language and communication with shared stories · 1 time block' : 'Complete coursework and practical exercises · 1 time block'}</small><b>{taskPlanned('assignment') ? 'Scheduled' : enrollment.level === 'early-learning' ? 'Plan story time' : 'Plan assignment'}</b></button>
+      <button class="education-task-card" disabled={taskPlanned('exam')} onclick={() => planTask('exam')}><span class="education-task-icon">✓</span><strong>{enrollment.level === 'early-learning' ? 'Discovery activity' : 'Quiz / exam prep'}</strong><small>{enrollment.level === 'early-learning' ? 'Explore objects, sounds and movement with a caregiver · 1 time block' : 'Prepare for an assessment or sit a weekly quiz · 1 time block'}</small><b>{taskPlanned('exam') ? 'Scheduled' : enrollment.level === 'early-learning' ? 'Plan discovery' : 'Plan assessment'}</b></button>
     </div>
     <div class="education-footnote">A study task is not free: it uses time, energy and a small learning expense. Doing every possible task is not always the best strategy if you are already overloaded.</div>
   </section>
   {/if}
 {:else}
   <section class="education-intro domain-panel">
-    <div class="eyebrow">YOUR NEXT STEP</div><h2>Choose a learning path</h2><p>Programmes unlock through age and completed qualifications. Vocational routes and professional certificates can lead to meaningful careers without following a university-only path.</p>
+    <div class="eyebrow">YOUR NEXT STEP</div><h2>Choose a learning path</h2><p>Programmes unlock through age, completed qualifications and relevant character attributes. Vocational routes and professional certificates can lead to meaningful careers without following a university-only path.</p>
     {#if programs.length}
       <div class="education-program-list">
         {#each programs as program}
