@@ -59,7 +59,7 @@
     <LifestyleWorkspace {character} {onChange} />
   {:else if activeView === 'history'}
     {@const milestoneGroups = groupLifeMilestones()}
-    <div class="page-heading"><h2>Life story</h2><span class="year-pill">{milestoneGroups.length} PERIODS</span></div>
+    <div class="page-heading"><span class="year-pill">{milestoneGroups.length} PERIODS</span></div>
     {#if milestoneGroups.length}
       <div class="life-milestone-list">
         {#each milestoneGroups as group, index}
@@ -92,7 +92,7 @@
         {/each}
       </div>
     {:else}
-      <p class="life-milestones-empty">Your major life events will appear here.</p>
+      <p class="life-milestones-empty">No recorded milestones.</p>
     {/if}
   {/if}
 </section>
