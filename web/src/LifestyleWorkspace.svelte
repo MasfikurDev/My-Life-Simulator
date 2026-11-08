@@ -1,6 +1,7 @@
 <script lang="ts">
   import { addRecurringPayment, cancelRecurringPayment, formatCharacterMoney, makeAccountPurchase, makeCashPurchase, makeCardPurchase } from './lib/simulation';
   import FinanceLivingCosts from './FinanceLivingCosts.svelte';
+  import EmptyState from './components/EmptyState.svelte';
   import GameChoice from './GameChoice.svelte';
   import type { Character, PaymentSourceType } from './lib/types';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
@@ -127,7 +128,7 @@
     </section>
     <section class="service-section">
       <div class="market-section-heading"><div><small>YOUR COMMITMENTS</small><h3>Subscriptions</h3></div></div>
-      {#if activeSubscriptions.length === 0}<p class="empty-services">No active subscriptions. Discover providers to subscribe to services.</p>{:else}
+      {#if activeSubscriptions.length === 0}<EmptyState title="No active subscriptions" description="Discover providers to add a subscription." />{:else}
         {#each activeSubscriptions as item}
           <article class="owned-service"><div><strong>{item.name}</strong><small>{formatCharacterMoney(character,item.amount)} / year · Paid by {paymentLabel(item.sourceType,item.sourceId)} · Since year {item.startedAtYear}</small></div><button class="quiet" onclick={() => cancelSubscription(item.id)}>Cancel</button></article>
         {/each}
@@ -135,7 +136,7 @@
     </section>
     <section class="service-section">
       <div class="market-section-heading"><div><small>PAYMENT METHODS</small><h3>Cards in use</h3></div><span>Manage in Banking</span></div>
-      {#if activeCards.length === 0}<p class="empty-services">No active cards. Open Banking to issue a debit, credit or prepaid card.</p>{:else}
+      {#if activeCards.length === 0}<EmptyState title="No active cards" description="Manage payment cards in Banking." />{:else}
         {#each activeCards as card}
           <article class="owned-service"><div><strong>{card.name}</strong><small>{card.type === 'credit' ? 'Credit · '+formatCharacterMoney(character,card.balance)+' owed of '+formatCharacterMoney(character,card.creditLimit) : card.type === 'prepaid' ? 'Prepaid · '+formatCharacterMoney(character,card.balance)+' available' : 'Debit card'}{#if card.linkedAccountId} · Linked to {(character.bankAccounts ?? []).find((account)=>account.id===card.linkedAccountId)?.name ?? 'bank account'}{/if}</small></div><span class="managed-label">Banking</span></article>
         {/each}
@@ -145,7 +146,7 @@
       <div class="market-section-heading"><div><small>OTHER RECURRING PAYMENTS</small><h3>Household & provider payments</h3></div></div>
       {#each (character.recurringPayments ?? []).filter((item)=>item.active && item.category==='bill') as item}
         <article class="owned-service"><div><strong>{item.name}</strong><small>{formatCharacterMoney(character,item.amount)} / year · {paymentLabel(item.sourceType,item.sourceId)}</small></div><span class="managed-label">Recurring</span></article>
-      {:else}<p class="empty-services">No other recurring payments.</p>{/each}
+      {:else}<EmptyState title="No other recurring payments" />{/each}
     </section>
   {:else}
     <FinanceLivingCosts {character} {onChange} />
