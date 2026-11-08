@@ -1,3 +1,5 @@
+# Technical Architecture
+
 ## Education, qualifications and character attributes
 
 The character save model keeps education history and qualifications separate from the legacy display string. `educationRecords` represent formal enrollment/completion history; `qualifications` represent earned degrees, certificates, licenses, diplomas or professional credentials. Role requirements may reference qualification IDs and role-specific attributes. These arrays are optional so older local saves remain readable.
@@ -6,7 +8,6 @@ Character attributes distinguish ability (intelligence, focus, creativity, disci
 
 Keep education progression, course rules and qualification issuance in the Education domain. Work may query those records through shared eligibility helpers but must not issue or mutate education credentials. Weekly activities are automatically placed by the existing schedule service; school attendance and course calendars must integrate with that service rather than introduce a second manually managed calendar. Full academic progression and course lifecycle are planned and must not be described as implemented until tested.
 
-# Technical Architecture
 
 **Canonical implementation direction · Reviewed 2026-11-08**
 
