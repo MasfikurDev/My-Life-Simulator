@@ -112,7 +112,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 - [ ] Add Life → Personal Technology and a separate Lifestyle Discover technology retailer.
 - [ ] Add a small fictional catalogue with category-aware capability tiers and new/used options.
-- [ ] Implement individual device ownership/access records and save/load compatibility.
+- [ ] Implement individual device ownership/access records and current-schema save/load validation.
 - [ ] Route purchases, repairs, and resale through the existing Finance transaction/ledger path.
 - [ ] Add basic condition, repair, replacement, and age/guardian rules.
 - [ ] Integrate a few real capability/access checks into School, Work, and Personal activities.
