@@ -875,3 +875,95 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .custom-preview-list span{color:var(--muted)}.custom-preview-list strong{text-align:right}
 @media(max-width:850px){.title-screen{grid-template-columns:1fr;min-height:calc(100vh - 130px);padding:45px 2%}.title-screen-art{inset:0 0 28% 0;opacity:.65}.title-screen-content{justify-self:center;max-width:460px}.title-screen-art:before{background:linear-gradient(180deg,transparent 25%,#000 100%)}.title-art-label{display:none}.title-sun{left:46%;top:13%}.title-screen h1{font-size:48px}.custom-wizard-grid{grid-template-columns:1fr}.custom-preview-card{position:static}}
 @media(max-width:560px){.title-screen{padding:28px 0 35px;min-height:calc(100vh - 125px)}.title-screen-art{inset:0 0 40% 0}.title-screen h1{font-size:42px}.title-menu-button{min-height:61px;padding:10px 12px}.title-menu-primary{min-height:70px}.achievement-grid{grid-template-columns:1fr}.custom-form-card,.custom-preview-card{padding:16px}}
+
+/* Overview weekly finance card and source breakdown dialog. */
+.weekly-finance-card{
+  width:100%;display:flex;flex-direction:column;gap:17px;margin:0 0 18px;padding:19px 21px;
+  text-align:left;color:var(--text);border:1px solid #294333;border-radius:14px;
+  background:radial-gradient(ellipse at 92% 0%,#173b2855,transparent 48%),linear-gradient(125deg,#101b14 0%,#0b100c 72%);
+  box-shadow:0 12px 34px #0005;transition:border-color .18s,background .18s,transform .18s,box-shadow .18s;
+}
+.weekly-finance-card:hover{border-color:#477b55;background:radial-gradient(ellipse at 92% 0%,#1b4a305e,transparent 50%),linear-gradient(125deg,#122219 0%,#0b100c 72%);box-shadow:0 15px 38px #0007;transform:translateY(-1px)}
+.weekly-finance-card:active{transform:translateY(0)}
+.weekly-finance-card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.weekly-finance-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.weekly-finance-heading>span:first-child{display:flex;flex-direction:column;gap:5px}
+.weekly-finance-heading small,.weekly-finance-balance small,.weekly-finance-flow small,.weekly-finance-totals small{
+  color:var(--muted);font-size:8px;letter-spacing:1.35px;font-weight:800
+}
+.weekly-finance-heading strong{font-size:13px;letter-spacing:-.15px}
+.weekly-finance-open{color:var(--accent);font-size:9px;font-weight:700;white-space:nowrap}
+.weekly-finance-balance{display:flex;flex-direction:column;gap:5px;padding:14px 0 15px;border-top:1px solid #ffffff12;border-bottom:1px solid #ffffff12}
+.weekly-finance-balance strong{font-size:clamp(25px,3.2vw,34px);line-height:1.12;letter-spacing:-1.1px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.weekly-finance-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.weekly-finance-flow>span{min-width:0;display:flex;flex-direction:column;gap:6px}
+.weekly-finance-flow>span+span{border-left:1px solid #ffffff14;padding-left:14px}
+.weekly-finance-flow strong{font-size:clamp(11px,1.4vw,14px);font-weight:750;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.weekly-finance-in{color:var(--accent)!important}
+.weekly-finance-out{color:var(--coral)!important}
+.weekly-finance-net{color:var(--text)}
+.weekly-finance-backdrop{
+  position:fixed;z-index:1000;inset:0;display:grid;place-items:center;padding:22px;
+  background:#000b;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  animation:weekly-finance-fade .16s ease-out;
+}
+.weekly-finance-dialog{
+  width:min(100%,620px);max-height:min( min(88vh,820px),calc(100dvh - 36px));overflow:auto;overscroll-behavior:contain;
+  padding:24px;border:1px solid #304638;border-radius:16px;
+  background:radial-gradient(ellipse at 100% 0%,#17352255,transparent 42%),#0b100d;
+  box-shadow:0 28px 90px #000b;scrollbar-color:#35533e #0b100d;
+  animation:weekly-finance-rise .2s ease-out;
+}
+.weekly-finance-dialog>header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.weekly-finance-dialog>header h2{margin:8px 0 5px;font-size:clamp(20px,3vw,25px);letter-spacing:-.8px}
+.weekly-finance-dialog>header p{margin:0;color:var(--muted);font-size:10px}
+.weekly-finance-close{flex:none;width:36px;height:36px;border:1px solid var(--line-strong);border-radius:9px;background:var(--surface-raised);color:var(--muted);font-size:23px;line-height:1;transition:color .15s,border-color .15s,background .15s}
+.weekly-finance-close:hover{color:var(--text);border-color:#54765d;background:#17231a}
+.weekly-finance-close:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.weekly-finance-totals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:17px 0 22px}
+.weekly-finance-totals>div{min-width:0;display:flex;flex-direction:column;gap:7px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#101712}
+.weekly-finance-totals strong{font-size:clamp(14px,2vw,18px);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.weekly-finance-source-section{margin-top:20px}
+.weekly-finance-source-section h3{margin:0 0 9px;color:var(--muted);font-size:9px;letter-spacing:1.2px;text-transform:uppercase}
+.weekly-finance-source{margin:0 0 7px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:#0e1410}
+.weekly-finance-source[open]{border-color:#2b4031;background:#101812}
+.weekly-finance-source summary{min-height:47px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none}
+.weekly-finance-source summary::-webkit-details-marker{display:none}
+.weekly-finance-source summary:after{content:"⌄";color:var(--subtle);font-size:13px;transition:transform .15s}
+.weekly-finance-source[open] summary:after{transform:rotate(180deg)}
+.weekly-finance-source summary span{min-width:0;color:var(--text);font-size:11px;font-weight:650;overflow-wrap:anywhere}
+.weekly-finance-source summary strong{font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.weekly-finance-transaction{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 0;border-top:1px solid #ffffff10}
+.weekly-finance-transaction>span{min-width:0;display:flex;flex-direction:column;gap:4px}
+.weekly-finance-transaction strong{font-size:10px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}
+.weekly-finance-transaction small{font-size:8px;color:var(--subtle);line-height:1.4;text-transform:capitalize}
+.weekly-finance-transaction>b{flex:none;color:var(--muted);font-size:10px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.weekly-finance-empty{margin:0;padding:13px;border:1px dashed var(--line-strong);border-radius:9px;color:var(--subtle);font-size:10px;text-align:center}
+.weekly-finance-note{margin:20px 0 0;padding:12px 13px;border-left:2px solid #416b4c;background:#101712;color:var(--muted);font-size:9px;line-height:1.6}
+@keyframes weekly-finance-fade{from{opacity:0}to{opacity:1}}
+@keyframes weekly-finance-rise{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:620px){
+  .weekly-finance-card{gap:14px;padding:15px;margin-bottom:14px;border-radius:12px}
+  .weekly-finance-balance{padding:12px 0}
+  .weekly-finance-flow{gap:7px}
+  .weekly-finance-flow>span+span{padding-left:8px}
+  .weekly-finance-flow small{font-size:7px;letter-spacing:1px}
+  .weekly-finance-flow strong{font-size:10px}
+  .weekly-finance-backdrop{padding:10px;align-items:end}
+  .weekly-finance-dialog{width:100%;max-height:calc(92dvh - env(safe-area-inset-top));padding:17px 15px calc(17px + env(safe-area-inset-bottom));border-radius:16px 16px 12px 12px}
+  .weekly-finance-dialog>header{padding-bottom:14px}
+  .weekly-finance-totals{gap:7px;margin:13px 0 18px}
+  .weekly-finance-totals>div{padding:11px 10px}
+  .weekly-finance-source-section{margin-top:17px}
+}
+@media(max-width:360px){
+  .weekly-finance-card{padding:13px}
+  .weekly-finance-heading strong{font-size:12px}
+  .weekly-finance-open{font-size:8px}
+  .weekly-finance-flow{gap:5px}
+  .weekly-finance-flow>span+span{padding-left:6px}
+  .weekly-finance-dialog{padding-left:12px;padding-right:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  .weekly-finance-card,.weekly-finance-dialog,.weekly-finance-backdrop,.weekly-finance-source summary:after{animation:none;transition:none}
+}
