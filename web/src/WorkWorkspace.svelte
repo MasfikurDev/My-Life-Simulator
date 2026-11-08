@@ -36,7 +36,6 @@
     onChange(next); confirmResignation = false; onNotify('You left your previous role. Your career experience is retained.');
   }
   function planExtraWork() {
-    if (!character.employment) return;
     if (extraWorkPlan) { onChange(removePlannedActivity(character, extraWorkPlan.id)); onNotify('Extra work removed from this week.'); return; }
     const result = planActivityInNextFreeTime(character, 'work');
     if (result.issue) { onNotify(result.message ?? 'Could not add extra work.'); return; }
@@ -65,6 +64,13 @@
 </script>
 
 <section class="work-workspace">
+  {#if character.age >= 16}
+    <section class="work-panel extra-work-panel">
+      <div><div class="eyebrow">EXTRA EARNINGS</div><h3>{character.employment ? 'Additional shift' : 'Casual work'}</h3><p>Earn extra cash and build confidence. Heavy work increases stress and reduces happiness.</p></div>
+      <button class="work-secondary" class:planned={!!extraWorkPlan} onclick={planExtraWork}>{extraWorkPlan ? 'Remove from this week' : (character.employment ? 'Add extra shift' : 'Find casual work') + ' · ' + getActivityStaminaCost('work') + ' stamina'}</button>
+    </section>
+  {/if}
+
   <nav class="work-nav" aria-label="Work sections">
     <button class:active={activeView === 'jobs'} aria-current={activeView === 'jobs' ? 'page' : undefined} onclick={() => activeView='jobs'}>Jobs & applications</button>
     <button class:active={activeView === 'career'} aria-current={activeView === 'career' ? 'page' : undefined} onclick={() => activeView='career'}>Career path</button>
@@ -90,7 +96,7 @@
         </div>
         <p class="work-note">Regular shifts: {character.employment.type === 'full-time' ? 'Monday–Friday, mornings and afternoons' : character.employment.type === 'part-time' ? 'Monday, Wednesday and Friday afternoons' : 'Tuesday, Thursday and Saturday mornings'}.</p>
         <p class="work-note">Payroll: annual settlement · Monthly pay and benefits: not implemented</p>
-        <div class="current-job-actions"><button class="work-secondary" class:planned={!!developmentPlan} onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · ' + getActivityStaminaCost('career') + ' stamina'}</button><button class="work-secondary" class:planned={!!extraWorkPlan} onclick={planExtraWork}>{extraWorkPlan ? 'Remove extra work' : 'Extra shift · ' + getActivityStaminaCost('work') + ' stamina'}</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
+        <div class="current-job-actions"><button class="work-secondary" class:planned={!!developmentPlan} onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · ' + getActivityStaminaCost('career') + ' stamina'}</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
         {#if confirmResignation}<div class="resign-confirm"><strong>Leave {character.employment.title}?</strong><p>You will become unemployed. Your career experience and history will be kept.</p><div><button class="work-primary" onclick={confirmLeaveJob}>Confirm resignation</button><button class="work-secondary" onclick={() => confirmResignation = false}>Keep job</button></div></div>{/if}
       </section>
     {:else}
@@ -211,6 +217,7 @@
   .work-metrics span{color:var(--muted);font-size:9px}.work-metrics strong{color:var(--text);font-size:15px;overflow-wrap:anywhere}
   .work-note{margin-top:12px!important;font-size:10px!important}
   .current-job-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .extra-work-panel{display:flex;align-items:center;justify-content:space-between;gap:14px}.extra-work-panel h3{margin:3px 0;font-size:14px}.extra-work-panel p{margin:0;font-size:10px;line-height:1.5;color:var(--muted)}.extra-work-panel button{flex:none}
   .work-primary.planned,.work-secondary.planned{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}.resign-confirm{display:grid;gap:7px;margin-top:12px;padding:12px;border:1px solid var(--danger);border-radius:9px}.resign-confirm strong{color:var(--text);font-size:12px}.resign-confirm p{margin:0}.resign-confirm>div{display:flex;flex-wrap:wrap;gap:7px}
   .work-secondary,.work-primary{min-height:38px;padding:8px 11px;border-radius:8px;font-size:10px;font-weight:700}
   .work-primary{border:1px solid var(--accent);background:var(--accent);color:var(--on-accent)}
