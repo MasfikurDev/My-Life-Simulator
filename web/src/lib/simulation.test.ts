@@ -230,16 +230,13 @@ describe('life simulation', () => {
     expect(resolved.intelligence).toBe(student.intelligence + 3);
     expect(resolved.scheduledGameConsequences).toHaveLength(1);
   });
-  it('advances a quiet week using the weekly plan model', () => {
+  it('advances a quiet week with an empty weekly action collection', () => {
     const base = createCharacter('Planner', 30);
-    const legacy = { ...base, weeklyPlan: { version: 1 as const, commitments: [
-      { id: 'a', title: 'Work shift', domain: 'work' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 2 },
-      { id: 'b', title: 'School session', domain: 'school' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 1 }
-    ], activities: [] } };
-    const result = advanceWeek(legacy);
+    expect(base.weeklyPlan).toEqual({ version: 1, activities: [] });
+    const result = advanceWeek(base);
     expect(result.issue).toBeNull();
     expect(result.character.calendar?.currentDate).toBe('2026-01-12');
-    expect(result.character.weeklyPlan?.commitments).toHaveLength(0);
+    expect(result.character.weeklyPlan.activities).toHaveLength(0);
   });
   it('rejects paid activities when the balance is insufficient', () => {
     const adult = { ...createCharacter('Adult', 30), money: 10, currencyScale: 1 };
