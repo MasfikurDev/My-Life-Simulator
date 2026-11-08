@@ -10,7 +10,7 @@
 5. Review the weekly recap and persistent history.
 6. Use monthly finance/reporting and yearly life-progression reviews at their actual calendar boundaries.
 
-The week is the fundamental playable unit; the month is the financial/reporting unit; the year is the life-progression unit. The old three-actions-per-year model is legacy implementation and is not the target design. Do not replace it with an arbitrary fixed number of weekly action tokens. See [`GAMEPLAY_LOOP.md`](GAMEPLAY_LOOP.md) for the canonical date calendar, weekly stamina budget, resolution order, migration rules, and acceptance tests.
+The week is the fundamental playable unit; the month is the financial/reporting unit; the year is the life-progression unit. The old three-actions-per-year model is legacy implementation and is not the target design. Do not replace it with an arbitrary fixed number of weekly action tokens. See [`GAMEPLAY_LOOP.md`](GAMEPLAY_LOOP.md) for the canonical date calendar, weekly stamina budget, resolution order, strict current-save rules, and acceptance tests.
 
 ## The intended player experience
 
@@ -105,7 +105,7 @@ These values change through relevant weekly activities, life events, work demand
 - Household costs are paid from income and available cash. If funds cannot cover the estimate, the unpaid amount is recorded as a shortfall and happiness decreases; balances never become negative and no debt is silently created. This is a game-pressure mechanic, not a real-world cost model.
 - Players can set an emergency savings target of one, three, or six months of estimated household costs. Progress is measured against the current cash balance; savings are not a separate account or locked funds.
 - One-off extra work remains a separate action. Taxes, unemployment benefits, debt, assets, and detailed country-aware cost models are not implemented.
-- New household, savings-goal, and finance-history fields are optional on Character so existing local saves remain readable without a schema migration.
+- Household, savings-goal, and finance-history fields are present when their gameplay state applies. Incompatible persisted shape changes require a current-schema update; do not add compatibility defaults or migrations for old saves.
 
 Build progression in connected layers: early development and schooling; teen education/interests and limited earning; adult employment and recurring finances from 18; career growth and household responsibilities as prerequisites and age permit; midlife health/financial planning; later-life retirement and flexible work. Unlock only mechanics that are implemented and eligible. Hide unavailable actions instead of showing dead controls. Explain an unlock only when it helps the player understand the next stage.
 
