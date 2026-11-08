@@ -532,7 +532,7 @@
                       {#each weeklyReview.changes as change}
                         <div class="review-change-row">
                           <span>{change.label}</span>
-                          <strong class:positive={change.key === 'stress' ? change.delta < 0 : change.delta > 0} class:negative={change.key === 'stress' ? change.delta > 0 : change.delta < 0}>{change.delta > 0 ? '+' : ''}{Math.round(change.delta)} <small>({Math.round(change.after)}%)</small></strong>
+                          <strong class:positive={change.key === 'stress' || change.key === 'family-tension' ? change.delta < 0 : change.delta > 0} class:negative={change.key === 'stress' || change.key === 'family-tension' ? change.delta > 0 : change.delta < 0}>{change.delta > 0 ? '+' : ''}{Math.round(change.delta)} <small>({Math.round(change.after)}%)</small></strong>
                         </div>
                       {/each}
                     </div>
