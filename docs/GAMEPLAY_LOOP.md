@@ -4,7 +4,7 @@
 
 This document turns the gameplay audit into a staged, implementation-ready direction. It distinguishes the implemented first slice from planned mechanics.
 
-## Current implementation status · 2026-11-07
+## Current implementation status · 2026-11-08
 The weekly gameplay foundation and the annual-action-to-weekly-turn transition are implemented in the web simulation:
 - Contextual events are selected using character/year context and age/health eligibility.
 - Pending events and choices persist in the character save; the simulation validates choice requirements and costs.
@@ -190,12 +190,12 @@ A playable weekly loop is not complete until:
 4. The player can confirm at least two different actions with different time costs and see that they cannot overlap.
 5. School/work recurring commitments reserve time only when actual schedule data exists.
 6. A weekly activity can create a meaningful immediate effect and a persistent delayed consequence.
-5. One week advances exactly once; retry/reload cannot duplicate income, bills, effects, or history.
-6. Crossing month-end processes monthly payments once; crossing year-end processes annual systems once.
-7. A birthday changes age and eligibility on the correct date, not simply every 52 button presses.
-8. Old saves load with a documented migration and no lost cash, accounts, debt, investments, history, or pending events.
-9. A quiet week can be advanced quickly without fake chores or forced dramatic events.
-10. Multi-week scenario tests produce coherent results for a child in school, an employed adult, an unemployed adult, and a later-life character.
+7. One week advances exactly once; retry/reload cannot duplicate income, bills, effects, or history.
+8. Crossing month-end processes monthly payments once after monthly settlement is implemented; current annual settlement remains exactly once at year boundaries.
+9. A birthday changes age and eligibility on the correct date, not simply every 52 button presses.
+10. Old saves load with a documented migration and no lost cash, accounts, debt, investments, history, or pending events.
+11. A quiet week can be advanced quickly without fake chores or forced dramatic events.
+12. Multi-week scenario tests produce coherent results for a child in school, an employed adult, an unemployed adult, and a later-life character.
 
 ### Legacy transition: annual actions to weekly schedule
 
@@ -209,12 +209,12 @@ The annual-action-to-weekly-save migration is implemented:
 
 The app has a weekly calendar, validated activity reservations, and a reproducible, exactly-once weekly resolver. Age and birthday-triggered life-stage transitions follow the character's actual birth date. Monthly settlement and date-based recurring payment schedules remain future work; annual income, expenses, taxes, asset settlement, and annual reviews still run at the year boundary.
 
-## 4. Event and consequence system
+### Weekly turn experience
 
-A simulated week is the basic playable turn; a month is a financial/reporting interval; a year is a life-progression chapter.
+A simulated week is the basic playable turn; a month is the intended financial/reporting interval; a year is a life-progression chapter.
 
-### Phase A — Review the current life chapter
-The annual life review remains a life-chapter summary, not the playable turn. Present a compact review containing:
+### Phase A — Open the current week
+Present a compact current-week view containing:
 - Current age, life stage, year, and the most relevant changes since last year.
 - Current circumstances that affect decisions: school/education, work, household, money, health, and important relationships when implemented.
 - New opportunities, unresolved situations, upcoming commitments, and warnings.
