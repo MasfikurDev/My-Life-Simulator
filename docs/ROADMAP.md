@@ -148,7 +148,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Model dependants, childcare, shared household membership, and caregiving with complete Time/Finance/Health contracts.
 - [ ] Integrate family mortality and bereavement with the global mortality/terminal-state model.
 - [ ] Add estate, inheritance, and generational continuation only after people, assets, dependants, and terminal-life state are reliable.
-- [x] Migrate family interactions from annual actions to weekly time blocks.
+- [x] Migrate family interactions from annual actions to stamina-based weekly activity toggles.
 
 **Acceptance:** Family is represented by real people and validated relationships, not a single score. Interactions materially affect the selected relationship and are recorded. Financial support cannot create money or hidden debt. New and legacy saves remain valid. Different family structures and child/adult/later-life scenarios are tested. No unimplemented partner, child, care, death, or inheritance state is shown as fact.
 
