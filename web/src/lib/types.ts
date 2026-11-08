@@ -4,7 +4,7 @@ export type EducationLevel = 'early-learning' | 'primary' | 'lower-secondary' | 
 export interface EducationRecord { id: string; level: EducationLevel; institution: string; field?: string; startedAtAge: number; completedAtAge?: number; status: 'enrolled' | 'completed' | 'paused' | 'withdrawn'; }
 export type EducationTaskType = 'study' | 'assignment' | 'exam';
 export interface EducationSubject { id: string; name: string; grade: number; }
-export interface EducationEnrollment { programId: string; institution: string; level: EducationLevel; field: string; startedAtAge: number; tuitionPaid: number; weeksCompleted: number; totalWeeks: number; grade: number; attendance: number; weeklyStudyTarget: number; subjects: EducationSubject[]; }
+export interface EducationEnrollment { recordId: string; status: 'enrolled' | 'paused'; programId: string; institution: string; level: EducationLevel; field: string; startedAtAge: number; tuitionPaid: number; weeksCompleted: number; totalWeeks: number; grade: number; attendance: number; weeklyStudyTarget: number; subjects: EducationSubject[]; }
 export interface AcademicResult { programId: string; institution: string; level: EducationLevel; field: string; grade: number; completedAtAge: number; outcome: 'completed' | 'failed' | 'withdrawn'; }
 export type HealthConditionType = 'burnout' | 'anxiety' | 'common-illness' | 'injury' | 'chronic';
 export interface HealthCondition { id: string; type: HealthConditionType; name: string; severity: number; diagnosed: boolean; weeksActive: number; treatment: 'rest' | 'professional-support' | 'medical-care' | 'ongoing-management' | null; }
