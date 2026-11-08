@@ -12,7 +12,7 @@ export function resolveCareAction(character: Character, careType: CareActionType
     next.health = clamp(next.health + 4);
     next.happiness = clamp(next.happiness + 3);
     next.stress = clamp((next.stress ?? 30) - 14);
-    next.medicalState = { ...nextState, conditions: nextState.conditions.map((condition) => condition.type === 'injury' || condition.type === 'common-illness' ? { ...condition, treatment: 'rest', severity: clamp(condition.severity - 10) } : condition).filter((condition) => condition.severity > 0) };
+    next.medicalState = { ...nextState, conditions: nextState.conditions.map((condition) => condition.type === 'injury' || condition.type === 'common-illness' ? { ...condition, treatment: 'rest' as const, severity: clamp(condition.severity - 10) } : condition).filter((condition) => condition.severity > 0) };
     next.history.unshift({ id: 'care-rest-' + weekStart, age: next.age, year: next.year, date: weekStart, kind: 'activity', title: 'Took time to recover', description: 'Rest restored energy and reduced accumulated pressure.' });
   } else if (careType === 'mindfulness') {
     next.stress = clamp((next.stress ?? 30) - 10);
@@ -24,7 +24,7 @@ export function resolveCareAction(character: Character, careType: CareActionType
     next.happiness = clamp(next.happiness + 3);
     next.medicalState = { ...nextState, lastTherapyWeek: weekStart, conditions: nextState.conditions.map((condition) =>
       condition.type === 'burnout' || condition.type === 'anxiety'
-        ? { ...condition, diagnosed: true, treatment: 'professional-support', severity: clamp(condition.severity - 18), weeksActive: condition.weeksActive }
+        ? { ...condition, diagnosed: true, treatment: 'professional-support' as const, severity: clamp(condition.severity - 18), weeksActive: condition.weeksActive }
         : condition
     ).filter((condition) => condition.severity > 0) };
     next.history.unshift({ id: 'care-counselling-' + weekStart, age: next.age, year: next.year, date: weekStart, kind: 'milestone', title: 'Sought professional support', description: 'A counselling session provided structured support and helped reduce pressure.' });
@@ -32,10 +32,10 @@ export function resolveCareAction(character: Character, careType: CareActionType
     next.health = clamp(next.health + 12);
     next.stamina = clamp((next.stamina ?? 50) + 5);
     next.medicalState = { ...nextState, lastCheckupWeek: weekStart, conditions: nextState.conditions.map((condition) => ({
-      ...condition, diagnosed: true, treatment: condition.type === 'burnout' || condition.type === 'anxiety' ? 'professional-support' : condition.type === 'chronic' ? 'ongoing-management' : 'medical-care',
+      ...condition, diagnosed: true, treatment: (condition.type === 'burnout' || condition.type === 'anxiety' ? 'professional-support' : condition.type === 'chronic' ? 'ongoing-management' : 'medical-care') as HealthCondition['treatment'],
       severity: clamp(condition.severity - 22), weeksActive: condition.weeksActive
     })).filter((condition) => condition.severity > 0) };
-    const stateAfter = next.medicalState;
+    const stateAfter: MedicalState = next.medicalState ?? nextState;
     const hasMedication = stateAfter.medications.some((item) => item.weeksRemaining > 0);
     if (!hasMedication && stateAfter.conditions.some((condition) => condition.type === 'common-illness' || condition.type === 'injury')) {
       next.medicalState = { ...stateAfter, medications: [...stateAfter.medications, { id: 'prescribed-' + weekStart, name: 'Prescribed treatment', weeksRemaining: 3 }] };
