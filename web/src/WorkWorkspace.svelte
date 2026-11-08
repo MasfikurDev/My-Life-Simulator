@@ -3,6 +3,7 @@
   import { getCareerPath, getCareerRequirements, getCareerRole, getJobListings, getPromotionReadiness, isEligibleForRole } from './lib/work';
   import type { CareerPathId, Character } from './lib/types';
   import GameChoice from './GameChoice.svelte';
+  import { getActivityStaminaCost } from './lib/progression';
 
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   type WorkView = 'jobs' | 'career' | 'history';
@@ -19,6 +20,7 @@
   const plannedActivities = $derived(character.weeklySchedule?.activities ?? []);
   function plannedWorkAction(workAction: 'apply' | 'interview', jobId: string) { return plannedActivities.find((item) => item.action?.kind === 'work' && item.action.workAction === workAction && item.action.jobId === jobId); }
   const developmentPlan = $derived(plannedActivities.find((item) => item.activityId === 'career' && item.action?.kind === 'activity'));
+  const extraWorkPlan = $derived(plannedActivities.find((item) => item.activityId === 'work' && item.action?.kind === 'activity'));
 
   function planWork(workAction: 'apply' | 'interview', jobId: string) {
     const existing = plannedWorkAction(workAction, jobId);
@@ -32,6 +34,13 @@
     const next = resignFromJob(character);
     if (next === character) return;
     onChange(next); confirmResignation = false; onNotify('You left your previous role. Your career experience is retained.');
+  }
+  function planExtraWork() {
+    if (!character.employment) return;
+    if (extraWorkPlan) { onChange(removePlannedActivity(character, extraWorkPlan.id)); onNotify('Extra work removed from this week.'); return; }
+    const result = planActivityInNextFreeTime(character, 'work');
+    if (result.issue) { onNotify(result.message ?? 'Could not add extra work.'); return; }
+    onChange(result.character); onNotify('Extra work added · ' + getActivityStaminaCost('work') + ' stamina.');
   }
   function planDevelopment() {
     if (!character.employment) return;
@@ -81,7 +90,7 @@
         </div>
         <p class="work-note">Regular shifts: {character.employment.type === 'full-time' ? 'Monday–Friday, mornings and afternoons' : character.employment.type === 'part-time' ? 'Monday, Wednesday and Friday afternoons' : 'Tuesday, Thursday and Saturday mornings'}.</p>
         <p class="work-note">Payroll: annual settlement · Monthly pay and benefits: not implemented</p>
-        <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · 8 stamina'}</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
+        <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · ' + getActivityStaminaCost('career') + ' stamina'}</button><button class="work-secondary" onclick={planExtraWork}>{extraWorkPlan ? 'Remove extra work' : 'Extra shift · ' + getActivityStaminaCost('work') + ' stamina'}</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
         {#if confirmResignation}<div class="resign-confirm"><strong>Leave {character.employment.title}?</strong><p>You will become unemployed. Your career experience and history will be kept.</p><div><button class="work-primary" onclick={confirmLeaveJob}>Confirm resignation</button><button class="work-secondary" onclick={() => confirmResignation = false}>Keep job</button></div></div>{/if}
       </section>
     {:else}
