@@ -5,7 +5,7 @@
   --control-height:44px;--content-max:1180px;
   --shadow-card:0 8px 24px rgba(0,0,0,.16);
   --focus-ring:0 0 0 2px var(--bg),0 0 0 4px var(--accent);
-  --on-accent:#041109;--shadow-color:#000;--illustration-deep:#0c1710;--illustration-mid:#142a1b;--illustration-light:#254b32;--success-soft:#10251a;--info-soft:#142131;
+  --on-accent:#041109;--shadow-color:#000;--overlay-color:#000;--illustration-deep:#0c1710;--illustration-mid:#142a1b;--illustration-light:#254b32;--success-soft:#10251a;--info-soft:#142131;
   --danger:#e38d88;--danger-soft:#291613;--success:#72d69a;--warning:#e3bd76;--warning-soft:#17110b;--info:#8fb9e8;
 }
 :root[data-theme="amoled"]{color-scheme:dark}
@@ -26,5 +26,5 @@
   --line:#ded9ca;--line-strong:#c8c1ae;--text:#252b25;--muted:#5e695e;--subtle:#788174;
   --accent:#267447;--accent-strong:#195c36;--accent-soft:#e2eee4;--green:#267447;--green-dark:#d7e8d9;--mint:#267447;
   --coral:#a84f43;--blue:#426b9b;--amber:#92651c;--danger:#a33e37;--danger-soft:#f5e4e1;--success:#267447;--warning:#92651c;--warning-soft:#f3ead7;--info:#426b9b;
-  --shadow-card:0 8px 24px rgba(45,48,36,.08);--shadow-color:#33382f;--illustration-deep:#e2eee4;--illustration-mid:#d7e8d9;--illustration-light:#c4ddc9;--success-soft:#e2eee4;--info-soft:#e7edf5;
+  --shadow-card:0 8px 24px rgba(45,48,36,.08);--shadow-color:#33382f;--overlay-color:#232a23;--illustration-deep:#e2eee4;--illustration-mid:#d7e8d9;--illustration-light:#c4ddc9;--success-soft:#e2eee4;--info-soft:#e7edf5;
 }
