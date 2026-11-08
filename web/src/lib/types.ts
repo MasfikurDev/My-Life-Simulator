@@ -225,7 +225,7 @@ export type PlannedAction =
 
 export interface PlannedActivity {
   id: string;
-  activityId: ActivityId | 'family' | 'business' | 'event';
+  activityId: ActivityId | 'family' | 'business' | 'event' | 'healthcare';
   action: PlannedAction;
 }
 export interface WeeklyPlan {
