@@ -3,12 +3,12 @@ import type { CareActionType, Character, HealthCondition, MedicalState } from '.
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 const medicalState = (character: Character): MedicalState => character.medicalState ?? { conditions: [], medications: [], highStressWeeks: 0 };
 
-export function resolveCareAction(character: Character, careType: CareActionType, weekStart: string): Character {
+export function resolveCareAction(character: Character, careType: CareActionType, weekStart: string, applyStamina = true): Character {
   const state = medicalState(character);
   const nextState: MedicalState = { ...state, conditions: state.conditions.map((condition) => ({ ...condition })), medications: [...state.medications] };
   const next: Character = { ...character, medicalState: nextState, history: [...character.history] };
   if (careType === 'rest') {
-    next.stamina = clamp((next.stamina ?? 50) + 14);
+    if (applyStamina) next.stamina = clamp((next.stamina ?? 50) + 14);
     next.health = clamp(next.health + 4);
     next.happiness = clamp(next.happiness + 3);
     next.stress = clamp((next.stress ?? 30) - 14);
@@ -30,7 +30,7 @@ export function resolveCareAction(character: Character, careType: CareActionType
     next.history.unshift({ id: 'care-counselling-' + weekStart, age: next.age, year: next.year, date: weekStart, kind: 'milestone', title: 'Sought professional support', description: 'A counselling session provided structured support and helped reduce pressure.' });
   } else {
     next.health = clamp(next.health + 12);
-    next.stamina = clamp((next.stamina ?? 50) + 5);
+    if (applyStamina) next.stamina = clamp((next.stamina ?? 50) + 5);
     next.medicalState = { ...nextState, lastCheckupWeek: weekStart, conditions: nextState.conditions.map((condition) => ({
       ...condition, diagnosed: true, treatment: (condition.type === 'burnout' || condition.type === 'anxiety' ? 'professional-support' : condition.type === 'chronic' ? 'ongoing-management' : 'medical-care') as HealthCondition['treatment'],
       severity: clamp(condition.severity - 22), weeksActive: condition.weeksActive
@@ -56,7 +56,7 @@ export function resolveWeeklyWellbeing(character: Character, workloadUnits: numb
   const stress = character.stress ?? 30;
   const loadIncrease = workloadUnits >= 17 ? 9 : workloadUnits >= 14 ? 6 : workloadUnits >= 11 ? 3 : -3;
   const nextStress = clamp(stress + loadIncrease);
-  const nextStamina = clamp((character.stamina ?? 50) + (workloadUnits >= 16 ? -7 : workloadUnits >= 12 ? -4 : 3));
+
   const highStressWeeks = nextStress >= 82 ? state.highStressWeeks + 1 : Math.max(0, state.highStressWeeks - 1);
   let conditions = state.conditions.map((condition) => {
     const treated = condition.treatment !== null;
@@ -73,7 +73,7 @@ export function resolveWeeklyWellbeing(character: Character, workloadUnits: numb
   const medicationRecovery = state.medications.length > 0 ? 2 : 0;
   const activeSeverity = conditions.reduce((sum, condition) => sum + condition.severity, 0);
   const next: Character = {
-    ...character, stress: nextStress, stamina: nextStamina,
+    ...character, stress: nextStress,
     health: clamp(character.health + medicationRecovery - (activeSeverity >= 120 ? 2 : activeSeverity >= 70 ? 1 : 0)),
     happiness: clamp(character.happiness + (nextStress >= 85 ? -3 : nextStress >= 70 ? -1 : nextStress <= 35 ? 1 : 0)),
     medicalState: { ...state, conditions, medications, highStressWeeks }
