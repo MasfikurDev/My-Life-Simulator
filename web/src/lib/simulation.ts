@@ -805,7 +805,6 @@ function addWeeklyAction(character: Character, activityId: PlannedActivity['acti
 export function planActivity(character: Character, activity: ActivityId, date?: string): ActivityPlanningResult {
   if (activity === 'apply-job') return { character, issue: 'unavailable', message: 'Use Work → Jobs & applications to apply for a specific opening.' };
   if (!isActivityAvailable(character.age, activity, character.employment)) return { character, issue: 'unavailable', message: 'This activity is not available at your current life stage.' };
-  const definition = getActivityDefinition(activity);
   const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
   return addWeeklyAction(character, activity, day, { kind: 'activity' }, getActivityCost(character, activity));
 }
@@ -834,7 +833,7 @@ export function planBusinessManagement(character: Character, businessId: string,
   return addWeeklyAction(character, 'business', day, { kind: 'business', businessId }, Math.max(1, Math.round(business.investedCapital * 0.01)));
 }
 
-export function planWorkAction(character: Character, workAction: 'apply' | 'interview', jobId: string, date?: string, ): ActivityPlanningResult {
+export function planWorkAction(character: Character, workAction: 'apply' | 'interview', jobId: string, date?: string): ActivityPlanningResult {
   if (character.age < 16) return { character, issue: 'unavailable', message: 'Work opportunities are not available at this life stage.' };
   const schedule = getWeeklyPlan(character.weeklyPlan);
   if (schedule.activities.some((item) => item.action?.kind === 'work' && item.action.workAction === workAction && item.action.jobId === jobId)) {
