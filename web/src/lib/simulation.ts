@@ -764,7 +764,7 @@ function getPlannedActivityReward(item: PlannedActivity): string {
     study: 'Intelligence, focus, discipline and learning progress',
     exercise: 'Fitness, health, happiness and lower stress',
     socialize: 'Happiness, social skills and lower stress',
-    work: 'Cash income and work experience',
+    work: 'Cash income and confidence; stress and happiness may worsen',
     'apply-job': 'Employment opportunity',
     career: 'Work performance, focus and confidence'
   } as Record<ActivityId, string>)[item.activityId as ActivityId] ?? 'Character progression';
