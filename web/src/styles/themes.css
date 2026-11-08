@@ -1,4 +1,4 @@
-/* Theme-aware shared shell and frequently reused surfaces. Migrate domain-specific rules to tokens as they are touched. */
+/* Theme-aware shell and compatibility overrides. Existing workspace styles consume shared semantic tokens. */
 html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit}
 :root[data-theme="paper"] body,:root[data-theme="paper"] .app-shell{background:var(--bg);color:var(--text)}
 :root[data-theme="paper"] .topbar,:root[data-theme="paper"] .side-nav,:root[data-theme="paper"] .content{color:var(--text)}
@@ -18,7 +18,7 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
 :root[data-theme="paper"] strong,:root[data-theme="paper"] .topbar-life-name,:root[data-theme="paper"] .topbar-metrics strong{color:var(--text)}
 :root[data-theme="paper"] p,:root[data-theme="paper"] small,:root[data-theme="paper"] .muted,:root[data-theme="paper"] .eyebrow{color:var(--muted)}
 :root[data-theme="paper"] button:focus-visible,:root[data-theme="paper"] a:focus-visible,:root[data-theme="paper"] input:focus-visible{outline-color:var(--accent)}
-:root[data-theme="paper"] .education-task-card:disabled::after,:root[data-theme="paper"] .health-care-card:disabled::after{background:color-mix(in srgb,var(--surface) 58%, transparent);color:#fff}
+:root[data-theme="paper"] .education-task-card:disabled::after,:root[data-theme="paper"] .health-care-card:disabled::after{background:color-mix(in srgb,var(--overlay-color) 58%, transparent);color:#fff}
 :root[data-theme="midnight"] .app-shell,:root[data-theme="graphite"] .app-shell{background:var(--bg);color:var(--text)}
 :root[data-theme="midnight"] .topbar,:root[data-theme="graphite"] .topbar{border-color:var(--line)}
 
