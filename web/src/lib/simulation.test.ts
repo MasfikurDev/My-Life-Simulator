@@ -52,10 +52,10 @@ describe('life simulation', () => {
     };
     const planned = planActivityInNextFreeTime(base, 'study');
     expect(planned.issue).toBeNull();
-    expect(planned.scheduledActivity).toMatchObject({
+    expect(planned.plannedActivity).toMatchObject({
       activityId: 'study', action: { kind: 'activity' }
     });
-    expect(planned.character.weeklyPlan?.activities[0]).toEqual(planned.scheduledActivity);
+    expect(planned.character.weeklyPlan?.activities[0]).toEqual(planned.plannedActivity);
   });
   it('allows activities without a calendar grid or commitment records', () => {
     const base = {
@@ -111,7 +111,7 @@ describe('life simulation', () => {
     const base = { ...createCharacter('Review', 30), money: 100, currencyScale: 1, stamina: 70, stress: 30 };
     const planned = planActivityInNextFreeTime(base, 'exercise');
     expect(planned.issue).toBeNull();
-    expect(getPlannedActivityStaminaCost(planned.scheduledActivity!)).toBe(10);
+    expect(getPlannedActivityStaminaCost(planned.plannedActivity!)).toBe(10);
     const before = JSON.stringify(planned.character);
     const review = getWeeklyActivityReview(planned.character);
     expect(JSON.stringify(planned.character)).toBe(before);
