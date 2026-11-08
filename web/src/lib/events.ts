@@ -43,14 +43,14 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
     events.push({
       id: 'school-reading-circle',
       title: 'An invitation to the reading circle',
-      description: 'A classmate is starting a small after-school reading group. It could help you learn and meet people, but it will take some of your free time.',
+      description: 'A classmate is starting a small after-school reading group. It could help you learn and meet people, but it will take some energy this week.',
       category: 'opportunity',
       choices: [
         {
           id: 'join',
           label: 'Join the group',
           detail: 'Spend time learning together. Your knowledge and confidence may grow.',
-          timeBlocks: 1,
+          staminaCost: 5,
           moneyCost: 0,
           effects: { intelligence: 3, happiness: 2 },
           followUp: {
@@ -64,7 +64,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
           id: 'pass',
           label: 'Keep your free time',
           detail: 'Leave the invitation unanswered and spend your time elsewhere.',
-          timeBlocks: 0,
+          staminaCost: 0,
           moneyCost: 0,
           effects: {}
         }
@@ -83,7 +83,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
           id: 'take-part',
           label: 'Take part',
           detail: 'Reserve one period and spend ' + Math.round(50 * scale).toLocaleString('en-US') + ' on supplies. If you follow through, the experience may lead to a small payment next year.',
-          timeBlocks: 1,
+          staminaCost: 5,
           moneyCost: Math.round(50 * scale),
           effects: { intelligence: 2, happiness: 1 },
           followUp: {
@@ -97,7 +97,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
           id: 'pass',
           label: 'Decline for now',
           detail: 'Keep your time and money available for other priorities.',
-          timeBlocks: 0,
+          staminaCost: 0,
           moneyCost: 0,
           effects: {}
         }
@@ -116,7 +116,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
           id: 'make-time',
           label: 'Make time to recover',
           detail: 'Reserve time to rest and rebuild some health.',
-          timeBlocks: 1,
+          staminaCost: 5,
           moneyCost: 0,
           effects: { health: 6, happiness: 1 }
         },
@@ -124,7 +124,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
           id: 'carry-on',
           label: 'Carry on as planned',
           detail: 'Keep your available time for other priorities.',
-          timeBlocks: 0,
+          staminaCost: 0,
           moneyCost: 0,
           effects: {}
         }
@@ -149,7 +149,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
               id: 'make-time',
               label: 'Make time for them',
               detail: 'Spend time together and strengthen your family connection.',
-              timeBlocks: 1,
+              staminaCost: 5,
               moneyCost: 0,
               effects: { happiness: 2 },
               familyBondEffect: { personId: relative.person.id, closeness: 6, trust: 3, tension: -2 }
@@ -158,7 +158,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
               id: 'keep-plans',
               label: 'Keep your current plans',
               detail: 'Leave the invitation for another time.',
-              timeBlocks: 0,
+              staminaCost: 0,
               moneyCost: 0,
               effects: {}
             }
