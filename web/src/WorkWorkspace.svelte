@@ -17,7 +17,7 @@
   const careerRoles = $derived(getCareerPath(selectedPath));
   $effect(() => { if (currentRole) selectedPath = currentRole.pathId; });
   const careerEvents = $derived(character.history.filter((item) => /job|work|career|promotion|interview|employment/i.test(item.title + ' ' + item.description)));
-  const plannedActivities = $derived(character.weeklySchedule?.activities ?? []);
+  const plannedActivities = $derived(character.weeklyPlan?.activities ?? []);
   function plannedWorkAction(workAction: 'apply' | 'interview', jobId: string) { return plannedActivities.find((item) => item.action?.kind === 'work' && item.action.workAction === workAction && item.action.jobId === jobId); }
   const developmentPlan = $derived(plannedActivities.find((item) => item.activityId === 'career' && item.action?.kind === 'activity'));
   const extraWorkPlan = $derived(plannedActivities.find((item) => item.activityId === 'work' && item.action?.kind === 'activity'));
