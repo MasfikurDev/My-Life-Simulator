@@ -58,7 +58,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. The annual-action cutover, automatic contextual placement, and deterministic weekly resolution are implemented. Remaining work is listed separately below.
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
-- [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment now adds type-based recurring Work shifts; School attendance remains unmodeled until its own schedule loop exists.
+- [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment adds type-based recurring Work shifts; Education enrollment adds recurring class commitments to the same validated schedule.
 - [x] Add a Schedule review workspace with a seven-day, 21-period grid, recurring commitments, automatic reservations, duration visibility, planned-cost summary, and reservation removal. Routine actions are initiated only from their owning domain.
 - [x] Centralize per-activity time requirements and validate planned activities in the simulation: life-stage eligibility, current-week boundaries, duration fit, overlaps, and aggregate planned cash costs.
 - [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, business management, and contextual Work actions.
@@ -91,7 +91,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Acceptance:** Device ownership and costs persist accurately; failed transactions are atomic; capabilities enable specific contextual opportunities; other domains do not duplicate device management; existing saves remain valid. Detailed rules: [PERSONAL_TECHNOLOGY.md](PERSONAL_TECHNOLOGY.md).
 
 ## Milestone 5 — Deepen School and Work into playable systems
-- [ ] Add real school progression choices, enrollment, attendance, classes, grades/exams, and fees in the School workspace.
+- [x] Add education progression choices, enrollment, class commitments, weekly assignments/exams, grades, tuition and academic history in the Education workspace.
 - [x] Add recruitment stages with applications, interviews, offers, acceptance/decline, generated employer identity, and job-change/resignation flow in Work.
 - [ ] Add persistent employer operations, workplace decisions, layoffs/job security, and role-specific skill development.
 - [ ] Clarify the current-job card and add a read-only career-path preview with estimated salary/bonus ranges; see [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md).
