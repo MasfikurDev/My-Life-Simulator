@@ -98,14 +98,14 @@
   .day-column>header strong{font-size:10px;color:var(--text)}
   .day-column>header small{font-size:9px;color:var(--muted)}
   .period-card{display:grid;align-content:start;gap:5px;min-height:82px;padding:8px 6px;border:1px dashed var(--line-strong);border-radius:9px;background:var(--surface)}
-  .period-card.occupied{border-style:solid;border-color:rgba(114,214,154,.45);background:var(--accent-soft)}
+  .period-card.occupied{border-style:solid;border-color:color-mix(in srgb,var(--accent) 45%, transparent);background:var(--accent-soft)}
   .period-label{font-size:9px;text-transform:capitalize;color:var(--muted)}
   .period-free{font-size:10px;color:var(--muted)}
   .period-entry{display:flex;align-items:flex-start;justify-content:space-between;gap:3px;min-width:0}
   .period-entry strong{overflow-wrap:anywhere;color:var(--text);font-size:9px;line-height:1.35}
   .period-entry small{font-size:8px;color:var(--muted)}
-  .period-entry button{flex:none;width:18px;height:18px;border:0;border-radius:5px;background:rgba(0,0,0,.08);color:var(--text);font-size:14px;line-height:1}
-  .schedule-issues{padding:12px;border:1px solid #d98b70;border-radius:10px;background:rgba(217,139,112,.08);color:var(--text);font-size:11px}
+  .period-entry button{flex:none;width:18px;height:18px;border:0;border-radius:5px;background:color-mix(in srgb,var(--bg) 8%, transparent);color:var(--text);font-size:14px;line-height:1}
+  .schedule-issues{padding:12px;border:1px solid var(--danger);border-radius:10px;background:color-mix(in srgb,var(--danger) 8%, transparent);color:var(--text);font-size:11px}
   .schedule-issues p{margin:5px 0 0;color:var(--muted)}
   .schedule-footnote{margin:0;color:var(--muted);font-size:10px;line-height:1.55}
   @media(max-width:760px){.week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.day-column:last-child{grid-column:1/-1}}
