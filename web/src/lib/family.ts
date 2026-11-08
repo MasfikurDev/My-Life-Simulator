@@ -22,13 +22,31 @@ const GIVEN_NAMES: Record<string, Record<'male' | 'female' | 'neutral', string[]
 function pick<T>(items: readonly T[], random: () => number): T {
   return items[Math.min(items.length - 1, Math.max(0, Math.floor(random() * items.length)))];
 }
-function makeName(character: Pick<Character, 'name' | 'country'>, gender: Gender, random: () => number): string {
+function makeName(character: Pick<Character, 'name' | 'country'>, gender: Gender, random: () => number, usedNames: Set<string>): string {
   const country = character.country ?? 'United States';
   const pools = GIVEN_NAMES[country] ?? GIVEN_NAMES['United States'];
-  const first = pick(pools[gender === 'non-binary' ? 'neutral' : gender], random);
+  const firstNames = pools[gender === 'non-binary' ? 'neutral' : gender];
   const parts = character.name.trim().split(/\s+/);
   const surname = parts.length > 1 ? (country === 'Japan' ? parts[0] : parts[parts.length - 1]) : parts[0];
-  return country === 'Japan' ? surname + ' ' + first : first + ' ' + surname;
+  const start = Math.min(firstNames.length - 1, Math.max(0, Math.floor(random() * firstNames.length)));
+  for (let offset = 0; offset < firstNames.length; offset += 1) {
+    const first = firstNames[(start + offset) % firstNames.length];
+    const candidate = country === 'Japan' ? surname + ' ' + first : first + ' ' + surname;
+    const key = candidate.trim().toLocaleLowerCase();
+    if (!usedNames.has(key)) {
+      usedNames.add(key);
+      return candidate;
+    }
+  }
+  // Name pools are finite. Preserve uniqueness even if a future generator adds
+  // more relatives than a pool can cover.
+  const first = firstNames[start];
+  const base = country === 'Japan' ? surname + ' ' + first : first + ' ' + surname;
+  let suffix = 2;
+  let candidate = base + ' ' + suffix;
+  while (usedNames.has(candidate.toLocaleLowerCase())) candidate = base + ' ' + (++suffix);
+  usedNames.add(candidate.toLocaleLowerCase());
+  return candidate;
 }
 function personAge(person: FamilyPerson, year: number): number {
   const referenceYear = person.deathYear !== undefined && person.deathYear <= year ? person.deathYear : year;
@@ -50,6 +68,7 @@ export function createFamilyState(character: Pick<Character, 'name' | 'age' | 'y
     birthYear: character.year - character.age
   };
   const people: FamilyPerson[] = [player];
+  const usedNames = new Set([player.name.trim().toLocaleLowerCase()]);
   const relationships: FamilyRelationship[] = [];
   const bonds: FamilyBond[] = [];
   const history: FamilyHistoryEntry[] = [];
@@ -63,7 +82,7 @@ export function createFamilyState(character: Pick<Character, 'name' | 'age' | 'y
     const deathAge = 72 + Math.floor(random() * 23);
     const parent: FamilyPerson = {
       id: 'family-parent-' + (index + 1),
-      name: makeName(character, gender, random),
+      name: makeName(character, gender, random, usedNames),
       gender,
       birthYear,
       ...(ageNow > deathAge ? { deathYear: birthYear + deathAge } : {})
@@ -98,7 +117,7 @@ export function createFamilyState(character: Pick<Character, 'name' | 'age' | 'y
     const gender: Gender = random() < 0.5 ? 'female' : 'male';
     const sibling: FamilyPerson = {
       id: 'family-sibling-' + (index + 1),
-      name: makeName(character, gender, random),
+      name: makeName(character, gender, random, usedNames),
       gender,
       birthYear: character.year - siblingAge
     };
