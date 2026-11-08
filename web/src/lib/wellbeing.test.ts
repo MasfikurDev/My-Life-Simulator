@@ -66,4 +66,14 @@ describe('weekly wellbeing and medical care', () => {
     expect(result.character.health).toBeGreaterThan(child.health);
   });
 
+  it('records paid professional healthcare in the financial ledger', () => {
+    const patient = { ...createCharacter('Patient', 30), stress: 80 };
+    const planned = planCareActionInNextFreeTime(patient, 'counselling');
+    expect(planned.issue).toBeNull();
+    const result = advanceWeek(planned.character);
+    expect(result.issue).toBeNull();
+    expect(result.character.money).toBeLessThan(patient.money);
+    expect(result.character.financialTransactions?.some((item) => item.description.includes('Healthcare'))).toBe(true);
+  });
+
 });
