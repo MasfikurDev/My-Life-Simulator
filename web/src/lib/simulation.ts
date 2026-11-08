@@ -742,11 +742,13 @@ function getPlannedActivityTitle(character: Character, item: PlannedActivity): s
   if (item.action?.kind === 'work') return (item.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + item.action.title;
   if (item.action?.kind === 'family') return ({ 'spend-time': 'Spend time with family', 'reach-out': 'Reach out to family', reconcile: 'Resolve family conflict', 'provide-support': 'Provide family support' }[item.action.interaction]);
   if (item.action?.kind === 'business') {
-    const businessName = (character.businesses ?? []).find((business) => business.id === item.action.businessId)?.name;
+    const businessId = item.action.businessId;
+    const businessName = (character.businesses ?? []).find((business) => business.id === businessId)?.name;
     return businessName ? 'Manage business: ' + businessName : 'Business management';
   }
   if (item.action?.kind === 'event') {
-    const choice = character.pendingGameEvent?.choices.find((entry) => entry.id === item.action.choiceId);
+    const choiceId = item.action.choiceId;
+    const choice = character.pendingGameEvent?.choices.find((entry) => entry.id === choiceId);
     return (character.pendingGameEvent?.description ?? 'Life event decision') + (choice ? ' — ' + choice.label : '');
   }
   return getActivityDefinition(item.activityId as ActivityId)?.title ?? item.activityId;
