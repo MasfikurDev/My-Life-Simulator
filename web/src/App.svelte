@@ -64,10 +64,12 @@
     const endMonth = new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' }).format(end);
     const startDay = start.getUTCDate();
     const endDay = end.getUTCDate();
-    const year = end.getUTCFullYear();
+    const startYear = start.getUTCFullYear();
+    const endYear = end.getUTCFullYear();
+    if (startYear !== endYear) return startMonth + ' ' + startDay + ', ' + startYear + ' – ' + endMonth + ' ' + endDay + ', ' + endYear;
     return start.getUTCMonth() === end.getUTCMonth()
-      ? startMonth + ' ' + startDay + '–' + endDay + ', ' + year
-      : startMonth + ' ' + startDay + ' – ' + endMonth + ' ' + endDay + ', ' + year;
+      ? startMonth + ' ' + startDay + '–' + endDay + ', ' + endYear
+      : startMonth + ' ' + startDay + ' – ' + endMonth + ' ' + endDay + ', ' + endYear;
   }
   function groupActivityHistory(items: Character['history']) {
     const groups = new Map<string, { key: string; label: string; sortDate: string; items: Character['history'] }>();
