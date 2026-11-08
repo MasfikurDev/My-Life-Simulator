@@ -4,6 +4,7 @@ import { createGameCalendar } from './calendar';
 
 const KEY = 'my-life-simulator.save';
 const MIGRATION_BACKUP_KEY = KEY + '.pre-weekly-migration';
+const TIMETABLE_MIGRATION_BACKUP_KEY = KEY + '.pre-timetable-migration';
 const SETTINGS_KEY = 'my-life-simulator.settings';
 const CURRENT_SCHEMA = 5;
 const SLOT_IDS: SaveSlotId[] = ['slot-1', 'slot-2', 'slot-3'];
@@ -43,6 +44,7 @@ function persistMigration(raw: string, migrated: SaveData): void {
   // Preserve the exact pre-migration payload before replacing it. If either
   // write fails, the original save remains available for recovery.
   if (!localStorage.getItem(MIGRATION_BACKUP_KEY)) localStorage.setItem(MIGRATION_BACKUP_KEY, raw);
+  if (!localStorage.getItem(TIMETABLE_MIGRATION_BACKUP_KEY)) localStorage.setItem(TIMETABLE_MIGRATION_BACKUP_KEY, raw);
   localStorage.setItem(KEY, JSON.stringify(migrated));
 }
 function readData(): SaveData {
