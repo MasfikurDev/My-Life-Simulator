@@ -3,6 +3,7 @@
   import EmptyState from './components/EmptyState.svelte';
   import { formatCharacterMoney, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getWellbeingLoadLabel } from './lib/wellbeing';
+  import { getValueColor } from './lib/progression';
   import { buildWeeklySchedule } from './lib/weekly-schedule';
   import { getWeekStart } from './lib/calendar';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
@@ -13,13 +14,14 @@
   const load = $derived(getWellbeingLoadLabel(occupied));
   const plannedCare = $derived(schedule.activities.filter((item) => item.action?.kind === 'care'));
   function plan(type: CareActionType) {
+    const existing = plannedCare.find((item) => item.action?.kind === 'care' && item.action.careType === type);
+    if (existing) { onChange(removePlannedActivity(character, existing.id)); onNotify('Removed from this week.'); return; }
     const result = planCareActionInNextFreeTime(character, type);
-    if (result.issue) { onNotify(result.message ?? 'Could not arrange this care activity.'); return; }
+    if (result.issue) { onNotify(result.message ?? 'Could not add this care activity.'); return; }
     onChange(result.character);
-    onNotify('Care appointment added to your week.');
+    onNotify('Added to this week. Toggle it again to remove it.');
   }
   function isPlanned(type: CareActionType) { return plannedCare.some((item) => item.action?.kind === 'care' && item.action.careType === type); }
-  function removeCare(id: string) { onChange(removePlannedActivity(character, id)); onNotify('Care appointment removed from this week.'); }
   const stats = $derived([
     { label: 'Physical health', value: character.health, tone: 'health', inverse: false },
     { label: 'Fitness', value: character.fitness, tone: 'fitness', inverse: false },
@@ -31,10 +33,10 @@
 
 <div class="page-heading"><div><div class="eyebrow">BODY · MIND · RECOVERY</div><h1>Health & <em>wellbeing</em></h1><p>Manage your health, energy and pressure. Recovery is part of the weekly plan, not wasted time.</p></div></div>
 <section class="health-overview domain-panel">
-  <div class="health-overview-head"><div><div class="eyebrow">CURRENT CONDITION</div><h2>{load} weekly load</h2><p>{occupied} of 21 weekly time blocks are committed. Too many demands can reduce study and work efficiency.</p></div><span class="domain-status">{(character.stress ?? 30) >= 82 ? 'HIGH PRESSURE' : (character.stress ?? 30) >= 60 ? 'ELEVATED' : 'MANAGEABLE'}</span></div>
+  <div class="health-overview-head"><div><div class="eyebrow">CURRENT CONDITION</div><h2>{load} weekly load</h2><p>{occupied} of 21 periods are reserved by recurring commitments. Personal activities use stamina instead of time slots.</p></div><span class="domain-status">{(character.stress ?? 30) >= 82 ? 'HIGH PRESSURE' : (character.stress ?? 30) >= 60 ? 'ELEVATED' : 'MANAGEABLE'}</span></div>
   <div class="health-stat-grid">
     {#each stats as stat}
-      <div class="health-stat"><div><span>{stat.label}</span><strong>{Math.round(stat.value)}%</strong></div><div class="meter"><span class:blue={stat.tone !== 'stress'} class:stress-meter={stat.tone === 'stress'} style="width:{stat.value}%"></span></div><small>{stat.inverse ? stat.value >= 80 ? 'Critical pressure' : stat.value >= 60 ? 'Elevated pressure' : 'Manageable' : stat.value >= 75 ? 'Strong' : stat.value >= 45 ? 'Fair' : 'Needs attention'}</small></div>
+      <div class="health-stat"><div><span>{stat.label}</span><strong>{Math.round(stat.value)}%</strong></div><div class="meter"><span class:blue={stat.tone !== 'stress'} class:stress-meter={stat.tone === 'stress'} style="width:{stat.value}%;background:{getValueColor(stat.value, stat.inverse)}"></span></div><small>{stat.inverse ? stat.value >= 80 ? 'Critical pressure' : stat.value >= 60 ? 'Elevated pressure' : 'Manageable' : stat.value < 25 ? 'Critical' : stat.value < 45 ? 'Low' : stat.value < 70 ? 'Fair' : 'Strong'}</small></div>
     {/each}
   </div>
   {#if (character.stress ?? 30) >= 70 || occupied >= 14}
@@ -43,14 +45,13 @@
 </section>
 
 <section class="health-care-section">
-  <div class="section-heading"><div><span class="section-index">01</span><h3>Care & recovery</h3></div><span class="section-hint">Automatically scheduled in free time</span></div>
+  <div class="section-heading"><div><span class="section-index">01</span><h3>Care & recovery</h3></div><span class="section-hint">Toggle activities for this week</span></div>
   <div class="health-care-grid">
-    <button class="health-care-card" class:planned={isPlanned('rest')} disabled={isPlanned('rest')} onclick={() => plan('rest')}><span class="health-care-icon">⌂</span><strong>Rest & recovery</strong><p>Restore stamina, improve health and reduce pressure.</p><small>No direct cost · 1 time block</small><b>{isPlanned('rest') ? 'PLANNED' : 'Arrange break'}</b></button>
-    <button class="health-care-card" class:planned={isPlanned('mindfulness')} disabled={isPlanned('mindfulness')} onclick={() => plan('mindfulness')}><span class="health-care-icon">◌</span><strong>Mindfulness</strong><p>Build a calmer routine, improve focus and reduce everyday stress.</p><small>No direct cost · 1 time block</small><b>{isPlanned('mindfulness') ? 'PLANNED' : 'Arrange session'}</b></button>
-    <button class="health-care-card" class:planned={isPlanned('counselling')} disabled={isPlanned('counselling')} onclick={() => plan('counselling')}><span class="health-care-icon">♡</span><strong>Professional counselling</strong><p>Get structured support for persistent pressure and burnout.</p><small>{character.age < 18 ? 'Family-supported' : formatCharacterMoney(character, 90 * (character.currencyScale ?? 1))} · 1 time block</small><b>{isPlanned('counselling') ? 'PLANNED' : 'Seek support'}</b></button>
-    <button class="health-care-card" class:planned={isPlanned('medical-checkup')} disabled={isPlanned('medical-checkup')} onclick={() => plan('medical-checkup')}><span class="health-care-icon">✚</span><strong>Medical check-up</strong><p>Review physical health and update a treatment plan.</p><small>{character.age < 18 ? 'Family-supported' : formatCharacterMoney(character, 120 * (character.currencyScale ?? 1))} · 1 time block</small><b>{isPlanned('medical-checkup') ? 'PLANNED' : 'Book check-up'}</b></button>
+    <button class="health-care-card" class:planned={isPlanned('rest')} onclick={() => plan('rest')}><span class="health-care-icon">⌂</span><strong>Rest & recovery</strong><p>Restore stamina, improve health and reduce pressure.</p><small>No fee · restores stamina</small><b>{isPlanned('rest') ? 'REMOVE FROM WEEK' : 'ADD TO WEEK'}</b></button>
+    <button class="health-care-card" class:planned={isPlanned('mindfulness')} onclick={() => plan('mindfulness')}><span class="health-care-icon">◌</span><strong>Mindfulness</strong><p>Build a calmer routine, improve focus and reduce everyday stress.</p><small>Stamina 4 · no fee</small><b>{isPlanned('mindfulness') ? 'REMOVE FROM WEEK' : 'ADD TO WEEK'}</b></button>
+    <button class="health-care-card" class:planned={isPlanned('counselling')} onclick={() => plan('counselling')}><span class="health-care-icon">♡</span><strong>Professional counselling</strong><p>Get structured support for persistent pressure and burnout.</p><small>{character.age < 18 ? 'Family-supported' : formatCharacterMoney(character, 90 * (character.currencyScale ?? 1))} · Stamina 2</small><b>{isPlanned('counselling') ? 'REMOVE FROM WEEK' : 'Seek support'}</b></button>
+    <button class="health-care-card" class:planned={isPlanned('medical-checkup')} onclick={() => plan('medical-checkup')}><span class="health-care-icon">✚</span><strong>Medical check-up</strong><p>Review physical health and update a treatment plan.</p><small>{character.age < 18 ? 'Family-supported' : formatCharacterMoney(character, 120 * (character.currencyScale ?? 1))} · no stamina cost</small><b>{isPlanned('medical-checkup') ? 'REMOVE FROM WEEK' : 'Book check-up'}</b></button>
   </div>
-  {#if plannedCare.length}<div class="education-planned-list"><strong>Appointments scheduled this week</strong>{#each plannedCare as item}<div class="education-planned-row"><span>{item.date} · {item.startPeriod} · {item.action?.kind === 'care' ? item.action.careType.replaceAll('-', ' ') : 'Care'}</span><button class="text-button" onclick={() => removeCare(item.id)}>Remove</button></div>{/each}</div>{/if}
 </section>
 
 <section class="health-conditions-section">
