@@ -234,7 +234,7 @@
   function advanceWeekNow() {
     if (!character) return;
     const result = advanceWeek(character);
-    if (result.issue) { notify(result.issue === 'insufficient-stamina' ? 'Your plan exceeds the available stamina. Add recovery or remove activities.' : result.issue === 'invalid-schedule' ? 'The saved weekly plan needs repair before advancing.' : result.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action is no longer available. Remove it before advancing.'); return; }
+    if (result.issue) { notify(result.issue === 'insufficient-stamina' ? 'Your plan exceeds the available stamina. Add recovery or remove activities.' : result.issue === 'invalid-plan' ? 'The weekly plan is invalid and needs attention before advancing.' : result.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action is no longer available. Remove it before advancing.'); return; }
     const crossedYear = result.character.year > character.year;
     persist(result.character); advanceReviewOpen = false;
     notify(crossedYear ? 'Week completed. A new year begins.' : 'Week completed. The next week begins.');
