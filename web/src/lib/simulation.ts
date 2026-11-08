@@ -978,7 +978,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   const backgroundObligations = (character.educationEnrollment?.status === 'enrolled' ? 4 : 0) + (character.employment ? (character.employment.type === 'full-time' ? 6 : 3) : 0);
   const activityEffortUnits = Math.ceil(schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaCost(item), 0) / 6);
   const weeklyWorkload = Math.min(21, backgroundObligations + activityEffortUnits);
-  const wellbeing = resolveWeeklyWellbeing(next, weeklyWorkload, weekStart);
+  const wellbeing = resolveWeeklyWellbeing(next, weeklyWorkload, weekStart, false);
   next = wellbeing.character;
   recap.push(...wellbeing.recap);
   next = { ...next, stamina: Math.min(100, (next.stamina ?? 50) + staminaRecovery) };
