@@ -801,7 +801,7 @@ function addWeeklyAction(character: Character, activityId: PlannedActivity['acti
   const staminaRecovery = nextActivities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0);
   if (Math.min(100, (character.stamina ?? 50) + staminaRecovery) < staminaCost) return { character, issue: 'insufficient-stamina', message: 'This would exceed your available weekly stamina, even after planned recovery.' };
   const nextSchedule = { ...schedule, activities: nextActivities };
-  return { character: { ...character, weeklySchedule: nextSchedule }, issue: null, message: null };
+  return { character: { ...character, weeklyPlan: nextSchedule }, issue: null, message: null };
 }
 
 export function planActivity(character: Character, activity: ActivityId, date?: string): ActivityPlanningResult {
@@ -828,7 +828,7 @@ export function planFamilyInteraction(character: Character, personId: string, in
 
 export function planBusinessManagement(character: Character, businessId: string, date?: string): ActivityPlanningResult {
   const business = (character.businesses ?? []).find((entry) => entry.id === businessId);
-  if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'business' && item.action.businessId === businessId)) {
+  if (getWeeklyPlan(character.weeklySchedule).activities.some((item) => item.action?.kind === 'business' && item.action.businessId === businessId)) {
     return { character, issue: 'unavailable', message: 'A management session for this business is already planned this week.' };
   }
   if (!business || manageBusiness(character, businessId) === character) return { character, issue: 'unavailable', message: 'This business cannot be managed right now.' };
