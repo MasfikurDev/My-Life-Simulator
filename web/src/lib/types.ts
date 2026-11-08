@@ -1,5 +1,8 @@
 export type ActivityId = 'study' | 'exercise' | 'socialize' | 'work' | 'apply-job' | 'career';
 export type Gender = 'male' | 'female' | 'non-binary';
+export type EducationLevel = 'early-learning' | 'primary' | 'lower-secondary' | 'upper-secondary' | 'vocational' | 'associate' | 'bachelor' | 'master' | 'doctorate' | 'professional-specialist';
+export interface EducationRecord { id: string; level: EducationLevel; institution: string; field?: string; startedAtAge: number; completedAtAge?: number; status: 'enrolled' | 'completed' | 'paused' | 'withdrawn'; }
+export interface Qualification { id: string; name: string; category: 'certificate' | 'license' | 'diploma' | 'degree' | 'professional'; issuer: string; field: string; awardedAtAge: number; expiresAtAge?: number; }
 export type EmploymentType = 'part-time' | 'full-time' | 'flexible';
 export type HouseholdArrangement = 'family-supported' | 'shared' | 'independent';
 export type SavingsGoalMonths = 1 | 3 | 6;
@@ -215,13 +218,15 @@ export interface WeeklySchedule {
 export interface Character {
   name: string; age: number; year: number; health: number; happiness: number;
   intelligence: number; fitness: number; money: number;
+  /** Optional for safe migration of existing saves. Ability/condition stats use 0–100; stress is inverse (lower is better). */
+  stamina?: number; focus?: number; confidence?: number; discipline?: number; creativity?: number; socialSkills?: number; stress?: number;
   calendar?: GameCalendar;
   weeklySchedule?: WeeklySchedule;
   lastResolvedWeekStart?: string;
   lastWeekRecap?: string[];
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
-  educationProgress?: number; employment?: Employment | null;
+  educationProgress?: number; educationLevel?: EducationLevel; educationRecords?: EducationRecord[]; qualifications?: Qualification[]; employment?: Employment | null;
   careerExperienceYears?: number; jobApplications?: JobApplication[]; jobOffers?: JobOffer[]; promotionOffer?: PromotionOffer | null;
   lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number; lastYearTax?: number; taxBalance?: number;
   householdArrangement?: HouseholdArrangement; savingsGoalMonths?: SavingsGoalMonths | null;
