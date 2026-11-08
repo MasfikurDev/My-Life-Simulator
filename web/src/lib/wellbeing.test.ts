@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createCharacter, performActivity } from './simulation';
+import { createCharacter, performActivity, planCareActionInNextFreeTime, advanceWeek } from './simulation';
 import { resolveCareAction, resolveWeeklyWellbeing } from './wellbeing';
 
 describe('weekly wellbeing and medical care', () => {
@@ -54,6 +54,16 @@ describe('weekly wellbeing and medical care', () => {
     const character = { ...createCharacter('Exhausted', 30), fitness: 10, stamina: 8 };
     const result = resolveWeeklyWellbeing(character, 18, '2026-11-02');
     expect(result.character.medicalState?.conditions.some((item) => item.type === 'injury')).toBe(true);
+  });
+
+  it('keeps essential healthcare accessible to minors through family support', () => {
+    const child = createCharacter('Child', 10);
+    const planned = planCareActionInNextFreeTime(child, 'medical-checkup');
+    expect(planned.issue).toBeNull();
+    const result = advanceWeek(planned.character);
+    expect(result.issue).toBeNull();
+    expect(result.character.money).toBe(child.money);
+    expect(result.character.health).toBeGreaterThan(child.health);
   });
 
 });
