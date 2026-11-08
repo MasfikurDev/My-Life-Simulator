@@ -186,7 +186,7 @@ export function resolveEducationWeek(character: Character, tasks: EducationTaskT
     if (outcome === 'completed' && !['early-learning', 'primary', 'lower-secondary', 'upper-secondary'].includes(enrollment.level)) qualifications.push({
       id: 'qualification-' + enrollment.programId + '-' + (character.calendar?.currentDate ?? weekStart), programId: enrollment.programId,
       name: getEducationProgram(enrollment.programId)?.title ?? enrollment.level,
-      category: enrollment.level === 'vocational' ? 'diploma' : enrollment.level === 'professional-specialist' ? 'professional' : 'degree',
+      category: enrollment.level === 'vocational' ? 'diploma' : enrollment.programId === 'professional-certificate' ? 'certificate' : enrollment.level === 'professional-specialist' ? 'professional' : 'degree',
       issuer: enrollment.institution, field: enrollment.field, awardedAtAge: character.age
     });
     const next: Character = { ...character, educationEnrollment: null, educationRecords: records, academicHistory: [...(character.academicHistory ?? []), result], qualifications, weeklySchedule: { ...(character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] }), commitments: (character.weeklySchedule?.commitments ?? []).filter((item) => item.domain !== 'school') } };
