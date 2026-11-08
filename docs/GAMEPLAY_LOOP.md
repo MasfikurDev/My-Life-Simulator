@@ -142,7 +142,7 @@ The player explicitly confirms **Start next week**. The simulation resolves the 
 - Process recurring subscriptions, household bills, loan installments, card obligations, savings contributions, and other monthly obligations on their actual due dates/cadence.
 - Produce a monthly financial statement/summary in Finance, not as a large global dashboard.
 - Handle month boundaries without double-charging or skipping due dates.
-- Existing annual financial mechanics must be migrated deliberately. Do not simply divide annual values by 12 without considering rounding, due dates, interest, inflation, and current-schema validation.
+- Existing annual financial mechanics must be migrated deliberately. Do not simply divide annual values by 12 without considering rounding, due dates, interest, and inflation.
 
 **Yearly layer**
 - Birthday and age progression occur on the actual birthday.
