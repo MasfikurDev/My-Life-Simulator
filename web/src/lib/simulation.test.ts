@@ -498,6 +498,7 @@ describe('life simulation', () => {
     const candidate = {
       ...createCharacter('Candidate', 30),
       intelligence: 90,
+      socialSkills: 70,
       education: 'Higher education',
       employment: {
         title: 'Operations assistant',
