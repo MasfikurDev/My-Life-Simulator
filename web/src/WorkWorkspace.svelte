@@ -54,10 +54,6 @@
 </script>
 
 <section class="work-workspace">
-  <header class="work-header">
-    <div><div class="eyebrow">WORK & CAREER</div><h1>Work</h1><p>Find opportunities, build experience and make deliberate career decisions.</p></div>
-    <span class="work-date">{character.calendar?.currentDate ?? character.year}</span>
-  </header>
   <nav class="work-nav" aria-label="Work sections">
     <button class:active={activeView === 'jobs'} aria-current={activeView === 'jobs' ? 'page' : undefined} onclick={() => activeView='jobs'}>Jobs & applications</button>
     <button class:active={activeView === 'career'} aria-current={activeView === 'career' ? 'page' : undefined} onclick={() => activeView='career'}>Career path</button>
@@ -74,7 +70,7 @@
   {#if activeView === 'jobs'}
     {#if character.employment}
       <section class="work-panel current-job">
-        <div class="work-panel-heading"><div><div class="eyebrow">CURRENT POSITION</div><h2>{character.employment.title}</h2><p>{character.employment.employer ?? 'Employer not recorded'} · {character.employment.type === 'part-time' ? 'Part-time' : character.employment.type === 'flexible' ? 'Flexible' : 'Full-time'}</p></div><span class="work-status">EMPLOYED</span></div>
+        <div class="work-panel-heading"><div><h2>{character.employment.title}</h2><p>{character.employment.employer ?? 'Employer not recorded'} · {character.employment.type === 'part-time' ? 'Part-time' : character.employment.type === 'flexible' ? 'Flexible' : 'Full-time'}</p></div><span class="work-status">EMPLOYED</span></div>
         <div class="work-metrics">
           <div><span>Annual base pay</span><strong>{formatCharacterMoney(character, character.employment.annualSalary)}</strong></div>
           <div><span>Performance</span><strong>{character.employment.performance}/100</strong></div>
@@ -82,13 +78,13 @@
           <div><span>Career experience</span><strong>{character.careerExperienceYears ?? character.employment.experienceYears} years</strong></div>
         </div>
         <p class="work-note">Regular shifts: {character.employment.type === 'full-time' ? 'Monday–Friday, mornings and afternoons' : character.employment.type === 'part-time' ? 'Monday, Wednesday and Friday afternoons' : 'Tuesday, Thursday and Saturday mornings'}.</p>
-        <p class="work-note">Pay is shown as annual base salary. Payroll is currently settled annually; monthly payroll and benefits are planned separately.</p>
+        <p class="work-note">Payroll: annual settlement · Monthly pay and benefits: not implemented</p>
         <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>Career development session</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
         {#if confirmResignation}<div class="resign-confirm"><strong>Leave {character.employment.title}?</strong><p>You will become unemployed. Your career experience and history will be kept.</p><div><button class="work-primary" onclick={confirmLeaveJob}>Confirm resignation</button><button class="work-secondary" onclick={() => confirmResignation = false}>Keep job</button></div></div>{/if}
       </section>
     {:else}
       <section class="work-panel">
-        <div class="work-panel-heading"><div><div class="eyebrow">EMPLOYMENT STATUS</div><h2>Looking for work</h2><p>Applications take time. Shortlisted candidates receive an interview invitation, and successful interviews lead to an offer you can accept or decline.</p></div><span class="work-status">JOB SEARCH</span></div>
+        <div class="work-panel-heading"><div><h2>Unemployed</h2></div><span class="work-status">JOB SEARCH</span></div>
       </section>
     {/if}
 
@@ -146,7 +142,7 @@
     {/if}
   {:else if activeView === 'career'}
     <section class="work-panel">
-      <div class="work-panel-heading"><div><div class="eyebrow">CAREER PROGRESSION</div><h2>{currentRole?.pathName ?? 'Explore career paths'}</h2><p>Career paths are guides, not promises. Estimated salary bands are not job offers.</p></div></div>
+      <div class="work-panel-heading"><div><div class="eyebrow">CAREER PROGRESSION</div><h2>{currentRole?.pathName ?? 'Career paths'}</h2></div></div>
       <div class="path-picker"><span>Choose a career path</span>
         <GameChoice label="Career path" value={selectedPath} options={[{value:'operations',label:'Operations',detail:'Coordination and management'},{value:'customer-service',label:'Customer service',detail:'Support and communication'},{value:'technology',label:'Technology',detail:'Technical and digital roles'},{value:'sales',label:'Sales',detail:'Business development'}]} onSelect={(path) => selectedPath = path as CareerPathId} columns={2} />
       </div>
@@ -165,10 +161,10 @@
       </div>
       {#if character.employment && promotion.role}
         <div class="promotion-readiness">
-          <div class="eyebrow">NEXT ROLE READINESS</div><h3>{promotion.role.title}</h3><p>Performance and role requirements are assessed separately. There is no fixed weekly promotion timer.</p>
+          <div class="eyebrow">NEXT ROLE READINESS</div><h3>{promotion.role.title}</h3>
           <ul>{#each promotion.requirements as requirement}<li class:met={requirement.met}>{requirement.met ? '✓' : '•'} {requirement.label}: {requirement.detail}</li>{/each}</ul>
           {#if promotion.salaryEstimate}<p>Estimated annual pay range: <strong>{moneyRange(promotion.salaryEstimate.min, promotion.salaryEstimate.max)}</strong></p>{/if}
-          <p class="work-note">{promotion.ready ? 'You meet the current criteria. A promotion decision is made during annual career review.' : 'Work on the unmet requirements to become eligible.'}</p>
+          <p class="work-note">{promotion.ready ? 'Eligible · Annual review' : 'Requirements outstanding'}</p>
         </div>
       {/if}
     </section>

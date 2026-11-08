@@ -40,10 +40,6 @@
 </script>
 
 <section class="life-workspace">
-  <header class="finance-header">
-    <h1>{views.find((item) => item.id === activeView)?.label}</h1>
-    {#if activeView !== 'overview'}<button class="finance-back" onclick={() => activeView='overview'}>← Life</button>{/if}
-  </header>
   <nav class="finance-nav" aria-label="Life sections">
     {#each views as item}
       <button class:active={activeView===item.id} aria-current={activeView===item.id ? 'page' : undefined} onclick={() => activeView=item.id}>{item.label}</button>
@@ -59,7 +55,7 @@
     <LifestyleWorkspace {character} {onChange} />
   {:else if activeView === 'history'}
     {@const milestoneGroups = groupLifeMilestones()}
-    <div class="page-heading"><h2>Life story</h2><span class="year-pill">{milestoneGroups.length} PERIODS</span></div>
+    <div class="page-heading"><span class="year-pill">{milestoneGroups.length} PERIODS</span></div>
     {#if milestoneGroups.length}
       <div class="life-milestone-list">
         {#each milestoneGroups as group, index}
@@ -92,7 +88,7 @@
         {/each}
       </div>
     {:else}
-      <p class="life-milestones-empty">Your major life events will appear here.</p>
+      <p class="life-milestones-empty">No recorded milestones.</p>
     {/if}
   {/if}
 </section>

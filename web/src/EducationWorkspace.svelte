@@ -32,14 +32,12 @@
   function gradeLabel(value: number) { if (enrollment?.level === 'early-learning') return value >= 75 ? 'Developing well' : value >= 50 ? 'On track' : 'Needs more support'; return value >= 85 ? 'Excellent' : value >= 70 ? 'Good' : value >= 60 ? 'Pass' : value >= 45 ? 'At risk' : 'Critical'; }
 </script>
 
-<div class="page-heading"><div><div class="eyebrow">LEARNING & QUALIFICATIONS</div><h1>Education <em>journey.</em></h1><p>From early learning and school to vocational training, college, university and professional study.</p></div></div>
-
 {#if enrollment}
   <section class="education-hero domain-panel">
     <div class="education-hero-top"><div><div class="eyebrow">CURRENT ENROLLMENT · {enrollment.institution.toUpperCase()}</div><h2>{enrollment.level === 'bachelor' ? "Bachelor's degree" : enrollment.level === 'master' ? "Master's degree" : enrollment.level === 'doctorate' ? 'Doctoral programme' : enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">{enrollment.status === 'paused' ? 'PAUSED' : 'ENROLLED'}</span></div>
     <div class="education-metrics">
       <div><span>{enrollment.level === 'early-learning' ? 'DEVELOPMENT' : 'OVERALL GRADE'}</span><strong>{Math.round(enrollment.grade)}%</strong><small>{gradeLabel(enrollment.grade)}</small></div>
-      <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%</strong><small>Class participation</small></div>
+      <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%</strong><small>Present / scheduled</small></div>
       <div><span>COURSE PROGRESS</span><strong>{progress}%</strong><small>{enrollment.weeksCompleted}/{enrollment.totalWeeks} weeks</small></div>
     </div>
     <div class="meter"><span class="blue" style="width:{progress}%"></span></div>
@@ -48,7 +46,7 @@
         <div class="education-subject"><span>{subject.name}</span><strong>{Math.round(subject.grade)}%</strong><div class="meter"><span class="blue" style="width:{subject.grade}%"></span></div></div>
       {/each}
     </div>
-    <div class="education-footnote">{#if enrollment.status === 'paused'}This programme is paused. Your grades and completed weeks are preserved. Resume when you are ready.{:else}Classes are reserved automatically each week. Your weekly study target is {enrollment.weeklyStudyTarget} task points. Missing study, assignments or exams lowers your grades; workload, stress, stamina and health also affect results.{/if}</div>
+    <div class="education-footnote">{#if enrollment.status === 'paused'}Progress retained{:else}{enrollment.weeklyStudyTarget} study points required each week{/if}</div>
     {#if enrollment.status === 'paused'}<button class="primary-button education-pause" onclick={resume}>Resume programme</button>{:else}<button class="secondary-button education-pause" onclick={pause}>Pause programme</button>{/if}
     {#if classCommitments.length}<div class="education-class-schedule"><strong>Automatic weekly timetable</strong>{#each classCommitments as item}<span>{weekdayName(item.weekday)} · {item.startPeriod} · {item.title}</span>{/each}</div>{/if}
   </section>
@@ -56,19 +54,19 @@
   {#if enrollment.status === 'enrolled'}
   <section class="education-task-section">
     <div class="section-heading"><div><span class="section-index">01</span><h3>This week's academic work</h3></div><span class="section-hint">{plannedTasks.length} tasks scheduled</span></div>
-    <p class="education-section-copy">Choose the work you can realistically complete. Each task is automatically placed in free time around classes, work and other commitments.</p>
+
     {#if plannedTasks.length}<div class="education-planned-list"><strong>Already planned</strong>{#each plannedTasks as task}<div class="education-planned-row"><span>{task.date} · {task.startPeriod} · {task.action?.kind === 'education' ? task.action.taskType.replaceAll('-', ' ') : 'Academic task'}</span><button class="text-button" onclick={() => removeTask(task.id)}>Remove</button></div>{/each}</div>{/if}
     <div class="education-task-grid">
       <button class="education-task-card" class:planned={taskPlanned('study')} disabled={taskPlanned('study')} onclick={() => planTask('study')}><span class="education-task-icon">↗</span><strong>{enrollment.level === 'early-learning' ? 'Guided play' : 'Focused study'}</strong><small>{enrollment.level === 'early-learning' ? 'Build curiosity, language and coordination through play' : 'Review lessons and strengthen understanding'}</small><b>{taskPlanned('study') ? 'PLANNED' : '1 time block · Plan study'}</b></button>
       <button class="education-task-card" class:planned={taskPlanned('assignment')} disabled={taskPlanned('assignment')} onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>{enrollment.level === 'early-learning' ? 'Story time' : 'Assignment'}</strong><small>{enrollment.level === 'early-learning' ? 'Build language and communication with shared stories' : 'Complete coursework and practical exercises'}</small><b>{taskPlanned('assignment') ? 'PLANNED' : '1 time block · Plan assignment'}</b></button>
       <button class="education-task-card" class:planned={taskPlanned('exam')} disabled={taskPlanned('exam')} onclick={() => planTask('exam')}><span class="education-task-icon">✓</span><strong>{enrollment.level === 'early-learning' ? 'Discovery activity' : 'Quiz / exam prep'}</strong><small>{enrollment.level === 'early-learning' ? 'Explore objects, sounds and movement with a caregiver' : 'Prepare for an assessment or sit a weekly quiz'}</small><b>{taskPlanned('exam') ? 'PLANNED' : '1 time block · Plan assessment'}</b></button>
     </div>
-    <div class="education-footnote">A study task is not free: it uses time, energy and a small learning expense. Doing every possible task is not always the best strategy if you are already overloaded.</div>
+    <div class="education-footnote">Each task uses one free time block, energy, and a learning fee.</div>
   </section>
   {/if}
 {:else}
   <section class="education-intro domain-panel">
-    <div class="eyebrow">YOUR NEXT STEP</div><h2>Choose a learning path</h2><p>Programmes unlock through age, completed qualifications and relevant character attributes. Vocational routes and professional certificates can lead to meaningful careers without following a university-only path.</p>
+    <h2>Available programmes</h2>
     {#if programs.length}
       <div class="education-program-list">
         {#each programs as program}
@@ -80,7 +78,7 @@
       </div>
       {#if selectedProgram}
         <div class="education-enrol-panel">
-          <div><div class="eyebrow">PROGRAMME DETAILS</div><h3>{selectedProgram.title}</h3><p>{selectedProgram.durationWeeks} weeks · {selectedProgram.institutionType} · age {selectedProgram.minAge}{selectedProgram.maxAge < 120 ? '–' + selectedProgram.maxAge : '+'}</p></div>
+          <div><h3>{selectedProgram.title}</h3><p>{selectedProgram.durationWeeks} weeks · age {selectedProgram.minAge}{selectedProgram.maxAge < 120 ? '–' + selectedProgram.maxAge : '+'}</p></div>
           <div class="education-field-label"><span>Choose your field of study</span>
             <GameChoice label="Field of study" value={selectedField || selectedProgram.fieldOptions[0]} options={selectedProgram.fieldOptions.map((field) => ({ value: field, label: field }))} onSelect={(field) => selectedField = field} columns={Math.min(3, selectedProgram.fieldOptions.length)} />
           </div>
