@@ -47,8 +47,9 @@ function validDuration(value: number, startPeriod: DayPeriod): boolean {
 }
 
 /**
- * Expands recurring commitments and dated activities into a simple 7-day,
- * three-period grid. Periods are broad planning blocks, not simulated hours.
+ * Expands genuine recurring commitments into a 7-day, three-period grid.
+ * Discretionary activities are validated as weekly actions but consume stamina,
+ * not calendar periods; only real commitments reserve the grid.
  */
 export function buildWeeklySchedule(weekStart: string, schedule: WeeklySchedule): WeeklyScheduleResult {
   const issues: ScheduleIssue[] = [];
