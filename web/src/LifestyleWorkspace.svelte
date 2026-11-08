@@ -30,7 +30,7 @@
     { id: 'eggs', name: 'Eggs · 6 pack', price: 12 },
     { id: 'milk', name: 'Milk · 1 litre', price: 10 },
     { id: 'bread', name: 'Bread · 1 loaf', price: 7 },
-    { id: 'vegetables', name: 'Seasonal vegetables', price: 9 },
+    { id: 'vegetables', name: 'Seasonal vegetables · 1 portion', price: 9 },
     { id: 'chicken', name: 'Chicken · 500 g', price: 32 }
   ];
   let quantities = $state<Record<string, number>>({});
