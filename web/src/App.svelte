@@ -37,7 +37,6 @@
   let debugCopying = $state(false);
   let advanceReviewOpen = $state(false);
   let weeklyFinanceOpen = $state(false);
-  let characterProfileExpanded = $state(false);
   onMount(() => {
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
@@ -295,7 +294,7 @@
           </div>
           <button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>
         {:else if activeTab==='profile' || activeTab==='settings'}
-          <div class="page-heading"><div><div class="eyebrow">{character ? 'CHARACTER & GAME MANAGEMENT' : 'PREFERENCES & CONTROLS'}</div><h1>{character ? 'Your <em>profile.</em>' : 'Game <em>settings.</em>'}</h1><p>{character ? 'Character details, attributes and saved-life controls.' : 'Adjust how the game appears and manage your saved story.'}</p></div></div>
+          <div class="page-heading"><div><div class="eyebrow">{character ? 'CHARACTER & GAME MANAGEMENT' : 'PREFERENCES & CONTROLS'}</div><h1>{character ? 'Your <em>profile.</em>' : 'Game <em>settings.</em>'}</h1><p>{character ? 'Character details and saved-life controls.' : 'Adjust how the game appears and manage your saved story.'}</p></div></div>
           {#if !character}<button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>{/if}
           {#if character}
             <section class="settings-section profile-character-section">
@@ -328,6 +327,8 @@
               </div>
             </section>
           {/if}
+          <details class="profile-settings-group">
+            <summary><span><strong>{character ? 'Settings & management' : 'Game settings'}</strong><small>Sound, saves, display and game controls</small></span><i aria-hidden="true"></i></summary>
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">{character ? '02' : '01'}</span><div><h3>Sound</h3><p>Control the small audio cues used for game actions.</p></div></div>
             <div class="setting-row"><div><strong>Sound effects</strong><p>Subtle original tones for actions, starting a life and advancing a week. No background music.</p></div><button class:setting-enabled={soundEnabled} class="setting-toggle" role="switch" aria-checked={soundEnabled} onclick={() => toggleSounds(!soundEnabled)}><span></span><small>{soundEnabled ? 'ON' : 'OFF'}</small></button></div>
@@ -362,6 +363,7 @@
             <div class="setting-action-row"><div><strong>Restart current life</strong><p>Delete only the active save slot and create a new life in that slot.</p></div><button class="danger-button" onclick={() => showRestartConfirm=true} disabled={!character}>Restart</button></div>
           </section>
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
+          </details>
         {:else if character && activeTab==='home'}
           {@const educationStatus = character.educationEnrollment ? character.educationEnrollment.field + ' · ' + character.educationEnrollment.institution : character.education ?? getEducationStage(character.age)}
           {@const workStatus = character.employment
@@ -410,47 +412,20 @@
               </section>
             </div>
           {/if}
-          {@const characterStats = [
-            { label: 'Happiness', value: character.happiness, kind: 'wellbeing' },
-            { label: 'Intelligence', value: character.intelligence, kind: 'ability' },
-            { label: 'Fitness', value: character.fitness, kind: 'physical' },
-            { label: 'Health', value: character.health, kind: 'physical' },
-            { label: 'Stamina', value: character.stamina ?? 50, kind: 'physical' },
-            { label: 'Focus', value: character.focus ?? 50, kind: 'ability' },
-            { label: 'Discipline', value: character.discipline ?? 50, kind: 'ability' },
-            { label: 'Confidence', value: character.confidence ?? 50, kind: 'ability' },
-            { label: 'Creativity', value: character.creativity ?? 50, kind: 'ability' },
-            { label: 'Social skills', value: character.socialSkills ?? 50, kind: 'ability' },
-            { label: 'Stress', value: character.stress ?? 0, kind: 'stress' }
-          ]}
           <section class="character-profile-card" aria-label="Character profile">
             <div class="character-avatar" aria-hidden="true">{character.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</div>
-            <div class="character-profile-copy character-profile-trigger" role="button" tabindex="0" aria-expanded={characterProfileExpanded} aria-label="Toggle character attributes" onclick={() => characterProfileExpanded = !characterProfileExpanded} onkeydown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); characterProfileExpanded = !characterProfileExpanded; } }}>
+            <div class="character-profile-copy">
               <div class="character-profile-heading"><h2>{character.name}</h2><span class="character-age">AGE {character.age}</span></div>
-              <p>{getLifeStage(character.age).label} <span>·</span> {character.country ?? character.nationality ?? 'Life in progress'}</p>
+              <p>{character.gender ?? 'Gender not recorded'} <span>·</span> {character.country ?? character.nationality ?? 'Country not recorded'}</p>
               <div class="character-profile-tags"><span>{character.employment?.title ?? 'Not employed'}</span><span>{character.educationEnrollment?.institution ?? (character.educationLevel ? character.educationLevel.replaceAll('-', ' ') : getEducationStage(character.age))}</span></div>
             </div>
             <div class="character-cash-summary"><small>AVAILABLE CASH</small><strong>{formatCharacterMoney(character)}</strong></div>
-            <div class="character-profile-weekly">
-              <button class="character-profile-flow character-profile-income" aria-label="Open weekly income breakdown" onclick={() => weeklyFinanceOpen = true}><small>WEEKLY IN</small><strong class="weekly-finance-in">+{formatCharacterMoney(character, weeklyIncome)}</strong></button>
-              <button class="character-profile-flow character-profile-expense" aria-label="Open weekly expense breakdown" onclick={() => weeklyFinanceOpen = true}><small>WEEKLY OUT</small><strong class="weekly-finance-out">−{formatCharacterMoney(character, weeklyExpense)}</strong></button>
+            <button class="character-profile-weekly character-profile-weekly-trigger" aria-label="Open weekly income and expense breakdown" onclick={() => weeklyFinanceOpen = true}>
+              <div class="character-profile-flow character-profile-income"><small>WEEKLY IN</small><strong class="weekly-finance-in">+{formatCharacterMoney(character, weeklyIncome)}</strong></div>
+              <div class="character-profile-flow character-profile-expense"><small>WEEKLY OUT</small><strong class="weekly-finance-out">−{formatCharacterMoney(character, weeklyExpense)}</strong></div>
               <div class="character-profile-flow"><small>WEEKLY NET</small><strong>{weeklyIncome - weeklyExpense < 0 ? '−' : '+'}{formatCharacterMoney(character, Math.abs(weeklyIncome - weeklyExpense))}</strong></div>
-            </div>
+            </button>
           </section>
-          {#if characterProfileExpanded}
-          <section class="character-stats-section" aria-label="Character attributes">
-            <div class="page-heading"><div><div class="eyebrow">YOUR CHARACTER</div><h2>Attributes</h2><p>Abilities and condition shape weekly outcomes.</p></div></div>
-            <div class="character-stats-grid">
-              {#each characterStats as stat}
-                <div class="character-stat">
-                  <div class="character-stat-ring" class:stress-stat={stat.kind === 'stress'} style={`--stat-value: ${Math.max(0, Math.min(100, stat.value))}%`}><strong>{Math.round(stat.value)}</strong></div>
-                  <span>{stat.label}</span>
-                  {#if stat.kind === 'stress'}<small>Higher is worse</small>{/if}
-                </div>
-              {/each}
-            </div>
-          </section>
-          {/if}
           <section class="overview-context" aria-label="Current situation">
             <div class="overview-context-item">
               <span>EDUCATION</span>
