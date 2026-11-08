@@ -51,11 +51,12 @@ function addCondition(conditions: HealthCondition[], condition: HealthCondition)
 }
 
 /** Applies the combined pressure of recurring commitments and planned tasks once per resolved week. */
-export function resolveWeeklyWellbeing(character: Character, workloadUnits: number, weekStart: string): { character: Character; recap: string[] } {
+export function resolveWeeklyWellbeing(character: Character, workloadUnits: number, weekStart: string, applyStamina = true): { character: Character; recap: string[] } {
   const state = medicalState(character);
   const stress = character.stress ?? 30;
   const loadIncrease = workloadUnits >= 17 ? 9 : workloadUnits >= 14 ? 6 : workloadUnits >= 11 ? 3 : -3;
   const nextStress = clamp(stress + loadIncrease);
+  const nextStamina = clamp((character.stamina ?? 50) + (workloadUnits >= 16 ? -7 : workloadUnits >= 12 ? -4 : 3));
 
   const highStressWeeks = nextStress >= 82 ? state.highStressWeeks + 1 : Math.max(0, state.highStressWeeks - 1);
   let conditions = state.conditions.map((condition) => {
@@ -73,7 +74,7 @@ export function resolveWeeklyWellbeing(character: Character, workloadUnits: numb
   const medicationRecovery = state.medications.length > 0 ? 2 : 0;
   const activeSeverity = conditions.reduce((sum, condition) => sum + condition.severity, 0);
   const next: Character = {
-    ...character, stress: nextStress,
+    ...character, stress: nextStress, ...(applyStamina ? { stamina: nextStamina } : {}),
     health: clamp(character.health + medicationRecovery - (activeSeverity >= 120 ? 2 : activeSeverity >= 70 ? 1 : 0)),
     happiness: clamp(character.happiness + (nextStress >= 85 ? -3 : nextStress >= 70 ? -1 : nextStress <= 35 ? 1 : 0)),
     medicalState: { ...state, conditions, medications, highStressWeeks }
