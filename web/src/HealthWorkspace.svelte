@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { CareActionType, Character } from './lib/types';
   import EmptyState from './components/EmptyState.svelte';
-  import { formatCharacterMoney, getPlannedActivityStaminaCost, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import { formatCharacterMoney, getPlannedActivityStaminaCost, planActivityInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getWellbeingLoadLabel } from './lib/wellbeing';
-  import { getValueColor } from './lib/progression';
+  import { getActivityStaminaCost, getValueColor } from './lib/progression';
   import { buildWeeklySchedule } from './lib/weekly-schedule';
   import { getWeekStart } from './lib/calendar';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
@@ -24,6 +24,14 @@
     onNotify('Added to this week. Toggle it again to remove it.');
   }
   function isPlanned(type: CareActionType) { return plannedCare.some((item) => item.action?.kind === 'care' && item.action.careType === type); }
+  function isPersonalActivityPlanned(type: 'exercise' | 'socialize') { return schedule.activities.some((item) => item.activityId === type && item.action?.kind === 'activity'); }
+  function togglePersonalActivity(type: 'exercise' | 'socialize') {
+    const existing = schedule.activities.find((item) => item.activityId === type && item.action?.kind === 'activity');
+    if (existing) { onChange(removePlannedActivity(character, existing.id)); onNotify('Removed from this week.'); return; }
+    const result = planActivityInNextFreeTime(character, type);
+    if (result.issue) { onNotify(result.message ?? 'Could not add this activity.'); return; }
+    onChange(result.character); onNotify('Added to this week.');
+  }
   const stats = $derived([
     { label: 'Physical health', value: character.health, tone: 'health', inverse: false },
     { label: 'Fitness', value: character.fitness, tone: 'fitness', inverse: false },
@@ -53,6 +61,8 @@
     <button class="health-care-card" class:planned={isPlanned('mindfulness')} onclick={() => plan('mindfulness')}><span class="health-care-icon">◌</span><strong>Mindfulness</strong><p>Build a calmer routine, improve focus and reduce everyday stress.</p><small>Stamina 4 · no fee</small><b>{isPlanned('mindfulness') ? 'REMOVE FROM WEEK' : 'ADD TO WEEK'}</b></button>
     <button class="health-care-card" class:planned={isPlanned('counselling')} onclick={() => plan('counselling')}><span class="health-care-icon">♡</span><strong>Professional counselling</strong><p>Get structured support for persistent pressure and burnout.</p><small>{character.age < 18 ? 'Family-supported' : formatCharacterMoney(character, 90 * (character.currencyScale ?? 1))} · Stamina 2</small><b>{isPlanned('counselling') ? 'REMOVE FROM WEEK' : 'Seek support'}</b></button>
     <button class="health-care-card" class:planned={isPlanned('medical-checkup')} onclick={() => plan('medical-checkup')}><span class="health-care-icon">✚</span><strong>Medical check-up</strong><p>Review physical health and update a treatment plan.</p><small>{character.age < 18 ? 'Family-supported' : formatCharacterMoney(character, 120 * (character.currencyScale ?? 1))} · no stamina cost</small><b>{isPlanned('medical-checkup') ? 'REMOVE FROM WEEK' : 'Book check-up'}</b></button>
+    <button class="health-care-card" class:planned={isPersonalActivityPlanned('exercise')} onclick={() => togglePersonalActivity('exercise')}><span class="health-care-icon">↗</span><strong>Exercise</strong><p>Build fitness, support physical health and reduce accumulated stress.</p><small>{getActivityStaminaCost('exercise')} stamina · no direct fee</small><b>{isPersonalActivityPlanned('exercise') ? 'REMOVE FROM WEEK' : 'ADD TO WEEK'}</b></button>
+    <button class="health-care-card" class:planned={isPersonalActivityPlanned('socialize')} onclick={() => togglePersonalActivity('socialize')}><span class="health-care-icon">◎</span><strong>Social time</strong><p>Spend time with friends to improve happiness and social skills.</p><small>{getActivityStaminaCost('socialize')} stamina · {character.age >= 16 ? formatCharacterMoney(character, 20 * (character.currencyScale ?? 1)) : 'No direct fee'}</small><b>{isPersonalActivityPlanned('socialize') ? 'REMOVE FROM WEEK' : 'ADD TO WEEK'}</b></button>
   </div>
 </section>
 
