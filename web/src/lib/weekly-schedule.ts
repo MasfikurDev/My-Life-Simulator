@@ -47,8 +47,9 @@ function validDuration(value: number, startPeriod: DayPeriod): boolean {
 }
 
 /**
- * Expands recurring commitments and dated activities into a simple 7-day,
- * three-period grid. Periods are broad planning blocks, not simulated hours.
+ * Expands genuine recurring commitments into a 7-day, three-period grid.
+ * Discretionary activities are validated as weekly actions but consume stamina,
+ * not calendar periods; only real commitments reserve the grid.
  */
 export function buildWeeklySchedule(weekStart: string, schedule: WeeklySchedule): WeeklyScheduleResult {
   const issues: ScheduleIssue[] = [];
@@ -136,23 +137,11 @@ export function buildWeeklySchedule(weekStart: string, schedule: WeeklySchedule)
       continue;
     }
     if (!validDuration(activity.durationBlocks, activity.startPeriod)) {
-      issues.push({ code: 'invalid-duration', entryId: activity.id, date: activity.date, message: 'An activity must occupy one or more available periods on the same day.' });
+      issues.push({ code: 'invalid-duration', entryId: activity.id, date: activity.date, message: 'A legacy activity record must contain a valid duration value.' });
       continue;
     }
-    placements.push({
-      id: activity.id,
-      title: activity.action?.kind === 'work'
-        ? (activity.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + activity.action.title
-        : activity.action?.kind === 'education'
-          ? (activity.action.taskType === 'assignment' ? 'Education assignment' : activity.action.taskType === 'exam' ? 'Academic assessment' : 'Focused study')
-          : activity.action?.kind === 'care'
-            ? ({ rest: 'Rest & recovery', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up', mindfulness: 'Mindfulness' }[activity.action.careType])
-            : activity.activityId,
-      domain: 'activity',
-      date: activity.date,
-      startPeriod: activity.startPeriod,
-      durationBlocks: activity.durationBlocks
-    });
+    // Discretionary actions use stamina, not calendar slots. Only real recurring commitments occupy this grid.
+    // Keep validating legacy date/period fields so existing saves remain safe to load.
   }
 
   for (const placement of placements) {
@@ -168,7 +157,7 @@ export function buildWeeklySchedule(weekStart: string, schedule: WeeklySchedule)
           conflictingEntryId: block.entryId,
           date: placement.date,
           period,
-          message: 'This time period is already reserved by another commitment or activity.'
+          message: 'This time period is already reserved by another recurring commitment.'
         });
         continue;
       }

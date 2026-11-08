@@ -3,10 +3,10 @@
 **Canonical gameplay direction · Reviewed 2026-11-08**
 
 ## Core loop
-1. Review the current week, calendar, actual commitments, free-time blocks, and relevant situations.
-2. Confirm actions in their own domain workspaces; the simulation automatically places time-consuming actions into suitable free periods.
-3. Pay validated costs (time, money, and only modeled resource costs such as energy).
-4. Resolve commitments, events, due payments, and consequences when the player advances the week.
+1. Review the current week, genuine recurring commitments, stamina, and relevant situations.
+2. Toggle personal activities in their owning domain workspaces; school and work timetables remain automatic recurring commitments.
+3. Pay validated stamina and money costs. Personal activities do not consume calendar periods; stamina is the discretionary effort budget.
+4. Review every selected activity, its stamina cost and rewards, plus the projected combined wellbeing changes; then resolve commitments, events, due payments, and consequences when the player advances the week.
 5. Review the weekly recap and persistent history.
 6. Use monthly finance/reporting and yearly life-progression reviews at their actual calendar boundaries.
 
@@ -18,7 +18,7 @@ The game is played as a sequence of meaningful weeks, grouped into monthly finan
 
 ### Core game-design rules
 - Every week should offer relevant decisions, changing circumstances, or a deliberate quiet week; repeated stat grinding must not be the dominant loop.
-- Recurring commitments shape available time; the player chooses how to use genuine free time rather than spending abstract annual action tokens.
+- Recurring school/work commitments shape the timetable. Personal activity choices use stamina rather than calendar time; the player is never limited by an arbitrary weekly action quota.
 - Actions, events, and monthly/yearly settlement must create understandable immediate or delayed consequences.
 - Event content must be contextual, age-eligible, varied, and persistent where a choice matters.
 - The player must see meaningful costs and trade-offs before committing.
@@ -72,7 +72,7 @@ Access and outcomes should depend on relevant factors rather than one intelligen
 
 School and training decisions originate in the Education workspace. Once confirmed, the game automatically schedules attendance, study, exams or course sessions around existing commitments. The player does not manually construct a generic timetable. Weekly learning activities produce progress; academic terms and course milestones resolve on their modeled dates. Education history remains inspectable.
 
-**Implemented education loop:** the Education workspace offers early learning/preschool, primary, lower and upper secondary, vocational diplomas, college/associate programmes, bachelor's, master's, doctoral, professional-specialist and short professional-certificate courses. Programme availability checks age, completed prerequisites and relevant intelligence/focus/discipline thresholds. Enrollment charges tuition where applicable and creates recurring class commitments automatically around existing work and planned activities. The player plans weekly study, assignment and assessment tasks in free time. Missing the programme's weekly target reduces grades; completed work improves them. Attendance, subject grades, overall grade, workload, health, stamina and stress affect results. Courses resolve after their required weeks and award a recorded qualification on a passing result. Players can pause and resume without losing progress. Completed education history and qualifications are retained separately from the legacy education label.
+**Implemented education loop:** the Education workspace offers early learning/preschool, primary, lower and upper secondary, vocational diplomas, college/associate programmes, bachelor's, master's, doctoral, professional-specialist and short professional-certificate courses. Programme availability checks age, completed prerequisites and relevant intelligence/focus/discipline thresholds. Enrollment charges tuition where applicable and creates recurring class commitments automatically around existing work and planned activities. The player toggles weekly study, assignment and assessment tasks directly. Each task consumes stamina; missing the programme's weekly target reduces grades, while completed work improves them. Attendance, subject grades, overall grade, workload, health, stamina and stress affect results. Courses resolve after their required weeks and award a recorded qualification on a passing result. Players can pause and resume without losing progress. Completed education history and qualifications are retained separately from the legacy education label.
 
 The current catalogue is a playable first pass, not a claim to model every country's exact school calendar or accreditation law. It uses representative institution paths and simplified fees/durations. Course catalog breadth, localized curricula, detailed term breaks, scholarships, retakes, qualification expiry/renewal, regulated professional licensing and richer practical placements remain future expansions.
 
@@ -180,7 +180,7 @@ A game event uses a stable ID, eligibility conditions, narrative, choices, costs
 - Never silently discard a save.
 
 ## Current playable foundation
-The current game has scenario-led character creation with coherent randomized identity, three independent local save slots, a date-based weekly calendar, validated automatic activity placement, deterministic weekly resolution, contextual events, domain-native School/Work/Life/Finance/Lifestyle workspaces, a simulation-owned family foundation, recruitment and career progression, and a connected financial system covering accounts, cards, loans, recurring payments, property, investments, businesses, and taxation. Overview records everyday activities by simulation week; Life History is reserved for major achievements and life-stage milestones.
+The current game has scenario-led character creation with coherent randomized identity, three independent local save slots, a date-based weekly calendar for recurring commitments, stamina-based personal activity selection, a simulation-backed weekly review, deterministic weekly resolution, contextual events, domain-native School/Work/Life/Finance/Lifestyle workspaces, a simulation-owned family foundation, recruitment and career progression, and a connected financial system covering accounts, cards, loans, recurring payments, property, investments, businesses, and taxation. Overview records everyday activities by simulation week; Life History is reserved for major achievements and life-stage milestones.
 
 This is a substantial playable foundation, not a complete life simulator. The old annual action-token system is retired. Weekly turns are explicit; monthly financial settlement remains planned while the current financial settlement cadence is annual.
 
@@ -211,7 +211,7 @@ Keep the first version focused on fictional models, understandable capability ti
 
 Family is a connected life system built around persistent people, kinship/guardianship links, relationship bonds, household membership, dependency, and family history. It is not a single relationship score or an assumed spouse-and-children template. See [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md) for the complete domain specification and implementation stages.
 
-The current code implements family-of-origin generation, graph validation, and a small targeted interaction loop. New characters may begin with parents/guardians and siblings; partners and children are never assumed. Existing saves require explicit family-background initialization. Interactions change only the selected bond and record history; adult financial support debits cash and writes to the common Finance ledger. Family interactions are confirmed in the Family workspace and automatically placed into suitable weekly free time by the shared simulation planner.
+The current code implements family-of-origin generation, graph validation, and a small targeted interaction loop. New characters may begin with parents/guardians and siblings; partners and children are never assumed. Existing saves require explicit family-background initialization. Interactions change only the selected bond and record history; adult financial support debits cash and writes to the common Finance ledger. Family interactions are toggled in the Family workspace and consume stamina; they resolve during weekly advancement without reserving calendar periods.
 
 Partnership, parenthood, adoption, caregiving, family mortality, inheritance, and legacy remain unimplemented until they have complete simulation rules and tests. Do not present UI-only placeholders as working mechanics.
 

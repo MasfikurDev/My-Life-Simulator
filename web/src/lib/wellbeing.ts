@@ -51,12 +51,12 @@ function addCondition(conditions: HealthCondition[], condition: HealthCondition)
 }
 
 /** Applies the combined pressure of recurring commitments and planned tasks once per resolved week. */
-export function resolveWeeklyWellbeing(character: Character, occupiedBlocks: number, weekStart: string): { character: Character; recap: string[] } {
+export function resolveWeeklyWellbeing(character: Character, workloadUnits: number, weekStart: string): { character: Character; recap: string[] } {
   const state = medicalState(character);
   const stress = character.stress ?? 30;
-  const loadIncrease = occupiedBlocks >= 17 ? 9 : occupiedBlocks >= 14 ? 6 : occupiedBlocks >= 11 ? 3 : -3;
+  const loadIncrease = workloadUnits >= 17 ? 9 : workloadUnits >= 14 ? 6 : workloadUnits >= 11 ? 3 : -3;
   const nextStress = clamp(stress + loadIncrease);
-  const nextStamina = clamp((character.stamina ?? 50) + (occupiedBlocks >= 16 ? -7 : occupiedBlocks >= 12 ? -4 : 3));
+  const nextStamina = clamp((character.stamina ?? 50) + (workloadUnits >= 16 ? -7 : workloadUnits >= 12 ? -4 : 3));
   const highStressWeeks = nextStress >= 82 ? state.highStressWeeks + 1 : Math.max(0, state.highStressWeeks - 1);
   let conditions = state.conditions.map((condition) => {
     const treated = condition.treatment !== null;
@@ -67,7 +67,7 @@ export function resolveWeeklyWellbeing(character: Character, occupiedBlocks: num
   if (highStressWeeks >= 2) conditions = addCondition(conditions, { id: 'condition-burnout-' + weekStart, type: 'burnout', name: 'Burnout', severity: 45, diagnosed: false, weeksActive: 1, treatment: null });
   if (highStressWeeks >= 4) conditions = addCondition(conditions, { id: 'condition-anxiety-' + weekStart, type: 'anxiety', name: 'Ongoing anxiety', severity: 35, diagnosed: false, weeksActive: 1, treatment: null });
   if (character.health <= 25) conditions = addCondition(conditions, { id: 'condition-illness-' + weekStart, type: 'common-illness', name: 'Illness / low immunity', severity: 35, diagnosed: false, weeksActive: 1, treatment: null });
-  if ((character.fitness <= 15 || nextStamina <= 10) && occupiedBlocks >= 16) conditions = addCondition(conditions, { id: 'condition-injury-' + weekStart, type: 'injury', name: 'Strain or minor injury', severity: 30, diagnosed: false, weeksActive: 1, treatment: null });
+  if ((character.fitness <= 15 || nextStamina <= 10) && workloadUnits >= 16) conditions = addCondition(conditions, { id: 'condition-injury-' + weekStart, type: 'injury', name: 'Strain or minor injury', severity: 30, diagnosed: false, weeksActive: 1, treatment: null });
   if (character.age >= 65 && character.health <= 30) conditions = addCondition(conditions, { id: 'condition-chronic-' + weekStart, type: 'chronic', name: 'Ongoing health condition', severity: 35, diagnosed: false, weeksActive: 1, treatment: null });
   const medications = state.medications.map((item) => ({ ...item, weeksRemaining: Math.max(0, item.weeksRemaining - 1) })).filter((item) => item.weeksRemaining > 0);
   const medicationRecovery = state.medications.length > 0 ? 2 : 0;
@@ -79,7 +79,7 @@ export function resolveWeeklyWellbeing(character: Character, occupiedBlocks: num
     medicalState: { ...state, conditions, medications, highStressWeeks }
   };
   const recap: string[] = [];
-  if (occupiedBlocks >= 14) recap.push('Wellbeing: a heavy weekly workload increased stress and fatigue.');
+  if (workloadUnits >= 14) recap.push('Wellbeing: a heavy weekly workload increased stress and fatigue.');
   if (nextStress >= 82) recap.push('Wellbeing: sustained high stress is affecting health and performance.');
   if (conditions.some((condition) => condition.type === 'burnout') && !state.conditions.some((condition) => condition.type === 'burnout')) recap.push('Health: signs of burnout have emerged. Recovery and professional support are available.');
   if (conditions.some((condition) => condition.type === 'anxiety') && !state.conditions.some((condition) => condition.type === 'anxiety')) recap.push('Health: ongoing pressure is affecting mental wellbeing. Consider seeking professional support.');
@@ -87,6 +87,6 @@ export function resolveWeeklyWellbeing(character: Character, occupiedBlocks: num
   return { character: next, recap };
 }
 
-export function getWellbeingLoadLabel(occupiedBlocks: number): string {
-  return occupiedBlocks >= 17 ? 'Overloaded' : occupiedBlocks >= 14 ? 'Heavy' : occupiedBlocks >= 11 ? 'Busy' : 'Balanced';
+export function getWellbeingLoadLabel(workloadUnits: number): string {
+  return workloadUnits >= 17 ? 'Overloaded' : workloadUnits >= 14 ? 'Heavy' : workloadUnits >= 11 ? 'Busy' : 'Balanced';
 }

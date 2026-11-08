@@ -1,6 +1,7 @@
 <script lang="ts">
   import { formatCharacterMoney, generateRandomCharacter } from './lib/simulation';
   import type { Character } from './lib/types';
+  import { getValueColor } from './lib/progression';
   type Props = { slotLabel: string; onStart: (character: Character) => void; onCancel: () => void };
   let { slotLabel, onStart, onCancel }: Props = $props();
   const lifePaths = [
@@ -51,7 +52,7 @@
     <div class="traits-row"><span>Personality</span>{#each character.personality ?? [] as trait}<b>{trait}</b>{/each}</div>
     <div class="generated-stats">
       {#each [{label:'Health',value:character.health},{label:'Happiness',value:character.happiness},{label:'Intelligence',value:character.intelligence},{label:'Fitness',value:character.fitness},{label:'Stamina',value:character.stamina ?? 50},{label:'Focus',value:character.focus ?? 50},{label:'Confidence',value:character.confidence ?? 50},{label:'Discipline',value:character.discipline ?? 50},{label:'Creativity',value:character.creativity ?? 50},{label:'Social skills',value:character.socialSkills ?? 50}] as stat}
-        <div class="generated-stat"><div><span>{stat.label}</span><strong>{stat.value}</strong></div><div class="meter"><span style="width:{stat.value}%"></span></div></div>
+        <div class="generated-stat"><div><span>{stat.label}</span><strong>{stat.value}</strong></div><div class="meter"><span style="width:{stat.value}%;background:{getValueColor(stat.value)}"></span></div></div>
       {/each}
     </div>
     <div class="traits-row"><span>Wellbeing</span><b>Stress {character.stress ?? 30}/100</b></div>

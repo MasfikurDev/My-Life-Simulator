@@ -2,7 +2,7 @@ import type { ActivityId, DayPeriod, PlannedAction, PlannedActivity, BankAccount
 import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
-import { createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
+import { addCalendarDays, createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
 import { buildWeeklySchedule, getWeeklySchedule } from './weekly-schedule';
 import { resolveEducationWeek } from './education';
 import { resolveCareAction, resolveWeeklyWellbeing } from './wellbeing';
@@ -697,14 +697,13 @@ export interface ActivityPlanningResult {
   character: Character;
   issue: ActivityPlanningIssue | null;
   message: string | null;
-  /** The automatically selected placement, when this action reserves time. */
+  /** Legacy-compatible action record; personal activities no longer reserve calendar time. */
   scheduledActivity?: PlannedActivity;
 }
 
 /**
- * Reserve an activity in the character's current week. This is deliberately
- * separate from activity resolution: planning consumes time capacity, while
- * the later weekly resolver will apply effects and settle costs exactly once.
+ * Calculate the direct cash cost of a selected weekly activity.
+ * Stamina effort is calculated separately and charged during weekly resolution.
  */
 export function getPlannedActivityCost(character: Character, item: PlannedActivity): number {
   if (item.action?.kind === 'work') return 0;
@@ -725,29 +724,78 @@ export function getPlannedActivityCost(character: Character, item: PlannedActivi
   return getActivityCost(character, item.activityId as ActivityId);
 }
 
-function reserveTimedAction(character: Character, activityId: PlannedActivity['activityId'], date: string, startPeriod: DayPeriod, durationBlocks: number, action: PlannedAction, cost: number): ActivityPlanningResult {
+
+/** Stamina is the effort budget for discretionary weekly actions; calendar periods remain for real commitments only. */
+export function getPlannedActivityStaminaCost(item: PlannedActivity): number {
+  if (item.action?.kind === 'education') return 8;
+  if (item.action?.kind === 'care') return ({ rest: 0, mindfulness: 4, counselling: 2, 'medical-checkup': 0 }[item.action.careType]);
+  if (item.action?.kind === 'work') return item.action.workAction === 'interview' ? 10 : 8;
+  if (item.action?.kind === 'family') return item.action.interaction === 'provide-support' ? 3 : 6;
+  if (item.action?.kind === 'business') return 12;
+  if (item.action?.kind === 'event') return 5;
+  return getActivityDefinition(item.activityId as ActivityId)?.staminaCost ?? 5;
+}
+
+function getPlannedActivityTitle(character: Character, item: PlannedActivity): string {
+  if (item.action?.kind === 'education') return item.action.taskType === 'assignment' ? 'Education assignment' : item.action.taskType === 'exam' ? 'Academic assessment' : 'Focused study';
+  if (item.action?.kind === 'care') return ({ rest: 'Rest & recovery', mindfulness: 'Mindfulness', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up' }[item.action.careType]);
+  if (item.action?.kind === 'work') return (item.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + item.action.title;
+  if (item.action?.kind === 'family') return ({ 'spend-time': 'Spend time with family', 'reach-out': 'Reach out to family', reconcile: 'Resolve family conflict', 'provide-support': 'Provide family support' }[item.action.interaction]);
+  if (item.action?.kind === 'business') {
+    const businessId = item.action.businessId;
+    const businessName = (character.businesses ?? []).find((business) => business.id === businessId)?.name;
+    return businessName ? 'Manage business: ' + businessName : 'Business management';
+  }
+  if (item.action?.kind === 'event') {
+    const choiceId = item.action.choiceId;
+    const choice = character.pendingGameEvent?.choices.find((entry) => entry.id === choiceId);
+    return (character.pendingGameEvent?.description ?? 'Life event decision') + (choice ? ' — ' + choice.label : '');
+  }
+  return getActivityDefinition(item.activityId as ActivityId)?.title ?? item.activityId;
+}
+
+
+function getPlannedActivityReward(item: PlannedActivity): string {
+  if (item.action?.kind === 'education') return 'Knowledge, focus, discipline and course progress';
+  if (item.action?.kind === 'care') return ({ rest: 'Stamina, health, happiness and lower stress', mindfulness: 'Focus and lower stress', counselling: 'Mental wellbeing and stress recovery', 'medical-checkup': 'Health assessment and treatment planning' }[item.action.careType]);
+  if (item.action?.kind === 'work') return 'Career opportunity and employment progression';
+  if (item.action?.kind === 'family') return 'Family closeness, trust and relationship history';
+  if (item.action?.kind === 'business') return 'Business performance and financial outcomes';
+  if (item.action?.kind === 'event') return 'The chosen event outcome and its consequences';
+  return ({
+    study: 'Intelligence, focus, discipline and learning progress',
+    exercise: 'Fitness, health, happiness and lower stress',
+    socialize: 'Happiness, social skills and lower stress',
+    work: 'Cash income and confidence; stress and happiness may worsen',
+    'apply-job': 'Employment opportunity',
+    career: 'Work performance, focus and confidence'
+  } as Record<ActivityId, string>)[item.activityId as ActivityId] ?? 'Character progression';
+}
+
+function addWeeklyAction(character: Character, activityId: PlannedActivity['activityId'], date: string, _startPeriod: DayPeriod, _durationBlocks: number, action: PlannedAction, cost: number): ActivityPlanningResult {
   let currentWeek: string;
   let activityWeek: string;
   try {
     currentWeek = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
     activityWeek = getWeekStart(date);
   } catch {
-    return { character, issue: 'invalid-date', message: 'Choose a valid calendar date.' };
+    return { character, issue: 'invalid-date', message: 'The current game week is not a valid date.' };
   }
-  if (activityWeek !== currentWeek) return { character, issue: 'outside-current-week', message: 'Activities can only be planned in the current week.' };
+  if (activityWeek !== currentWeek) return { character, issue: 'outside-current-week', message: 'Activities can only be added to the current week.' };
   const schedule = getWeeklySchedule(character.weeklySchedule);
-  if (!buildWeeklySchedule(currentWeek, schedule).valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts before adding another activity.' };
+  if (!buildWeeklySchedule(currentWeek, schedule).valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve recurring school or work timetable conflicts first.' };
   const alreadyReserved = schedule.activities.reduce((total, item) => total + getPlannedActivityCost(character, item), 0);
   if (alreadyReserved + cost > character.money) return { character, issue: 'insufficient-funds', message: 'Your current cash cannot cover the planned activities this week.' };
   let sequence = schedule.activities.length + 1;
-  let id = 'planned-' + date + '-' + startPeriod + '-' + activityId + '-' + sequence;
+  let id = 'planned-' + currentWeek + '-' + activityId + '-' + sequence;
   const existingIds = new Set([...schedule.commitments.map((item) => item.id), ...schedule.activities.map((item) => item.id)]);
-  while (existingIds.has(id)) { sequence += 1; id = 'planned-' + date + '-' + startPeriod + '-' + activityId + '-' + sequence; }
-  const nextSchedule = { ...schedule, activities: [...schedule.activities, { id, activityId, date, startPeriod, durationBlocks, action }] };
+  while (existingIds.has(id)) { sequence += 1; id = 'planned-' + currentWeek + '-' + activityId + '-' + sequence; }
+  // Legacy date/period fields remain populated for backward-compatible saves. They no longer consume calendar blocks.
+  const nextSchedule = { ...schedule, activities: [...schedule.activities, { id, activityId, date: currentWeek, startPeriod: 'morning' as DayPeriod, durationBlocks: 1, action }] };
   const validation = buildWeeklySchedule(currentWeek, nextSchedule);
   if (!validation.valid) {
-    const issue = validation.issues.find((item) => item.entryId === id);
-    return { character, issue: issue?.code === 'overlap' ? 'time-conflict' : 'invalid-time-slot', message: issue?.message ?? 'That time cannot be reserved.' };
+    const issue = validation.issues[0];
+    return { character, issue: 'invalid-time-slot', message: issue?.message ?? 'The weekly plan is invalid.' };
   }
   return { character: { ...character, weeklySchedule: nextSchedule }, issue: null, message: null };
 }
@@ -756,7 +804,7 @@ export function planActivity(character: Character, activity: ActivityId, date: s
   if (activity === 'apply-job') return { character, issue: 'unavailable', message: 'Use Work → Jobs & applications to apply for a specific opening.' };
   if (!isActivityAvailable(character.age, activity, character.employment)) return { character, issue: 'unavailable', message: 'This activity is not available at your current life stage.' };
   const definition = getActivityDefinition(activity);
-  return reserveTimedAction(character, activity, date, startPeriod, definition.durationBlocks, { kind: 'activity' } as PlannedAction, getActivityCost(character, activity));
+  return addWeeklyAction(character, activity, date, startPeriod, definition.durationBlocks, { kind: 'activity' } as PlannedAction, getActivityCost(character, activity));
 }
 
 export function planFamilyInteraction(character: Character, personId: string, interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support', supportAmount = 0, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
@@ -770,7 +818,7 @@ export function planFamilyInteraction(character: Character, personId: string, in
   if (!family || !person || person.id === family.playerPersonId) return { character, issue: 'unavailable', message: 'That family member is not available.' };
   if (interaction === 'provide-support' && (!Number.isSafeInteger(supportAmount) || supportAmount <= 0)) return { character, issue: 'unavailable', message: 'Enter a valid support amount.' };
   const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  return reserveTimedAction(character, 'family', day, startPeriod, 1, { kind: 'family', personId, interaction, ...(interaction === 'provide-support' ? { supportAmount } : {}) }, interaction === 'provide-support' ? supportAmount : 0);
+  return addWeeklyAction(character, 'family', day, startPeriod, 1, { kind: 'family', personId, interaction, ...(interaction === 'provide-support' ? { supportAmount } : {}) }, interaction === 'provide-support' ? supportAmount : 0);
 }
 
 export function planBusinessManagement(character: Character, businessId: string, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
@@ -780,7 +828,7 @@ export function planBusinessManagement(character: Character, businessId: string,
   }
   if (!business || manageBusiness(character, businessId) === character) return { character, issue: 'unavailable', message: 'This business cannot be managed right now.' };
   const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  return reserveTimedAction(character, 'business', day, startPeriod, 2, { kind: 'business', businessId }, Math.max(1, Math.round(business.investedCapital * 0.01)));
+  return addWeeklyAction(character, 'business', day, startPeriod, 2, { kind: 'business', businessId }, Math.max(1, Math.round(business.investedCapital * 0.01)));
 }
 
 export function planWorkAction(character: Character, workAction: 'apply' | 'interview', jobId: string, date?: string, startPeriod: DayPeriod = 'morning'): ActivityPlanningResult {
@@ -804,29 +852,23 @@ export function planWorkAction(character: Character, workAction: 'apply' | 'inte
     duration = 2;
   }
   const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  return reserveTimedAction(character, 'career', day, startPeriod, duration, { kind: 'work', workAction, jobId, title }, 0);
+  return addWeeklyAction(character, 'career', day, startPeriod, duration, { kind: 'work', workAction, jobId, title }, 0);
 }
 
-function planInNextFreeTime(character: Character, attempt: (date: string, period: DayPeriod) => ActivityPlanningResult): ActivityPlanningResult {
+function planForCurrentWeek(character: Character, attempt: (date: string, period: DayPeriod) => ActivityPlanningResult): ActivityPlanningResult {
   const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
   const schedule = getWeeklySchedule(character.weeklySchedule);
   const grid = buildWeeklySchedule(week, schedule);
-  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve existing schedule conflicts first.' };
+  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve recurring school or work timetable conflicts first.' };
   const existingIds = new Set(schedule.activities.map((item) => item.id));
-  for (const block of grid.blocks) {
-    if (block.entryId) continue;
-    const result = attempt(block.date, block.period);
-    if (!result.issue) {
-      const scheduledActivity = result.character.weeklySchedule?.activities.find((item) => !existingIds.has(item.id));
-      return { ...result, scheduledActivity };
-    }
-    if (result.issue !== 'invalid-time-slot' && result.issue !== 'time-conflict') return result;
-  }
-  return { character, issue: 'time-conflict', message: 'There is no suitable free time left this week. Existing plans have not been changed.' };
+  const result = attempt(week, 'morning');
+  if (result.issue) return result;
+  const scheduledActivity = result.character.weeklySchedule?.activities.find((item) => !existingIds.has(item.id));
+  return { ...result, scheduledActivity };
 }
 
 export function planWorkActionInNextFreeTime(character: Character, workAction: 'apply' | 'interview', jobId: string): ActivityPlanningResult {
-  return planInNextFreeTime(character, (date, period) => planWorkAction(character, workAction, jobId, date, period));
+  return planForCurrentWeek(character, (date, period) => planWorkAction(character, workAction, jobId, date, period));
 }
 
 export function acceptJobOffer(character: Character, offerId: string): Character {
@@ -857,7 +899,7 @@ export function planEventChoice(character: Character, choiceId: string, date?: s
     return { character: next, issue: null, message: null };
   }
   const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  return reserveTimedAction(character, 'event', day, startPeriod, Math.max(1, choice.timeBlocks), { kind: 'event', eventId: pending.id, choiceId }, choice.moneyCost);
+  return addWeeklyAction(character, 'event', day, startPeriod, Math.max(1, choice.timeBlocks), { kind: 'event', eventId: pending.id, choiceId }, choice.moneyCost);
 }
 
 export function planEducationTaskInNextFreeTime(character: Character, taskType: EducationTaskType): ActivityPlanningResult {
@@ -866,7 +908,7 @@ export function planEducationTaskInNextFreeTime(character: Character, taskType: 
     return { character, issue: 'unavailable', message: 'This type of academic task is already planned this week.' };
   }
   const cost = getActivityCost(character, 'study');
-  return planInNextFreeTime(character, (date, period) => reserveTimedAction(character, 'study', date, period, 1, { kind: 'education', taskType }, cost));
+  return planForCurrentWeek(character, (date, period) => addWeeklyAction(character, 'study', date, period, 1, { kind: 'education', taskType }, cost));
 }
 
 export function planCareActionInNextFreeTime(character: Character, careType: CareActionType): ActivityPlanningResult {
@@ -876,25 +918,25 @@ export function planCareActionInNextFreeTime(character: Character, careType: Car
   if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'care' && item.action.careType === careType)) {
     return { character, issue: 'unavailable', message: 'This care activity is already planned this week.' };
   }
-  return planInNextFreeTime(character, (date, period) => reserveTimedAction(character, 'exercise', date, period, 1, { kind: 'care', careType }, cost));
+  return planForCurrentWeek(character, (date, period) => addWeeklyAction(character, 'exercise', date, period, 1, { kind: 'care', careType }, cost));
 }
 
 export function planActivityInNextFreeTime(character: Character, activity: ActivityId): ActivityPlanningResult {
-  return planInNextFreeTime(character, (date, period) => planActivity(character, activity, date, period));
+  return planForCurrentWeek(character, (date, period) => planActivity(character, activity, date, period));
 }
 
 export function planFamilyInteractionInNextFreeTime(character: Character, personId: string, interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support', supportAmount = 0): ActivityPlanningResult {
-  return planInNextFreeTime(character, (date, period) => planFamilyInteraction(character, personId, interaction, supportAmount, date, period));
+  return planForCurrentWeek(character, (date, period) => planFamilyInteraction(character, personId, interaction, supportAmount, date, period));
 }
 
 export function planBusinessManagementInNextFreeTime(character: Character, businessId: string): ActivityPlanningResult {
-  return planInNextFreeTime(character, (date, period) => planBusinessManagement(character, businessId, date, period));
+  return planForCurrentWeek(character, (date, period) => planBusinessManagement(character, businessId, date, period));
 }
 
 export function planEventChoiceInNextFreeTime(character: Character, choiceId: string): ActivityPlanningResult {
   const choice = character.pendingGameEvent?.choices.find((entry) => entry.id === choiceId);
   if (choice?.timeBlocks === 0) return planEventChoice(character, choiceId);
-  return planInNextFreeTime(character, (date, period) => planEventChoice(character, choiceId, date, period));
+  return planForCurrentWeek(character, (date, period) => planEventChoice(character, choiceId, date, period));
 }
 
 export function removePlannedActivity(character: Character, activityId: string): Character {
@@ -937,13 +979,17 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   let next = { ...character, history: [...character.history] };
   const recap: string[] = [];
   const occupiedBlocks = validation.blocks.filter((block) => block.entryId !== null).length;
-  const wellbeing = resolveWeeklyWellbeing(next, occupiedBlocks, weekStart);
+  const activityEffortUnits = Math.ceil(schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaCost(item), 0) / 6);
+  const weeklyWorkload = Math.min(21, occupiedBlocks + activityEffortUnits);
+  const wellbeing = resolveWeeklyWellbeing(next, weeklyWorkload, weekStart);
   next = wellbeing.character;
   recap.push(...wellbeing.recap);
   const educationTasks: EducationTaskType[] = [];
   const periodOrder: Record<DayPeriod, number> = { morning: 0, afternoon: 1, evening: 2 };
   const ordered = [...schedule.activities].sort((a, b) => a.date.localeCompare(b.date) || periodOrder[a.startPeriod] - periodOrder[b.startPeriod] || a.id.localeCompare(b.id));
   for (const item of ordered) {
+    // Charge stamina once, immediately before the action. Recovery and rewards are then applied by the action itself.
+    next = { ...next, stamina: clamp((next.stamina ?? 50) - getPlannedActivityStaminaCost(item)) };
     let result: Character;
     if (item.action?.kind === 'education') {
       result = performActivity(next, 'study', weekRandom);
@@ -984,7 +1030,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   }
   const nextSchedule = { ...schedule, activities: [] };
   next = { ...next, weeklySchedule: nextSchedule, lastResolvedWeekStart: weekStart, lastWeekRecap: recap };
-  const academic = resolveEducationWeek(next, educationTasks, weekStart, occupiedBlocks);
+  const academic = resolveEducationWeek(next, educationTasks, weekStart, weeklyWorkload);
   next = academic.character;
   recap.push(...academic.recap);
   next.lastWeekRecap = recap;
@@ -1004,6 +1050,117 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   return { character: next, issue: null, recap };
 }
 
+export interface WeeklyActivityReviewItem {
+  id: string;
+  title: string;
+  staminaCost: number;
+  moneyCost: number;
+  reward: string;
+}
+export interface WeeklyActivityReviewChange {
+  key: string;
+  label: string;
+  before: number;
+  after: number;
+  delta: number;
+}
+export interface WeeklyActivityReview {
+  issue: WeeklyResolutionResult['issue'];
+  weekStart: string;
+  weekEnd: string;
+  activities: WeeklyActivityReviewItem[];
+  currentStamina: number;
+  staminaCost: number;
+  totalMoneyCost: number;
+  projectedStamina: number;
+  currentStress: number;
+  projectedStress: number;
+  currentHealth: number;
+  projectedHealth: number;
+  currentCash: number;
+  projectedCash: number;
+  changes: WeeklyActivityReviewChange[];
+  warnings: string[];
+}
+
+/** Pure, deterministic preview. It runs the same resolver on an immutable input and never persists or mutates the save. */
+export function getWeeklyActivityReview(character: Character): WeeklyActivityReview {
+  const currentDate = character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year);
+  const weekStart = getWeekStart(currentDate);
+  const schedule = getWeeklySchedule(character.weeklySchedule);
+  const preview = advanceWeek(character);
+  const projected = preview.issue ? character : preview.character;
+  const fields: Array<[keyof Character, string]> = [
+    ['health', 'Health'], ['happiness', 'Happiness'], ['intelligence', 'Intelligence'], ['fitness', 'Fitness'],
+    ['stamina', 'Stamina'], ['stress', 'Stress'], ['focus', 'Focus'], ['confidence', 'Confidence'],
+    ['discipline', 'Discipline'], ['creativity', 'Creativity'], ['socialSkills', 'Social skills']
+  ];
+  const changes = fields.map(([key, label]) => {
+    const before = Number(character[key] ?? (key === 'stress' ? 30 : key === 'stamina' ? 50 : 0));
+    const after = Number(projected[key] ?? (key === 'stress' ? 30 : key === 'stamina' ? 50 : 0));
+    return { key: String(key), label, before, after, delta: after - before };
+  }).filter((item) => item.delta !== 0);
+  const addChange = (key: string, label: string, beforeValue: number | undefined, afterValue: number | undefined) => {
+    const before = Number(beforeValue ?? 0);
+    const after = Number(afterValue ?? 0);
+    if (after !== before) changes.push({ key, label, before, after, delta: after - before });
+  };
+  addChange('education-grade', 'Education grade', character.educationEnrollment?.grade, projected.educationEnrollment?.grade);
+  addChange('work-performance', 'Work performance', character.employment?.performance, projected.employment?.performance);
+  const averageBond = (value: Character) => {
+    const bonds = value.family?.bonds ?? [];
+    return bonds.length ? bonds.reduce((total, bond) => total + bond.closeness, 0) / bonds.length : undefined;
+  };
+  addChange('family-closeness', 'Average family closeness', averageBond(character), averageBond(projected));
+  const averageBondMetric = (value: Character, key: 'trust' | 'tension') => {
+    const bonds = value.family?.bonds ?? [];
+    return bonds.length ? bonds.reduce((total, bond) => total + bond[key], 0) / bonds.length : undefined;
+  };
+  addChange('family-trust', 'Average family trust', averageBondMetric(character, 'trust'), averageBondMetric(projected, 'trust'));
+  addChange('family-tension', 'Average family tension', averageBondMetric(character, 'tension'), averageBondMetric(projected, 'tension'));
+  const averageBusiness = (value: Character) => {
+    const businesses = value.businesses ?? [];
+    return businesses.length ? businesses.reduce((total, business) => total + business.performance, 0) / businesses.length : undefined;
+  };
+  addChange('business-performance', 'Average business performance', averageBusiness(character), averageBusiness(projected));
+  const activities = schedule.activities.map((item) => ({
+    id: item.id,
+    title: getPlannedActivityTitle(character, item),
+    staminaCost: getPlannedActivityStaminaCost(item),
+    moneyCost: getPlannedActivityCost(character, item),
+    reward: getPlannedActivityReward(item)
+  }));
+  const warnings: string[] = [];
+  const currentStamina = character.stamina ?? 50;
+  const projectedStamina = projected.stamina ?? 50;
+  const currentStress = character.stress ?? 30;
+  const projectedStress = projected.stress ?? 30;
+  if (projectedStamina < 25) warnings.push('Stamina is projected to fall to a very low level. Recovery may be needed before another demanding week.');
+  if (projectedStress >= 80 && projectedStress > currentStress) warnings.push('Stress is projected to enter a critical range, which can reduce future performance and recovery.');
+  else if (projectedStress >= 60 && projectedStress > currentStress) warnings.push('Stress is projected to rise into an elevated range.');
+  if (projected.health < character.health) warnings.push('Physical health is projected to decline this week.');
+  if (projected.happiness < character.happiness) warnings.push('Happiness is projected to decline this week.');
+  if (preview.issue) warnings.push(preview.issue === 'invalid-schedule' ? 'Recurring timetable conflicts must be fixed before the week can resolve.' : preview.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action can no longer be completed. Review the plan before continuing.');
+  return {
+    issue: preview.issue,
+    weekStart,
+    weekEnd: addCalendarDays(weekStart, 6),
+    activities,
+    currentStamina,
+    staminaCost: activities.reduce((total, item) => total + item.staminaCost, 0),
+    totalMoneyCost: activities.reduce((total, item) => total + item.moneyCost, 0),
+    projectedStamina,
+    currentStress,
+    projectedStress,
+    currentHealth: character.health,
+    projectedHealth: projected.health,
+    currentCash: character.money,
+    projectedCash: projected.money,
+    changes,
+    warnings
+  };
+}
+
 export function performActivity(character: Character, activity: ActivityId, random: () => number = Math.random): Character {
   const earlyDevelopmentStudy = activity === 'study' && character.age < 3 && character.educationEnrollment?.programId === 'early-development';
   if ((!earlyDevelopmentStudy && !isActivityAvailable(character.age, activity, character.employment)) || !canAffordActivity(character, activity)) return character;
@@ -1018,7 +1175,6 @@ export function performActivity(character: Character, activity: ActivityId, rand
       next.happiness = clamp(next.happiness - 1);
       next.focus = clamp((next.focus ?? 50) + 3);
       next.discipline = clamp((next.discipline ?? 50) + 1);
-      next.stamina = clamp((next.stamina ?? 50) - 2);
       next.stress = Math.min(100, (next.stress ?? 30) + 1);
       if (next.age >= 16) next.money -= getActivityCost(next, 'study');
       if (next.educationEnrollment) {
@@ -1049,7 +1205,6 @@ export function performActivity(character: Character, activity: ActivityId, rand
       const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
       next.money += Math.round(180 * scale * workEfficiency);
       next.happiness = clamp(next.happiness - 2);
-      next.stamina = clamp((next.stamina ?? 50) - 5);
       next.confidence = clamp((next.confidence ?? 50) + 1);
       next.stress = Math.min(100, (next.stress ?? 30) + 3);
       next.history.unshift(event(next, 'Picked up extra work', 'You earned some money, although it took time and energy.'));

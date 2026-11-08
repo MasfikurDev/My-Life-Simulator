@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { Character } from './lib/types';
   import { establishFamilyBackground, getFamilyConnections, validateFamilyState } from './lib/family';
-  import { formatCharacterMoney, planFamilyInteractionInNextFreeTime } from './lib/simulation';
+  import { getValueColor } from './lib/progression';
+  import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
 
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   let supportAmount = $state(0);
@@ -10,14 +11,16 @@
   const family = $derived(character.family);
   const errors = $derived(family ? validateFamilyState(family) : []);
   const livingCount = $derived(connections.filter((item) => item.living).length);
+  function interactionPlanned(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
+    return (character.weeklySchedule?.activities ?? []).some((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
+  }
   function interact(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
+    const existing = (character.weeklySchedule?.activities ?? []).find((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
+    if (existing) { onChange(removePlannedActivity(character, existing.id)); feedback = 'Interaction removed from this week.'; return; }
     const planned = planFamilyInteractionInNextFreeTime(character, personId, action, supportAmount);
-    if (planned.issue) { feedback = planned.message ?? 'That interaction could not be planned.'; return; }
+    if (planned.issue) { feedback = planned.message ?? 'That interaction could not be added.'; return; }
     onChange(planned.character);
-    const slot = planned.scheduledActivity;
-    feedback = slot
-      ? 'Confirmed for ' + slot.date + ' (' + slot.startPeriod + '). It will take effect when the week is resolved.'
-      : 'Interaction confirmed for this week.';
+    feedback = 'Interaction added to this week. It will take effect when the week resolves.';
   }
 </script>
 
@@ -40,7 +43,7 @@
     {#if feedback}<p class="family-footnote" role="status">{feedback}</p>{/if}
     <section class="family-panel">
       <div class="family-panel-head">
-        <div><div class="eyebrow">YOUR FAMILY</div><h2>Family connections</h2><p>People and relationships recorded in this life. Choose an interaction to confirm it; the game places it into suitable free time automatically.</p></div>
+        <div><div class="eyebrow">YOUR FAMILY</div><h2>Family connections</h2><p>People and relationships recorded in this life. Toggle an interaction to include or remove it from this week. Family interactions use stamina, not calendar slots.</p></div>
         <span class="family-count">{livingCount} living</span>
       </div>
       <div class="family-summary">
@@ -65,9 +68,9 @@
             </div>
             {#if connection.bond}
               <div class="bond-grid">
-                <div><span>Closeness</span><strong>{connection.bond.closeness}/100</strong><div class="bond-meter"><i style="width:{connection.bond.closeness}%"></i></div></div>
-                <div><span>Trust</span><strong>{connection.bond.trust}/100</strong><div class="bond-meter"><i style="width:{connection.bond.trust}%"></i></div></div>
-                <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><div class="bond-meter tension"><i style="width:{connection.bond.tension}%"></i></div></div>
+                <div><span>Closeness</span><strong>{connection.bond.closeness}/100</strong><div class="bond-meter"><i style="width:{connection.bond.closeness}%;background:{getValueColor(connection.bond.closeness)}"></i></div></div>
+                <div><span>Trust</span><strong>{connection.bond.trust}/100</strong><div class="bond-meter"><i style="width:{connection.bond.trust}%;background:{getValueColor(connection.bond.trust)}"></i></div></div>
+                <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><div class="bond-meter tension"><i style="width:{connection.bond.tension}%;background:{getValueColor(connection.bond.tension, true)}"></i></div></div>
               </div>
               {#if connection.bond.lastInteractionYear !== null}
                 <p class="last-contact">Last meaningful interaction: {connection.bond.lastInteractionYear}</p>
@@ -76,16 +79,16 @@
               {/if}
               {#if connection.living}
                 <div class="relative-actions">
-                  <button onclick={() => interact(connection.person.id, 'spend-time')}>Spend time</button>
-                  {#if character.age >= 10}<button onclick={() => interact(connection.person.id, 'reach-out')}>Reach out</button>{/if}
-                  {#if character.age >= 13 && connection.bond.tension >= 15}<button onclick={() => interact(connection.person.id, 'reconcile')}>Work through conflict</button>{/if}
+                  <button class:planned={interactionPlanned(connection.person.id, 'spend-time')} onclick={() => interact(connection.person.id, 'spend-time')}>{interactionPlanned(connection.person.id, 'spend-time') ? 'Remove spend-time plan' : 'Spend time · 6 stamina'}</button>
+                  {#if character.age >= 10}<button class:planned={interactionPlanned(connection.person.id, 'reach-out')} onclick={() => interact(connection.person.id, 'reach-out')}>{interactionPlanned(connection.person.id, 'reach-out') ? 'Remove reach-out plan' : 'Reach out · 6 stamina'}</button>{/if}
+                  {#if character.age >= 13 && connection.bond.tension >= 15}<button class:planned={interactionPlanned(connection.person.id, 'reconcile')} onclick={() => interact(connection.person.id, 'reconcile')}>{interactionPlanned(connection.person.id, 'reconcile') ? 'Remove plan' : 'Work through conflict · 6 stamina'}</button>{/if}
                 </div>
                 {#if character.age >= 18}
                   <div class="support-row">
                     <label>Support amount
                       <input type="number" min="1" step="1" bind:value={supportAmount} />
                     </label>
-                    <button disabled={!Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money} onclick={() => interact(connection.person.id, 'provide-support')}>Provide support</button>
+                    <button class:planned={interactionPlanned(connection.person.id, 'provide-support')} disabled={!interactionPlanned(connection.person.id, 'provide-support') && (!Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money)} onclick={() => interact(connection.person.id, 'provide-support')}>{interactionPlanned(connection.person.id, 'provide-support') ? 'Remove support plan' : 'Provide support · 3 stamina'}</button>
                   </div>
                   <p class="support-note">Available cash: {formatCharacterMoney(character)}. Support is an actual expense and is recorded in Finance.</p>
                 {/if}
@@ -138,6 +141,7 @@
   .relative-actions{display:flex;flex-wrap:wrap;gap:7px}
   .relative-actions button,.support-row button,.primary-action{min-height:38px;border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:var(--surface-raised);color:var(--text);font-size:11px;font-weight:700}
   .relative-actions button:disabled,.support-row button:disabled{opacity:.4}
+  .relative-actions button.planned{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
   .support-row{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
   .support-row label{display:grid;gap:4px;font-size:10px;color:var(--muted);flex:1;min-width:120px}
   .support-row input{width:100%;min-height:38px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised);color:var(--text);padding:0 9px}

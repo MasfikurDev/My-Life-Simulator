@@ -8,7 +8,7 @@ This document turns the gameplay audit into a staged, implementation-ready direc
 The weekly gameplay foundation and the annual-action-to-weekly-turn transition are implemented in the web simulation:
 - Contextual events are selected using character/year context and age/health eligibility.
 - Pending events and choices persist in the character save; the simulation validates choice requirements and costs.
-- Personal activities, family interactions, business management, job applications, interviews, and time-consuming event choices reserve dated weekly time blocks and resolve in deterministic order.
+- Personal activities, family interactions, business management, job applications, interviews, and time-consuming event choices are selected as weekly actions, consume stamina and resolve in deterministic order.
 - Weekly resolution applies effects and costs, records Life History, clears successful reservations, and advances the calendar by seven days. A stale reservation blocks the turn and remains available for repair instead of being silently discarded.
 - Age and life-stage eligibility change on the character's birthday. Annual financial settlement and annual event expiry remain at the year boundary.
 - The save migration preserves existing slots and stores the original pre-migration payload as a recovery copy.
@@ -44,7 +44,7 @@ Our differentiator is a connected, age-aware life simulation with domain-native 
 
 ## 3. The weekly gameplay loop
 
-**Decision: the week is the fundamental playable time unit.** Months organize recurring finances and reports; years organize birthdays, life-stage transitions, annual milestones, and long-term reviews. The old three-actions-per-year budget is retired as a design direction. Do not merely change it to three actions per week: the new loop is based on a calendar, recurring commitments, and available free time.
+**Decision: the week is the fundamental playable time unit.** Months organize recurring finances and reports; years organize birthdays, life-stage transitions, annual milestones, and long-term reviews. The old three-actions-per-year budget is retired. Do not replace it with a weekly action quota: the loop uses stamina-based personal activities and genuine recurring calendar commitments.
 
 The player should feel that a life is unfolding, not that they are spending abstract action tokens. A normal week should take a few deliberate choices and resolve quickly. Quiet weeks are allowed; important weeks can contain more decisions.
 
@@ -55,7 +55,7 @@ The player should feel that a life is unfolding, not that they are spending abst
 - The current calendar year remains the world year. Advancing one week must never accidentally age the character by one year.
 - The player advances exactly one week at a time through an explicit **Start next week** action. No screen visit, save/load, or background process advances time.
 - Provide a compact calendar/week view, not a real-time clock or hour-by-hour simulation.
-- Do not simulate 168 individual hours, every NPC, travel minute, or every day autonomously. The game uses meaningful time blocks and summarized routines.
+- Do not simulate 168 individual hours, every NPC, travel minute, or every day autonomously. The game uses meaningful recurring commitments, stamina-based activity choices and summarized routines.
 
 ### 3.1.1 Calendar foundation (implemented first slice)
 
@@ -67,20 +67,20 @@ The player should feel that a life is unfolding, not that they are spending abst
 - Existing saves are migrated to the weekly model without discarding character or slot data. Saves without calendar data are anchored to the first Monday on or after January 1 of their stored year; the original payload is retained under a separate recovery key.
 - Calendar helpers, weekly advancement, schedule consumption, and birthday-based aging are implemented and tested. Monthly settlement, date-based event deadlines, and recurring payment cadence remain future work.
 
-### 3.2 Weekly schedule: commitments first, free time second
+### 3.2 Weekly schedule: recurring commitments and stamina-based activities
 
-The week is shaped by recurring commitments and the player's discretionary choices.
+The week is shaped by genuine recurring commitments and the player's stamina budget for discretionary activities.
 
 - School, employment, household responsibilities, and other implemented commitments may reserve recurring day/period blocks. These schedules belong to their own domain workspaces.
-- The player sees the commitments that matter this week and the free-time capacity they leave. Accepting or leaving a job updates the recurring Work commitments, so career status changes the time available for personal plans.
-- Player-directed activities consume one or more free-time blocks, plus money and/or energy when appropriate. Different activities can take different amounts of time.
-- A time block is a scheduling constraint, not an action token. The same activity cannot be scheduled into overlapping time; unavailable time cannot be spent twice.
-- Do not require the player to fill every day or every block. Rest, unplanned time, and quiet weeks are valid.
+- The player sees the commitments that matter this week. Accepting or leaving a job updates the recurring Work commitments and therefore the weekly workload.
+- Personal activities are weekly choices toggled from their owning workspaces. They consume activity-specific stamina, plus money where appropriate; they do not reserve individual calendar periods.
+- Calendar periods are reserved only by genuine recurring commitments such as school and work. Those commitments affect weekly workload and remain visible in the timetable.
+- Activities can be added or removed directly from their owning workspace; the central Schedule workspace provides a combined review and cancellation list. Do not require the player to fill every week. Rest and quiet weeks are valid.
 - Stamina is a bounded physical-capacity stat with explicit recovery and workload effects. Stress is inverse-scored (higher is worse) and affects learning/work efficiency. Do not add further need meters without a complete simulation and UI contract.
-- Some activities are immediate choices; others become recurring routines or commitments. A routine must show its duration, schedule, cost, benefit, and cancellation/change rules.
+- Some choices resolve immediately; others are included in the next weekly simulation. Each activity must show its stamina cost, expected stat/skill rewards, money cost where relevant, and a direct add/remove toggle. The weekly review previews the combined effects before resolution.
 - Events may interrupt or offer alternatives to a schedule. The player should understand which commitment is affected and what the trade-off is.
 
-**No arbitrary universal activity quota:** available free time is derived from the character's actual modeled commitments and schedule. Where a domain has not yet implemented a schedule, it must not invent one or pretend the character attends school/works set hours. Use a clearly labeled provisional free-time allowance only for that domain until its schedule exists, and keep that allowance consistent and testable.
+**No arbitrary universal activity quota:** personal activity choices are limited by stamina and modeled prerequisites, not by free-time slots. Only genuine recurring commitments reserve calendar periods. Where a domain has not implemented a schedule, it must not invent attendance or work hours.
 
 ### 3.2.1 Schedule model foundation (implemented first slice)
 
@@ -88,7 +88,7 @@ The simulation now has a reusable, save-compatible weekly schedule model:
 - A week is represented as seven days with three broad periods: morning, afternoon, and evening. These are planning blocks, not hourly simulation.
 - Recurring commitments reserve one or more consecutive periods on a selected weekday. Employment now generates a simple default shift pattern from the job type: full-time roles reserve weekday morning/afternoon blocks, part-time roles reserve three afternoon blocks, and flexible roles reserve three morning blocks. Education enrollment now generates class commitments from the programme's timetable, fitting around existing commitments where possible.
 - Planned activities reserve dated periods in the selected week and must remain within that week.
-- The pure schedule resolver expands commitments, identifies free periods, and reports duplicate IDs, invalid dates/durations, out-of-week activities, and overlapping placements.
+- The pure schedule resolver expands recurring commitments and reports duplicate IDs, invalid dates/durations, out-of-week legacy activity records, and overlapping commitments. Personal activities do not occupy its periods.
 - New characters receive an empty versioned schedule. Legacy saves are migrated without discarding character or slot data; saves that lack calendar data are anchored to the first Monday on or after January 1 of their stored year, and the obsolete annual action counter is removed.
 - Routine actions are initiated from their owning domains: enrollment and academic tasks in Education, care and recovery in Health, applications/interviews and career development in Work, family interactions in Family, business management in Business, and personal activities in Life. Confirming the action is the only scheduling input required.
 - A shared simulation planner finds the earliest suitable contiguous free period in the current week, validates eligibility, duration, recurring commitments, overlaps, and aggregate planned costs, then returns the exact placement to the owning screen. The player never chooses a date or time for routine actions.
@@ -105,7 +105,7 @@ The simulation now has a reusable, save-compatible weekly schedule model:
 Show a compact "This week" view:
 - Date range, current age, and relevant life stage.
 - Scheduled school/work/household commitments that are actually represented in save data.
-- Available free-time blocks and any commitments due soon.
+- Recurring commitments and their contribution to workload, plus activities selected for this week.
 - Current money position and near-term payments only when the values are modeled.
 - Pending events, opportunities, deadlines, and important consequences.
 - At most a few relevant prompts; do not duplicate whole domain dashboards.
@@ -120,7 +120,7 @@ The player visits the relevant domain and chooses what to do:
 - **Finance:** banking, spending, saving, debt, assets, household planning, and business decisions.
 - **Lifestyle:** services, purchases, and home arrangements.
 
-Every activity must state its time requirement, monetary cost/income, prerequisites, and meaningful effects before confirmation. Only charge resources after the simulation validates and accepts the activity. Activities that fail validation must leave the save unchanged.
+Every activity must state its stamina cost, monetary cost/income where relevant, prerequisites, and meaningful stat/skill effects before confirmation. Only charge resources after the simulation validates and accepts the activity. Activities that fail validation must leave the save unchanged.
 
 **Phase C — Handle events and interruptions**
 
@@ -187,9 +187,9 @@ The final order may be adjusted to satisfy domain dependencies, but it must rema
 ### 3.7 Weekly loop acceptance tests
 
 A playable weekly loop is not complete until:
-1. A new player can understand the current week, commitments, free time, and next action without reading documentation.
-2. Confirming an action from School, Work, Family, Business, Events, or Life automatically places it in the earliest suitable contiguous free period and reports that placement in the originating domain.
-3. The player is never required to choose a date or period for a routine action; Schedule is used to review or cancel existing reservations.
+1. A new player can understand the current week, recurring commitments, stamina and next action without reading documentation.
+2. Personal activities can be toggled in their owning workspaces without choosing a date or period.
+3. The weekly review lists all selected activities with stamina costs, reward categories and projected combined outcomes; Schedule remains the central review/cancellation surface.
 4. The player can confirm at least two different actions with different time costs and see that they cannot overlap.
 5. School/work recurring commitments reserve time only when actual schedule data exists.
 6. A weekly activity can create a meaningful immediate effect and a persistent delayed consequence.
@@ -205,7 +205,7 @@ A playable weekly loop is not complete until:
 The annual-action-to-weekly-save migration is implemented:
 - Schema 1 single-save data and schema 2 multi-slot data migrate to schema 3 while preserving valid character records and all three slot identities.
 - Existing age and world year remain authoritative. When no calendar exists, the migration anchors the character to the first Monday on or after January 1 of the stored year and derives a matching birth date so the displayed age is unchanged at migration.
-- The obsolete annual action counter is retired; unused annual actions are not converted into extra weekly time or free activities. Pending legacy event choices convert their old action cost into an equivalent time-block requirement.
+- The obsolete annual action counter is retired; unused annual actions are not converted into extra weekly time or free activities. Pending legacy event choices retain their outcome and use the stamina-based weekly activity model when selected.
 - The exact pre-migration payload is retained under `my-life-simulator.save.pre-weekly-migration` before the new payload replaces the active save. Unknown formats are rejected without overwriting the original.
 
 ### Current implementation boundary
@@ -231,11 +231,11 @@ The player chooses from age- and circumstance-appropriate actions in the relevan
 - Finance: banking, spending, saving, debt, assets, household planning, and business decisions.
 - Lifestyle: services, purchases, and home arrangements.
 
-Actions have explicit costs and trade-offs: reserved time blocks, money, energy, risk, or an opportunity cost. Explain important costs before confirmation. Do not add an arbitrary universal weekly action quota or extra meters merely to make the loop feel busy.
+Actions have explicit costs and trade-offs: stamina, money, risk, or an opportunity cost. Explain important costs before confirmation. Do not add an arbitrary universal weekly action quota or extra meters merely to make the loop feel busy.
 
 **Contextual scheduling is the default interaction contract.** Offer an action in the domain where its purpose is clear (for example, an interview in Work, a family interaction in Family, or exercise in Personal). The player's confirmation is the scheduling decision: the simulation automatically finds the earliest suitable contiguous free period, validates duration, recurring commitments, overlaps, eligibility, and affordability, then records the reservation. Do not send the player to a generic planner to choose a date and time for routine actions. The Schedule workspace is for reviewing commitments, spotting conflicts, and removing a reservation—not the primary place to initiate domain actions. A failed placement must explain the constraint and leave the save unchanged.
 
-The player may leave free time unused and advance deliberately. Do not silently auto-spend reservations or auto-advance time. Quiet weeks must remain quick to resolve.
+The player may leave stamina unused and advance deliberately. Do not silently auto-spend selected activities or auto-advance time. Quiet weeks must remain quick to resolve.
 
 ### Phase C — Resolve life events
 Offer a curated set of situations selected from the character's current context. An event may be:
@@ -377,7 +377,7 @@ Replayability should come from interacting systems and different viable lives, n
 ## 9. Scope and implementation sequence
 
 Build one complete playable slice at a time:
-Completed foundation: date-based weekly calendar, backward-compatible save migration, weekly schedule/free-time model, and deterministic weekly resolution.
+Completed foundation: date-based weekly calendar, backward-compatible save migration, recurring commitment timetable, stamina-based personal activities, and deterministic weekly resolution.
 
 Next implementation stages:
 1. Move financial systems to explicit monthly/annual cadences without duplicate or lost settlements.

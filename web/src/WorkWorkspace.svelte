@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { acceptJobOffer, acceptPromotionOffer, declineJobOffer, declinePromotionOffer, formatCharacterMoney, planActivityInNextFreeTime, planWorkActionInNextFreeTime, resignFromJob } from './lib/simulation';
+  import { acceptJobOffer, acceptPromotionOffer, declineJobOffer, declinePromotionOffer, formatCharacterMoney, planActivityInNextFreeTime, planWorkActionInNextFreeTime, removePlannedActivity, resignFromJob } from './lib/simulation';
   import { getCareerPath, getCareerRequirements, getCareerRole, getJobListings, getPromotionReadiness, isEligibleForRole } from './lib/work';
   import type { CareerPathId, Character } from './lib/types';
   import GameChoice from './GameChoice.svelte';
+  import { getActivityStaminaCost } from './lib/progression';
 
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   type WorkView = 'jobs' | 'career' | 'history';
@@ -16,27 +17,36 @@
   const careerRoles = $derived(getCareerPath(selectedPath));
   $effect(() => { if (currentRole) selectedPath = currentRole.pathId; });
   const careerEvents = $derived(character.history.filter((item) => /job|work|career|promotion|interview|employment/i.test(item.title + ' ' + item.description)));
+  const plannedActivities = $derived(character.weeklySchedule?.activities ?? []);
+  function plannedWorkAction(workAction: 'apply' | 'interview', jobId: string) { return plannedActivities.find((item) => item.action?.kind === 'work' && item.action.workAction === workAction && item.action.jobId === jobId); }
+  const developmentPlan = $derived(plannedActivities.find((item) => item.activityId === 'career' && item.action?.kind === 'activity'));
+  const extraWorkPlan = $derived(plannedActivities.find((item) => item.activityId === 'work' && item.action?.kind === 'activity'));
 
   function planWork(workAction: 'apply' | 'interview', jobId: string) {
+    const existing = plannedWorkAction(workAction, jobId);
+    if (existing) { onChange(removePlannedActivity(character, existing.id)); onNotify('Removed from this week.'); return; }
     const result = planWorkActionInNextFreeTime(character, workAction, jobId);
-    if (result.issue) { onNotify(result.message ?? 'That work activity could not be scheduled.'); return; }
+    if (result.issue) { onNotify(result.message ?? 'That work activity could not be added.'); return; }
     onChange(result.character);
-    const slot = result.scheduledActivity;
-    const when = slot ? slot.date + ' (' + slot.startPeriod + ')' : 'this week';
-    onNotify(workAction === 'apply' ? 'Application confirmed for ' + when + '.' : 'Interview confirmed for ' + when + '.');
+    onNotify(workAction === 'apply' ? 'Application added to this week.' : 'Interview added to this week.');
   }
   function confirmLeaveJob() {
     const next = resignFromJob(character);
     if (next === character) return;
     onChange(next); confirmResignation = false; onNotify('You left your previous role. Your career experience is retained.');
   }
+  function planExtraWork() {
+    if (extraWorkPlan) { onChange(removePlannedActivity(character, extraWorkPlan.id)); onNotify('Extra work removed from this week.'); return; }
+    const result = planActivityInNextFreeTime(character, 'work');
+    if (result.issue) { onNotify(result.message ?? 'Could not add extra work.'); return; }
+    onChange(result.character); onNotify('Extra work added · ' + getActivityStaminaCost('work') + ' stamina.');
+  }
   function planDevelopment() {
     if (!character.employment) return;
+    if (developmentPlan) { onChange(removePlannedActivity(character, developmentPlan.id)); onNotify('Career development removed from this week.'); return; }
     const result = planActivityInNextFreeTime(character, 'career');
-    if (result.issue) { onNotify(result.message ?? 'No suitable time is available this week.'); return; }
-    onChange(result.character);
-    const slot = result.scheduledActivity;
-    onNotify(slot ? 'Career development confirmed for ' + slot.date + ' (' + slot.startPeriod + ').' : 'Career development confirmed.');
+    if (result.issue) { onNotify(result.message ?? 'Could not add career development.'); return; }
+    onChange(result.character); onNotify('Career development added · ' + getActivityStaminaCost('career') + ' stamina.');
   }
   function acceptOffer(id: string) {
     const next = acceptJobOffer(character, id);
@@ -54,6 +64,13 @@
 </script>
 
 <section class="work-workspace">
+  {#if character.age >= 16}
+    <section class="work-panel extra-work-panel">
+      <div><div class="eyebrow">EXTRA EARNINGS</div><h3>{character.employment ? 'Additional shift' : 'Casual work'}</h3><p>Earn extra cash and build confidence. Heavy work increases stress and reduces happiness.</p></div>
+      <button class="work-secondary" class:planned={!!extraWorkPlan} onclick={planExtraWork}>{extraWorkPlan ? 'Remove from this week' : (character.employment ? 'Add extra shift' : 'Find casual work') + ' · ' + getActivityStaminaCost('work') + ' stamina'}</button>
+    </section>
+  {/if}
+
   <nav class="work-nav" aria-label="Work sections">
     <button class:active={activeView === 'jobs'} aria-current={activeView === 'jobs' ? 'page' : undefined} onclick={() => activeView='jobs'}>Jobs & applications</button>
     <button class:active={activeView === 'career'} aria-current={activeView === 'career' ? 'page' : undefined} onclick={() => activeView='career'}>Career path</button>
@@ -79,7 +96,7 @@
         </div>
         <p class="work-note">Regular shifts: {character.employment.type === 'full-time' ? 'Monday–Friday, mornings and afternoons' : character.employment.type === 'part-time' ? 'Monday, Wednesday and Friday afternoons' : 'Tuesday, Thursday and Saturday mornings'}.</p>
         <p class="work-note">Payroll: annual settlement · Monthly pay and benefits: not implemented</p>
-        <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>Career development session</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
+        <div class="current-job-actions"><button class="work-secondary" class:planned={!!developmentPlan} onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · ' + getActivityStaminaCost('career') + ' stamina'}</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
         {#if confirmResignation}<div class="resign-confirm"><strong>Leave {character.employment.title}?</strong><p>You will become unemployed. Your career experience and history will be kept.</p><div><button class="work-primary" onclick={confirmLeaveJob}>Confirm resignation</button><button class="work-secondary" onclick={() => confirmResignation = false}>Keep job</button></div></div>{/if}
       </section>
     {:else}
@@ -102,8 +119,8 @@
       <div class="work-section-heading"><div><span class="eyebrow">NEXT STEP</span><h2>Interview invitations</h2></div></div>
       {#each (character.jobApplications ?? []).filter((application) => application.status === 'interview') as application (application.id)}
         <article class="work-listing">
-          <div class="listing-main"><div class="eyebrow">{application.employer}</div><h3>{application.title}</h3><p>Your application was shortlisted. Confirm the interview; the game will find two consecutive free periods.</p></div>
-          <button class="work-primary" onclick={() => planWork('interview', application.id)}>Confirm interview</button>
+          <div class="listing-main"><div class="eyebrow">{application.employer}</div><h3>{application.title}</h3><p>Your application was shortlisted. Confirm the interview. It uses stamina rather than reserving calendar time.</p></div>
+          <button class="work-primary" class:planned={!!plannedWorkAction('interview', application.id)} onclick={() => planWork('interview', application.id)}>{plannedWorkAction('interview', application.id) ? 'Remove interview plan' : 'Confirm interview · 10 stamina'}</button>
         </article>
       {/each}
     {/if}
@@ -126,7 +143,7 @@
               {/each}
             </div>
             <div class="listing-actions">
-              <button class="work-primary" disabled={!eligible || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : eligible ? 'Apply' : 'Requirements not met'}</button>
+              <button class="work-primary" class:planned={!!plannedWorkAction('apply', listing.id)} disabled={!eligible || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : !eligible ? 'Requirements not met' : plannedWorkAction('apply', listing.id) ? 'Remove application plan' : 'Apply · ' + getActivityStaminaCost('apply-job') + ' stamina'}</button>
             </div>
           </article>
         {/each}
@@ -199,7 +216,9 @@
   .work-metrics div{display:grid;gap:5px;min-width:0;padding:10px;border:1px solid var(--line);border-radius:9px}
   .work-metrics span{color:var(--muted);font-size:9px}.work-metrics strong{color:var(--text);font-size:15px;overflow-wrap:anywhere}
   .work-note{margin-top:12px!important;font-size:10px!important}
-  .current-job-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.resign-confirm{display:grid;gap:7px;margin-top:12px;padding:12px;border:1px solid var(--danger);border-radius:9px}.resign-confirm strong{color:var(--text);font-size:12px}.resign-confirm p{margin:0}.resign-confirm>div{display:flex;flex-wrap:wrap;gap:7px}
+  .current-job-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .extra-work-panel{display:flex;align-items:center;justify-content:space-between;gap:14px}.extra-work-panel h3{margin:3px 0;font-size:14px}.extra-work-panel p{margin:0;font-size:10px;line-height:1.5;color:var(--muted)}.extra-work-panel button{flex:none}
+  .work-primary.planned,.work-secondary.planned{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}.resign-confirm{display:grid;gap:7px;margin-top:12px;padding:12px;border:1px solid var(--danger);border-radius:9px}.resign-confirm strong{color:var(--text);font-size:12px}.resign-confirm p{margin:0}.resign-confirm>div{display:flex;flex-wrap:wrap;gap:7px}
   .work-secondary,.work-primary{min-height:38px;padding:8px 11px;border-radius:8px;font-size:10px;font-weight:700}
   .work-primary{border:1px solid var(--accent);background:var(--accent);color:var(--on-accent)}
   .work-primary:disabled{opacity:.45;cursor:not-allowed}

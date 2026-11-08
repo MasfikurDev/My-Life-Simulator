@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { enrollInEducation, resolveEducationWeek } from './education';
-import { advanceWeek, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
-import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './progression';
+import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { getActivityDefinition, getActivityStaminaCost, getAvailableActivityIds, getLifeStage, getValueColor } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
@@ -18,11 +18,21 @@ describe('life simulation', () => {
     expect(canAffordActivity(adult, 'study')).toBe(true);
     expect(canAffordActivity({ ...adult, money: 3499 }, 'study')).toBe(false);
   });
-  it('defines different time requirements for activities', () => {
+  it('uses semantic threshold colors for normal and inverse progress values', () => {
+    expect(getValueColor(15)).toBe('var(--coral)');
+    expect(getValueColor(35)).toBe('var(--amber)');
+    expect(getValueColor(55)).toBe('var(--accent)');
+    expect(getValueColor(85)).toBe('var(--green)');
+    expect(getValueColor(85, true)).toBe('var(--coral)');
+    expect(getValueColor(20, true)).toBe('var(--green)');
+    expect(getActivityStaminaCost('exercise')).toBe(10);
+  });
+  it('defines activity stamina costs while retaining legacy duration metadata for save compatibility', () => {
+    expect(getActivityDefinition('study').staminaCost).toBe(8);
+    expect(getActivityDefinition('work').staminaCost).toBe(16);
+    expect(getActivityDefinition('exercise').staminaCost).toBe(10);
+    expect(getActivityDefinition('socialize').staminaCost).toBe(6);
     expect(getActivityDefinition('study').durationBlocks).toBe(2);
-    expect(getActivityDefinition('work').durationBlocks).toBe(2);
-    expect(getActivityDefinition('exercise').durationBlocks).toBe(1);
-    expect(getActivityDefinition('apply-job').durationBlocks).toBe(1);
   });
   it('plans activities into the current week without spending annual action tokens or cash early', () => {
     const adult = { ...createCharacter('Planner', 30), money: 100, currencyScale: 1 };
@@ -30,12 +40,12 @@ describe('life simulation', () => {
     expect(result.issue).toBeNull();
     expect(result.character.weeklySchedule?.activities).toHaveLength(1);
     expect(result.character.weeklySchedule?.activities[0]).toMatchObject({
-      activityId: 'study', date: '2026-01-05', startPeriod: 'morning', durationBlocks: 2
+      activityId: 'study', date: '2026-01-05', startPeriod: 'morning', durationBlocks: 1
     });
     expect(result.character.money).toBe(100);
     expect(adult.weeklySchedule?.activities).toHaveLength(0);
   });
-  it('automatically finds the first contiguous slot that fits an activity', () => {
+  it('adds activities without consuming or requiring free calendar periods', () => {
     const base = {
       ...createCharacter('Auto planner', 30),
       calendar: { currentDate: '2026-01-05', birthDate: '1996-01-05' },
@@ -51,11 +61,11 @@ describe('life simulation', () => {
     const planned = planActivityInNextFreeTime(base, 'study');
     expect(planned.issue).toBeNull();
     expect(planned.scheduledActivity).toMatchObject({
-      activityId: 'study', date: '2026-01-06', startPeriod: 'morning', durationBlocks: 2
+      activityId: 'study', date: '2026-01-05', startPeriod: 'morning', durationBlocks: 1
     });
     expect(planned.character.weeklySchedule?.activities[0]).toEqual(planned.scheduledActivity);
   });
-  it('leaves the save untouched when no suitable free period exists', () => {
+  it('allows activities even when every calendar period is occupied by real commitments', () => {
     const base = {
       ...createCharacter('Fully booked', 30),
       calendar: { currentDate: '2026-01-05', birthDate: '1996-01-05' },
@@ -73,23 +83,23 @@ describe('life simulation', () => {
       }
     };
     const result = planActivityInNextFreeTime(base, 'exercise');
-    expect(result.issue).toBe('time-conflict');
-    expect(result.character).toBe(base);
-    expect(result.character.weeklySchedule?.activities).toHaveLength(0);
+    expect(result.issue).toBeNull();
+    expect(result.character).not.toBe(base);
+    expect(result.character.weeklySchedule?.activities).toHaveLength(1);
   });
-  it('rejects overlapping activity reservations without changing the save', () => {
+  it('allows multiple personal activities without creating calendar conflicts', () => {
     const adult = createCharacter('Planner', 30);
     const first = planActivity(adult, 'exercise', '2026-01-05', 'morning');
     const conflict = planActivity(first.character, 'socialize', '2026-01-05', 'morning');
     expect(first.issue).toBeNull();
-    expect(conflict.issue).toBe('time-conflict');
-    expect(conflict.character).toBe(first.character);
+    expect(conflict.issue).toBeNull();
+    expect(conflict.character.weeklySchedule?.activities).toHaveLength(2);
   });
-  it('rejects a long activity when it cannot fit before the day ends', () => {
+  it('does not reject an activity because of a calendar period boundary', () => {
     const adult = createCharacter('Planner', 30);
     const result = planActivity(adult, 'study', '2026-01-05', 'evening');
-    expect(result.issue).toBe('invalid-time-slot');
-    expect(result.character).toBe(adult);
+    expect(result.issue).toBeNull();
+    expect(result.character.weeklySchedule?.activities).toHaveLength(1);
   });
   it('reserves enough cash for all planned paid activities', () => {
     const adult = { ...createCharacter('Planner', 30), money: 50, currencyScale: 1 };
@@ -116,6 +126,23 @@ describe('life simulation', () => {
     expect(removed.weeklySchedule?.activities[0].activityId).toBe('socialize');
     expect(removePlannedActivity(removed, 'missing-id')).toBe(removed);
   });
+  it('previews stamina costs and projected outcomes without mutating the save', () => {
+    const base = { ...createCharacter('Review', 30), money: 100, currencyScale: 1, stamina: 70, stress: 30 };
+    const planned = planActivityInNextFreeTime(base, 'exercise');
+    expect(planned.issue).toBeNull();
+    expect(getPlannedActivityStaminaCost(planned.scheduledActivity!)).toBe(10);
+    const before = JSON.stringify(planned.character);
+    const review = getWeeklyActivityReview(planned.character);
+    expect(JSON.stringify(planned.character)).toBe(before);
+    expect(review.activities).toHaveLength(1);
+    expect(review.activities[0]).toMatchObject({ title: 'Exercise', staminaCost: 10 });
+    const resolved = advanceWeek(planned.character);
+    expect(review.projectedStamina).toBe(resolved.character.stamina);
+    expect(review.projectedStress).toBe(resolved.character.stress);
+    expect(review.projectedHealth).toBe(resolved.character.health);
+    expect(resolved.character.stamina).toBe(66);
+  });
+
   it('resolves a planned week once, charges costs, clears reservations and advances exactly seven days', () => {
     const base = { ...createCharacter('Weekly', 30), money: 100, currencyScale: 1, stress: 20, stamina: 80 };
     const planned = planActivity(base, 'study', '2026-01-05', 'morning');
@@ -222,12 +249,12 @@ describe('life simulation', () => {
     expect(resolved.intelligence).toBe(student.intelligence + 3);
     expect(resolved.scheduledGameConsequences).toHaveLength(1);
   });
-  it('rejects a week with invalid existing reservations without advancing time', () => {
+  it('rejects conflicting recurring commitments without advancing time', () => {
     const base = createCharacter('Planner', 30);
-    const invalid = { ...base, weeklySchedule: { version: 1 as const, commitments: [], activities: [
-      { id: 'a', activityId: 'exercise' as const, date: '2026-01-05', startPeriod: 'morning' as const, durationBlocks: 1 },
-      { id: 'b', activityId: 'study' as const, date: '2026-01-05', startPeriod: 'morning' as const, durationBlocks: 2 }
-    ] } };
+    const invalid = { ...base, weeklySchedule: { version: 1 as const, commitments: [
+      { id: 'a', title: 'Work shift', domain: 'work' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 2 },
+      { id: 'b', title: 'School session', domain: 'school' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 1 }
+    ], activities: [] } };
     const result = advanceWeek(invalid);
     expect(result.issue).toBe('invalid-schedule');
     expect(result.character).toBe(invalid);

@@ -9,18 +9,26 @@
 My Life Simulator is an Android-first, mobile-friendly life simulation with a web client. The game uses compact text, cards, buttons, and domain-native workspaces—not a 3D world or a generic life-administration dashboard. Money remains prominent in the overview, while education, work, family, health, and personal life remain meaningful connected systems.
 
 The playable time model is:
-- **Week:** player decisions, schedules, activities, and turn resolution.
+- **Week:** player decisions, genuine recurring commitments, stamina-based activities, and turn resolution.
 - **Month:** intended recurring financial settlement and reporting cadence (not yet fully implemented).
 - **Year:** age/life progression and annual settlement/review boundaries.
 
-Do not reintroduce a universal three-actions-per-week quota. Time availability comes from actual commitments and free blocks; routine actions are initiated in their owning workspace and placed automatically after confirmation. Schedule is a review/cancellation surface, not a generic action launcher.
+Do not reintroduce a universal three-actions-per-week quota. Personal activities are toggled in their owning workspaces and use stamina rather than calendar slots. Only genuine recurring school/work commitments reserve periods. Schedule is a combined review/cancellation surface, not a generic action launcher.
+
+## Weekly activity model (implemented on feature branch)
+
+- Personal activities are selected with direct add/remove toggles in their owning workspaces and consume activity-specific stamina.
+- Recurring school/work commitments remain in the calendar; personal actions do not take time slots.
+- The Schedule workspace is a combined review/cancellation surface for selected personal activities and recurring commitments.
+- The Advance dialog previews every selected activity's stamina/money cost, reward categories, deterministic projected stat changes, and wellbeing warnings using the same weekly resolver as actual advancement.
+- The feature branch has a pull request open; final CI verification is pending.
 
 ## Implementation snapshot
 
 | Area | Status | Implemented foundation | Main remaining work |
 |---|---|---|---|
 | Character creation and saves | Implemented foundation | Randomized character profiles, age-aware creation, three save slots, migration/recovery support | Broader scenario validation and deeper life-stage content |
-| Weekly simulation | Core implemented | Calendar, 21 weekly periods, recurring commitments, contextual placement, deterministic resolution, history and recap | Date-based deadlines, richer delayed consequences, multi-week advancement |
+| Weekly simulation | Core implemented | Calendar, 21 weekly periods for recurring commitments, stamina-based personal activities, deterministic resolution, history and recap | Date-based deadlines, richer delayed consequences, multi-week advancement |
 | Education | Playable foundation | Enrollment, programmes, classes, weekly tasks, grades, tuition, history, qualifications | Localization, scholarships, retakes, licensing, apprenticeships |
 | Work | Playable foundation | Job board, applications, interviews, offers, employment, job changes, resignation, career previews and promotion offers | Persistent employers/vacancies, workplace decisions, layoffs, benefits, bonuses, monthly payroll |
 | Finance | Broad foundation | Accounts, cards, savings, loans, recurring payments, property, investments, business, taxes, credit score and economic indicators | Monthly payroll/bills/business cash flow, settlement safety, reporting, deeper affordability and variable-rate debt |
@@ -66,7 +74,7 @@ The same run included Node.js/dependency deprecation notices. These are maintena
 
 - Do not add a 3D world or simulate every hour/NPC.
 - Do not turn every domain into the same generic card dashboard.
-- Do not make players manually schedule routine actions when the owning domain can place them automatically after confirmation.
+- Do not make players manually enter dates or periods for routine activities; use direct add/remove toggles and stamina costs.
 - Do not add duplicate finance ledgers or duplicate ownership of cross-domain state.
 - Do not claim planned lifecycle features are implemented because a navigation item or placeholder exists.
 - Do not optimize for WASM or other low-level performance work before profiling demonstrates a real bottleneck.

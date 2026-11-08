@@ -2,7 +2,7 @@
   import { addCalendarDays, getFirstWeekStartOfYear, getWeekStart } from './lib/calendar';
   import { getActivityDefinition } from './lib/progression';
   import { buildWeeklySchedule, getWeeklySchedule } from './lib/weekly-schedule';
-  import { formatCharacterMoney, getPlannedActivityCost, removePlannedActivity } from './lib/simulation';
+  import { formatCharacterMoney, getPlannedActivityCost, getPlannedActivityStaminaCost, removePlannedActivity } from './lib/simulation';
   import type { ActivityId, Character } from './lib/types';
 
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
@@ -23,11 +23,14 @@
     feedback = 'Planned activity removed.';
   }
 
-  function activityLabel(id: string) {
-    if (id === 'family') return 'Family interaction';
-    if (id === 'business') return 'Business management';
-    if (id === 'event') return 'Life event decision';
-    return getActivityDefinition(id as ActivityId)?.title ?? id;
+  function activityLabel(item: (typeof schedule.activities)[number]) {
+    if (item.action?.kind === 'education') return item.action.taskType === 'assignment' ? 'Education assignment' : item.action.taskType === 'exam' ? 'Academic assessment' : 'Focused study';
+    if (item.action?.kind === 'care') return item.action.careType.replaceAll('-', ' ');
+    if (item.action?.kind === 'family') return 'Family interaction';
+    if (item.action?.kind === 'business') return 'Business management';
+    if (item.action?.kind === 'event') return 'Life event decision';
+    if (item.action?.kind === 'work') return item.action.workAction === 'apply' ? 'Job application' : 'Job interview';
+    return getActivityDefinition(item.activityId as ActivityId)?.title ?? item.activityId;
   }
 </script>
 
@@ -36,20 +39,29 @@
     <div>
       <div class="eyebrow">YOUR WEEK</div>
       <h2>Your week</h2>
-      <p>This is your week at a glance. Confirm activities in their own sections; the game places them into suitable free time.</p>
+      <p>Recurring school and work commitments shape your week. Personal activities are planned separately and use stamina, not calendar slots.</p>
     </div>
     <span class="week-range">{weekStart} – {addCalendarDays(weekStart, 6)}</span>
   </header>
 
   <section class="schedule-summary" aria-label="Weekly time summary">
     <div><strong>{result.blocks.filter((block) => block.entryId === null).length}</strong><span>Free periods</span></div>
-    <div><strong>{result.blocks.filter((block) => block.domain === 'activity').length}</strong><span>Planned periods</span></div>
+    <div><strong>{schedule.activities.length}</strong><span>Planned activities</span></div>
     <div><strong>{schedule.commitments.length}</strong><span>Recurring commitments</span></div>
   </section>
 
-  <p class="schedule-budget">Planned activity costs: <strong>{formatCharacterMoney(character, plannedCost)}</strong> · Cash after planned costs: <strong>{formatCharacterMoney(character, Math.max(0, character.money - plannedCost))}</strong></p>
+  <p class="schedule-budget">Direct planned costs: <strong>{formatCharacterMoney(character, plannedCost)}</strong> · Cash after planned costs: <strong>{formatCharacterMoney(character, Math.max(0, character.money - plannedCost))}</strong></p>
 
-  <section class="week-grid" aria-label="Seven day schedule">
+  {#if schedule.activities.length}
+    <section class="planned-activity-list" aria-label="Personal activities this week">
+      <div class="planned-activity-heading"><strong>Personal activities</strong><span>Toggle them in their own workspaces or remove them here</span></div>
+      {#each schedule.activities as item (item.id)}
+        <article><div><strong>{activityLabel(item)}</strong><small>{getPlannedActivityStaminaCost(item)} stamina · {getPlannedActivityCost(character, item) > 0 ? formatCharacterMoney(character, getPlannedActivityCost(character, item)) : 'No direct fee'}</small></div><button aria-label={'Remove '+activityLabel(item)} onclick={() => removeActivity(item.id)}>Remove</button></article>
+      {/each}
+    </section>
+  {/if}
+
+  <section class="week-grid" aria-label="Recurring weekly commitments">
     {#each days as day}
       <article class="day-column">
         <header><strong>{day.label}</strong><small>{day.date.slice(5)}</small></header>
@@ -58,10 +70,8 @@
             <span class="period-label">{block.period}</span>
             {#if block.entryId}
               <div class="period-entry">
-                <strong>{block.domain === 'activity' ? activityLabel(block.title ?? '') : block.title}</strong>
-                {#if block.domain === 'activity'}
-                  <button aria-label="Remove planned activity" title="Remove planned activity" onclick={() => removeActivity(block.entryId!)}>×</button>
-                {:else}<small>Recurring commitment</small>{/if}
+                <strong>{block.title}</strong>
+                <small>Recurring commitment</small>
               </div>
             {:else}
               <span class="period-free">Available</span>
@@ -72,13 +82,14 @@
     {/each}
   </section>
 
+  {#if feedback}<p class="schedule-feedback" role="status">{feedback}</p>{/if}
   {#if result.issues.length}
     <section class="schedule-issues" role="alert">
       <strong>Schedule needs attention</strong>
       {#each result.issues as issue}<p>{issue.message}</p>{/each}
     </section>
   {/if}
-  <p class="schedule-footnote">Time blocks are planning constraints, not hours. School and work routines will appear only when those systems provide real schedules. Planned actions resolve in order when you start the next week. Effects and costs are applied once. Remove a planned action here if you change your mind before the week resolves.</p>
+  <p class="schedule-footnote">Only recurring commitments reserve calendar periods. Personal activities are managed in their own workspaces, consume stamina and resolve during the weekly simulation.</p>
 </section>
 
 <style>
@@ -92,6 +103,9 @@
   .schedule-summary strong{font-size:21px;color:var(--text)}
   .schedule-summary span{font-size:10px;color:var(--muted)}
   .schedule-budget{margin:-5px 0 0;color:var(--muted);font-size:10px}.schedule-budget strong{color:var(--text)}
+.planned-activity-list{display:grid;gap:7px;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
+  .planned-activity-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.planned-activity-heading strong{font-size:11px}.planned-activity-heading span{font-size:9px;color:var(--muted);text-align:right}
+  .planned-activity-list article{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.planned-activity-list article>div{display:grid;gap:3px}.planned-activity-list article strong{font-size:10px}.planned-activity-list article small{font-size:9px;color:var(--muted)}.planned-activity-list article button{border:1px solid var(--line);border-radius:7px;background:var(--surface-raised);color:var(--muted);padding:6px 9px;font-size:9px}
   .week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;min-width:0}
   .day-column{display:grid;align-content:start;gap:6px;min-width:0}
   .day-column>header{display:grid;gap:3px;padding:0 2px 4px}
@@ -105,6 +119,7 @@
   .period-entry strong{overflow-wrap:anywhere;color:var(--text);font-size:9px;line-height:1.35}
   .period-entry small{font-size:8px;color:var(--muted)}
   .period-entry button{flex:none;width:18px;height:18px;border:0;border-radius:5px;background:color-mix(in srgb,var(--bg) 8%, transparent);color:var(--text);font-size:14px;line-height:1}
+  .schedule-feedback{margin:0;color:var(--muted);font-size:10px}
   .schedule-issues{padding:12px;border:1px solid var(--danger);border-radius:10px;background:color-mix(in srgb,var(--danger) 8%, transparent);color:var(--text);font-size:11px}
   .schedule-issues p{margin:5px 0 0;color:var(--muted)}
   .schedule-footnote{margin:0;color:var(--muted);font-size:10px;line-height:1.55}
