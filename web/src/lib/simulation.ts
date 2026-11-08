@@ -703,7 +703,7 @@ export interface ActivityPlanningResult {
 export function getPlannedActivityCost(character: Character, item: PlannedActivity): number {
   if (item.action?.kind === 'work') return 0;
   if (item.action?.kind === 'education') return getActivityCost(character, 'study');
-  if (item.action?.kind === 'care') return Math.round((item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (character.currencyScale ?? 1));
+  if (item.action?.kind === 'care') return character.age < 18 ? 0 : Math.round((item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (character.currencyScale ?? 1));
   if (item.action?.kind === 'family' && item.action.interaction === 'provide-support') return item.action.supportAmount ?? 0;
   if (item.action?.kind === 'business') {
     const businessId = item.action.businessId;
@@ -865,7 +865,7 @@ export function planEducationTaskInNextFreeTime(character: Character, taskType: 
 
 export function planCareActionInNextFreeTime(character: Character, careType: CareActionType): ActivityPlanningResult {
   const scale = character.currencyScale ?? 1;
-  const cost = careType === 'medical-checkup' ? Math.round(120 * scale) : careType === 'counselling' ? Math.round(90 * scale) : 0;
+  const cost = character.age < 18 ? 0 : careType === 'medical-checkup' ? Math.round(120 * scale) : careType === 'counselling' ? Math.round(90 * scale) : 0;
   if (character.money < cost) return { character, issue: 'insufficient-funds', message: 'You do not have enough cash for this care appointment.' };
   if (getWeeklySchedule(character.weeklySchedule).activities.some((item) => item.action?.kind === 'care' && item.action.careType === careType)) {
     return { character, issue: 'unavailable', message: 'This care activity is already planned this week.' };
@@ -946,7 +946,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
         recap.push(item.action.taskType === 'assignment' ? 'Completed an education assignment.' : item.action.taskType === 'exam' ? 'Completed an academic exam.' : 'Completed a focused study session.');
       }
     } else if (item.action?.kind === 'care') {
-      result = resolveCareAction({ ...next, money: next.money - (item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (next.currencyScale ?? 1) }, item.action.careType, weekStart);
+      result = resolveCareAction({ ...next, money: next.money - (next.age < 18 ? 0 : (item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (next.currencyScale ?? 1)) }, item.action.careType, weekStart);
       recap.push('Health and wellbeing: ' + item.action.careType.replace('-', ' ') + '.');
     } else if (item.action?.kind === 'work') {
       result = item.action.workAction === 'apply'
