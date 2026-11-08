@@ -1,6 +1,6 @@
 # Gameplay Design
 
-**Canonical gameplay direction · Updated 2026-11-06**
+**Canonical gameplay direction · Reviewed 2026-11-08**
 
 ## Core loop
 1. Review the current week, calendar, actual commitments, free-time blocks, and relevant situations.
