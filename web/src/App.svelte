@@ -410,7 +410,7 @@
           {@const weeklyExpense = weeklyExpenseGroups.reduce((sum, group) => sum + group.total, 0)}
           {#if weeklyFinanceOpen}
             <div class="weekly-finance-backdrop" role="presentation" onclick={(event) => { if (event.target === event.currentTarget) weeklyFinanceOpen = false; }}>
-              <section class="weekly-finance-dialog" role="dialog" aria-modal="true" aria-labelledby="weekly-finance-title">
+              <div class="weekly-finance-dialog" role="dialog" aria-modal="true" aria-labelledby="weekly-finance-title">
                 <header><div><div class="eyebrow">WEEKLY MONEY REPORT</div><h2 id="weekly-finance-title">Income & expenses</h2><p>{activityWeekLabel(currentWeekStart)}</p></div><button class="weekly-finance-close" aria-label="Close breakdown" onclick={() => weeklyFinanceOpen = false}>×</button></header>
                 <div class="weekly-finance-totals">
                   <div><small>MONEY IN</small><strong class="weekly-finance-in">+{formatCharacterMoney(character, weeklyIncome)}</strong></div>
@@ -433,7 +433,7 @@
                   </section>
                 {/each}
                 <p class="weekly-finance-note">Only transactions recorded during this game week are included. Transfers between your own accounts are excluded from income and expenses.</p>
-              </section>
+              </div>
             </div>
           {/if}
           <section class="character-profile-card" aria-label="Character profile">
