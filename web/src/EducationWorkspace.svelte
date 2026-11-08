@@ -44,8 +44,8 @@
         <div class="education-subject"><span>{subject.name}</span><strong>{Math.round(subject.grade)}%</strong><div class="meter"><span class="blue" style="width:{subject.grade}%"></span></div></div>
       {/each}
     </div>
-    <div class="education-footnote">{#if enrollment.status === 'paused'}This programme is paused. Your grades and completed weeks are preserved. Resume when you are ready.{:else}Classes are reserved automatically each week. Your weekly study target is {enrollment.weeklyStudyTarget} task points. Missing study, assignments or exams lowers your grades; workload, stress, stamina and health also affect results.</div>
-    <button class="secondary-button education-pause" onclick={pause}>Pause programme</button>
+    <div class="education-footnote">{#if enrollment.status === 'paused'}This programme is paused. Your grades and completed weeks are preserved. Resume when you are ready.{:else}Classes are reserved automatically each week. Your weekly study target is {enrollment.weeklyStudyTarget} task points. Missing study, assignments or exams lowers your grades; workload, stress, stamina and health also affect results.{/if}</div>
+    {#if enrollment.status === 'paused'}<button class="primary-button education-pause" onclick={resume}>Resume programme</button>{:else}<button class="secondary-button education-pause" onclick={pause}>Pause programme</button>{/if}
   </section>
 
   {#if enrollment.status === 'enrolled'}
