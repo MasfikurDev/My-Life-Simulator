@@ -1,6 +1,37 @@
 # Roadmap
 
-**Working sequence, not date promises · Reviewed 2026-11-08**
+**Working sequence, not date promises · Reviewed 2026-11-09**
+
+## Project status snapshot · 2026-11-09
+
+This is a repository-backed progress snapshot, not a claim that every visible workspace is a complete simulation system. The detailed system specifications below remain authoritative for behavior and acceptance criteria.
+
+- **Weekly simulation:** the annual-action-to-weekly-turn transition is implemented. Calendar, automatic contextual scheduling, recurring School/Work commitments, deterministic weekly resolution, history, recap, and save migration are in place.
+- **Education:** playable foundation from school through higher education/professional programmes, with enrollment, class commitments, weekly study/assessment tasks, grades, tuition, and qualification records. Localization, licensing, scholarships, retakes, and apprenticeships remain incomplete.
+- **Work:** recruitment, applications, interviews, offers, employment, job changes/resignation, career previews, and player-controlled promotion offers exist. Employer operations, persistent vacancies, workplace decisions, layoffs, benefits, bonuses, and monthly payroll remain incomplete.
+- **Finance:** broad systems exist for accounts, cards, savings, loans, recurring payments, property, investments, business ownership, taxes, credit scoring, and economic indicators. The weekly-to-monthly settlement transition is not complete; salary and household settlement remain annual, a known pacing limitation.
+- **Family:** persistent people/relationship graph, bonds, targeted interactions, family history, and ledger-backed adult support exist. Partnership, parenthood, adoption, dependants, caregiving, family mortality, inheritance, and generational play remain planned.
+- **Health and wellbeing:** stress/workload, stamina/recovery, checkups, counselling, and basic treatment loops exist. Broader illness, chronic care, insurance, localized healthcare, and later-life health remain planned.
+- **UI foundation:** reusable Svelte primitives and semantic design tokens are established; AMOLED remains the default, with selectable themes. Recent UI work consolidated navigation, compact activity choices, weekly finance interactions, and shared spacing/hierarchy patterns. Visual QA remains ongoing.
+- **End-to-end life:** retirement, mortality, terminal character state, final life summary, and a complete birth-to-death playthrough are not implemented.
+
+### Latest verified validation baseline
+
+The latest inspected successful GitHub Pages workflow (2026-11-08) reported:
+- Svelte check: **0 errors, 19 warnings** across 7 files.
+- Vitest: **150 tests passed** across 10 test files.
+- Vite production build: passed.
+- GitHub Pages artifact upload and deployment: passed.
+
+This is a point-in-time baseline, not a guarantee about later commits. Re-run CI after subsequent changes. The workflow also emitted Node.js/dependency deprecation warnings; track these as maintenance, not application test failures.
+
+### Current development priority
+
+1. Stabilize and visually verify the shared UI system across themes and screen sizes; reduce actionable Svelte warnings.
+2. Complete the weekly-to-monthly financial cadence, including payroll, recurring obligations, business cash flow, reporting, and exactly-once month/year boundaries.
+3. Run integrated multi-week scenarios across childhood, education, employment, unemployment, family responsibilities, and later life.
+4. Expand family and workplace lifecycles only after their cross-domain time, finance, health, and save contracts are testable.
+5. Complete retirement, mortality, terminal state, final summary, and legacy before claiming a full-life simulator.
 
 ## Milestone 0 — GitHub-first foundation
 - [x] Preserve product, gameplay, visual, architecture, and AI collaboration decisions.
@@ -151,6 +182,8 @@ Every milestone needs a playable outcome and acceptance criteria. Avoid parallel
 
 
 ## UI foundation (implemented; visual QA ongoing)
+
+**Current state reviewed 2026-11-09:** semantic tokens and shared primitives are in place, and the AMOLED default plus selectable themes are wired into Settings. Recent merged work has also tightened compact activity presentation, topbar ordering, workspace hierarchy, spacing, and empty states. Do not treat this as proof that every screen is visually consistent: continue screenshot-based checks across all themes, narrow/mobile widths, dialogs, navigation, and long content. Keep reusable components small and pattern-driven; do not create abstractions for one-off UI.
 
 - Establish semantic design tokens and reusable Svelte primitives before expanding the component catalogue.
 - Keep AMOLED as the default and add explicit, locally persisted player themes through Settings → Appearance.
