@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Character, DecisionTreeId, DecisionTreeRecord, GameEventEffects } from './lib/types';
+  import type { Character, DecisionTreeId, GameEventEffects } from './lib/types';
   let { character }: { character: Character } = $props();
   const trees: { id: DecisionTreeId; label: string; detail: string }[] = [
     { id: 'life', label: 'Life choices', detail: 'Personal opportunities and turning points' },
