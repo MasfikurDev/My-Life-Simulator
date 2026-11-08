@@ -952,7 +952,12 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
         recap.push(item.action.taskType === 'assignment' ? 'Completed an education assignment.' : item.action.taskType === 'exam' ? 'Completed an academic exam.' : 'Completed a focused study session.');
       }
     } else if (item.action?.kind === 'care') {
-      result = resolveCareAction({ ...next, money: next.money - (next.age < 18 ? 0 : (item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (next.currencyScale ?? 1)) }, item.action.careType, weekStart);
+      const careCost = next.age < 18 ? 0 : Math.round((item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (next.currencyScale ?? 1));
+      const paid = careCost > 0 ? {
+        ...next, money: next.money - careCost,
+        financialTransactions: financeRecord(next, 'expense', careCost, 'Healthcare · ' + item.action.careType.replace('-', ' '), 'Cash', 'Healthcare')
+      } : next;
+      result = resolveCareAction(paid, item.action.careType, weekStart);
       recap.push('Health and wellbeing: ' + item.action.careType.replace('-', ' ') + '.');
     } else if (item.action?.kind === 'work') {
       result = item.action.workAction === 'apply'
