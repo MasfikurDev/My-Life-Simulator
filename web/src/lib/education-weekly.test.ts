@@ -4,7 +4,7 @@ import { enrollInEducation, pauseEducation } from './education';
 
 describe('weekly education and care integration', () => {
   it('resolves scheduled study and assignment tasks into academic progress', () => {
-    const enrolled = enrollInEducation(createCharacter('Student', 10), 'primary-school', 'General studies').character;
+    const enrolled = enrollInEducation({ ...createCharacter('Student', 10), health: 90, stress: 20, stamina: 80 }, 'primary-school', 'General studies').character;
     const study = planEducationTaskInNextFreeTime(enrolled, 'study');
     expect(study.issue).toBeNull();
     const assignment = planEducationTaskInNextFreeTime(study.character, 'assignment');
