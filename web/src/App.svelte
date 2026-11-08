@@ -12,7 +12,6 @@
   import LifeWorkspace from './LifeWorkspace.svelte';
   import WorkWorkspace from './WorkWorkspace.svelte';
   import EducationWorkspace from './EducationWorkspace.svelte';
-  import HealthWorkspace from './HealthWorkspace.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
   import type { Character, FinancialTransaction, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
