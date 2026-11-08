@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { advanceWeek, canAffordActivity, formatCharacterMoney, planActivityInNextFreeTime, planEventChoiceInNextFreeTime } from './lib/simulation';
+  import { advanceWeek, formatCharacterMoney, planEventChoiceInNextFreeTime } from './lib/simulation';
   import { addCalendarDays, getWeekStart } from './lib/calendar';
-  import { getAvailableActivityIds, getEducationStage, getLifeStage } from './lib/progression';
+  import { getEducationStage, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
@@ -12,7 +12,7 @@
   import EducationWorkspace from './EducationWorkspace.svelte';
   import HealthWorkspace from './HealthWorkspace.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
-  import type { ActivityId, Character, SaveSlot, SaveSlotId } from './lib/types';
+  import type { Character, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
     isFullscreen: () => boolean;
     setFullscreen: (enabled: boolean) => void;
@@ -141,62 +141,6 @@
       oscillator.onended = () => { void context.close(); };
     } catch { /* Audio is optional and may be unavailable in a WebView. */ }
   }
-  function activityTitle(activity: {id: ActivityId; title: string}, age: number) {
-    if (age < 6 && activity.id === 'study') return 'Discover & learn';
-    if (age < 16 && activity.id === 'study') return 'Learn & explore';
-    if (age < 13 && activity.id === 'exercise') return 'Play & explore';
-    if (age < 16 && activity.id === 'socialize') return 'Family & friends';
-    if (age >= 16 && age < 18 && activity.id === 'work') return 'One-off work';
-    if (age >= 65 && activity.id === 'study') return 'Lifelong learning';
-    if (age >= 65 && activity.id === 'exercise') return 'Stay active';
-    if (age >= 45 && age < 65 && activity.id === 'socialize') return 'Social connections';
-    if (activity.id === 'career') return 'Career development';
-    return activity.title;
-  }
-  function activityDetail(activity: {id: ActivityId; detail: string}, age: number) {
-    if (activity.id === 'career') return 'Improve work performance and qualify for promotions.';
-    if (activity.id === 'study') {
-      if (age < 6) return 'Explore letters, numbers and new ideas.';
-      if (age < 13) return 'Build school knowledge and learning habits.';
-      if (age < 18) return 'Strengthen school subjects and prepare for next steps.';
-      if (age < 65) return 'Develop skills for work and personal goals.';
-      return 'Keep learning at your own pace.';
-    }
-    if (activity.id === 'exercise') {
-      if (age < 6) return 'Play and move to build coordination.';
-      if (age < 13) return 'Build coordination, strength and healthy habits.';
-      if (age < 65) return 'Support fitness, health and mood.';
-      return 'Maintain mobility and wellbeing.';
-    }
-    if (activity.id === 'socialize') {
-      if (age < 6) return 'Spend time with family and familiar people.';
-      if (age < 13) return 'Build friendships and family connections.';
-      if (age < 18) return 'Spend time with friends and strengthen relationships.';
-      if (age < 65) return 'Maintain friendships and social connections.';
-      return 'Stay connected with family and community.';
-    }
-    if (age < 18) return 'Take a one-off paid shift for extra money.';
-    if (age < 65) return 'Take extra work for additional earnings.';
-    return 'Take an extra paid shift if it suits your circumstances.';
-  }
-  function activityCost(activity: {id: ActivityId; cost: string}, current: Character) {
-    if (activity.id === 'career') return 'Time';
-    if (!canAffordActivity(current, activity.id)) return 'Insufficient funds';
-    if (current.age < 16 && (activity.id === 'study' || activity.id === 'socialize')) return 'Time';
-    const scale = current.currencyScale ?? 1;
-    if (activity.id === 'work') return '+' + formatCharacterMoney(current, 180 * scale);
-    if (activity.id === 'study') return formatCharacterMoney(current, 35 * scale);
-    if (activity.id === 'socialize') return formatCharacterMoney(current, 20 * scale);
-    return activity.cost;
-  }
-  function act(id: ActivityId) {
-    if (!character) return;
-    const planned = planActivityInNextFreeTime(character, id);
-    if (planned.issue) { notify(planned.message ?? 'No suitable time is available this week.'); return; }
-    persist(planned.character); playSound('action');
-    const slot = planned.scheduledActivity;
-    notify(slot ? 'Study session confirmed for ' + slot.date + ' (' + slot.startPeriod + ').' : 'Study session confirmed.');
-  }
   function chooseLifeEvent(choiceId: string) {
     if (!character) return;
     const planned = planEventChoiceInNextFreeTime(character, choiceId);
@@ -241,13 +185,7 @@
     } catch { notify('Fullscreen is not available in this browser.'); }
   }
   function refreshGame() { const url = new URL(window.location.href); url.searchParams.set('refresh', Date.now().toString()); window.location.replace(url.toString()); }
-  const activities: {id:ActivityId;title:string;detail:string;icon:string;cost:string}[] = [
-    {id:'study',title:'Study',detail:'Build knowledge for future opportunities.',icon:'↗',cost:'35'},
-    {id:'exercise',title:'Exercise',detail:'Improve fitness, health, and mood.',icon:'⌁',cost:'Time'},
-    {id:'socialize',title:'Socialize',detail:'Make time for the people around you.',icon:'◎',cost:'20'},
-    {id:'work',title:'Extra work',detail:'Earn additional money with an extra shift.',icon:'＋',cost:'+180'},
-    {id:'career',title:'Career development',detail:'Improve performance and work toward a promotion.',icon:'◆',cost:'Time'}
-  ];
+
 </script>
 <svelte:head><title>{character ? character.name + ' · My Life Simulator' : 'My Life Simulator'}</title></svelte:head>
 <div class="app-shell">
