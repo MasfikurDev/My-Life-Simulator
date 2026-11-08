@@ -2,6 +2,7 @@
   import { acceptJobOffer, acceptPromotionOffer, declineJobOffer, declinePromotionOffer, formatCharacterMoney, planActivityInNextFreeTime, planWorkActionInNextFreeTime, resignFromJob } from './lib/simulation';
   import { getCareerPath, getCareerRequirements, getCareerRole, getJobListings, getPromotionReadiness, isEligibleForRole } from './lib/work';
   import type { CareerPathId, Character } from './lib/types';
+  import GameChoice from './GameChoice.svelte';
 
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   type WorkView = 'jobs' | 'career' | 'history';
