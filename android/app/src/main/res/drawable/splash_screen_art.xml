@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Android 12 masks the splash icon; leave room so the full artwork remains visible. -->
-    <item android:drawable="@drawable/splash_art" android:width="176dp" android:height="176dp" android:gravity="center" />
+    <!-- Keep the artwork at its intrinsic aspect ratio instead of forcing it into a square. -->
+    <item android:drawable="@drawable/splash_art" android:gravity="center" />
 </layer-list>
