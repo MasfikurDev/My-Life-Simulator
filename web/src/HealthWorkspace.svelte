@@ -58,7 +58,7 @@
   <div class="section-heading"><div><span class="section-index">02</span><h3>Medical record</h3></div><span class="section-hint">{medical.conditions.length} active conditions</span></div>
   {#if medical.conditions.length}
     {#each medical.conditions as condition}
-      <div class="health-condition-row"><div><strong>{condition.name}</strong><small>{condition.diagnosed ? 'Diagnosed' : 'Not yet assessed'} · {condition.weeksActive} weeks active · {condition.treatment ? 'Treatment: ' + condition.treatment.replaceAll('-', ' ') : 'No treatment plan'}</small></div><div class="health-condition-severity"><strong>{Math.round(condition.severity)}%</strong><div class="meter"><span class="stress-meter" style="width:{condition.severity}%"></span></div></div></div>
+      <div class="health-condition-row"><div><strong>{condition.name}</strong><small>{condition.diagnosed ? 'Diagnosed' : 'Not yet assessed'} · {condition.weeksActive} weeks active · {condition.treatment ? 'Treatment: ' + condition.treatment.replaceAll('-', ' ') : 'No treatment plan'}</small></div><div class="health-condition-severity"><strong>{Math.round(condition.severity)}%</strong><div class="meter"><span class="stress-meter" style="width:{condition.severity}%;background:{getValueColor(condition.severity, true)}"></span></div></div></div>
     {/each}
   {:else}
     <EmptyState title="No active medical conditions" />
