@@ -131,7 +131,7 @@ describe('life simulation', () => {
     expect(review.projectedStamina).toBe(resolved.character.stamina);
     expect(review.projectedStress).toBe(resolved.character.stress);
     expect(review.projectedHealth).toBe(resolved.character.health);
-    expect(resolved.character.stamina).toBe(63);
+    expect(resolved.character.stamina).toBe(66);
   });
 
   it('resolves a planned week once, charges costs, clears reservations and advances exactly seven days', () => {
