@@ -6,7 +6,7 @@ The pure TypeScript domain modules `education.ts` and `wellbeing.ts` own educati
 
 The weekly resolver dispatches education and care actions from `PlannedAction`, applies their costs/effects, resolves academic grades against completed task points, attendance, workload, stress, stamina and health, then updates wellbeing once per week from automatic education/work responsibility load and selected activity effort. Missing academic targets reduces grades. Overload increases stress/fatigue and can trigger burnout/anxiety conditions; rest, mindfulness, counselling and medical check-ups are modeled as scheduled care actions. Medical conditions, treatment plans and short medication courses are stored in optional `medicalState`.
 
-New education and medical fields are optional and preserve old local saves without a schema bump. Keep education, healthcare and career rules in their domain modules; keep UI components independent. Legacy timetable types/helpers remain only as compatibility scaffolding; they are not used to allocate player-facing time slots. Do not create a Schedule workspace or manually managed timetable.
+Education and medical fields exist only when their gameplay state applies. Keep education, healthcare and career rules in their domain modules; keep UI components independent. The weekly plan stores contextual actions only; there are no timetable types, commitments, or time-slot helpers. Do not create a Schedule workspace or manually managed timetable.
 
 **Canonical implementation direction · Reviewed 2026-11-08**
 
@@ -53,10 +53,8 @@ flowchart TD
 - Never use HTTP, disable TLS checks, or enable mixed content to work around hosting.
 - GitHub Pages does not honor arbitrary server config files such as a presumed `_headers` file; do not rely on one.
 
-## Save compatibility
-Persist an explicit schema version. Validate data before use. Add forward migrations when shape changes. Malformed/unsupported data must not crash the app or silently overwrite an existing save. Keep game state separate from transient UI state. Web deployments must not reset saves without an explicit migration and documented reason.
-
-The current localStorage adapter uses schema version 5 and supports three independent save slots. Schema versions 2 and 3 store the active slot ID and each slot's character plus update timestamp; version 1's single-character save migrates into slot 1. The adapter migrates supported legacy formats to version 5, initializes weekly date/plan defaults, clears legacy time-slot commitments, and preserves the exact pre-timetable payload under `my-life-simulator.save.pre-timetable-migration` before the migration write. The older pre-weekly recovery key remains supported. Settings such as sound preference are stored separately from game state. Saves remain device-local; no cloud sync or backup is implied.
+## Save persistence and current format
+The localStorage adapter uses schema version 6 and three independent device-local save slots. Validate the complete current save envelope, every slot, each character's required calendar and weekly plan, and domain-specific planned-action payloads before exposing or writing data. Unsupported older schemas are not migrated: leave their bytes untouched, show a clear incompatibility notice, and require an explicit player-confirmed reset before a fresh save can be created. Never silently reinterpret an old payload as a current character or overwrite it. Settings such as sound and theme preferences remain separate from game state. No cloud sync or backup is implied.
 
 ## Simulation boundaries
 Core simulation inputs are game state, action/choice, and random source/seed. Outputs are updated state plus explicit effects/history. No DOM, Svelte, localStorage, network, or Android imports in core simulation. Time advancement is an explicit domain operation. Use integer minor units for money once currency arithmetic expands. Validate invariants at boundaries.
@@ -64,7 +62,7 @@ Core simulation inputs are game state, action/choice, and random source/seed. Ou
 ## Game calendar foundation
 - Calendar dates are strict ISO date-only strings interpreted in UTC; do not use local Date parsing or wall-clock time in simulation rules.
 - Weeks start Monday and span Monday–Sunday. The active date advances in seven-day steps; month/year boundaries are derived from dates, not assumed to align with weeks.
-- New characters receive calendar.currentDate and calendar.birthDate values. The weekly model is live: age is derived from these dates and changes on the actual birthday. Legacy saves are migrated to a calendar while preserving the displayed age, all three slots, and the original payload as a recovery copy.
+- New characters receive calendar.currentDate and calendar.birthDate values. The weekly model is live: age is derived from these dates and changes on the actual birthday. The current schema requires calendar dates on every character; unsupported older saves must be explicitly reset rather than migrated.
 - February 29 birthdays are observed on March 1 in non-leap years. This convention is centralized in the pure calendar module and covered by tests.
 - Weekly time advancement, stamina-based activity selection, and deterministic weekly resolution are implemented. Monthly settlement is not yet implemented; current salary, household expenses, tax, interest, market updates, and other annual systems remain on their explicit annual cadence until a separately tested migration changes those rules.
 
@@ -79,7 +77,7 @@ No accounts/backend needed initially. Keep saves on-device unless opt-in sync is
 The Android WebView exposes a narrowly scoped `AndroidApp.copyToClipboard(text)` JavaScript interface method. It writes a user-requested gameplay debug snapshot through Android's system ClipboardManager and reports success synchronously. Web UI code prefers this native bridge, then uses the secure-context browser Clipboard API, then a focused `execCommand('copy')` fallback for older WebViews. Never report a successful copy unless one of these methods confirms it. Keep the bridge limited to explicit user-initiated copy actions.
 
 ## Education, employment, and recurring finances
-Education progress, employment records, salary, annual living-cost estimates, performance, experience, and promotions are fields on the simulation's Character model. These new fields are optional to preserve existing save compatibility; no storage schema bump is required. Eligibility is centralized in `progression.ts` and checked again by `performActivity`. Annual income/expenses and promotion outcomes are applied in `advanceYear`, then recorded in the character history. Keep country salary balancing explicitly provisional and never use the UI to invent finance state.
+Education progress, employment records, salary, annual living-cost estimates, performance, experience, and promotions are fields on the simulation's Character model. These fields are optional when the corresponding gameplay state does not apply; any persisted shape change requires a current-schema update and validation tests. Eligibility is centralized in `progression.ts` and checked again by `performActivity`. Annual income/expenses and promotion outcomes are applied in `advanceYear`, then recorded in the character history. Keep country salary balancing explicitly provisional and never use the UI to invent finance state.
 
 Career progression's current staged design and implementation boundary are documented in [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md). Work owns the current-job view, career path preview, role requirements, promotion decisions, bonuses, and career history. A read-only preview must not mutate Character state or the financial ledger; estimated compensation must be labeled separately from actual salary/payroll. Payroll and actual bonuses use the shared Finance transaction path. Do not add new save fields or claim employer/vacancy/bonus state exists until those mechanics are implemented.
 
@@ -92,11 +90,11 @@ Career progression's current staged design and implementation boundary are docum
 
 
 ## Household finance model
-Household arrangement, savings-goal duration, annual income, paid expenses, and unpaid shortfall are optional Character fields. `getHouseholdBudget` is a pure simulation calculation; `advanceYear` settles the annual budget, applies financial-pressure effects, and records history. No negative balance or debt is generated. The savings target is derived from the selected number of months of estimated costs and current cash; it is not a separate account. Existing local saves require no schema-version bump.
+Household arrangement, savings-goal duration, annual income, paid expenses, and unpaid shortfall are optional Character fields. `getHouseholdBudget` is a pure simulation calculation; `advanceYear` settles the annual budget, applies financial-pressure effects, and records history. No negative balance or debt is generated. The savings target is derived from the selected number of months of estimated costs and current cash; it is not a separate account. The current schema validates these fields when present; incompatible persisted shapes require a deliberate schema update.
 
 
 ## Banking and financial ledger
-- Optional `bankAccounts` and `financialTransactions` fields extend Character without a schema-version bump; legacy saves remain cash-only until accounts are opened.
+- `bankAccounts` and `financialTransactions` are present when the character uses those products; cash-only characters keep empty or absent product collections.
 - Cash and account balances are distinct integer currency units. `getNetWorth` currently sums cash and bank balances only; expand it when liabilities and other assets are implemented.
 - Account operations are pure simulation functions. Each successful operation returns a new Character and records a transaction. Reject overdrafts, invalid values, missing accounts, same-account transfers, and accounts beyond the configured limit.
 - The transaction ledger is bounded to the latest 300 records. Annual income, household expense settlement, and savings interest also append ledger entries.
@@ -104,7 +102,7 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 
 
 ## Financial products
-- Cards, loans, recurring payments, automatic deposits, and personal vault balances are optional Character fields for legacy-save compatibility.
+- Cards, loans, recurring payments, automatic deposits, and personal vault balances are represented only when those products are owned or configured.
 - Debit card purchases debit a linked account; credit card purchases increase a liability up to the configured limit. Credit card debt is included in net worth and accrues a simplified annual rate.
 - Loan issuance adds cash and an equal liability. Interest and repayments are posted to the common ledger during year settlement. Extra repayments reduce both cash/account holdings and principal liability.
 - Recurring payments are annual game-time charges with explicit funding source. Failed cash/account payments do not create debt. Card-funded charges require available credit.
@@ -113,7 +111,7 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 
 
 ## Property, markets and business assets
-- Optional property, rental-home, investment-holding, market-price, and business arrays preserve compatibility with existing saves.
+- Property, rental-home, investment-holding, market-price, and business state is represented in the current character schema when applicable.
 - Mortgage-financed property acquisition issues an equal loan liability and asset value; the down payment is cash outflow. Property sale pays off the linked mortgage before proceeds return to cash.
 - Rental income and business operating results are posted to the financial ledger. Property maintenance is included in the annual housing budget. Property appreciation and market movements update asset values during year advancement.
 - Stock-index and gold holdings use whole units and current simulated prices. Trading moves cash to/from asset value. Market price updates are deterministic per simulated year to keep saves and tests reproducible while still allowing gains and losses.
@@ -129,14 +127,14 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 
 
 ## Economic simulation
-- `Character.economy` is optional for save compatibility and stores bounded inflation, growth, benchmark rate, cycle, cost-of-living index, and last update year.
+- `Character.economy` is present when the economic simulation has initialized and stores bounded inflation, growth, benchmark rate, cycle, cost-of-living index, and last update year.
 - Annual economic conditions are derived deterministically from simulated year and age. The same input save produces the same rates and market update.
 - Inflation updates the cost index, recurring charges, rental agreements, and household budget. Market asset updates are bounded: equities respond primarily to growth, gold responds more to inflation, property growth responds to both, and business operating results respond to growth and performance.
 - Economic values are fictional and should be labeled as simplified estimates. Avoid presenting them as real market predictions.
 
 
 ## Tax settlement
-- Optional `lastYearTax` and `taxBalance` fields preserve legacy saves. Progressive wage tax, positive rental/business income tax, and property levy are assessed annually after asset income and before financial-product autopay.
+- `lastYearTax` and `taxBalance` are modeled as current-schema state when tax settlement applies. Progressive wage tax, positive rental/business income tax, and property levy are assessed annually after asset income and before financial-product autopay.
 - Tax settlement draws cash first, then checking/savings balances. Fixed-deposit accounts cannot be used before maturity. Any unpaid amount remains a liability and is deducted from net worth; no negative cash balance is permitted.
 - Tax amounts are game-balance assumptions, not jurisdiction-specific tax advice. Ledger entries record paid amounts and remaining liability.
 
@@ -183,7 +181,7 @@ The top-level Life destination is a modular UI workspace, not a new simulation s
 - `LifeWorkspace.svelte` owns the Lifestyle destination and composes `LifestyleWorkspace.svelte`.
 - `LifestyleWorkspace.svelte` provides Discover, My services, and Home. Discover uses existing recurring-payment actions for provider subscriptions and simulation purchase actions for supermarket checkouts. My services reads the existing `recurringPayments`, `cards`, and `financialTransactions` state; it does not maintain duplicate records. Home reuses `FinanceLivingCosts.svelte` for household arrangement and budget settings. Emergency savings goals are owned by the Banking savings section in `FinanceProducts.svelte`.
 - `makeCashPurchase` and `makeAccountPurchase` debit their selected source and write a financial transaction plus life-history event. Card purchases continue through `makeCardPurchase`, which enforces the card's own available balance or credit limit.
-- No Character schema migration is required. Existing `recurringPayments`, card, bank-account, and household fields remain the source of truth.
+- The current Character schema remains the source of truth for `recurringPayments`, card, bank-account, and household fields. Incompatible shape changes require a schema update, not a migration.
 
 
 ## Annual progression and event architecture
@@ -196,7 +194,7 @@ Planned boundaries:
 - The existing simulation boundary coordinates weekly actions and annual settlement. Do not split it into `week-cycle.ts` or `year-cycle.ts` until concrete module boundaries reduce complexity without duplicating domain rules.
 - `events.ts` currently owns the first event definitions, age/health eligibility, deterministic selection, choice validation, immediate effects, delayed consequences, event expiry, and history descriptions. Expand into an `events/` folder only when the catalogue justifies that complexity.
 - Domain modules (School, Work, Life/Health, Relationships/Family, Finance, Lifestyle) own their state transitions. The event resolver may invoke domain operations but must not duplicate their business rules.
-- The save currently owns optional event state, scheduled consequences, and weekly recap/history fields; preserve existing save compatibility and test every new persisted field. These additions are optional so older character saves remain readable. Add versioning/migration only when a real incompatible schema change is required.
+- The save owns event state, scheduled consequences, and weekly recap/history fields. Validate every persisted field in the current schema. When a persisted shape changes incompatibly, increment the current schema and reject old saves with an explicit reset path; do not build migration adapters.
 - Event content is data-driven where useful, but do not build a generic event scripting language or content platform before a small playable set proves the pattern.
 - The current event picker is deterministic for the same character identity, age, year, and history length; it does not consume ambient `Math.random()`. Future event systems should use an explicit persisted seed/state if richer randomness is needed.
 - Weekly resolution order must be explicit, deterministic, and tested. The live resolver validates the current week's stamina budget, resolves selected actions and automatic background responsibilities with their domain effects/costs, records history/recap, clears successful actions, and advances the date calendar. Monthly and annual settlement remain separate date-boundary operations; do not mix them into the weekly action transaction.
@@ -225,14 +223,14 @@ The live gameplay clock is date-based and weekly, not annual-action-based. The w
 - There is no Schedule workspace. The Advance review is the combined plan/outcome surface; activities are toggled in their owning domains. A failed action must preserve the entire prior Character state.
 - Weekly advancement must be a single deterministic domain transaction returning updated state, financial ledger entries, history, event effects, and recap data. Repeated calls/reloads must not duplicate a resolved week.
 - Monthly and annual settlement must have explicit date-based due rules and idempotency keys/period markers. Never run annual finance settlement in addition to monthly installments for the same obligation.
-- Do not divide existing annual costs/salary/interest by 12 without modeling rounding, due dates, inflation, payment failures, and save migration.
+- Do not divide existing annual costs/salary/interest by 12 without modeling rounding, due dates, inflation, and payment failures.
 - Multi-week advancement must call the same weekly resolver sequentially and stop at any decision boundary. It must not skip weeks with a coarse approximation.
-- The weekly migration is implemented for supported schema 1–3 saves. Preserve all three slots, financial ledgers, liabilities/assets, event state, and history in every future migration; keep the original payload recoverable and test each new schema transition before release.
+- The current schema is intentionally a clean baseline. Do not add backward migrations. Keep all three current slots, financial ledgers, liabilities/assets, event state, and history internally consistent, and test the current format validator on every schema change.
 - The weekly cycle is the live playable time model. Annual mechanics remain only where their own cadence is currently intentional (birthdays, annual payroll/settlement, taxes, market updates, and annual life review); do not reintroduce annual action tokens or duplicate weekly effects through an annual fallback. Monthly settlement is a planned follow-up, not a live feature.
 
 Suggested future module boundaries (do not create empty abstractions prematurely):
 - `calendar.ts`: pure calendar/date/birthday helpers.
-- `weekly-schedule.ts`: legacy schedule parsing/defaults retained for compatibility; it must not allocate or validate player-facing time slots.
+- `weekly-plan.ts`: owns strict weekly action-plan validation. It must not represent calendar periods or commitments.
 - Keep weekly orchestration in the existing simulation boundary until profiling or maintainability evidence justifies extracting a dedicated module.
 - Domain modules own their own eligibility, costs, effects, and automatic background progression; the cycle coordinator orchestrates them without duplicating their rules.
 - Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups as a focused follow-up to the completed weekly migration.
@@ -271,7 +269,7 @@ The near-term implementation remains a pure TypeScript simulation engine with ex
 
 ## Family simulation boundary
 
-The Family domain lives in the pure TypeScript module family.ts and is independent of Svelte. It owns persistent family people, directed kinship/guardianship links, player-to-relative bonds, household/dependency references, family-specific history, graph validation, and targeted family interactions. The Character's optional family field preserves compatibility with existing saves; the top-level save schema is not bumped for this additive optional state.
+The Family domain lives in the pure TypeScript module family.ts and is independent of Svelte. It owns persistent family people, directed kinship/guardianship links, player-to-relative bonds, household/dependency references, family-specific history, graph validation, and targeted family interactions. Family state is represented in the current character schema; changes to its persisted shape require updating current-schema validation and tests.
 
 - The player person is a stable graph node, while Character remains authoritative for player identity and stats.
 - Family interactions return a new Character and validate eligibility/resources in simulation code. Financial support debits cash and writes a family-support entry to the shared Finance ledger; Family never owns a wallet.
