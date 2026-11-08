@@ -313,12 +313,6 @@ function formatSalary(character: Character, amount: number): string {
   return currency + ' ' + Math.round(amount).toLocaleString('en-US');
 }
 
-/** Legacy adapter: employment is now a background responsibility, never a calendar reservation. */
-export function syncEmploymentCommitments(character: Character, _employment: Employment | null): Character {
-  const schedule = character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] };
-  return { ...character, weeklySchedule: { ...schedule, commitments: [] } };
-}
-
 export function acceptJobOffer(character: Character, offerId: string): Character {
   const offer = (character.jobOffers ?? []).find((item) => item.id === offerId);
   const today = character.calendar?.currentDate ?? character.year + '-01-01';
