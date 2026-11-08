@@ -13,9 +13,8 @@
   import WorkWorkspace from './WorkWorkspace.svelte';
   import EducationWorkspace from './EducationWorkspace.svelte';
   import ThemeOption from './components/ThemeOption.svelte';
-  import UiButton from './components/UiButton.svelte';
+  import EmptyState from './components/EmptyState.svelte';
   import UiCard from './components/UiCard.svelte';
-  import SectionHeader from './components/SectionHeader.svelte';
   import type { GameTheme } from './lib/theme';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, getThemePreference, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled, setThemePreference } from './lib/storage';
   import type { Character, FinancialTransaction, SaveSlot, SaveSlotId } from './lib/types';
@@ -295,7 +294,7 @@
         {:else if activeTab==='custom'}
           <CustomCharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='menu'} />
         {:else if activeTab==='achievements'}
-          <div class="page-heading"><div><div class="eyebrow">MILESTONES & PROGRESS</div><h1>Achievements<em>.</em></h1><p>Milestones earned across the lives saved on this device.</p></div></div>
+          <div class="page-heading"><div><div class="eyebrow">MILESTONES & PROGRESS</div><h1>Achievements</h1><p>Milestones earned across the lives saved on this device.</p></div></div>
           {@const allLives = slots.flatMap((slot) => slot.character ? [slot.character] : [])}
           <div class="achievement-grid">
             {#each [{title:'First Chapter',detail:'Start your first life.',done:allLives.length>0,mark:'✦'},{title:'Growing Up',detail:'Reach adulthood.',done:allLives.some((life)=>life.age>=18),mark:'⌁'},{title:'A Long Journey',detail:'Reach age 65.',done:allLives.some((life)=>life.age>=65),mark:'◇'},{title:'A Life Well Lived',detail:'Reach age 90.',done:allLives.some((life)=>life.age>=90),mark:'★'}] as achievement}
@@ -304,11 +303,11 @@
           </div>
           <button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>
         {:else if activeTab==='profile' || activeTab==='settings'}
-          <div class="page-heading"><div><div class="eyebrow">{character ? 'CHARACTER & GAME MANAGEMENT' : 'PREFERENCES & CONTROLS'}</div><h1>{character ? 'Your <em>profile.</em>' : 'Game <em>settings.</em>'}</h1><p>{character ? 'Character details and saved-life controls.' : 'Adjust how the game appears and manage your saved story.'}</p></div></div>
+          <div class="page-heading"><div><div class="eyebrow">{character ? 'CHARACTER & GAME MANAGEMENT' : 'PREFERENCES & CONTROLS'}</div><h1>{character ? 'Your <em>profile</em>' : 'Game <em>settings</em>'}</h1><p>{character ? 'Character details and saved-life controls.' : 'Adjust how the game appears and manage your saved story.'}</p></div></div>
           {#if !character}<button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>{/if}
           {#if character}
             <section class="settings-section profile-character-section">
-              <div class="settings-section-heading"><span class="section-index">01</span><div><h3>Character</h3><p>Your character identity and personal background.</p></div></div>
+              <div class="settings-section-heading"><span class="section-index">01</span><div><h3>Character</h3></div></div>
               <div class="character-profile-card">
                 <div class="character-avatar" aria-hidden="true">{character.name.trim().split(/\\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</div>
                 <div class="character-profile-copy"><div class="character-profile-heading"><h2>{character.name}</h2><span class="character-age">AGE {character.age}</span></div><p>{getLifeStage(character.age).label} · {character.country ?? character.nationality ?? 'Country not recorded'}</p><div class="character-profile-tags"><span>{character.gender ?? 'Gender not recorded'}</span><span>{character.nationality ?? 'Nationality not recorded'}</span></div></div>
@@ -328,8 +327,8 @@
                 </div>
               {/if}
             </section>
-            <section class="character-stats-section">
-              <div class="page-heading"><div><div class="eyebrow">CHARACTER DEVELOPMENT</div><h2>Attributes</h2><p>Your abilities and condition influence everyday outcomes.</p></div></div>
+            <section class="settings-section profile-attributes-section">
+              <div class="settings-section-heading"><span class="section-index">02</span><div><h3>Attributes</h3></div></div>
               <div class="character-stats-grid">
                 {#each [{label:'Health',value:character.health},{label:'Happiness',value:character.happiness},{label:'Fitness',value:character.fitness},{label:'Intelligence',value:character.intelligence},{label:'Stamina',value:character.stamina ?? 50},{label:'Focus',value:character.focus ?? 50},{label:'Discipline',value:character.discipline ?? 50},{label:'Confidence',value:character.confidence ?? 50},{label:'Creativity',value:character.creativity ?? 50},{label:'Social skills',value:character.socialSkills ?? 50},{label:'Stress',value:character.stress ?? 0}] as stat}
                   <div class="character-stat"><div class="character-stat-ring" class:stress-stat={stat.label === 'Stress'} style={`--stat-value: ${Math.max(0, Math.min(100, stat.value))}%`}><strong>{Math.round(stat.value)}</strong></div><span>{stat.label}</span>{#if stat.label === 'Stress'}<small>Higher is worse</small>{/if}</div>
@@ -340,7 +339,7 @@
           <details class="profile-settings-group">
             <summary><span><strong>{character ? 'Settings & management' : 'Game settings'}</strong><small>Appearance, sound, saves, display and game controls</small></span><i aria-hidden="true"></i></summary>
           <UiCard as="section" class="settings-section appearance-settings" padded={false}>
-            <SectionHeader eyebrow="APPEARANCE" title="Choose your theme" description="Choose the visual mood of your game. Your choice is saved on this device." />
+            <div class="settings-section-heading"><span class="section-index">{character ? '03' : '01'}</span><div><h3>Appearance</h3></div></div>
             <div class="theme-option-grid" role="group" aria-label="Game theme">
               <ThemeOption theme="amoled" title="AMOLED" description="Pure black and emerald" selected={selectedTheme === 'amoled'} onSelect={chooseTheme} />
               <ThemeOption theme="midnight" title="Midnight" description="Deep navy and blue" selected={selectedTheme === 'midnight'} onSelect={chooseTheme} />
@@ -350,16 +349,16 @@
             <div class="setting-note">Theme changes affect the interface only. Your characters, saves and game progress are unchanged.</div>
           </UiCard>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '03' : '02'}</span><div><h3>Sound</h3><p>Control the small audio cues used for game actions.</p></div></div>
+            <div class="settings-section-heading"><span class="section-index">{character ? '04' : '02'}</span><div><h3>Sound</h3><p>Control the small audio cues used for game actions.</p></div></div>
             <div class="setting-row"><div><strong>Sound effects</strong><p>Subtle original tones for actions, starting a life and advancing a week. No background music.</p></div><button class:setting-enabled={soundEnabled} class="setting-toggle" role="switch" aria-checked={soundEnabled} onclick={() => toggleSounds(!soundEnabled)}><span></span><small>{soundEnabled ? 'ON' : 'OFF'}</small></button></div>
           </section>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '04' : '03'}</span><div><h3>Save slots</h3><p>Keep up to three separate lives on this device.</p></div></div>
+            <div class="settings-section-heading"><span class="section-index">{character ? '05' : '03'}</span><div><h3>Save slots</h3><p>Keep up to three separate lives on this device.</p></div></div>
             <div class="save-slot-list">{#each slots as slot, index}<div class="save-slot-row"><div class="save-slot-meta"><strong>Slot {index + 1}</strong>{#if slot.character}<span>{slot.character.name} · Age {slot.character.age} · {formatCharacterMoney(slot.character)}</span><small>{slot.id === activeSlotId ? 'CURRENT SLOT' : 'SAVED LIFE'}</small>{:else}<span class="empty-slot-label">Empty slot</span>{/if}</div><div class="save-slot-actions">{#if slot.character}<button class="secondary-button" onclick={() => loadSlot(slot)} disabled={slot.id===activeSlotId}>Load</button><button class="danger-button" onclick={() => slotToDelete=slot.id}>Delete</button>{:else}<button class="secondary-button" onclick={() => openCreation(slot.id)}>New life</button>{/if}</div></div>{/each}</div>
             <div class="setting-note">Saves stay in this browser or app on this device. Clearing app data or browser storage can remove them. Cloud backup is not available yet.</div>
           </section>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '05' : '04'}</span><div><h3>Game log & debug</h3><p>Review recent gameplay records or copy the complete simulation state for testing.</p></div></div>
+            <div class="settings-section-heading"><span class="section-index">{character ? '06' : '04'}</span><div><h3>Game log & debug</h3><p>Review recent gameplay records or copy the complete simulation state for testing.</p></div></div>
             {#if character}
               <div class="debug-export-row"><div><strong>Gameplay snapshot</strong><p>Includes the character, current stats, finances, save slot and complete life history. It excludes device identifiers and browser data.</p></div><button class="secondary-button" onclick={copyDebugSnapshot} disabled={debugCopying}>{debugCopying ? 'Copying…' : 'Copy snapshot'}</button></div>
               <div class="settings-log-list">{#each character.history.slice(0,6) as item}<div class="settings-log-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</div>
@@ -369,17 +368,17 @@
             {/if}
           </section>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '06' : '05'}</span><div><h3>Display</h3><p>Choose how the game uses your screen.</p></div></div>
+            <div class="settings-section-heading"><span class="section-index">{character ? '07' : '05'}</span><div><h3>Display</h3><p>Choose how the game uses your screen.</p></div></div>
             <div class="setting-row"><div><strong>Immersive fullscreen</strong><p>Hide the status and navigation bars for a distraction-free view. Swipe from an edge to reveal system controls.</p></div><button class:setting-enabled={fullscreen} class="setting-toggle" role="switch" aria-checked={fullscreen} onclick={toggleFullscreen}><span></span><small>{fullscreen ? 'ON' : 'OFF'}</small></button></div>
             <div class="setting-note">Fullscreen can place content behind the camera cutout on some devices. Turn it off to keep the game inside the safe screen area.</div>
           </section>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '07' : '06'}</span><div><h3>Game controls</h3><p>Reload the hosted game or check for the newest version.</p></div></div>
-            <div class="setting-action-row"><div><strong>Reload game</strong><p>Refresh the current page without changing your saved life.</p></div><UiButton variant="secondary" size="small" onclick={() => window.location.reload()}>Reload</UiButton></div>
+            <div class="settings-section-heading"><span class="section-index">{character ? '08' : '06'}</span><div><h3>Game controls</h3><p>Reload the hosted game or check for the newest version.</p></div></div>
+            <div class="setting-action-row"><div><strong>Reload game</strong><p>Refresh the current page without changing your saved life.</p></div><button class="secondary-button" onclick={() => window.location.reload()}>Reload</button></div>
             <div class="setting-action-row"><div><strong>Check for updates</strong><p>Fetch the latest published game files and restart the game view. Your save is preserved.</p></div><button class="secondary-button" onclick={reloadLatest}>Check now</button></div>
           </section>
           <section class="settings-section danger-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '08' : '07'}</span><div><h3>Saved game</h3><p>Start over by deleting the life currently saved on this device.</p></div></div>
+            <div class="settings-section-heading"><span class="section-index">{character ? '09' : '07'}</span><div><h3>Saved game</h3><p>Start over by deleting the life currently saved on this device.</p></div></div>
             <div class="setting-action-row"><div><strong>Restart current life</strong><p>Delete only the active save slot and create a new life in that slot.</p></div><button class="danger-button" onclick={() => showRestartConfirm=true} disabled={!character}>Restart</button></div>
           </section>
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
@@ -521,7 +520,7 @@
                 </details>
               {/each}
             {:else}
-              <p class="overview-empty-activities">Activities will appear here as you make choices and spend time.</p>
+              <EmptyState title="No activity recorded" description="Confirmed actions appear here, grouped by simulation week." />
             {/if}
           </section>
         {:else if character && activeTab==='education'}
