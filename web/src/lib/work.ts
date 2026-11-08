@@ -344,7 +344,6 @@ export function acceptJobOffer(character: Character, offerId: string): Character
       : item.status === 'offered' ? { ...item, status: 'declined' as const, outcome: 'You accepted another job offer.' } : item),
     history: [...character.history]
   };
-  next = syncEmploymentCommitments(next, employment);
   next.history.unshift({
     id: 'job-start-' + offer.id,
     year: character.year,
@@ -361,14 +360,12 @@ export function acceptJobOffer(character: Character, offerId: string): Character
 export function resignFromJob(character: Character): Character {
   if (!character.employment) return character;
   const previous = character.employment;
-  const schedule = character.weeklySchedule;
-  let next = syncEmploymentCommitments(character, null);
-  next = {
+  let next = {
     ...next,
     employment: null,
     careerExperienceYears: getCareerExperience(character),
     promotionOffer: null,
-    weeklySchedule: next.weeklySchedule ? { ...next.weeklySchedule, activities: next.weeklySchedule.activities.filter((item) => !(item.activityId === 'career' && item.action?.kind !== 'work')) } : schedule,
+    weeklyPlan: { ...character.weeklyPlan, activities: character.weeklyPlan.activities.filter((item) => !(item.activityId === 'career' && item.action.kind !== 'work')) },
     history: [...character.history]
   };
   next.history.unshift({
