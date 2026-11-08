@@ -194,7 +194,8 @@
       bridge.setFullscreen(next);
       fullscreen = next;
       return;
-    }    try {
+    }
+    try {
       if (next) await document.documentElement.requestFullscreen?.();
       else if (document.fullscreenElement) await document.exitFullscreen();
       fullscreen = Boolean(document.fullscreenElement);
@@ -211,7 +212,7 @@
     class:topbar-persistent={!!character && activeTab !== 'create' && activeTab !== 'settings'}
     aria-label="Game header"
   >
-    <a class="brand" href="#home" aria-label="My Life Simulator home" onclick={() => activeTab=character ? 'home' : 'create'}>
+    <a class="brand" href="#home" aria-label="My Life Simulator home" onclick={() => activeTab=character ? 'home' : 'menu'}>
       <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
       <span class="brand-name">My Life <span class="brand-light">Simulator</span></span>
     </a>
@@ -384,7 +385,8 @@
           </section>
         {:else if character && activeTab==='education'}
           <EducationWorkspace {character} onChange={persist} onNotify={notify} />
-        {:else if character && activeTab==='health'}          <HealthWorkspace {character} onChange={persist} onNotify={notify} />
+        {:else if character && activeTab==='health'}
+          <HealthWorkspace {character} onChange={persist} onNotify={notify} />
         {:else if character && activeTab==='work' && character.age >= 16}
           <WorkWorkspace {character} onChange={persist} onNotify={notify} />
 
