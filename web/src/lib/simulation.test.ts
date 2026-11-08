@@ -84,23 +84,23 @@ describe('life simulation', () => {
   });
   it('reserves enough cash for all planned paid activities', () => {
     const adult = { ...createCharacter('Planner', 30), money: 50, currencyScale: 1 };
-    const first = planActivity(adult, 'study', '2026-01-05', 'morning');
-    const second = planActivity(first.character, 'socialize', '2026-01-06', 'morning');
+    const first = planActivity(adult, 'study', '2026-01-05');
+    const second = planActivity(first.character, 'socialize', '2026-01-06');
     expect(first.issue).toBeNull();
     expect(second.issue).toBe('insufficient-funds');
     expect(second.character).toBe(first.character);
   });
   it('enforces life-stage eligibility and current-week boundaries when planning', () => {
     const child = createCharacter('Child', 2);
-    expect(planActivity(child, 'study', '2026-01-05', 'morning').issue).toBe('unavailable');
+    expect(planActivity(child, 'study', '2026-01-05').issue).toBe('unavailable');
     const adult = createCharacter('Adult', 30);
-    expect(planActivity(adult, 'exercise', '2026-01-12', 'morning').issue).toBe('outside-current-week');
-    expect(planActivity(adult, 'exercise', 'not-a-date', 'morning').issue).toBe('invalid-date');
+    expect(planActivity(adult, 'exercise', '2026-01-12').issue).toBe('outside-current-week');
+    expect(planActivity(adult, 'exercise', 'not-a-date').issue).toBe('invalid-date');
   });
-  it('removes a planned activity without affecting other reservations', () => {
+  it('removes a planned activity without affecting other planned actions', () => {
     const adult = createCharacter('Planner', 30);
-    const first = planActivity(adult, 'exercise', '2026-01-05', 'morning').character;
-    const second = planActivity(first, 'socialize', '2026-01-05', 'afternoon').character;
+    const first = planActivity(adult, 'exercise', '2026-01-05').character;
+    const second = planActivity(first, 'socialize', '2026-01-05').character;
     const id = second.weeklyPlan!.activities[0].id;
     const removed = removePlannedActivity(second, id);
     expect(removed.weeklyPlan?.activities).toHaveLength(1);
@@ -126,7 +126,7 @@ describe('life simulation', () => {
 
   it('resolves a planned week once, charges costs, clears reservations and advances exactly seven days', () => {
     const base = { ...createCharacter('Weekly', 30), money: 100, currencyScale: 1, stress: 20, stamina: 80 };
-    const planned = planActivity(base, 'study', '2026-01-05', 'morning');
+    const planned = planActivity(base, 'study', '2026-01-05');
     expect(planned.issue).toBeNull();
     const resolved = advanceWeek(planned.character);
     expect(resolved.issue).toBeNull();
