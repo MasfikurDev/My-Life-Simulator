@@ -8,7 +8,7 @@ This document turns the gameplay audit into a staged, implementation-ready direc
 The weekly gameplay foundation and the annual-action-to-weekly-turn transition are implemented in the web simulation:
 - Contextual events are selected using character/year context and age/health eligibility.
 - Pending events and choices persist in the character save; the simulation validates choice requirements and costs.
-- Personal activities, family interactions, business management, job applications, interviews, and time-consuming event choices reserve dated weekly time blocks and resolve in deterministic order.
+- Personal activities, family interactions, business management, job applications, interviews, and time-consuming event choices are selected as weekly actions, consume stamina and resolve in deterministic order.
 - Weekly resolution applies effects and costs, records Life History, clears successful reservations, and advances the calendar by seven days. A stale reservation blocks the turn and remains available for repair instead of being silently discarded.
 - Age and life-stage eligibility change on the character's birthday. Annual financial settlement and annual event expiry remain at the year boundary.
 - The save migration preserves existing slots and stores the original pre-migration payload as a recovery copy.
@@ -55,7 +55,7 @@ The player should feel that a life is unfolding, not that they are spending abst
 - The current calendar year remains the world year. Advancing one week must never accidentally age the character by one year.
 - The player advances exactly one week at a time through an explicit **Start next week** action. No screen visit, save/load, or background process advances time.
 - Provide a compact calendar/week view, not a real-time clock or hour-by-hour simulation.
-- Do not simulate 168 individual hours, every NPC, travel minute, or every day autonomously. The game uses meaningful time blocks and summarized routines.
+- Do not simulate 168 individual hours, every NPC, travel minute, or every day autonomously. The game uses meaningful recurring commitments, stamina-based activity choices and summarized routines.
 
 ### 3.1.1 Calendar foundation (implemented first slice)
 
@@ -72,7 +72,7 @@ The player should feel that a life is unfolding, not that they are spending abst
 The week is shaped by genuine recurring commitments and the player's stamina budget for discretionary activities.
 
 - School, employment, household responsibilities, and other implemented commitments may reserve recurring day/period blocks. These schedules belong to their own domain workspaces.
-- The player sees the commitments that matter this week and the free-time capacity they leave. Accepting or leaving a job updates the recurring Work commitments, so career status changes the time available for personal plans.
+- The player sees the commitments that matter this week. Accepting or leaving a job updates the recurring Work commitments and therefore the weekly workload.
 - Personal activities are weekly choices toggled from their owning workspaces. They consume activity-specific stamina, plus money where appropriate; they do not reserve individual calendar periods.
 - Calendar periods are reserved only by genuine recurring commitments such as school and work. Those commitments affect weekly workload and remain visible in the timetable.
 - Activities can be added or removed directly from their owning workspace; the central Schedule workspace provides a combined review and cancellation list. Do not require the player to fill every week. Rest and quiet weeks are valid.
@@ -88,7 +88,7 @@ The simulation now has a reusable, save-compatible weekly schedule model:
 - A week is represented as seven days with three broad periods: morning, afternoon, and evening. These are planning blocks, not hourly simulation.
 - Recurring commitments reserve one or more consecutive periods on a selected weekday. Employment now generates a simple default shift pattern from the job type: full-time roles reserve weekday morning/afternoon blocks, part-time roles reserve three afternoon blocks, and flexible roles reserve three morning blocks. Education enrollment now generates class commitments from the programme's timetable, fitting around existing commitments where possible.
 - Planned activities reserve dated periods in the selected week and must remain within that week.
-- The pure schedule resolver expands commitments, identifies free periods, and reports duplicate IDs, invalid dates/durations, out-of-week activities, and overlapping placements.
+- The pure schedule resolver expands recurring commitments and reports duplicate IDs, invalid dates/durations, out-of-week legacy activity records, and overlapping commitments. Personal activities do not occupy its periods.
 - New characters receive an empty versioned schedule. Legacy saves are migrated without discarding character or slot data; saves that lack calendar data are anchored to the first Monday on or after January 1 of their stored year, and the obsolete annual action counter is removed.
 - Routine actions are initiated from their owning domains: enrollment and academic tasks in Education, care and recovery in Health, applications/interviews and career development in Work, family interactions in Family, business management in Business, and personal activities in Life. Confirming the action is the only scheduling input required.
 - A shared simulation planner finds the earliest suitable contiguous free period in the current week, validates eligibility, duration, recurring commitments, overlaps, and aggregate planned costs, then returns the exact placement to the owning screen. The player never chooses a date or time for routine actions.
@@ -105,7 +105,7 @@ The simulation now has a reusable, save-compatible weekly schedule model:
 Show a compact "This week" view:
 - Date range, current age, and relevant life stage.
 - Scheduled school/work/household commitments that are actually represented in save data.
-- Available free-time blocks and any commitments due soon.
+- Recurring commitments and their contribution to workload, plus activities selected for this week.
 - Current money position and near-term payments only when the values are modeled.
 - Pending events, opportunities, deadlines, and important consequences.
 - At most a few relevant prompts; do not duplicate whole domain dashboards.
@@ -231,11 +231,11 @@ The player chooses from age- and circumstance-appropriate actions in the relevan
 - Finance: banking, spending, saving, debt, assets, household planning, and business decisions.
 - Lifestyle: services, purchases, and home arrangements.
 
-Actions have explicit costs and trade-offs: reserved time blocks, money, energy, risk, or an opportunity cost. Explain important costs before confirmation. Do not add an arbitrary universal weekly action quota or extra meters merely to make the loop feel busy.
+Actions have explicit costs and trade-offs: stamina, money, risk, or an opportunity cost. Explain important costs before confirmation. Do not add an arbitrary universal weekly action quota or extra meters merely to make the loop feel busy.
 
 **Contextual scheduling is the default interaction contract.** Offer an action in the domain where its purpose is clear (for example, an interview in Work, a family interaction in Family, or exercise in Personal). The player's confirmation is the scheduling decision: the simulation automatically finds the earliest suitable contiguous free period, validates duration, recurring commitments, overlaps, eligibility, and affordability, then records the reservation. Do not send the player to a generic planner to choose a date and time for routine actions. The Schedule workspace is for reviewing commitments, spotting conflicts, and removing a reservation—not the primary place to initiate domain actions. A failed placement must explain the constraint and leave the save unchanged.
 
-The player may leave free time unused and advance deliberately. Do not silently auto-spend reservations or auto-advance time. Quiet weeks must remain quick to resolve.
+The player may leave stamina unused and advance deliberately. Do not silently auto-spend selected activities or auto-advance time. Quiet weeks must remain quick to resolve.
 
 ### Phase C — Resolve life events
 Offer a curated set of situations selected from the character's current context. An event may be:
