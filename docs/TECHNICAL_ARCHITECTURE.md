@@ -182,10 +182,10 @@ The top-level Life destination is a modular UI workspace, not a new simulation s
 
 The first event-driven slice now lives in the pure TypeScript module `web/src/lib/events.ts`, independent of Svelte/browser APIs. It defines a small authored event set, age/health eligibility, stable deterministic selection, choice affordability/action validation, immediate bounded effects, persistent scheduled consequences, event expiry, and chronological history records. `simulation.ts` prepares an event for a new year, resolves due consequences, expires unanswered events on advancement, and stores a compact recap. The Home UI presents the pending choice and recap.
 
-The simulation will continue evolving from its mostly deterministic annual stat/finance update into a fuller phase-based yearly chapter. Keep the core pure TypeScript and independent of Svelte/browser APIs.
+The simulation now combines deterministic weekly action resolution with separate annual financial/life progression. Keep the core pure TypeScript and independent of Svelte/browser APIs; add monthly settlement only as a separately specified, tested cadence.
 
 Planned boundaries:
-- `year-cycle.ts` (or equivalent domain module) coordinates explicit phases: prepare year, resolve player decisions, validate unresolved choices, settle annual systems, age/progress, and produce a recap. Do not introduce this module until its boundaries are clear from the existing simulation code.
+- The existing simulation boundary coordinates weekly actions and annual settlement. Do not split it into `week-cycle.ts` or `year-cycle.ts` until concrete module boundaries reduce complexity without duplicating domain rules.
 - `events.ts` currently owns the first event definitions, age/health eligibility, deterministic selection, choice validation, immediate effects, delayed consequences, event expiry, and history descriptions. Expand into an `events/` folder only when the catalogue justifies that complexity.
 - Domain modules (School, Work, Life/Health, Relationships/Family, Finance, Lifestyle) own their state transitions. The event resolver may invoke domain operations but must not duplicate their business rules.
 - The save currently owns optional event state, scheduled consequences, and weekly recap/history fields; preserve existing save compatibility and test every new persisted field. These additions are optional so older character saves remain readable. Add versioning/migration only when a real incompatible schema change is required.
@@ -225,9 +225,9 @@ The live gameplay clock is date-based and weekly, not annual-action-based. The w
 Suggested future module boundaries (do not create empty abstractions prematurely):
 - `calendar.ts`: pure calendar/date/birthday helpers.
 - `weekly-schedule.ts`: recurring commitments, free-time blocks, overlap and availability validation.
-- `week-cycle.ts`: orchestration of weekly phases and exactly-once advancement.
+- Keep weekly orchestration in the existing simulation boundary until profiling or maintainability evidence justifies extracting a dedicated module.
 - Domain modules own their own schedule definitions and effects; the cycle coordinator orchestrates them without duplicating their rules.
-- Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups only when weekly migration is underway.
+- Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups as a focused follow-up to the completed weekly migration.
 
 
 ## Personal Technology domain
