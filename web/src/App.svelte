@@ -433,7 +433,7 @@
                   </section>
                 {/each}
                 <p class="weekly-finance-note">Only transactions recorded during this game week are included. Transfers between your own accounts are excluded from income and expenses.</p>
-              </dialog>
+              </section>
             </div>
           {/if}
           <section class="character-profile-card" aria-label="Character profile">
