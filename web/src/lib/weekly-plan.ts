@@ -20,13 +20,13 @@ export function isValidWeeklyPlan(value: unknown): value is WeeklyPlan {
     const action = item.action as Record<string, unknown>;
     if (!ACTION_KINDS.includes(action.kind as typeof ACTION_KINDS[number])) return false;
     switch (action.kind) {
-      case 'activity': return true;
-      case 'family': return typeof action.personId === 'string' && ['spend-time', 'reach-out', 'reconcile', 'provide-support'].includes(String(action.interaction));
-      case 'business': return typeof action.businessId === 'string';
-      case 'event': return typeof action.eventId === 'string' && typeof action.choiceId === 'string' && Number.isFinite(action.staminaCost) && Number(action.staminaCost) >= 0;
-      case 'work': return ['apply', 'interview'].includes(String(action.workAction)) && typeof action.jobId === 'string' && typeof action.title === 'string';
-      case 'education': return ['study', 'assignment', 'exam'].includes(String(action.taskType));
-      case 'care': return ['rest', 'counselling', 'medical-checkup', 'mindfulness'].includes(String(action.careType));
+      case 'activity': return ['study', 'exercise', 'socialize', 'work', 'apply-job', 'career'].includes(item.activityId);
+      case 'family': return item.activityId === 'family' && typeof action.personId === 'string' && ['spend-time', 'reach-out', 'reconcile', 'provide-support'].includes(String(action.interaction));
+      case 'business': return item.activityId === 'business' && typeof action.businessId === 'string';
+      case 'event': return item.activityId === 'event' && typeof action.eventId === 'string' && typeof action.choiceId === 'string' && Number.isFinite(action.staminaCost) && Number(action.staminaCost) >= 0;
+      case 'work': return item.activityId === 'career' && ['apply', 'interview'].includes(String(action.workAction)) && typeof action.jobId === 'string' && typeof action.title === 'string';
+      case 'education': return item.activityId === 'study' && ['study', 'assignment', 'exam'].includes(String(action.taskType));
+      case 'care': return item.activityId === 'healthcare' && ['rest', 'counselling', 'medical-checkup', 'mindfulness'].includes(String(action.careType));
       default: return false;
     }
   });
