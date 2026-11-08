@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createCharacter } from './simulation';
+import { createCharacter, performActivity } from './simulation';
 import { resolveCareAction, resolveWeeklyWellbeing } from './wellbeing';
 
 describe('weekly wellbeing and medical care', () => {
@@ -39,4 +39,21 @@ describe('weekly wellbeing and medical care', () => {
     expect(result.medicalState?.medications.length).toBe(1);
     expect(result.health).toBeGreaterThan(character.health);
   });
+  it('reduces study and extra-work efficiency under severe stress', () => {
+    const calm = { ...createCharacter('Calm', 30), stress: 20, stamina: 80, intelligence: 50 };
+    const pressured = { ...calm, stress: 90 };
+    const calmStudy = performActivity(calm, 'study');
+    const pressuredStudy = performActivity(pressured, 'study');
+    expect(pressuredStudy.intelligence - pressured.intelligence).toBeLessThan(calmStudy.intelligence - calm.intelligence);
+    const calmWork = performActivity(calm, 'work');
+    const pressuredWork = performActivity(pressured, 'work');
+    expect(pressuredWork.money - pressured.money).toBeLessThan(calmWork.money - calm.money);
+  });
+
+  it('can create a strain condition when physical capacity is low and the week is overloaded', () => {
+    const character = { ...createCharacter('Exhausted', 30), fitness: 10, stamina: 8 };
+    const result = resolveWeeklyWellbeing(character, 18, '2026-11-02');
+    expect(result.character.medicalState?.conditions.some((item) => item.type === 'injury')).toBe(true);
+  });
+
 });
