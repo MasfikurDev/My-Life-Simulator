@@ -1,3 +1,4 @@
+import type { GameTheme } from './theme';
 import type { Character, SaveData, SaveSlot, SaveSlotId } from './types';
 import { createGameCalendar } from './calendar';
 import { syncEmploymentCommitments } from './work';
@@ -107,8 +108,8 @@ function writeSettings(patch: Partial<LocalGameSettings>): void {
 }
 export function getSoundEnabled(): boolean { return readSettings().soundEnabled !== false; }
 export function setSoundEnabled(enabled: boolean): void { writeSettings({ soundEnabled: enabled }); }
-export function getThemePreference(): string {
+export function getThemePreference(): GameTheme {
   const theme = readSettings().theme;
   return theme === 'midnight' || theme === 'graphite' || theme === 'paper' ? theme : 'amoled';
 }
-export function setThemePreference(theme: string): void { writeSettings({ theme }); }
+export function setThemePreference(theme: GameTheme): void { writeSettings({ theme }); }
