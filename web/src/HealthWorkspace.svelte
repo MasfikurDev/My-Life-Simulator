@@ -6,7 +6,7 @@
   import { getActivityStaminaCost, getValueColor } from './lib/progression';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   const medical = $derived(character.medicalState ?? { conditions: [], medications: [], highStressWeeks: 0 });
-  const schedule = $derived(character.weeklyPlan ?? { version: 1 as const, commitments: [], activities: [] });
+  const schedule = $derived(character.weeklyPlan);
   const activityEffort = $derived(Math.ceil(schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaCost(item), 0) / 6));
   const backgroundObligations = $derived((character.educationEnrollment?.status === 'enrolled' ? 4 : 0) + (character.employment ? (character.employment.type === 'full-time' ? 6 : 3) : 0));
   const workload = $derived(Math.min(21, backgroundObligations + activityEffort));
