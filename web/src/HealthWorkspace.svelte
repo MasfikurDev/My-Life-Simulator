@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { CareActionType, Character } from './lib/types';
+  import EmptyState from './components/EmptyState.svelte';
   import { formatCharacterMoney, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getWellbeingLoadLabel } from './lib/wellbeing';
   import { buildWeeklySchedule } from './lib/weekly-schedule';
@@ -28,7 +29,7 @@
   ]);
 </script>
 
-<div class="page-heading"><div><div class="eyebrow">BODY · MIND · RECOVERY</div><h1>Health & <em>wellbeing.</em></h1><p>Manage your health, energy and pressure. Recovery is part of the weekly plan, not wasted time.</p></div></div>
+<div class="page-heading"><div><div class="eyebrow">BODY · MIND · RECOVERY</div><h1>Health & <em>wellbeing</em></h1><p>Manage your health, energy and pressure. Recovery is part of the weekly plan, not wasted time.</p></div></div>
 <section class="health-overview domain-panel">
   <div class="health-overview-head"><div><div class="eyebrow">CURRENT CONDITION</div><h2>{load} weekly load</h2><p>{occupied} of 21 weekly time blocks are committed. Too many demands can reduce study and work efficiency.</p></div><span class="domain-status">{(character.stress ?? 30) >= 82 ? 'HIGH PRESSURE' : (character.stress ?? 30) >= 60 ? 'ELEVATED' : 'MANAGEABLE'}</span></div>
   <div class="health-stat-grid">
@@ -59,7 +60,7 @@
       <div class="health-condition-row"><div><strong>{condition.name}</strong><small>{condition.diagnosed ? 'Diagnosed' : 'Not yet assessed'} · {condition.weeksActive} weeks active · {condition.treatment ? 'Treatment: ' + condition.treatment.replaceAll('-', ' ') : 'No treatment plan'}</small></div><div class="health-condition-severity"><strong>{Math.round(condition.severity)}%</strong><div class="meter"><span class="stress-meter" style="width:{condition.severity}%"></span></div></div></div>
     {/each}
   {:else}
-    <div class="health-empty"><strong>No active medical conditions recorded.</strong><p>Keep a sustainable routine. Health problems may still emerge from prolonged stress, poor recovery or low physical health.</p></div>
+    <EmptyState title="No active medical conditions" />
   {/if}
   {#if medical.medications.length}
     <div class="health-medication-list"><strong>Current treatment</strong>{#each medical.medications as medication}<span>{medication.name} · {medication.weeksRemaining} weeks remaining</span>{/each}</div>
