@@ -1,6 +1,6 @@
 # Technical Architecture
 
-**Canonical implementation direction · Reviewed 2026-11-05**
+**Canonical implementation direction · Reviewed 2026-11-08**
 
 ## Delivery architecture
 The game is a TypeScript web application hosted on GitHub Pages and opened inside a small native Android WebView shell. Gameplay/UI updates publish through GitHub without reinstalling the APK for every web change.
@@ -48,7 +48,7 @@ flowchart TD
 ## Save compatibility
 Persist an explicit schema version. Validate data before use. Add forward migrations when shape changes. Malformed/unsupported data must not crash the app or silently overwrite an existing save. Keep game state separate from transient UI state. Web deployments must not reset saves without an explicit migration and documented reason.
 
-The current localStorage adapter supports three independent save slots. Schema version 2 stores the active slot ID and each slot's character plus update timestamp. Version 1's single-character save migrates into slot 1 without discarding the character. Settings such as sound preference are stored separately from game state. Saves remain device-local; no cloud sync or backup is implied.
+The current localStorage adapter uses schema version 4 and supports three independent save slots. Schema versions 2 and 3 store the active slot ID and each slot's character plus update timestamp; version 1's single-character save migrates into slot 1. The adapter migrates supported legacy formats to version 4, initializes weekly calendar/schedule defaults, and preserves the exact original payload under `my-life-simulator.save.pre-weekly-migration` before the first migration write. Settings such as sound preference are stored separately from game state. Saves remain device-local; no cloud sync or backup is implied.
 
 ## Simulation boundaries
 Core simulation inputs are game state, action/choice, and random source/seed. Outputs are updated state plus explicit effects/history. No DOM, Svelte, localStorage, network, or Android imports in core simulation. Time advancement is an explicit domain operation. Use integer minor units for money once currency arithmetic expands. Validate invariants at boundaries.
@@ -56,9 +56,9 @@ Core simulation inputs are game state, action/choice, and random source/seed. Ou
 ## Game calendar foundation
 - Calendar dates are strict ISO date-only strings interpreted in UTC; do not use local Date parsing or wall-clock time in simulation rules.
 - Weeks start Monday and span Monday–Sunday. The active date advances in seven-day steps; month/year boundaries are derived from dates, not assumed to align with weeks.
-- New characters receive optional calendar.currentDate and calendar.birthDate values. Age is derived from these dates once weekly progression is enabled. Legacy saves without this optional field remain readable and retain their current age/year semantics until an explicit migration is implemented.
+- New characters receive calendar.currentDate and calendar.birthDate values. The weekly model is live: age is derived from these dates and changes on the actual birthday. Legacy saves are migrated to a calendar while preserving the displayed age, all three slots, and the original payload as a recovery copy.
 - February 29 birthdays are observed on March 1 in non-leap years. This convention is centralized in the pure calendar module and covered by tests.
-- Do not enable weekly time advancement or change annual settlement in this foundation change. The next stages must introduce schedules, a single-week resolver, exactly-once month/year settlement, and save migration as one validated progression path.
+- Weekly time advancement, automatic activity placement, and deterministic weekly resolution are implemented. Monthly settlement is not yet implemented; current salary, household expenses, tax, interest, market updates, and other annual systems remain on their explicit annual cadence until a separately tested migration changes those rules.
 
 ## Performance
 Keep initial bundle small; avoid unnecessary dependencies. Lazy-load optional heavy features. Profile before optimizing. WASM is not automatically faster: boundary crossings, conversion, build complexity, and mobile constraints must be measured. Test on a real mid-range Android device and throttled mobile connection. Avoid blocking animations and layout shifts.
@@ -73,7 +73,7 @@ The Android WebView exposes a narrowly scoped `AndroidApp.copyToClipboard(text)`
 ## Education, employment, and recurring finances
 Education progress, employment records, salary, annual living-cost estimates, performance, experience, and promotions are fields on the simulation's Character model. These new fields are optional to preserve existing save compatibility; no storage schema bump is required. Eligibility is centralized in `progression.ts` and checked again by `performActivity`. Annual income/expenses and promotion outcomes are applied in `advanceYear`, then recorded in the character history. Keep country salary balancing explicitly provisional and never use the UI to invent finance state.
 
-Career progression's approved future design is documented in [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md). Work owns the current-job view, career path preview, role requirements, promotion decisions, bonuses, and career history. A read-only preview must not mutate Character state or the financial ledger; estimated compensation must be labeled separately from actual salary/payroll. Payroll and actual bonuses use the shared Finance transaction path. Do not add new save fields or claim employer/vacancy/bonus state exists until those mechanics are implemented.
+Career progression's current staged design and implementation boundary are documented in [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md). Work owns the current-job view, career path preview, role requirements, promotion decisions, bonuses, and career history. A read-only preview must not mutate Character state or the financial ledger; estimated compensation must be labeled separately from actual salary/payroll. Payroll and actual bonuses use the shared Finance transaction path. Do not add new save fields or claim employer/vacancy/bonus state exists until those mechanics are implemented.
 
 
 ## Native Android branding and launch experience
@@ -182,16 +182,16 @@ The top-level Life destination is a modular UI workspace, not a new simulation s
 
 The first event-driven slice now lives in the pure TypeScript module `web/src/lib/events.ts`, independent of Svelte/browser APIs. It defines a small authored event set, age/health eligibility, stable deterministic selection, choice affordability/action validation, immediate bounded effects, persistent scheduled consequences, event expiry, and chronological history records. `simulation.ts` prepares an event for a new year, resolves due consequences, expires unanswered events on advancement, and stores a compact recap. The Home UI presents the pending choice and recap.
 
-The simulation will continue evolving from its mostly deterministic annual stat/finance update into a fuller phase-based yearly chapter. Keep the core pure TypeScript and independent of Svelte/browser APIs.
+The simulation now combines deterministic weekly action resolution with separate annual financial/life progression. Keep the core pure TypeScript and independent of Svelte/browser APIs; add monthly settlement only as a separately specified, tested cadence.
 
 Planned boundaries:
-- `year-cycle.ts` (or equivalent domain module) coordinates explicit phases: prepare year, resolve player decisions, validate unresolved choices, settle annual systems, age/progress, and produce a recap. Do not introduce this module until its boundaries are clear from the existing simulation code.
+- The existing simulation boundary coordinates weekly actions and annual settlement. Do not split it into `week-cycle.ts` or `year-cycle.ts` until concrete module boundaries reduce complexity without duplicating domain rules.
 - `events.ts` currently owns the first event definitions, age/health eligibility, deterministic selection, choice validation, immediate effects, delayed consequences, event expiry, and history descriptions. Expand into an `events/` folder only when the catalogue justifies that complexity.
 - Domain modules (School, Work, Life/Health, Relationships/Family, Finance, Lifestyle) own their state transitions. The event resolver may invoke domain operations but must not duplicate their business rules.
-- The save currently owns optional `pendingGameEvent`, `eventPreparedYear`, `resolvedGameEventIds`, `scheduledGameConsequences`, and `lastYearRecap` fields. These additions are optional so older character saves remain readable. Add versioning/migration only when a real incompatible schema change is required.
+- The save currently owns optional event state, scheduled consequences, and weekly recap/history fields; preserve existing save compatibility and test every new persisted field. These additions are optional so older character saves remain readable. Add versioning/migration only when a real incompatible schema change is required.
 - Event content is data-driven where useful, but do not build a generic event scripting language or content platform before a small playable set proves the pattern.
 - The current event picker is deterministic for the same character identity, age, year, and history length; it does not consume ambient `Math.random()`. Future event systems should use an explicit persisted seed/state if richer randomness is needed.
-- Year-end resolution order must be explicit, documented, and tested. A proposed order is: income/financial settlement; recurring commitments and liabilities; school/work progression; household/family changes; health/relationship drift; delayed event consequences; age/life-stage transition; next-year event preparation. Adjust only when domain dependencies require it.
+- Weekly resolution order must be explicit, deterministic, and tested. The live resolver validates the current week's reservations, resolves scheduled actions and their domain effects/costs, records history/recap, clears successful reservations, and advances the calendar. Monthly and annual settlement remain separate date-boundary operations; do not mix them into the weekly action transaction.
 - Return structured effects/recap data from simulation functions so UI can explain meaningful outcomes without re-deriving rules.
 - Keep player-facing event content, consequences, and history portable across save/load. Content-version changes must not replay completed events or corrupt pending outcomes.
 
@@ -203,12 +203,12 @@ Planned boundaries:
 - Test that dead characters cannot advance time or perform living-character actions.
 - Add multi-year scenario tests that exercise several connected systems; isolated unit tests alone are insufficient evidence of an enjoyable gameplay loop.
 
-The complete design contract and player-facing acceptance criteria are in `docs/GAMEPLAY_LOOP.md`. These are planned boundaries; do not claim they exist until implemented and tested.
+The complete design contract and player-facing acceptance criteria are in `docs/GAMEPLAY_LOOP.md`. Distinguish live weekly scheduling/resolution from the remaining planned monthly settlement, date-based event, and later-life systems.
 
 
-## Weekly calendar and simulation time (approved design direction)
+## Weekly calendar and simulation time (implemented foundation)
 
-The target gameplay clock is date-based and weekly, not annual-action-based. The week is the fundamental player turn; months own recurring financial/reporting cadence; years own annual settlement, birthdays, life-stage progression, and long-term reviews.
+The live gameplay clock is date-based and weekly, not annual-action-based. The week is the fundamental player turn; months own recurring financial/reporting cadence; years own annual settlement, birthdays, life-stage progression, and long-term reviews.
 
 - Keep calendar/date logic in pure TypeScript domain modules, independent of Svelte, browser APIs, and Android. Use explicit date helpers for week boundaries, month/year boundaries, leap years, birthdays, and age calculation.
 - Persist an explicit current game date and the minimum stable identity needed to derive age. Do not increment age once per week or assume every year is exactly 52 weeks.
@@ -219,15 +219,15 @@ The target gameplay clock is date-based and weekly, not annual-action-based. The
 - Monthly and annual settlement must have explicit date-based due rules and idempotency keys/period markers. Never run annual finance settlement in addition to monthly installments for the same obligation.
 - Do not divide existing annual costs/salary/interest by 12 without modeling rounding, due dates, inflation, payment failures, and save migration.
 - Multi-week advancement must call the same weekly resolver sequentially and stop at any decision boundary. It must not skip weeks with a coarse approximation.
-- Save migration must preserve legacy annual saves, all three slots, financial ledgers, liabilities/assets, event state, and history. Migration rules must be deterministic and tested before the UI switches to weekly progression.
-- The weekly cycle is the live playable time model. Annual mechanics remain only where their own cadence is intentional (birthdays, annual payroll/settlement, taxes, and life review); do not reintroduce annual action tokens or duplicate weekly effects through an annual fallback.
+- The weekly migration is implemented for supported schema 1–3 saves. Preserve all three slots, financial ledgers, liabilities/assets, event state, and history in every future migration; keep the original payload recoverable and test each new schema transition before release.
+- The weekly cycle is the live playable time model. Annual mechanics remain only where their own cadence is currently intentional (birthdays, annual payroll/settlement, taxes, market updates, and annual life review); do not reintroduce annual action tokens or duplicate weekly effects through an annual fallback. Monthly settlement is a planned follow-up, not a live feature.
 
 Suggested future module boundaries (do not create empty abstractions prematurely):
 - `calendar.ts`: pure calendar/date/birthday helpers.
 - `weekly-schedule.ts`: recurring commitments, free-time blocks, overlap and availability validation.
-- `week-cycle.ts`: orchestration of weekly phases and exactly-once advancement.
+- Keep weekly orchestration in the existing simulation boundary until profiling or maintainability evidence justifies extracting a dedicated module.
 - Domain modules own their own schedule definitions and effects; the cycle coordinator orchestrates them without duplicating their rules.
-- Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups only when weekly migration is underway.
+- Existing `events.ts` should evolve to support date/deadline-based triggers and follow-ups as a focused follow-up to the completed weekly migration.
 
 
 ## Personal Technology domain

@@ -1,6 +1,6 @@
 # Product Vision
 
-**Canonical product direction · Reviewed 2026-11-05**
+**Canonical product direction · Reviewed 2026-11-08**
 
 ## One-sentence vision
 A modern, replayable life simulator where the player shapes a believable life through meaningful choices, evolving relationships, opportunities, setbacks, and consequences.

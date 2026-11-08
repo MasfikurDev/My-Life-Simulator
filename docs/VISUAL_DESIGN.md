@@ -1,9 +1,9 @@
 # Visual Design System
 
-**Canonical visual direction · Updated 2026-11-06**
+**Canonical visual direction · Reviewed 2026-11-08**
 
 ## Product feel
-A modern, polished, calm, business-like life-management interface. It should feel like a premium personal dashboard for understanding and managing a life simulation—not a corporate admin tool, spreadsheet, retro text adventure, or 3D lobby.
+A modern, polished, mobile-first life simulation interface. It should feel like a premium interactive game with the clarity of a well-designed personal app—not a corporate admin tool, spreadsheet, retro text adventure, or 3D lobby.
 
 ## Theme direction
 - AMOLED-first dark theme is the default on every device, independent of operating-system theme preference.
@@ -26,13 +26,14 @@ A modern, polished, calm, business-like life-management interface. It should fee
 - Avoid decorative scenery that competes with the character, current situation, and decisions.
 
 ## Navigation model
-- Desktop: compact left-side navigation with a persistent character identity.
-- Phones: fixed bottom navigation with safe-area padding and clearly labeled destinations.
-- Likely destinations: Home (character, age, situation, stats, recent events); Activities (education, work, hobbies, exercise, entertainment); People (family, friends, romance); Finances (income, expenses, job, savings, debt, assets); Character (attributes, appearance, personality, skills, health, history).
-- A contextual action area keeps common actions close. Avoid deep navigation for routine choices.
+- Keep the established responsive navigation and domain-native destinations; do not invent a second navigation model in a redesign.
+- The shared game header carries current-life identity/status and compact calendar context. It shows the month and four week-position indicators, highlighting the current week. Keep the header compact on phones.
+- Do not add a global new-life (+) action to the persistent header. Character creation belongs in the appropriate entry flow.
+- Avoid a second page-context header below the global header. Screens may retain a proper local title/context where the information architecture requires it, but do not duplicate life identity, date, cash, or age.
+- Routine actions remain inside their owning domain. Do not route players through a generic planner to choose dates or periods.
 
 ## Dashboard priorities
-Money is the primary dashboard focus. Put the current cash balance near the top, followed by practical money-related choices and activities that change the balance. The Overview header should also show concise, authoritative context: character age and life stage, current education stage, and current employment status or age-appropriate work availability. Derive these from progression rules and saved Character state; never imply enrollment, qualifications, a job, or career progress that is not recorded. Do not repeat the character name/age in persistent navigation when the Overview already presents them. Keep detailed study and school information in School, job-search/workplace details in Work, personal stats and activities in Life, and financial products in Finance. Before adding any summary or shortcut, check all visible navigation and workspace content for duplicates. The Finances destination may show implemented annual pay and estimated living costs; clearly label simplified assumptions and never imply unimplemented mechanics. Household budget choices and emergency savings targets are available from age 18. Life stats (health, happiness, intelligence, fitness, and future attributes) are secondary to money and live in the modular Life workspace, not the money-first overview. Life contains focused Wellbeing, Personal Growth, Personal, and Life History sections. Keep each section compact and domain-native; do not scatter personal activities or historical records across the dashboard. Never fabricate financial metrics.
+Overview is the landing surface for the current life, not a duplicate of every domain. Show the shared life context once in the global header and keep Overview focused on useful current-week information and the complete activity feed. Group activities into expandable week sections, newest first, with the current week expanded by default. Keep major achievements and life-stage milestones in Life History; do not duplicate every routine activity there. Keep study controls in School, job-search/workplace details in Work, personal stats and activities in Life, and financial products in Finance. Before adding any summary or shortcut, inspect navigation and destination screens for duplicates. Never fabricate financial metrics or imply unimplemented mechanics.
 
 ## Compactness and usability are mandatory requirements
 
@@ -50,8 +51,9 @@ Every screen must use space deliberately and make common actions easy to reach. 
 - Every new screen or component must justify its vertical space and provide a clear user task or useful information.
 
 ## Character creation and game settings
-- Character creation makes the starting point explicit, with quick choices from birth through later life (0, 6, 13, 16, 18, 25, 40, and 60) plus an exact-age slider spanning 0–90.
-- Show the selected age and life-stage context before starting. Do not imply that unimplemented childhood, career, or retirement systems are already simulated.
+- Character creation uses the implemented curated starting-life-stage choices and generates a coherent identity and starting state.
+- Do not document an arbitrary age slider or manual stat editor unless that interaction is implemented.
+- Show the selected starting stage and explain that choosing a stage does not imply that every life-stage system is already simulated.
 - Settings provide accessible management for three local save slots, including load, create in an empty slot, and delete with confirmation. The gameplay snapshot export must work through the native Android clipboard bridge and supported browser clipboard fallback.
 - Sound effects are optional, subtle, generated locally, and independently switchable. Do not autoplay background music.
 - Clearly explain that local saves are tied to the current app/browser storage and are not cloud-backed.
@@ -81,6 +83,6 @@ Do not render multiple controls or components for the same action or destination
 - Banking uses account cards, available balances, account details, transfers, deposits/withdrawals, and a transaction activity list. Cards, loan balances/repayments, automatic savings deposits, and the personal vault are managed inside Banking. Household budgets and living-arrangement choices are not shown on the Banking screen. Tax assessments and liabilities belong in the separate Taxes view.
 - Life → Lifestyle has focused internal sections: Discover, My services, and Home. Discover feels like a real marketplace with provider plan listings, clear annual prices, payment selection, and a supermarket basket/checkout. My services is the player's personal service register: active subscriptions, annual commitments, recurring charges, and a read-only reference to payment cards in use. Card controls must link back to Banking rather than being duplicated. Home contains household arrangement and estimated living costs. Do not put a generic recurring-payment creation form in Finance or duplicate subscriptions across screens.
 - Cards should use payment-card terminology and card controls within Banking; Loans should emphasize principal, rate, term, repayment and credit standing within Banking; Investments should present a portfolio/market context; Property should feel like housing/property management; Business should focus on operations and business performance.
-- Education will use school/campus navigation, student records, classes, attendance, grades, fees and learning actions. Work will use recruitment/job-search flows and a distinct workplace view for an employed character. These systems must not be represented as generic status cards inside Finance.
+- School owns the current learning/study experience; enrollment, attendance, classes, grades, and fees remain planned until their full simulation loop exists. Work owns the implemented recruitment/job-search and employment/career flows. These systems must not be represented as generic status cards inside Finance.
 - Keep the shared AMOLED theme, typography, spacing, accessibility and navigation shell consistent. Domain identity comes from relevant information architecture, terminology, actions and contextual layouts—not arbitrary unrelated colors or decorative imitation.
 - Use progressive disclosure within each domain. Do not show controls from unrelated domains or repeat the same summary and action on multiple screens.

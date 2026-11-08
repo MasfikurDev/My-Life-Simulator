@@ -1,11 +1,11 @@
 # Gameplay Loop Redesign
 
-**Canonical game-design implementation plan · Weekly-cycle direction · 2026-11-07**
+**Canonical game-design implementation plan · Weekly-cycle direction · 2026-11-08**
 
 This document turns the gameplay audit into a staged, implementation-ready direction. It distinguishes the implemented first slice from planned mechanics.
 
-## Current implementation status · 2026-11-07
-The first event-driven slice and the annual-action-to-weekly-turn transition are implemented in the web simulation:
+## Current implementation status · 2026-11-08
+The weekly gameplay foundation and the annual-action-to-weekly-turn transition are implemented in the web simulation:
 - Contextual events are selected using character/year context and age/health eligibility.
 - Pending events and choices persist in the character save; the simulation validates choice requirements and costs.
 - Personal activities, family interactions, business management, job applications, interviews, and time-consuming event choices reserve dated weekly time blocks and resolve in deterministic order.
@@ -13,14 +13,14 @@ The first event-driven slice and the annual-action-to-weekly-turn transition are
 - Age and life-stage eligibility change on the character's birthday. Annual financial settlement and annual event expiry remain at the year boundary.
 - The save migration preserves existing slots and stores the original pre-migration payload as a recovery copy.
 
-Still planned: a full year-opening and planning phase, year-end financial preview, richer event selection/cooldowns/content, broader cross-domain consequences, and the later School/Work/Family/Health/Retirement/Death milestones. This is the first playable slice, not completion of the full redesign.
+Still planned: date-based event deadlines and richer event cooldown/content, monthly financial settlement and reporting, broader cross-domain consequences, fuller School attendance/grades, family lifecycle expansion, health/recovery depth, retirement, mortality, and terminal-life completion. The weekly loop is live, but the complete birth-to-death redesign is not finished.
 
 ## 1. The game we are making
 
 My Life Simulator is a replayable, week-by-week life simulation game, with monthly financial rhythms and yearly life-stage progression. The player guides one character from a chosen starting stage through a changing life, makes decisions under limited time and resources, experiences authored and emergent situations, and eventually reaches a meaningful ending.
 
 The experience must feel like playing a game:
-- Give the player a clear reason to make decisions each year.
+- Give the player a clear reason to make decisions each week, with larger milestones across months and years.
 - Present interesting trade-offs, opportunities, setbacks, and surprises.
 - Make actions and events change the character's future, not just the current stat bars.
 - Give feedback that makes consequences understandable and memorable.
@@ -190,12 +190,12 @@ A playable weekly loop is not complete until:
 4. The player can confirm at least two different actions with different time costs and see that they cannot overlap.
 5. School/work recurring commitments reserve time only when actual schedule data exists.
 6. A weekly activity can create a meaningful immediate effect and a persistent delayed consequence.
-5. One week advances exactly once; retry/reload cannot duplicate income, bills, effects, or history.
-6. Crossing month-end processes monthly payments once; crossing year-end processes annual systems once.
-7. A birthday changes age and eligibility on the correct date, not simply every 52 button presses.
-8. Old saves load with a documented migration and no lost cash, accounts, debt, investments, history, or pending events.
-9. A quiet week can be advanced quickly without fake chores or forced dramatic events.
-10. Multi-week scenario tests produce coherent results for a child in school, an employed adult, an unemployed adult, and a later-life character.
+7. One week advances exactly once; retry/reload cannot duplicate income, bills, effects, or history.
+8. Crossing month-end processes monthly payments once after monthly settlement is implemented; current annual settlement remains exactly once at year boundaries.
+9. A birthday changes age and eligibility on the correct date, not simply every 52 button presses.
+10. Old saves load with a documented migration and no lost cash, accounts, debt, investments, history, or pending events.
+11. A quiet week can be advanced quickly without fake chores or forced dramatic events.
+12. Multi-week scenario tests produce coherent results for a child in school, an employed adult, an unemployed adult, and a later-life character.
 
 ### Legacy transition: annual actions to weekly schedule
 
@@ -209,12 +209,12 @@ The annual-action-to-weekly-save migration is implemented:
 
 The app has a weekly calendar, validated activity reservations, and a reproducible, exactly-once weekly resolver. Age and birthday-triggered life-stage transitions follow the character's actual birth date. Monthly settlement and date-based recurring payment schedules remain future work; annual income, expenses, taxes, asset settlement, and annual reviews still run at the year boundary.
 
-## 4. Event and consequence system
+### Weekly turn experience
 
-A simulated week is the basic playable turn; a month is a financial/reporting interval; a year is a life-progression chapter.
+A simulated week is the basic playable turn; a month is the intended financial/reporting interval; a year is a life-progression chapter.
 
-### Phase A — Review the current life chapter
-The annual overview remains a life-chapter summary, not the playable turn. Present a compact review containing:
+### Phase A — Open the current week
+Present a compact current-week view containing:
 - Current age, life stage, year, and the most relevant changes since last year.
 - Current circumstances that affect decisions: school/education, work, household, money, health, and important relationships when implemented.
 - New opportunities, unresolved situations, upcoming commitments, and warnings.
@@ -244,19 +244,19 @@ Offer a curated set of situations selected from the character's current context.
 
 Each event must have a reason to appear and options that lead to meaningfully different outcomes. Events can be authored story beats, system-generated situations, or a combination. The event system should create a coherent personal story rather than a random headline feed.
 
-Not every year needs a dramatic event. Quiet years are valid. Avoid notification spam and repeated event templates.
+Not every week needs a dramatic event. Quiet weeks are valid. Avoid notification spam and repeated event templates.
 
-### Phase D — Review and confirm the year
-Before advancing, show a concise review:
-- Decisions made and unresolved choices.
-- Expected annual income and recurring commitments where known.
-- Important risks or shortfalls the player can reasonably anticipate.
-- The year-end effects that are predictable, with uncertain outcomes clearly marked.
+### Phase D — Review and confirm the week
+Before advancing, show a concise weekly review:
+- Current date/week and age.
+- Confirmed reservations and recurring commitments that will resolve.
+- Planned activity costs and available cash where relevant.
+- Unresolved situations, stale reservations, or known constraints.
 
-The player explicitly chooses to advance. The year-end simulation then resolves in a documented, deterministic order: income and financial settlements, recurring commitments, school/work progression, household/family changes, health and relationship drift, event follow-ups, aging, and next-year setup. The exact order must be defined in the simulation design and covered by tests.
+The player explicitly chooses to advance one week. The weekly resolver validates the complete plan, resolves accepted actions and due effects in deterministic order, applies costs exactly once, clears successful reservations, advances the calendar by seven days, and returns a concise recap. Month/year boundary settlement remains separate and must run exactly once.
 
 ### Phase E — Show what changed
-After advancement, provide a compact year recap:
+After weekly resolution, provide a compact weekly recap:
 - The most important outcomes, not every internal calculation.
 - Financial changes with understandable sources.
 - Education/work/relationship/health milestones that actually occurred.
@@ -265,11 +265,11 @@ After advancement, provide a compact year recap:
 
 Keep the Overview activity feed as the complete chronological record of everyday actions and ordinary events. Reserve Life History for major achievements and life-stage milestones; do not duplicate routine activities there. The recap should make the causal link between prior choices and results visible.
 
-### Year review gate (implemented first slice)
+### Weekly review gate (implemented)
 
 Before advancing, the player can open a weekly review showing the current date, planned activity count, age, year, and available cash. It explains that accepted reservations resolve in order and that annual financial settlements remain separate. A pending event is shown as unresolved; it normally remains available until its year-boundary expiry unless a choice is scheduled. The player must explicitly confirm the week; returning to the current week leaves the save unchanged.
 
-The preview is intentionally partial. It does not claim to predict tax, recurring payments, loans, interest, property, investment, or market settlement. Those systems still resolve in the simulation and are identified as exclusions in the UI. The review is a decision aid, not a second financial ledger.
+The weekly preview is intentionally partial. It does not claim to predict tax, recurring payments, loans, interest, property, investment, or market settlement. Those systems still resolve in the simulation and are identified as exclusions in the UI. The review is a decision aid, not a second financial ledger.
 
 ## 4. Event and consequence system
 

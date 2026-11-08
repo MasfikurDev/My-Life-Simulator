@@ -1,6 +1,6 @@
 # Gameplay Design
 
-**Canonical gameplay direction · Updated 2026-11-06**
+**Canonical gameplay direction · Reviewed 2026-11-08**
 
 ## Core loop
 1. Review the current week, calendar, actual commitments, free-time blocks, and relevant situations.
@@ -145,11 +145,13 @@ A game event uses a stable ID, eligibility conditions, narrative, choices, costs
 - Time advances only through an explicit player action.
 - Never silently discard a save.
 
-## First playable slice
-Scenario-led character creation with coherent randomized profiles, a modern dashboard, several meaningful activities, a limited number of actions per year, deliberate year advancement, contextual events, basic finances, persistent save, and life history.
+## Current playable foundation
+The current game has scenario-led character creation with coherent randomized identity, three independent local save slots, a date-based weekly calendar, validated automatic activity placement, deterministic weekly resolution, contextual events, domain-native School/Work/Life/Finance/Lifestyle workspaces, a simulation-owned family foundation, recruitment and career progression, and a connected financial system covering accounts, cards, loans, recurring payments, property, investments, businesses, and taxation. Overview records everyday activities by simulation week; Life History is reserved for major achievements and life-stage milestones.
 
-## Later, not MVP blockers
-Marriage/children, richer family trees, deeper education/career, property/assets, generational play, achievements, expanded event packs, cloud backup, online features. Prioritize based on demonstrated fun and player feedback.
+This is a substantial playable foundation, not a complete life simulator. The old annual action-token system is retired. Weekly turns are explicit; monthly financial settlement remains planned while the current financial settlement cadence is annual.
+
+## Remaining major game milestones
+Full School enrollment/attendance/grades, richer date-based event chains and deadlines, monthly financial settlement, expanded family lifecycle and dependants, health/recovery depth, personal technology, retirement, mortality, terminal-life completion, generational play, broader event packs, achievements/challenges, and balance across full-life playthroughs remain staged. Cloud backup and online features are later options, not requirements for the core game.
 
 
 ## System boundaries and player experiences

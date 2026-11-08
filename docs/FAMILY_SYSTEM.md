@@ -1,6 +1,6 @@
 # Family System
 
-**Canonical system specification · Simulation-first · Initial implementation in progress**
+**Canonical system specification · Simulation-first · Foundation implemented · Reviewed 2026-11-08**
 
 ## Purpose
 
@@ -122,8 +122,8 @@ Save/load, all three slots, debug snapshot, and history must preserve the graph 
 
 ## Staged implementation
 
-1. **Domain foundation:** person/relationship/bond/household/dependency types; graph validation; family-of-origin generation for new saves; backward-compatible persistence.
-2. **Playable relationship loop:** targeted interactions, action/time validation, bond changes, family history, and auditable support transactions.
+1. **Implemented — domain foundation:** person/relationship/bond/household/dependency types; graph validation; family-of-origin generation for new saves; backward-compatible persistence.
+2. **Implemented — playable relationship loop:** targeted interactions, action/time validation, bond changes, family history, and auditable support transactions.
 3. **Family lifecycle:** explicit partnership, separation, parenthood, adoption, guardianship, and household changes with graph invariants.
 4. **Dependants and care:** childcare, education support, caregiving, shared household costs, and time/finance consequences.
 5. **Family events:** contextual events, delayed consequences, reconciliation, milestones, and bereavement integrated with mortality.
@@ -133,4 +133,4 @@ A stage is not complete because a screen exists. Each stage requires simulation 
 
 ## Initial implementation boundary
 
-The first implementation establishes a real persistent family graph, a targeted interaction loop, and a one-time contextual family reconnection event for adults when higher-priority starter events are exhausted. The prompt is not repeated after it is resolved or passed. It should not claim that partnership, birth, adoption, childcare, caregiving, family mortality, inheritance, or generational play are implemented until those mechanics exist and are tested.
+The implemented foundation establishes a real persistent family graph, a targeted interaction loop, and a one-time contextual family reconnection event for adults when higher-priority starter events are exhausted. The prompt is not repeated after it is resolved or passed. It should not claim that partnership, birth, adoption, childcare, caregiving, family mortality, inheritance, or generational play are implemented until those mechanics exist and are tested.
