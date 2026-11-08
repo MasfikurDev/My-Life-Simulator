@@ -27,7 +27,7 @@ This is a point-in-time baseline, not a guarantee about later commits. Re-run CI
 
 ### Current development priority
 
-1. Stabilize and visually verify the shared UI system across themes and screen sizes; reduce actionable Svelte warnings.
+1. Stabilize and visually verify the shared UI system across themes and screen sizes; reduce actionable Svelte warnings. Include the planned accessibility fixes and mobile QA pass listed in the UI foundation section below.
 2. Complete the weekly-to-monthly financial cadence, including payroll, recurring obligations, business cash flow, reporting, and exactly-once month/year boundaries.
 3. Run integrated multi-week scenarios across childhood, education, employment, unemployment, family responsibilities, and later life.
 4. Expand family and workplace lifecycles only after their cross-domain time, finance, health, and save contracts are testable.
@@ -183,7 +183,23 @@ Every milestone needs a playable outcome and acceptance criteria. Avoid parallel
 
 ## UI foundation (implemented; visual QA ongoing)
 
-**Current state reviewed 2026-11-09:** semantic tokens and shared primitives are in place, and the AMOLED default plus selectable themes are wired into Settings. Recent merged work has also tightened compact activity presentation, topbar ordering, workspace hierarchy, spacing, and empty states. Do not treat this as proof that every screen is visually consistent: continue screenshot-based checks across all themes, narrow/mobile widths, dialogs, navigation, and long content. Keep reusable components small and pattern-driven; do not create abstractions for one-off UI.
+**Current state reviewed 2026-11-09:** semantic tokens and shared primitives are in place, and the AMOLED default plus selectable themes are wired into Settings. Recent merged work has also tightened compact activity presentation, topbar ordering, workspace hierarchy, spacing, and empty states. A Modern Web Guidance review of the live site and source code identified follow-up work below. These findings are a planned backlog, not completed fixes. Do not treat the current foundation as proof that every screen is visually consistent: continue screenshot-based checks across all themes, narrow/mobile widths, dialogs, navigation, and long content. Keep reusable components small and pattern-driven; do not create abstractions for one-off UI.
+
+### Planned task — accessibility and responsive UI audit
+
+**Source:** Modern Web Guidance review of the deployed game and source code, 2026-11-09. The live review reached the main menu, Settings, and character-creation flow. It did not complete gameplay-workspace coverage or a full mobile/theme matrix. Automated observations were cross-checked against source; existing `lang="en"`, global `:focus-visible` styling, native `<details>/<summary>` settings disclosure, reduced-motion handling, three save slots, and the character-creation mobile grid were verified and are not listed as defects.
+
+- [ ] Replace custom modal behavior with native `<dialog>` where appropriate, or complete the equivalent accessible modal contract: focus moves into the dialog, remains contained while open, Escape closes when safe, focus returns to the invoking control, and background content is unavailable while modal. Audit the weekly finance breakdown and save-management dialogs first.
+- [ ] Give the character life-stage picker semantic group/fieldset structure and expose each option's selected state (for example, `aria-pressed` on toggle-style buttons). Preserve its current visual selection treatment and age-generation behavior.
+- [ ] Put the title screen inside a semantic `<main>` landmark and add a visible-on-focus skip link to the primary content. Ensure each application screen has a clear page landmark and heading hierarchy.
+- [ ] Review character-creation typography and shared metadata labels. Raise essential 8–10px text to a readable shared type scale where possible without losing the compact layout; verify contrast in every theme.
+- [ ] Make the exit/close action's label and explanatory feedback platform-aware: do not promise that a browser tab will close when the browser prevents it, while preserving the Android wrapper's supported exit behavior.
+- [ ] Run a real narrow-screen pass on Android-sized viewports for the main menu, character creation, Overview, Life, Finance, Education, Work, Family, Settings, Schedule, and all dialogs. Check horizontal overflow, wrapping, centering, safe areas, scroll containment, and touch-target sizing.
+- [ ] Repeat the same visual/contrast/focus checks in AMOLED, Midnight, Graphite, and Paper themes. Capture before/after screenshots for any layout fixes.
+- [ ] Run keyboard-only checks (Tab/Shift+Tab, Enter/Space, Escape), screen-reader semantics checks for selected states and dialogs, and reduced-motion checks.
+- [ ] Run Svelte checks, the complete Vitest suite, and the production build after implementation; record exact results and distinguish existing warnings from new regressions.
+
+**Acceptance criteria:** no modal traps keyboard focus outside itself or loses the invoking focus on close; all interactive selections expose their state semantically; the title screen has a usable main landmark and skip path; essential text is readable at phone widths and in all themes; no audited screen has unintended horizontal overflow or clipped controls; browser and Android exit behavior is accurately described; all existing gameplay/save behavior remains unchanged. This task is QA and accessibility hardening, not a visual redesign or permission to add new gameplay features.
 
 - Establish semantic design tokens and reusable Svelte primitives before expanding the component catalogue.
 - Keep AMOLED as the default and add explicit, locally persisted player themes through Settings → Appearance.
