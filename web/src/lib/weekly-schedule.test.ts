@@ -32,20 +32,21 @@ describe('weekly schedule foundation', () => {
     };
     const result = buildWeeklySchedule('2026-11-02', schedule);
     expect(result.valid).toBe(true);
-    expect(result.blocks.find((block) => block.entryId === 'study-1')?.date).toBe('2026-11-04');
+    expect(result.blocks.some((block) => block.entryId === 'study-1')).toBe(false);
     expect(buildWeeklySchedule('2026-11-09', schedule).issues[0]?.code).toBe('outside-week');
   });
 
-  it('rejects overlaps between recurring commitments and planned activities', () => {
+  it('keeps discretionary activities out of the calendar while preserving recurring commitments', () => {
     const schedule: WeeklySchedule = {
       version: 1,
       commitments: [{ id: 'work', title: 'Work shift', domain: 'work', weekday: 3, startPeriod: 'afternoon', durationBlocks: 1 }],
       activities: [{ id: 'exercise', activityId: 'exercise', date: '2026-11-04', startPeriod: 'afternoon', durationBlocks: 1 }]
     };
     const result = buildWeeklySchedule('2026-11-02', schedule);
-    expect(result.valid).toBe(false);
-    expect(result.issues.some((issue) => issue.code === 'overlap' && issue.entryId === 'exercise' && issue.conflictingEntryId === 'work')).toBe(true);
-    expect(countFreeTimeBlocks('2026-11-02', schedule)).toBe(0);
+    expect(result.valid).toBe(true);
+    expect(result.issues).toHaveLength(0);
+    expect(result.blocks.filter((block) => block.entryId === 'work')).toHaveLength(1);
+    expect(countFreeTimeBlocks('2026-11-02', schedule)).toBe(20);
   });
 
   it('rejects invalid durations, duplicate IDs, and non-Monday week starts', () => {
