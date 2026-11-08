@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { advanceYear, createCharacter, generateRandomCharacter } from './simulation';
-import { getFamilyConnections, interactWithFamily, validateFamilyState } from './family';
+import { createFamilyState, getFamilyConnections, interactWithFamily, validateFamilyState } from './family';
 import { prepareGameEvent, resolveGameEvent } from './events';
 
 describe('persistent family simulation', () => {
@@ -120,5 +120,18 @@ describe('persistent family simulation', () => {
   it('renames the player node when the player changes the generated character name', () => {
     const character = createCharacter('Chosen Name', 18);
     expect(character.family!.people.find((person) => person.id === character.family!.playerPersonId)?.name).toBe('Chosen Name');
+  });
+  
+  it('generates distinct full names for every member of the same family', () => {
+    const family = createFamilyState({
+      name: 'Theo Campbell',
+      age: 18,
+      year: 2026,
+      country: 'Canada',
+      gender: 'male'
+    }, () => 0.5);
+    const names = family.people.map((person) => person.name.trim().toLocaleLowerCase());
+    expect(new Set(names).size).toBe(names.length);
+    expect(validateFamilyState(family)).toEqual([]);
   });
 });
