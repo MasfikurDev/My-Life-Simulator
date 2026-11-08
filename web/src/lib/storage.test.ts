@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createCharacter } from './simulation';
-import { clearSave, getSaveSlots, loadSave, saveCharacter, setActiveSlotId } from './storage';
+import { clearSave, getSaveSlots, getSoundEnabled, getThemePreference, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled, setThemePreference } from './storage';
 
 function installStorage() {
   const values = new Map<string, string>();
@@ -107,5 +107,24 @@ describe('save slots', () => {
     expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(4);
     expect(loadSave('slot-1')?.calendar).toBeDefined();
     expect('actionsRemaining' in (loadSave('slot-1') ?? {})).toBe(false);
+  });
+});
+
+describe('local appearance and audio preferences', () => {
+  it('defaults to AMOLED and keeps theme and sound preferences independent', () => {
+    const values = installStorage();
+    expect(getThemePreference()).toBe('amoled');
+    expect(getSoundEnabled()).toBe(true);
+    setThemePreference('paper');
+    setSoundEnabled(false);
+    expect(getThemePreference()).toBe('paper');
+    expect(getSoundEnabled()).toBe(false);
+    expect(JSON.parse(values.get('my-life-simulator.settings') || '{}')).toEqual({ theme: 'paper', soundEnabled: false });
+  });
+  it('falls back to AMOLED for an unknown stored theme', () => {
+    const values = installStorage();
+    values.set('my-life-simulator.settings', JSON.stringify({ theme: 'unknown', soundEnabled: false }));
+    expect(getThemePreference()).toBe('amoled');
+    expect(getSoundEnabled()).toBe(false);
   });
 });
