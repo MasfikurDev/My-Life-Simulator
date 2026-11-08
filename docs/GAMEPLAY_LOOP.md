@@ -55,7 +55,7 @@ The player should feel that a life is unfolding, not that they are spending abst
 - The current calendar year remains the world year. Advancing one week must never accidentally age the character by one year.
 - The player advances exactly one week at a time through an explicit **Start next week** action. No screen visit, save/load, or background process advances time.
 - Provide a compact calendar/week view, not a real-time clock or hour-by-hour simulation.
-- Do not simulate 168 individual hours, every NPC, travel minute, or every day autonomously. The game uses meaningful recurring commitments, stamina-based activity choices and summarized routines.
+- Do not simulate 168 individual hours, every NPC, travel minute, or every day autonomously. The game uses meaningful automatic background responsibilities, stamina-based activity choices and summarized routines.
 
 ### 3.1.1 Calendar foundation (implemented first slice)
 
@@ -75,12 +75,12 @@ The week is shaped by genuine recurring commitments and the player's stamina bud
 - The player sees the commitments that matter this week. Accepting or leaving a job updates the recurring Work commitments and therefore the weekly workload.
 - Personal activities are weekly choices toggled from their owning workspaces. They consume activity-specific stamina, plus money where appropriate; they do not reserve individual calendar periods.
 - Calendar periods are reserved only by genuine recurring commitments such as school and work. Those commitments affect weekly workload and remain visible in the timetable.
-- Activities can be added or removed directly from their owning workspace; the central Schedule workspace provides a combined review and cancellation list. Do not require the player to fill every week. Rest and quiet weeks are valid.
+- Activities can be added or removed directly from their owning workspace; the central weekly review provides a combined review and cancellation list. Do not require the player to fill every week. Rest and quiet weeks are valid.
 - Stamina is a bounded physical-capacity stat with explicit recovery and workload effects. Stress is inverse-scored (higher is worse) and affects learning/work efficiency. Do not add further need meters without a complete simulation and UI contract.
 - Some choices resolve immediately; others are included in the next weekly simulation. Each activity must show its stamina cost, expected stat/skill rewards, money cost where relevant, and a direct add/remove toggle. The weekly review previews the combined effects before resolution.
 - Events may interrupt or offer alternatives to a schedule. The player should understand which commitment is affected and what the trade-off is.
 
-**No arbitrary universal activity quota:** personal activity choices are limited by stamina and modeled prerequisites, not by free-time slots. Only genuine recurring commitments reserve calendar periods. Where a domain has not implemented a schedule, it must not invent attendance or work hours.
+**No arbitrary universal activity quota:** personal activity choices are limited by stamina and modeled prerequisites, not by free-calendar slots. Only genuine recurring commitments reserve calendar periods. Where a domain has not implemented a schedule, it must not invent attendance or work hours.
 
 ### 3.2.1 Schedule model foundation (implemented first slice)
 
@@ -418,3 +418,12 @@ The initial implemented slice generates a modest family-of-origin context for ne
 
 Do not assume every character has a partner or children. Partnership, parenthood, adoption, separation, caregiving, bereavement, inheritance, and generational play remain future mechanics until their full simulation loops exist. No relationship screen may claim a feature that is not represented in save data. Family interactions, event choices, business management, and personal activities now reserve weekly time and resolve through the same weekly turn.
 
+
+
+## Timetable removal and weekly stamina allocation
+
+The player-facing Schedule system is retired. Do not reintroduce a Schedule tab, seven-day grid, day/period picker, or time-slot allocation for school, work, or personal actions. Education attendance and employment are automatic background responsibilities that progress during weekly resolution and contribute to workload/stress without assigning weekdays or periods.
+
+The weekly activity plan is a set of optional choices toggled in their domain workspaces. Stamina is reserved as a budget rather than deducted when an item is selected. The valid-plan rule is current stamina plus planned recovery minus all selected activity costs must be non-negative. Recovery is order-independent and applied once before reserved activity costs; weekly fatigue/recovery is applied separately. The Advance review must block an over-budget plan and must never show negative stamina.
+
+Existing saves are migrated by preserving all non-scheduling character data and selected personal actions, clearing legacy commitments, and retaining the original payload as a recovery backup. New enrollment and employment changes must not create calendar reservations.
