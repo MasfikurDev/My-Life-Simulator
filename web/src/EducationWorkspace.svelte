@@ -12,9 +12,7 @@
   const enrollment = $derived(character.educationEnrollment ?? null);
   const progress = $derived(enrollment ? Math.min(100, Math.round(enrollment.weeksCompleted / enrollment.totalWeeks * 100)) : 0);
   const plannedTasks = $derived(character.weeklySchedule?.activities.filter((item) => item.action?.kind === 'education') ?? []);
-  const classCommitments = $derived(character.weeklySchedule?.commitments.filter((item) => item.domain === 'school') ?? []);
   const independentStudy = $derived(character.weeklySchedule?.activities.find((item) => item.activityId === 'study' && item.action?.kind === 'activity'));
-  function weekdayName(day: number) { return ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day - 1] ?? 'Day'; }
   function enroll() {
     if (!selectedProgram) return;
     const field = selectedField && selectedProgram.fieldOptions.includes(selectedField) ? selectedField : selectedProgram.fieldOptions[0];
@@ -57,7 +55,6 @@
     </div>
     <div class="education-footnote">{#if enrollment.status === 'paused'}Progress retained{:else}{enrollment.weeklyStudyTarget} study points required each week{/if}</div>
     {#if enrollment.status === 'paused'}<button class="primary-button education-pause" onclick={resume}>Resume programme</button>{:else}<button class="secondary-button education-pause" onclick={pause}>Pause programme</button>{/if}
-    {#if classCommitments.length}<div class="education-class-schedule"><strong>Automatic weekly timetable</strong>{#each classCommitments as item}<span>{weekdayName(item.weekday)} · {item.startPeriod} · {item.title}</span>{/each}</div>{/if}
   </section>
 
   {#if enrollment.status === 'enrolled'}
@@ -69,7 +66,7 @@
       <button class="education-task-card" class:planned={taskPlanned('assignment')}  onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>{enrollment.level === 'early-learning' ? 'Story time' : 'Assignment'}</strong><small>{enrollment.level === 'early-learning' ? 'Build language and communication with shared stories' : 'Complete coursework and practical exercises'}</small><b>{taskPlanned('assignment') ? 'REMOVE FROM WEEK' : 'ADD ASSIGNMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
       <button class="education-task-card" class:planned={taskPlanned('exam')}  onclick={() => planTask('exam')}><span class="education-task-icon">✓</span><strong>{enrollment.level === 'early-learning' ? 'Discovery activity' : 'Quiz / exam prep'}</strong><small>{enrollment.level === 'early-learning' ? 'Explore objects, sounds and movement with a caregiver' : 'Prepare for an assessment or sit a weekly quiz'}</small><b>{taskPlanned('exam') ? 'REMOVE FROM WEEK' : 'ADD ASSESSMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
     </div>
-    <div class="education-footnote">Each task uses stamina. Class attendance remains on your automatic school timetable.</div>
+    <div class="education-footnote">Each task uses stamina. Attendance is handled automatically as part of your education programme.</div>
   </section>
   {/if}
 {:else}

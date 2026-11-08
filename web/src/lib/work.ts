@@ -1,4 +1,4 @@
-import type { CareerPathId, Character, Employment, EmploymentType, JobApplication, JobOffer, PromotionOffer, WeeklyCommitment } from './types';
+import type { CareerPathId, Character, Employment, EmploymentType, JobApplication, JobOffer, PromotionOffer } from './types';
 import { addCalendarDays } from './calendar';
 
 export interface CareerRole {
@@ -313,26 +313,10 @@ function formatSalary(character: Character, amount: number): string {
   return currency + ' ' + Math.round(amount).toLocaleString('en-US');
 }
 
-export function syncEmploymentCommitments(character: Character, employment: Employment | null): Character {
+/** Legacy adapter: employment is now a background responsibility, never a calendar reservation. */
+export function syncEmploymentCommitments(character: Character, _employment: Employment | null): Character {
   const schedule = character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] };
-  const nonWorkCommitments = schedule.commitments.filter((commitment) => commitment.domain !== 'work');
-  if (!employment) {
-    return { ...character, weeklySchedule: { ...schedule, commitments: nonWorkCommitments } };
-  }
-  const shifts: Array<{ weekday: 1 | 2 | 3 | 4 | 5 | 6 | 7; startPeriod: 'morning' | 'afternoon'; durationBlocks: number }> =
-    employment.type === 'full-time'
-      ? [1, 2, 3, 4, 5].map((weekday) => ({ weekday: weekday as 1 | 2 | 3 | 4 | 5, startPeriod: 'morning' as const, durationBlocks: 2 }))
-      : employment.type === 'part-time'
-        ? [1, 3, 5].map((weekday) => ({ weekday: weekday as 1 | 3 | 5, startPeriod: 'afternoon' as const, durationBlocks: 1 }))
-        : [2, 4, 6].map((weekday) => ({ weekday: weekday as 2 | 4 | 6, startPeriod: 'morning' as const, durationBlocks: 1 }));
-  const employerLabel = employment.employer ?? employment.title;
-  const commitments: WeeklyCommitment[] = shifts.map((shift) => ({
-    id: 'work-' + (employment.roleId ?? employment.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')) + '-' + shift.weekday,
-    title: 'Work · ' + employerLabel,
-    domain: 'work',
-    ...shift
-  }));
-  return { ...character, weeklySchedule: { ...schedule, commitments: [...nonWorkCommitments, ...commitments] } };
+  return { ...character, weeklySchedule: { ...schedule, commitments: [] } };
 }
 
 export function acceptJobOffer(character: Character, offerId: string): Character {

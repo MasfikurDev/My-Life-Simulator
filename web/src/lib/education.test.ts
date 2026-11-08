@@ -13,12 +13,12 @@ describe('education progression', () => {
     expect(getAvailableEducationPrograms(adult).some((program) => program.level === 'doctorate')).toBe(false);
   });
 
-  it('enrolls a student and automatically adds recurring class commitments', () => {
+  it('enrolls a student without creating a class timetable', () => {
     const student = createCharacter('Student', 10);
     const result = enrollInEducation(student, 'primary-school', 'General studies');
     expect(result.issue).toBeNull();
     expect(result.character.educationEnrollment?.weeklyStudyTarget).toBe(2);
-    expect(result.character.weeklySchedule?.commitments.filter((item) => item.domain === 'school')).toHaveLength(5);
+    expect(result.character.weeklySchedule?.commitments).toHaveLength(0);
     expect(result.character.educationRecords?.[0].status).toBe('enrolled');
   });
 
@@ -51,7 +51,7 @@ describe('education progression', () => {
     expect(result.character.qualifications?.some((item) => item.field === 'Programming')).toBe(true);
   });
 
-  it('pauses education and releases recurring class time', () => {
+  it('pauses and resumes education without calendar reservations', () => {
     const enrolled = enrollInEducation(createCharacter('Student', 10), 'primary-school', 'General studies').character;
     const paused = pauseEducation(enrolled);
     expect(paused.educationEnrollment?.status).toBe('paused');
@@ -61,14 +61,14 @@ describe('education progression', () => {
     const resumed = resumeEducation(paused);
     expect(resumed.issue).toBeNull();
     expect(resumed.character.educationEnrollment?.status).toBe('enrolled');
-    expect(resumed.character.weeklySchedule?.commitments.some((item) => item.domain === 'school')).toBe(true);
+    expect(resumed.character.weeklySchedule?.commitments).toHaveLength(0);
   });
   it('supports early development from birth without awarding a formal degree', () => {
     const infant = createCharacter('Infant', 1);
     expect(getAvailableEducationPrograms(infant).some((program) => program.id === 'early-development')).toBe(true);
     const enrolled = enrollInEducation(infant, 'early-development', 'Play & discovery');
     expect(enrolled.issue).toBeNull();
-    expect(enrolled.character.weeklySchedule?.commitments.filter((item) => item.domain === 'school')).toHaveLength(3);
+    expect(enrolled.character.weeklySchedule?.commitments).toHaveLength(0);
     const completed = resolveEducationWeek({ ...enrolled.character, educationEnrollment: { ...enrolled.character.educationEnrollment!, totalWeeks: 1 } }, ['study'], '2026-11-02', 4);
     expect(completed.character.academicHistory?.[0].outcome).toBe('completed');
     expect(completed.character.qualifications ?? []).toHaveLength(0);

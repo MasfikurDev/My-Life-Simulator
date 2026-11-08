@@ -798,9 +798,6 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
   .health-care-grid{grid-template-columns:1fr}
 }
 
-.education-class-schedule,.education-planned-list{display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
-.education-class-schedule strong,.education-planned-list strong{font-size:11px;color:var(--text)}
-.education-class-schedule span,.education-planned-list span{font-size:10px;color:var(--muted)}
 
 .education-planned-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .education-planned-row .text-button{padding:4px 7px;font-size:10px}
@@ -1120,7 +1117,10 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
 .education-task-card:disabled strong,.health-care-card:disabled strong{color:var(--muted)}
 .education-task-card:disabled small,.health-care-card:disabled p,.health-care-card:disabled small{color:var(--muted)}
 .education-task-card:disabled b,.health-care-card:disabled b{color:var(--muted)}
-.education-task-card:disabled::after,.health-care-card:disabled::after{content:"PLANNED";position:absolute;inset:0;z-index:2;display:grid;place-items:center;background:color-mix(in srgb,var(--bg) 58%, transparent);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);border:1px solid color-mix(in srgb,var(--line-strong) 16%, transparent);border-radius:inherit;color:var(--text);font-size:9px;font-weight:850;letter-spacing:1.5px;text-shadow:0 1px 5px var(--shadow-color)}
+.education-task-card.planned::after,.health-care-card.planned::after{content:"PLANNED";position:absolute;inset:0;z-index:2;display:grid;place-items:center;pointer-events:none;background:color-mix(in srgb,var(--bg) 58%, transparent);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);border:1px solid color-mix(in srgb,var(--line-strong) 16%, transparent);border-radius:inherit;color:var(--text);font-size:9px;font-weight:850;letter-spacing:1.5px;text-shadow:0 1px 5px var(--shadow-color)}
+
+.work-secondary.planned,.work-primary.planned,.relative-actions button.planned,.asset-actions button.planned,.education-independent-study button.planned{position:relative;overflow:hidden}
+.work-secondary.planned::after,.work-primary.planned::after,.relative-actions button.planned::after,.asset-actions button.planned::after,.education-independent-study button.planned::after{content:"PLANNED";position:absolute;inset:0;z-index:2;display:grid;place-items:center;pointer-events:none;background:color-mix(in srgb,var(--bg) 58%,transparent);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);border:1px solid color-mix(in srgb,var(--line-strong) 16%,transparent);border-radius:inherit;color:var(--text);font-size:9px;font-weight:850;letter-spacing:1.2px;text-shadow:0 1px 5px var(--shadow-color)}
 @media(max-width:620px){.education-task-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.health-care-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.education-task-card,.health-care-card{padding:9px}.education-task-card strong,.health-care-card strong{font-size:10px}.education-task-card small,.health-care-card p{font-size:8px}}
 @media(max-width:360px){.education-task-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 

@@ -43,9 +43,9 @@ describe('save slots', () => {
     expect(loadSave('slot-1')?.name).toBe('First');
     expect(loadSave('slot-2')?.name).toBe('Second');
     expect(loadSave('slot-1')?.calendar).toBeDefined();
-    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(4);
+    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(5);
   });
-  it('migrates schema 3 employed saves to recurring Work commitments', () => {
+  it('migrates schema 3 employed saves without recreating Work timetables', () => {
     const values = installStorage();
     const worker = {
       ...createCharacter('Existing worker', 30),
@@ -71,9 +71,27 @@ describe('save slots', () => {
       ]
     }));
     const migrated = loadSave('slot-1')!;
-    expect(migrated.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
-    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(4);
+    expect(migrated.weeklySchedule?.commitments).toHaveLength(0);
+    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(5);
     expect(values.get('my-life-simulator.save.pre-weekly-migration')).toBeTruthy();
+  });
+  it('preserves the exact schema 4 payload before removing timetable commitments', () => {
+    const values = installStorage();
+    const worker = {
+      ...createCharacter('Legacy worker', 30),
+      employment: { title: 'Operations assistant', type: 'full-time' as const, annualSalary: 18000, experienceYears: 2, performance: 70, promotions: 0, startedAtAge: 28 },
+      weeklySchedule: { version: 1 as const, commitments: [{ id: 'old-shift', title: 'Work shift', domain: 'work' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 2 }], activities: [] }
+    };
+    const legacy = JSON.stringify({ schemaVersion: 4, activeSlotId: 'slot-1', slots: [
+      { id: 'slot-1', character: worker, updatedAt: 1 },
+      { id: 'slot-2', character: null, updatedAt: null },
+      { id: 'slot-3', character: null, updatedAt: null }
+    ] });
+    values.set('my-life-simulator.save', legacy);
+    const migrated = loadSave('slot-1')!;
+    expect(migrated.weeklySchedule?.commitments).toHaveLength(0);
+    expect(values.get('my-life-simulator.save.pre-timetable-migration')).toBe(legacy);
+    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(5);
   });
   it('migrates pending event action costs into weekly time blocks', () => {
     const values = installStorage();
@@ -96,7 +114,7 @@ describe('save slots', () => {
     values.set('my-life-simulator.save', legacy);
     loadSave('slot-1');
     expect(values.get('my-life-simulator.save.pre-weekly-migration')).toBe(legacy);
-    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(4);
+    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(5);
   });
   it('migrates the previous single-save format to the weekly calendar without losing its character', () => {
     const values = installStorage();
@@ -104,7 +122,7 @@ describe('save slots', () => {
     values.set('my-life-simulator.save', JSON.stringify({ schemaVersion: 1, character }));
     expect(loadSave('slot-1')).toEqual(character);
     expect(getSaveSlots()[0].character).toEqual(character);
-    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(4);
+    expect(JSON.parse(values.get('my-life-simulator.save') || '{}').schemaVersion).toBe(5);
     expect(loadSave('slot-1')?.calendar).toBeDefined();
     expect('actionsRemaining' in (loadSave('slot-1') ?? {})).toBe(false);
   });

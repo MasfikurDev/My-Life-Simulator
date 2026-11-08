@@ -6,8 +6,8 @@
 
 This is a repository-backed progress snapshot, not a claim that every visible workspace is a complete simulation system. The detailed system specifications below remain authoritative for behavior and acceptance criteria.
 
-- **Weekly simulation:** the annual-action-to-weekly-turn transition is implemented. Calendar, recurring School/Work commitments, stamina-based personal activities, deterministic weekly resolution, history, recap, and save migration are in place.
-- **Education:** playable foundation from school through higher education/professional programmes, with enrollment, class commitments, weekly study/assessment tasks, grades, tuition, and qualification records. Localization, licensing, scholarships, retakes, and apprenticeships remain incomplete.
+- **Weekly simulation:** the annual-action-to-weekly-turn transition is implemented. Date/week calendar, automatic School/Work responsibilities, stamina-based personal activities, deterministic weekly resolution, history, recap, and schema 5 timetable-removal migration are in place.
+- **Education:** playable foundation from school through higher education/professional programmes, with enrollment, automatic attendance/progression, weekly study/assessment tasks, grades, tuition, and qualification records. Localization, licensing, scholarships, retakes, and apprenticeships remain incomplete.
 - **Work:** recruitment, applications, interviews, offers, employment, job changes/resignation, career previews, and player-controlled promotion offers exist. Employer operations, persistent vacancies, workplace decisions, layoffs, benefits, bonuses, and monthly payroll remain incomplete.
 - **Finance:** broad systems exist for accounts, cards, savings, loans, recurring payments, property, investments, business ownership, taxes, credit scoring, and economic indicators. The weekly-to-monthly settlement transition is not complete; salary and household settlement remain annual, a known pacing limitation.
 - **Family:** persistent people/relationship graph, bonds, targeted interactions, family history, and ledger-backed adult support exist. Partnership, parenthood, adoption, dependants, caregiving, family mortality, inheritance, and generational play remain planned.
@@ -51,7 +51,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add the initial age-derived education labels and study-progress foundation.
 - [x] Add optional structured education-history and qualification records to the character model, plus generated stamina, focus, confidence, discipline, creativity, social skills and stress attributes.
 - [x] Add a playable education catalogue from early learning and primary/secondary school through vocational, college, bachelor's, master's, doctoral and professional certificate/specialist routes.
-- [x] Build the Education workspace with enrollment, automatically arranged class commitments, subjects, grades, weekly study/assignment/assessment tasks, tuition, pause/resume and academic history.
+- [x] Build the Education workspace with enrollment, automatic attendance and progression, subjects, grades, weekly study/assignment/assessment tasks, tuition, pause/resume and academic history.
 - [x] Add professional certificate courses and programme-linked qualifications; connect completed degrees and programme IDs to career eligibility.
 - [ ] Expand localized course catalogs, regulated licensing, qualification expiry/renewal, scholarships, retakes and apprenticeship placements.
 - [x] Add role/course-specific ability prerequisites and weekly stress/stamina effects on learning and work efficiency.
@@ -78,7 +78,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add Life → Lifestyle with a provider marketplace, supermarket checkout, owned subscriptions/services, payment-method references, and household costs.
 - [x] Separate School and Work into age-gated, domain-native destinations using existing simulation actions and save fields.
 - [x] Consolidate personal wellbeing, personal growth, personal activities, and complete life history under a modular Life workspace.
-- [x] Expand Education with enrollment, attendance commitments, classes, grades, weekly tasks, programme completion and education history.
+- [x] Expand Education with enrollment, automatic attendance and course progression, grades, weekly tasks, programme completion and education history.
 - [x] Implement a weekly job board, visible role requirements, scheduled applications and interviews, expiring offers, acceptance/decline, career-path previews, player-controlled promotion offers, and voluntary resignation.
 - [x] Add initial role-specific eligibility gates for focus, social skills, confidence, discipline and creativity alongside age, education, intelligence and experience.
 - [ ] Expand work into a complete age-appropriate path spanning part-time work, internships, apprenticeships, skilled occupations, professional careers, management and flexible later-life work; connect it to real education and credential records.
@@ -86,25 +86,25 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 ## Milestone 3 — Replace annual actions with the weekly gameplay cycle (core transition complete)
 
-**Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. Personal activities now use stamina rather than individual time slots; recurring school/work commitments continue to reserve the calendar. Weekly review is simulation-backed and deterministic. Remaining work is listed separately below.
+**Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. Personal activities use a stamina budget; school/work are automatic background responsibilities and do not reserve calendar periods. Weekly review is simulation-backed and deterministic. Remaining work is listed separately below.
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
-- [x] Define a compact calendar model for genuine recurring commitments only; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment adds type-based recurring Work shifts; Education enrollment adds recurring class commitments to the same validated schedule.
-- [x] Add a Schedule review workspace with a seven-day, 21-period grid for recurring commitments, plus a consolidated personal-activity list with stamina/money costs and cancellation. Routine actions are initiated only from their owning domain.
-- [x] Centralize activity eligibility and validate weekly actions, stamina/money costs, and recurring commitment conflicts. Personal activities do not reserve calendar periods.
+- [x] Keep a compact date/week calendar for birthdays and time progression; do not simulate every hour or allocate daily periods. Education and employment are automatic weekly background responsibilities; workload is calculated from those obligations and selected activities.
+- [x] Remove the Schedule workspace and timetable grid; the Advance review is the consolidated plan/outcome surface.
+- [x] Centralize activity eligibility and validate weekly actions, stamina/money costs, and stamina allocation. Personal activities do not reserve calendar periods.
 - [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, business management, and contextual Work actions.
-- [x] Make routine scheduling contextual and automatic across School, Work, Family, Business, Events, and Life; return the chosen date/period to the originating screen and keep the player out of generic date/time forms.
-- [x] Keep Schedule as a review/cancellation surface rather than a generic action launcher.
-- [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once; reject and preserve a turn if a reservation becomes stale before resolution.
+- [x] Make weekly activity selection contextual across School, Work, Family, Business, Events, and Life; no date/period entry is exposed to the player.
+- [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once; reject and preserve a turn if a selected action becomes stale or exceeds the stamina budget.
 - [x] Add deterministic, exactly-once weekly resolution with history, recap, and seven-day calendar advancement.
 - [ ] Adapt remaining contextual events, deadlines, and delayed consequences to date/week boundaries.
 - [ ] Move recurring payments, employment payroll, and business operating cash flow to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries. Until then, salary and household settlement remain annual and are a known pacing limitation of the weekly loop.
 - [ ] Prevent duplicate or skipped financial settlement across month/year boundaries; document rounding and payment-failure behavior.
-- [x] Migrate schema 1 single-save and schema 2 multi-slot saves to the weekly model; preserve valid character records and all three slots, anchor missing calendars without changing displayed age, and retain the original payload as a recovery copy.
+- [x] Migrate schema 1 single-save and schema 2/3/4 multi-slot saves to the weekly model; preserve valid character records and all three slots, anchor missing calendars without changing displayed age, and retain the original payload as a recovery copy.
+- [x] Add schema 5 timetable-removal migration: preserve planned personal actions and character data, clear legacy school/work time-slot commitments, and stop regenerating them.
 - [ ] Add multi-week advancement only after single-week resolution is reliable; it must stop before important decisions, deadlines, events, birthdays, and payment failures.
 - [ ] Complete the concise weekly review, add a monthly Finance statement when monthly settlement is implemented, and keep the annual life review separate from weekly recap.
 
-**Acceptance:** A fresh and migrated save can play several weeks with stamina-limited personal activities, genuine school/work timetable conflicts, contextual events, and persistent consequences. Month-end and year-end processing occur exactly once. Birthday/age eligibility changes on the correct date. Quiet weeks can be advanced quickly. Scenario tests cover a school-age child, employed adult, unemployed adult, and later-life character. Existing saves and all financial invariants remain intact.
+**Acceptance:** A fresh and migrated save can play several weeks with stamina-limited personal activities, automatic school/work responsibilities, contextual events, and persistent consequences. Month-end and year-end processing occur exactly once. Birthday/age eligibility changes on the correct date. Quiet weeks can be advanced quickly. Scenario tests cover a school-age child, employed adult, unemployed adult, and later-life character. Existing saves and all financial invariants remain intact.
 
 ## Milestone 4 — Personal Technology (after weekly time foundation)
 
@@ -122,13 +122,13 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Acceptance:** Device ownership and costs persist accurately; failed transactions are atomic; capabilities enable specific contextual opportunities; other domains do not duplicate device management; existing saves remain valid. Detailed rules: [PERSONAL_TECHNOLOGY.md](PERSONAL_TECHNOLOGY.md).
 
 ## Milestone 5 — Deepen School and Work into playable systems
-- [x] Add education progression choices, enrollment, class commitments, weekly assignments/exams, grades, tuition and academic history in the Education workspace.
+- [x] Add education progression choices, enrollment, automatic attendance/progression, weekly assignments/exams, grades, tuition and academic history in the Education workspace.
 - [x] Add recruitment stages with applications, interviews, offers, acceptance/decline, generated employer identity, and job-change/resignation flow in Work.
 - [ ] Add persistent employer operations, workplace decisions, layoffs/job security, and role-specific skill development.
 - [ ] Clarify the current-job card and add a read-only career-path preview with estimated salary/bonus ranges; see [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md).
 - [x] Connect general education, knowledge, career experience, performance, and role requirements to transparent readiness checks and player-controlled promotion offers without a universal fixed-week grind.
 - [ ] Add role-specific skills, persistent vacancies, employer decisions, and promotion outcomes tied to workplace conditions.
-- [x] Add job changes and voluntary resignation through the shared employment record. Job type now controls recurring Work commitments, and changing/leaving jobs replaces or removes those commitments safely.
+- [x] Add job changes and voluntary resignation through the shared employment record. Employment type informs automatic background workload; job changes do not create calendar reservations.
 - [ ] Add conditional bonuses/benefits, monthly payroll, career stability, layoffs, and deeper workplace progression only with complete finance and employer loops.
 
 **Acceptance:** Education and career choices change future options and have visible consequences; no placeholder status is shown as a real mechanic.
@@ -194,7 +194,7 @@ Every milestone needs a playable outcome and acceptance criteria. Avoid parallel
 - [ ] Put the title screen inside a semantic `<main>` landmark and add a visible-on-focus skip link to the primary content. Ensure each application screen has a clear page landmark and heading hierarchy.
 - [ ] Review character-creation typography and shared metadata labels. Raise essential 8–10px text to a readable shared type scale where possible without losing the compact layout; verify contrast in every theme.
 - [ ] Make the exit/close action's label and explanatory feedback platform-aware: do not promise that a browser tab will close when the browser prevents it, while preserving the Android wrapper's supported exit behavior.
-- [ ] Run a real narrow-screen pass on Android-sized viewports for the main menu, character creation, Overview, Life, Finance, Education, Work, Family, Settings, Schedule, and all dialogs. Check horizontal overflow, wrapping, centering, safe areas, scroll containment, and touch-target sizing.
+- [ ] Run a real narrow-screen pass on Android-sized viewports for the main menu, character creation, Overview, Life, Finance, Education, Work, Family, Settings, weekly review, and all dialogs. Check horizontal overflow, wrapping, centering, safe areas, scroll containment, and touch-target sizing.
 - [ ] Repeat the same visual/contrast/focus checks in AMOLED, Midnight, Graphite, and Paper themes. Capture before/after screenshots for any layout fixes.
 - [ ] Run keyboard-only checks (Tab/Shift+Tab, Enter/Space, Escape), screen-reader semantics checks for selected states and dialogs, and reduced-motion checks.
 - [ ] Run Svelte checks, the complete Vitest suite, and the production build after implementation; record exact results and distinguish existing warnings from new regressions.
@@ -205,3 +205,18 @@ Every milestone needs a playable outcome and acceptance criteria. Avoid parallel
 - Keep AMOLED as the default and add explicit, locally persisted player themes through Settings → Appearance.
 - Migrate repeated controls and surfaces to semantic tokens; preserve each domain's own visual language and avoid a generic dashboard/card system.
 - Shared primitives and semantic color migration are implemented across the current screens. Expand the component set only when multiple screens have a real repeated pattern. Verify contrast, focus, touch targets and responsive behavior across every theme.
+
+
+## Milestone — Lifestyle quality and financial progression
+
+**Goal:** Make money change the quality, safety, and range of everyday life without reducing the system to a single expensive-is-always-best stat bonus. See [LIFESTYLE_ECONOMY.md](LIFESTYLE_ECONOMY.md).
+
+- [ ] Add food choices with clear price, nutrition, health, energy, and convenience trade-offs; include low-cost fast food, basic meals, balanced meals, and premium/gourmet options.
+- [ ] Make food quality affect nutrition and health over time, with affordability and access constraints appropriate to the character's age and household.
+- [ ] Add quality tiers for useful everyday goods and services, where durable/reliable items reduce risk or recurring costs and premium options offer comfort or efficiency rather than raw universal stat boosts.
+- [ ] Connect lifestyle purchases to the existing cash/card/ledger transaction system; never create a second wallet or bypass affordability checks.
+- [ ] Model the transition from budget survival to financial stability and affluence: savings/investment capacity, emergency resilience, better choices, and lower exposure to avoidable risks.
+- [ ] Ensure low-income characters retain viable low-cost choices; premium goods must not become mandatory progression gates.
+- [ ] Test contrasting scenarios: financially constrained student, working adult saving toward stability, and affluent character choosing higher-quality living.
+
+**Acceptance:** Money has meaningful short-, medium-, and long-term value. Cheaper options remain viable but carry understandable trade-offs; better-quality options provide grounded benefits at proportionate prices; purchases are recorded atomically and cannot bypass available-funds rules.

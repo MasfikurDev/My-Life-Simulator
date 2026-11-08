@@ -1,6 +1,4 @@
-import type { AcademicResult, Character, EducationEnrollment, EducationLevel, EducationRecord, EducationTaskType, Qualification, WeeklyCommitment, DayPeriod } from './types';
-import { buildWeeklySchedule } from './weekly-schedule';
-import { getWeekStart, getFirstWeekStartOfYear } from './calendar';
+import type { AcademicResult, Character, EducationEnrollment, EducationLevel, EducationRecord, EducationTaskType, Qualification } from './types';
 
 export interface EducationProgram {
   id: string;
@@ -17,27 +15,22 @@ export interface EducationProgram {
   minIntelligence?: number;
   minFocus?: number;
   minDiscipline?: number;
-  schedule: Array<{ weekday: 1 | 2 | 3 | 4 | 5 | 6 | 7; startPeriod: 'morning' | 'afternoon' | 'evening'; durationBlocks: number }>;
 }
 
-const weekdays = [1, 2, 3, 4, 5] as const;
-const schoolSchedule = weekdays.map((weekday) => ({ weekday, startPeriod: 'morning' as const, durationBlocks: 2 }));
-const collegeSchedule = ([1, 2, 3, 4] as const).map((weekday) => ({ weekday, startPeriod: 'morning' as const, durationBlocks: 2 }));
-const flexibleSchedule = ([2, 4] as const).map((weekday) => ({ weekday, startPeriod: 'evening' as const, durationBlocks: 1 }));
 
 export const EDUCATION_PROGRAMS: EducationProgram[] = [
-  { id: 'early-development', title: 'Early development & guided play', institutionType: 'Family-led early development', level: 'early-learning', minAge: 0, maxAge: 2, durationWeeks: 104, tuition: 0, weeklyStudyTarget: 1, fieldOptions: ['Play & discovery', 'Language & stories', 'Movement & coordination'], schedule: ([1, 3, 5] as const).map((weekday) => ({ weekday, startPeriod: 'morning', durationBlocks: 1 })) },
-  { id: 'early-learning', title: 'Early learning & preschool', institutionType: 'Preschool', level: 'early-learning', minAge: 3, maxAge: 5, durationWeeks: 32, tuition: 0, weeklyStudyTarget: 1, fieldOptions: ['Foundations'], schedule: ([1, 3, 5] as const).map((weekday) => ({ weekday, startPeriod: 'morning', durationBlocks: 1 })) },
-  { id: 'primary-school', title: 'Primary school', institutionType: 'Public school', level: 'primary', minAge: 6, maxAge: 11, durationWeeks: 240, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies'], schedule: schoolSchedule },
-  { id: 'lower-secondary', title: 'Lower secondary school', institutionType: 'Secondary school', level: 'lower-secondary', minAge: 12, maxAge: 14, durationWeeks: 120, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies', 'Science', 'Humanities', 'Business studies'], schedule: schoolSchedule, prerequisite: 'primary' },
-  { id: 'upper-secondary', title: 'Upper secondary school', institutionType: 'Secondary school / college', level: 'upper-secondary', minAge: 15, maxAge: 19, durationWeeks: 120, tuition: 0, weeklyStudyTarget: 3, fieldOptions: ['Science', 'Humanities', 'Business studies', 'Arts'], schedule: schoolSchedule, prerequisite: 'lower-secondary' },
-  { id: 'vocational-diploma', title: 'Vocational diploma', institutionType: 'Technical institute', level: 'vocational', minAge: 16, maxAge: 120, durationWeeks: 64, tuition: 360, weeklyStudyTarget: 2, fieldOptions: ['Electrical trades', 'Construction', 'Hospitality', 'Automotive', 'Information technology', 'Healthcare support'], minIntelligence: 35, minDiscipline: 35, schedule: collegeSchedule },
-  { id: 'college-associate', title: 'College diploma / associate degree', institutionType: 'College', level: 'associate', minAge: 18, maxAge: 120, durationWeeks: 96, tuition: 620, weeklyStudyTarget: 3, fieldOptions: ['Business', 'Computing', 'Engineering', 'Health sciences', 'Arts'], minIntelligence: 45, minFocus: 40, schedule: collegeSchedule, prerequisite: 'upper-secondary' },
-  { id: 'bachelor-degree', title: "Bachelor's degree", institutionType: 'University', level: 'bachelor', minAge: 18, maxAge: 120, durationWeeks: 160, tuition: 980, weeklyStudyTarget: 3, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Medicine & health sciences', 'Law', 'Education', 'Natural sciences', 'Social sciences', 'Arts'], minIntelligence: 50, minFocus: 45, minDiscipline: 40, schedule: collegeSchedule, prerequisite: 'upper-secondary' },
-  { id: 'masters-degree', title: "Master's degree", institutionType: 'University / graduate school', level: 'master', minAge: 21, maxAge: 120, durationWeeks: 80, tuition: 1250, weeklyStudyTarget: 3, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Public health', 'Law', 'Education', 'Research sciences'], minIntelligence: 60, minFocus: 55, minDiscipline: 55, schedule: collegeSchedule, prerequisite: 'bachelor' },
-  { id: 'doctoral-degree', title: 'Doctoral / PhD programme', institutionType: 'Graduate research school', level: 'doctorate', minAge: 24, maxAge: 120, durationWeeks: 160, tuition: 1600, weeklyStudyTarget: 3, fieldOptions: ['Computing research', 'Engineering research', 'Medical research', 'Business research', 'Natural sciences', 'Social sciences'], minIntelligence: 70, minFocus: 65, minDiscipline: 65, schedule: flexibleSchedule, prerequisite: 'master' },
-  { id: 'professional-specialist', title: 'Professional specialist programme', institutionType: 'Professional institute', level: 'professional-specialist', minAge: 21, maxAge: 120, durationWeeks: 48, tuition: 840, weeklyStudyTarget: 2, fieldOptions: ['Project management', 'Cybersecurity', 'Accounting', 'Teaching', 'Clinical specialization', 'Data science'], minIntelligence: 55, minFocus: 50, minDiscipline: 50, schedule: flexibleSchedule, prerequisite: 'bachelor' },
-  { id: 'professional-certificate', title: 'Professional certificate course', institutionType: 'Training provider', level: 'professional-specialist', minAge: 16, maxAge: 120, durationWeeks: 12, tuition: 240, weeklyStudyTarget: 2, fieldOptions: ['Digital skills', 'Programming', 'First aid', 'Workplace safety', 'Communication', 'Small business'], minFocus: 35, minDiscipline: 35, schedule: flexibleSchedule }
+  { id: 'early-development', title: 'Early development & guided play', institutionType: 'Family-led early development', level: 'early-learning', minAge: 0, maxAge: 2, durationWeeks: 104, tuition: 0, weeklyStudyTarget: 1, fieldOptions: ['Play & discovery', 'Language & stories', 'Movement & coordination'] },
+  { id: 'early-learning', title: 'Early learning & preschool', institutionType: 'Preschool', level: 'early-learning', minAge: 3, maxAge: 5, durationWeeks: 32, tuition: 0, weeklyStudyTarget: 1, fieldOptions: ['Foundations'] },
+  { id: 'primary-school', title: 'Primary school', institutionType: 'Public school', level: 'primary', minAge: 6, maxAge: 11, durationWeeks: 240, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies'] },
+  { id: 'lower-secondary', title: 'Lower secondary school', institutionType: 'Secondary school', level: 'lower-secondary', minAge: 12, maxAge: 14, durationWeeks: 120, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies', 'Science', 'Humanities', 'Business studies'], prerequisite: 'primary' },
+  { id: 'upper-secondary', title: 'Upper secondary school', institutionType: 'Secondary school / college', level: 'upper-secondary', minAge: 15, maxAge: 19, durationWeeks: 120, tuition: 0, weeklyStudyTarget: 3, fieldOptions: ['Science', 'Humanities', 'Business studies', 'Arts'], prerequisite: 'lower-secondary' },
+  { id: 'vocational-diploma', title: 'Vocational diploma', institutionType: 'Technical institute', level: 'vocational', minAge: 16, maxAge: 120, durationWeeks: 64, tuition: 360, weeklyStudyTarget: 2, fieldOptions: ['Electrical trades', 'Construction', 'Hospitality', 'Automotive', 'Information technology', 'Healthcare support'], minIntelligence: 35, minDiscipline: 35 },
+  { id: 'college-associate', title: 'College diploma / associate degree', institutionType: 'College', level: 'associate', minAge: 18, maxAge: 120, durationWeeks: 96, tuition: 620, weeklyStudyTarget: 3, fieldOptions: ['Business', 'Computing', 'Engineering', 'Health sciences', 'Arts'], minIntelligence: 45, minFocus: 40, prerequisite: 'upper-secondary' },
+  { id: 'bachelor-degree', title: "Bachelor's degree", institutionType: 'University', level: 'bachelor', minAge: 18, maxAge: 120, durationWeeks: 160, tuition: 980, weeklyStudyTarget: 3, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Medicine & health sciences', 'Law', 'Education', 'Natural sciences', 'Social sciences', 'Arts'], minIntelligence: 50, minFocus: 45, minDiscipline: 40, prerequisite: 'upper-secondary' },
+  { id: 'masters-degree', title: "Master's degree", institutionType: 'University / graduate school', level: 'master', minAge: 21, maxAge: 120, durationWeeks: 80, tuition: 1250, weeklyStudyTarget: 3, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Public health', 'Law', 'Education', 'Research sciences'], minIntelligence: 60, minFocus: 55, minDiscipline: 55, prerequisite: 'bachelor' },
+  { id: 'doctoral-degree', title: 'Doctoral / PhD programme', institutionType: 'Graduate research school', level: 'doctorate', minAge: 24, maxAge: 120, durationWeeks: 160, tuition: 1600, weeklyStudyTarget: 3, fieldOptions: ['Computing research', 'Engineering research', 'Medical research', 'Business research', 'Natural sciences', 'Social sciences'], minIntelligence: 70, minFocus: 65, minDiscipline: 65, prerequisite: 'master' },
+  { id: 'professional-specialist', title: 'Professional specialist programme', institutionType: 'Professional institute', level: 'professional-specialist', minAge: 21, maxAge: 120, durationWeeks: 48, tuition: 840, weeklyStudyTarget: 2, fieldOptions: ['Project management', 'Cybersecurity', 'Accounting', 'Teaching', 'Clinical specialization', 'Data science'], minIntelligence: 55, minFocus: 50, minDiscipline: 50, prerequisite: 'bachelor' },
+  { id: 'professional-certificate', title: 'Professional certificate course', institutionType: 'Training provider', level: 'professional-specialist', minAge: 16, maxAge: 120, durationWeeks: 12, tuition: 240, weeklyStudyTarget: 2, fieldOptions: ['Digital skills', 'Programming', 'First aid', 'Workplace safety', 'Communication', 'Small business'], minFocus: 35, minDiscipline: 35 }
 ];
 
 function completedLevels(character: Character): Set<EducationLevel> {
@@ -60,34 +53,10 @@ export function getAvailableEducationPrograms(character: Character): EducationPr
 export function getEducationProgram(programId: string): EducationProgram | undefined {
   return EDUCATION_PROGRAMS.find((program) => program.id === programId);
 }
-function createClassCommitments(character: Character, program: EducationProgram, recordId: string): { commitments: WeeklyCommitment[]; issue: string | null } {
-  const schedule = character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] };
-  const baseSchedule = { ...schedule, commitments: schedule.commitments.filter((item) => item.domain !== 'school') };
-  const weekStart = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  const preferred = character.employment?.type === 'full-time'
-    ? program.schedule.slice(0, Math.min(2, program.schedule.length)).map((slot) => ({ ...slot, startPeriod: 'evening' as const, durationBlocks: 1 }))
-    : program.schedule;
-  const candidates: Array<{ weekday: 1 | 2 | 3 | 4 | 5 | 6 | 7; startPeriod: DayPeriod; durationBlocks: number }> = [];
-  for (const slot of [...preferred, ...program.schedule]) {
-    for (const period of [slot.startPeriod, 'afternoon', 'evening', 'morning'] as DayPeriod[]) {
-      const candidate = { weekday: slot.weekday, startPeriod: period, durationBlocks: Math.min(slot.durationBlocks, 1) };
-      if (!candidates.some((item) => item.weekday === candidate.weekday && item.startPeriod === candidate.startPeriod)) candidates.push(candidate);
-    }
-  }
-  const commitments: WeeklyCommitment[] = [];
-  for (const slot of candidates) {
-    if (commitments.length >= preferred.length) break;
-    if (commitments.some((item) => item.weekday === slot.weekday)) continue;
-    const candidate: WeeklyCommitment = {
-      id: 'education-' + recordId + '-' + commitments.length,
-      title: program.level === 'early-learning' ? 'Early learning' : 'Classes · ' + program.institutionType,
-      domain: 'school', ...slot
-    };
-    const trial = { ...baseSchedule, commitments: [...baseSchedule.commitments, ...commitments, candidate] };
-    if (buildWeeklySchedule(weekStart, trial).valid) commitments.push(candidate);
-  }
-  if (commitments.length < Math.min(preferred.length, 2)) return { commitments: [], issue: 'There is not enough free time for this programme alongside current commitments. Reduce other commitments or choose a more flexible course.' };
-  return { commitments, issue: null };
+function createClassCommitments(): { commitments: []; issue: null } {
+  // Education remains an automatic weekly responsibility; no player-facing
+  // class timetable or time-slot allocation is created.
+  return { commitments: [], issue: null };
 }
 
 export function enrollInEducation(character: Character, programId: string, field: string): { character: Character; issue: string | null } {
@@ -99,7 +68,7 @@ export function enrollInEducation(character: Character, programId: string, field
   const tuition = Math.round(program.tuition * scale);
   if (character.money < tuition) return { character, issue: 'You cannot afford the programme tuition right now.' };
   const id = program.id + '-' + (character.calendar?.currentDate ?? character.year + '-01-01');
-  const planned = createClassCommitments(character, program, id);
+  const planned = createClassCommitments();
   if (planned.issue) return { character, issue: planned.issue };
   const enrollment: EducationEnrollment = {
     recordId: id, status: 'enrolled', programId, institution: program.institutionType, level: program.level, field, startedAtAge: character.age,
@@ -131,7 +100,7 @@ export function resumeEducation(character: Character): { character: Character; i
   if (!enrollment || enrollment.status !== 'paused') return { character, issue: 'There is no paused programme to resume.' };
   const program = getEducationProgram(enrollment.programId);
   if (!program) return { character, issue: 'This programme is no longer available.' };
-  const planned = createClassCommitments(character, program, enrollment.recordId);
+  const planned = createClassCommitments();
   if (planned.issue) return { character, issue: planned.issue };
   const schedule = character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] };
   return {

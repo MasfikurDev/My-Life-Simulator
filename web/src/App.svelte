@@ -224,7 +224,7 @@
   function advanceWeekNow() {
     if (!character) return;
     const result = advanceWeek(character);
-    if (result.issue) { notify(result.issue === 'invalid-schedule' ? 'Fix the schedule conflicts before advancing.' : result.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action is no longer available. Remove or repair that reservation before advancing.'); return; }
+    if (result.issue) { notify(result.issue === 'insufficient-stamina' ? 'Your plan exceeds the available stamina. Add recovery or remove activities.' : result.issue === 'invalid-schedule' ? 'The saved weekly plan needs repair before advancing.' : result.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action is no longer available. Remove it before advancing.'); return; }
     const crossedYear = result.character.year > character.year;
     persist(result.character); advanceReviewOpen = false;
     notify(crossedYear ? 'Week completed. A new year begins.' : 'Week completed. The next week begins.');
@@ -510,7 +510,7 @@
                       {/each}
                     </div>
                   {:else}
-                    <p class="review-empty">No personal activities are planned. Recurring school and work commitments still resolve normally.</p>
+                    <p class="review-empty">No optional activities are planned. Education and employment responsibilities still progress automatically.</p>
                   {/if}
                   <div class="review-cash-row"><span>Total direct activity costs</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong></div>
                 </section>
@@ -520,9 +520,11 @@
                   <div class="review-resource-grid">
                     <div><small>Current</small><strong>{Math.round(weeklyReview.currentStamina)}%</strong></div>
                     <div><small>Effort cost</small><strong>−{weeklyReview.staminaCost}</strong></div>
+                    <div><small>Planned recovery</small><strong>+{weeklyReview.staminaRecovery}</strong></div>
                     <div><small>Projected</small><strong>{Math.round(weeklyReview.projectedStamina)}%</strong></div>
                   </div>
                   <div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div>
+                  {#if Math.min(100, weeklyReview.currentStamina + weeklyReview.staminaRecovery) < weeklyReview.staminaCost}<p class="year-review-warning">The plan exceeds your stamina budget. Select recovery activities or remove demanding activities before resolving.</p>{/if}
                 </section>
 
                 <section class="review-section">
@@ -621,7 +623,7 @@
   .review-activity-row small{font-size:9px;line-height:1.4;color:var(--muted)}
   .review-activity-cost{flex:none;display:grid;gap:4px;text-align:right}
   .review-activity-cost b{font-size:10px;color:var(--text)}
-  .review-resource-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .review-resource-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
   .review-resource-grid>div{display:grid;gap:4px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
   .review-resource-grid small{font-size:9px;color:var(--muted)}
   .review-resource-grid strong{font-size:17px;color:var(--text)}

@@ -9,26 +9,26 @@
 My Life Simulator is an Android-first, mobile-friendly life simulation with a web client. The game uses compact text, cards, buttons, and domain-native workspaces—not a 3D world or a generic life-administration dashboard. Money remains prominent in the overview, while education, work, family, health, and personal life remain meaningful connected systems.
 
 The playable time model is:
-- **Week:** player decisions, genuine recurring commitments, stamina-based activities, and turn resolution.
+- **Week:** player decisions, automatic education/work responsibilities, stamina-based activities, and turn resolution.
 - **Month:** intended recurring financial settlement and reporting cadence (not yet fully implemented).
 - **Year:** age/life progression and annual settlement/review boundaries.
 
-Do not reintroduce a universal three-actions-per-week quota. Personal activities are toggled in their owning workspaces and use stamina rather than calendar slots. Only genuine recurring school/work commitments reserve periods. Schedule is a combined review/cancellation surface, not a generic action launcher.
+Do not reintroduce a universal three-actions-per-week quota. Personal activities are toggled in their owning workspaces and use a shared stamina budget. Education and employment are automatic background responsibilities; there are no player-managed timetables, period reservations, or Schedule workspace.
 
-## Weekly activity model (implemented on feature branch)
+## Weekly activity model (implemented in PR #88; CI passed)
 
 - Personal activities are selected with direct add/remove toggles in their owning workspaces and consume activity-specific stamina.
-- Recurring school/work commitments remain in the calendar; personal actions do not take time slots.
-- The Schedule workspace is a combined review/cancellation surface for selected personal activities and recurring commitments.
+- Education and employment progress automatically as background responsibilities; they no longer create calendar commitments.
+- Schema 5 migration clears legacy time-slot commitments, preserves planned personal actions, and stores an exact pre-timetable recovery copy.
 - The Advance dialog previews every selected activity's stamina/money cost, reward categories, deterministic projected stat changes, and wellbeing warnings using the same weekly resolver as actual advancement.
-- The feature branch has a pull request open; final CI verification is pending.
+- CI verified: Svelte check 0 errors (19 existing warnings), 155 tests passed, and Vite production build succeeded.
 
 ## Implementation snapshot
 
 | Area | Status | Implemented foundation | Main remaining work |
 |---|---|---|---|
 | Character creation and saves | Implemented foundation | Randomized character profiles, age-aware creation, three save slots, migration/recovery support | Broader scenario validation and deeper life-stage content |
-| Weekly simulation | Core implemented | Calendar, 21 weekly periods for recurring commitments, stamina-based personal activities, deterministic resolution, history and recap | Date-based deadlines, richer delayed consequences, multi-week advancement |
+| Weekly simulation | Core implemented | Calendar, date/week calendar, automatic education/work obligations, stamina-based personal activities, deterministic resolution, history and recap | Date-based deadlines, richer delayed consequences, multi-week advancement |
 | Education | Playable foundation | Enrollment, programmes, classes, weekly tasks, grades, tuition, history, qualifications | Localization, scholarships, retakes, licensing, apprenticeships |
 | Work | Playable foundation | Job board, applications, interviews, offers, employment, job changes, resignation, career previews and promotion offers | Persistent employers/vacancies, workplace decisions, layoffs, benefits, bonuses, monthly payroll |
 | Finance | Broad foundation | Accounts, cards, savings, loans, recurring payments, property, investments, business, taxes, credit score and economic indicators | Monthly payroll/bills/business cash flow, settlement safety, reporting, deeper affordability and variable-rate debt |

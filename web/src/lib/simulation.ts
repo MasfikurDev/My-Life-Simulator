@@ -3,7 +3,7 @@ import { getActivityDefinition, getEducationStage, isActivityAvailable } from '.
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
 import { addCalendarDays, createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
-import { buildWeeklySchedule, getWeeklySchedule } from './weekly-schedule';
+import { getWeeklySchedule } from './weekly-schedule';
 import { resolveEducationWeek } from './education';
 import { resolveCareAction, resolveWeeklyWellbeing } from './wellbeing';
 import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPromotionOfferState, createPromotionOffer, declineJobOffer as declineJobOfferState, declinePromotionOffer as declinePromotionOfferState, expireWorkOffers, getJobListings, getCareerRole, isEligibleForRole, resolveJobApplication, resolveJobInterview, resignFromJob as resignFromJobState, syncEmploymentCommitments } from './work';
@@ -725,7 +725,7 @@ export function getPlannedActivityCost(character: Character, item: PlannedActivi
 }
 
 
-/** Stamina is the effort budget for discretionary weekly actions; calendar periods remain for real commitments only. */
+/** Stamina is the weekly effort budget; personal actions never reserve calendar periods. */
 export function getPlannedActivityStaminaCost(item: PlannedActivity): number {
   if (item.action?.kind === 'education') return 8;
   if (item.action?.kind === 'care') return ({ rest: 0, mindfulness: 4, counselling: 2, 'medical-checkup': 0 }[item.action.careType]);
@@ -734,6 +734,12 @@ export function getPlannedActivityStaminaCost(item: PlannedActivity): number {
   if (item.action?.kind === 'business') return 12;
   if (item.action?.kind === 'event') return 5;
   return getActivityDefinition(item.activityId as ActivityId)?.staminaCost ?? 5;
+}
+
+/** Planned recovery is credited before costs, so the weekly budget is independent of toggle order. */
+export function getPlannedActivityStaminaRecovery(item: PlannedActivity): number {
+  if (item.action?.kind !== 'care') return 0;
+  return item.action.careType === 'rest' ? 14 : item.action.careType === 'medical-checkup' ? 5 : 0;
 }
 
 function getPlannedActivityTitle(character: Character, item: PlannedActivity): string {
@@ -783,20 +789,13 @@ function addWeeklyAction(character: Character, activityId: PlannedActivity['acti
   }
   if (activityWeek !== currentWeek) return { character, issue: 'outside-current-week', message: 'Activities can only be added to the current week.' };
   const schedule = getWeeklySchedule(character.weeklySchedule);
-  if (!buildWeeklySchedule(currentWeek, schedule).valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve recurring school or work timetable conflicts first.' };
   const alreadyReserved = schedule.activities.reduce((total, item) => total + getPlannedActivityCost(character, item), 0);
   if (alreadyReserved + cost > character.money) return { character, issue: 'insufficient-funds', message: 'Your current cash cannot cover the planned activities this week.' };
   let sequence = schedule.activities.length + 1;
   let id = 'planned-' + currentWeek + '-' + activityId + '-' + sequence;
-  const existingIds = new Set([...schedule.commitments.map((item) => item.id), ...schedule.activities.map((item) => item.id)]);
+  const existingIds = new Set(schedule.activities.map((item) => item.id));
   while (existingIds.has(id)) { sequence += 1; id = 'planned-' + currentWeek + '-' + activityId + '-' + sequence; }
-  // Legacy date/period fields remain populated for backward-compatible saves. They no longer consume calendar blocks.
-  const nextSchedule = { ...schedule, activities: [...schedule.activities, { id, activityId, date: currentWeek, startPeriod: 'morning' as DayPeriod, durationBlocks: 1, action }] };
-  const validation = buildWeeklySchedule(currentWeek, nextSchedule);
-  if (!validation.valid) {
-    const issue = validation.issues[0];
-    return { character, issue: 'invalid-time-slot', message: issue?.message ?? 'The weekly plan is invalid.' };
-  }
+  const nextSchedule = { ...schedule, commitments: [], activities: [...schedule.activities, { id, activityId, date: currentWeek, startPeriod: 'morning' as DayPeriod, durationBlocks: 1, action }] };
   return { character: { ...character, weeklySchedule: nextSchedule }, issue: null, message: null };
 }
 
@@ -857,10 +856,7 @@ export function planWorkAction(character: Character, workAction: 'apply' | 'inte
 
 function planForCurrentWeek(character: Character, attempt: (date: string, period: DayPeriod) => ActivityPlanningResult): ActivityPlanningResult {
   const week = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
-  const schedule = getWeeklySchedule(character.weeklySchedule);
-  const grid = buildWeeklySchedule(week, schedule);
-  if (!grid.valid) return { character, issue: 'invalid-existing-schedule', message: 'Resolve recurring school or work timetable conflicts first.' };
-  const existingIds = new Set(schedule.activities.map((item) => item.id));
+  const existingIds = new Set(getWeeklySchedule(character.weeklySchedule).activities.map((item) => item.id));
   const result = attempt(week, 'morning');
   if (result.issue) return result;
   const scheduledActivity = result.character.weeklySchedule?.activities.find((item) => !existingIds.has(item.id));
@@ -947,7 +943,7 @@ export function removePlannedActivity(character: Character, activityId: string):
 
 export interface WeeklyResolutionResult {
   character: Character;
-  issue: 'invalid-schedule' | 'already-resolved' | 'unresolvable-action' | null;
+  issue: 'invalid-schedule' | 'already-resolved' | 'unresolvable-action' | 'insufficient-stamina' | null;
   recap: string[];
 }
 
@@ -974,21 +970,22 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   if (character.lastResolvedWeekStart === weekStart) return { character, issue: 'already-resolved', recap: character.lastWeekRecap ?? [] };
   const schedule = getWeeklySchedule(character.weeklySchedule);
   const weekRandom = random ?? createWeeklyRandom(character, weekStart);
-  const validation = buildWeeklySchedule(weekStart, schedule);
-  if (!validation.valid) return { character, issue: 'invalid-schedule', recap: [] };
+  const staminaCost = schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaCost(item), 0);
+  const staminaRecovery = schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0);
+  if (Math.min(100, (character.stamina ?? 50) + staminaRecovery) < staminaCost) return { character, issue: 'insufficient-stamina', recap: [] };
   let next = { ...character, history: [...character.history] };
   const recap: string[] = [];
-  const occupiedBlocks = validation.blocks.filter((block) => block.entryId !== null).length;
+  const backgroundObligations = (character.educationEnrollment?.status === 'enrolled' ? 4 : 0) + (character.employment ? (character.employment.type === 'full-time' ? 6 : 3) : 0);
   const activityEffortUnits = Math.ceil(schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaCost(item), 0) / 6);
-  const weeklyWorkload = Math.min(21, occupiedBlocks + activityEffortUnits);
-  const wellbeing = resolveWeeklyWellbeing(next, weeklyWorkload, weekStart);
+  const weeklyWorkload = Math.min(21, backgroundObligations + activityEffortUnits);
+  const wellbeing = resolveWeeklyWellbeing(next, weeklyWorkload, weekStart, false);
   next = wellbeing.character;
   recap.push(...wellbeing.recap);
+  next = { ...next, stamina: Math.min(100, (next.stamina ?? 50) + staminaRecovery) };
   const educationTasks: EducationTaskType[] = [];
-  const periodOrder: Record<DayPeriod, number> = { morning: 0, afternoon: 1, evening: 2 };
-  const ordered = [...schedule.activities].sort((a, b) => a.date.localeCompare(b.date) || periodOrder[a.startPeriod] - periodOrder[b.startPeriod] || a.id.localeCompare(b.id));
+  const ordered = [...schedule.activities];
   for (const item of ordered) {
-    // Charge stamina once, immediately before the action. Recovery and rewards are then applied by the action itself.
+    // Recovery was credited up front; charge each selected activity exactly once.
     next = { ...next, stamina: clamp((next.stamina ?? 50) - getPlannedActivityStaminaCost(item)) };
     let result: Character;
     if (item.action?.kind === 'education') {
@@ -1003,7 +1000,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
         ...next, money: next.money - careCost,
         financialTransactions: financeRecord(next, 'expense', careCost, 'Healthcare · ' + item.action.careType.replace('-', ' '), 'Cash', 'Healthcare')
       } : next;
-      result = resolveCareAction(paid, item.action.careType, weekStart);
+      result = resolveCareAction(paid, item.action.careType, weekStart, false);
       recap.push('Health and wellbeing: ' + item.action.careType.replace('-', ' ') + '.');
     } else if (item.action?.kind === 'work') {
       result = item.action.workAction === 'apply'
@@ -1028,7 +1025,9 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     if (result === next) return { character, issue: 'unresolvable-action', recap: [] };
     next = result;
   }
-  const nextSchedule = { ...schedule, activities: [] };
+  const staminaDrift = weeklyWorkload >= 16 ? -7 : weeklyWorkload >= 12 ? -4 : 3;
+  next = { ...next, stamina: clamp((next.stamina ?? 50) + staminaDrift) };
+  const nextSchedule = { ...schedule, commitments: [], activities: [] };
   next = { ...next, weeklySchedule: nextSchedule, lastResolvedWeekStart: weekStart, lastWeekRecap: recap };
   const academic = resolveEducationWeek(next, educationTasks, weekStart, weeklyWorkload);
   next = academic.character;
@@ -1071,6 +1070,7 @@ export interface WeeklyActivityReview {
   activities: WeeklyActivityReviewItem[];
   currentStamina: number;
   staminaCost: number;
+  staminaRecovery: number;
   totalMoneyCost: number;
   projectedStamina: number;
   currentStress: number;
@@ -1135,12 +1135,13 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   const projectedStamina = projected.stamina ?? 50;
   const currentStress = character.stress ?? 30;
   const projectedStress = projected.stress ?? 30;
+  if (Math.min(100, currentStamina + schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0)) < activities.reduce((total, item) => total + item.staminaCost, 0)) warnings.push('This plan uses more stamina than you have available, even after planned recovery. Add rest or remove demanding activities before resolving.');
   if (projectedStamina < 25) warnings.push('Stamina is projected to fall to a very low level. Recovery may be needed before another demanding week.');
   if (projectedStress >= 80 && projectedStress > currentStress) warnings.push('Stress is projected to enter a critical range, which can reduce future performance and recovery.');
   else if (projectedStress >= 60 && projectedStress > currentStress) warnings.push('Stress is projected to rise into an elevated range.');
   if (projected.health < character.health) warnings.push('Physical health is projected to decline this week.');
   if (projected.happiness < character.happiness) warnings.push('Happiness is projected to decline this week.');
-  if (preview.issue) warnings.push(preview.issue === 'invalid-schedule' ? 'Recurring timetable conflicts must be fixed before the week can resolve.' : preview.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action can no longer be completed. Review the plan before continuing.');
+  if (preview.issue) warnings.push(preview.issue === 'insufficient-stamina' ? 'The plan exceeds the available stamina budget.' : preview.issue === 'invalid-schedule' ? 'Legacy timetable data must be repaired before the week can resolve.' : preview.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action can no longer be completed. Review the plan before continuing.');
   return {
     issue: preview.issue,
     weekStart,
@@ -1148,6 +1149,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     activities,
     currentStamina,
     staminaCost: activities.reduce((total, item) => total + item.staminaCost, 0),
+    staminaRecovery: schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0),
     totalMoneyCost: activities.reduce((total, item) => total + item.moneyCost, 0),
     projectedStamina,
     currentStress,
