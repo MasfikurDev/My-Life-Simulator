@@ -11,7 +11,7 @@ export interface HealthCondition { id: string; type: HealthConditionType; name: 
 export interface MedicationCourse { id: string; name: string; weeksRemaining: number; }
 export interface MedicalState { conditions: HealthCondition[]; medications: MedicationCourse[]; highStressWeeks: number; lastCheckupWeek?: string; lastTherapyWeek?: string; }
 export type CareActionType = 'rest' | 'counselling' | 'medical-checkup' | 'mindfulness';
-export interface Qualification { id: string; name: string; category: 'certificate' | 'license' | 'diploma' | 'degree' | 'professional'; issuer: string; field: string; awardedAtAge: number; expiresAtAge?: number; }
+export interface Qualification { id: string; programId?: string; name: string; category: 'certificate' | 'license' | 'diploma' | 'degree' | 'professional'; issuer: string; field: string; awardedAtAge: number; expiresAtAge?: number; }
 export type EmploymentType = 'part-time' | 'full-time' | 'flexible';
 export type HouseholdArrangement = 'family-supported' | 'shared' | 'independent';
 export type SavingsGoalMonths = 1 | 3 | 6;
