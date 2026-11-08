@@ -1,0 +1,29 @@
+/* Shared semantic tokens. New UI should consume these instead of hard-coded palette values. */
+:root{
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-pill:999px;
+  --control-height:44px;--content-max:1180px;
+  --shadow-card:0 8px 24px rgba(0,0,0,.16);
+  --focus-ring:0 0 0 2px var(--bg),0 0 0 4px var(--accent);
+  --danger:#e38d88;--success:#72d69a;--warning:#e3bd76;--info:#8fb9e8;
+}
+:root[data-theme="amoled"]{color-scheme:dark}
+:root[data-theme="midnight"]{
+  color-scheme:dark;--bg:#070b16;--surface:#0d1424;--surface-raised:#141e32;--surface-hover:#1b2940;
+  --line:#26344d;--line-strong:#354967;--text:#e9effb;--muted:#a0aec5;--subtle:#71819c;
+  --accent:#86b7ff;--accent-strong:#5e98ee;--accent-soft:#172c4a;--green:#86b7ff;--green-dark:#1b3455;--mint:#86b7ff;
+  --coral:#f09c9c;--blue:#86b7ff;--amber:#e9c17e;--danger:#ef9292;--success:#82d6ae;--warning:#e9c17e;--info:#86b7ff;
+}
+:root[data-theme="graphite"]{
+  color-scheme:dark;--bg:#101114;--surface:#191b20;--surface-raised:#22252c;--surface-hover:#2b2f38;
+  --line:#343943;--line-strong:#484e5b;--text:#f0eff5;--muted:#b0afbd;--subtle:#858594;
+  --accent:#c0a0ff;--accent-strong:#a27de8;--accent-soft:#302443;--green:#c0a0ff;--green-dark:#35264c;--mint:#c0a0ff;
+  --coral:#efa69e;--blue:#a7b9f5;--amber:#e8c17f;--danger:#ef9292;--success:#a9d6b4;--warning:#e8c17f;--info:#a7b9f5;
+}
+:root[data-theme="paper"]{
+  color-scheme:light;--bg:#f4f1e9;--surface:#fffdf7;--surface-raised:#f8f5ed;--surface-hover:#eeeade;
+  --line:#ded9ca;--line-strong:#c8c1ae;--text:#252b25;--muted:#5e695e;--subtle:#788174;
+  --accent:#267447;--accent-strong:#195c36;--accent-soft:#e2eee4;--green:#267447;--green-dark:#d7e8d9;--mint:#267447;
+  --coral:#a84f43;--blue:#426b9b;--amber:#92651c;--danger:#a33e37;--success:#267447;--warning:#92651c;--info:#426b9b;
+  --shadow-card:0 8px 24px rgba(45,48,36,.08);
+}
