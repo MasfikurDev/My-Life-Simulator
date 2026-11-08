@@ -281,7 +281,7 @@
             <div class="overview-context-item">
               <span>EDUCATION</span>
               <strong>{educationStatus}</strong>
-              <small>{character.age < 3 ? 'Not started' : character.age < 6 ? 'Early learning stage' : character.age < 18 ? 'School-age learning' : character.educationEnrollment ? Math.round(character.educationEnrollment.grade) + '% current grade' : character.academicHistory?.length ? character.academicHistory.length + ' completed programme(s)' : 'No active enrollment'}</small>
+              <small>{character.age < 3 ? 'Early development' : character.age < 6 ? 'Early learning stage' : character.age < 18 ? 'School-age learning' : character.educationEnrollment ? Math.round(character.educationEnrollment.grade) + '% current grade' : character.academicHistory?.length ? character.academicHistory.length + ' completed programme(s)' : 'No active enrollment'}</small>
             </div>
             <div class="overview-context-item">
               <span>WORK & CAREER</span>
