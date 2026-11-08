@@ -55,7 +55,7 @@
 </section>
 
 <section class="health-care-section">
-  <div class="section-heading"><div><span class="section-index">01</span><h3>Care & recovery</h3></div><span class="section-hint">Toggle activities for this week</span></div>
+  <div class="section-heading"><div><span class="section-index">01</span><h3>Health, recovery & social wellbeing</h3></div><span class="section-hint">Toggle activities for this week</span></div>
   <div class="health-care-grid">
     <button class="health-care-card" class:planned={isPlanned('rest')} onclick={() => plan('rest')}><span class="health-care-icon">⌂</span><strong>Rest & recovery</strong><p>Restore stamina, improve health and reduce pressure.</p><small>No fee · restores stamina</small><b>{isPlanned('rest') ? 'REMOVE FROM WEEK' : 'ADD TO WEEK'}</b></button>
     <button class="health-care-card" class:planned={isPlanned('mindfulness')} onclick={() => plan('mindfulness')}><span class="health-care-icon">◌</span><strong>Mindfulness</strong><p>Build a calmer routine, improve focus and reduce everyday stress.</p><small>Stamina 4 · no fee</small><b>{isPlanned('mindfulness') ? 'REMOVE FROM WEEK' : 'ADD TO WEEK'}</b></button>
