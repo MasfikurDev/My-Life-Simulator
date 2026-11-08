@@ -94,10 +94,10 @@ Do not render multiple controls or components for the same action or destination
 - Build new UI from existing primitives before introducing one-off markup or CSS. Add variants only for genuinely shared behavior; do not flatten domain-native experiences into generic cards.
 - All existing screen and workspace styles are migrated to semantic theme tokens; new and revised UI must use shared tokens rather than hard-coded palette colors. Theme coverage includes navigation, forms, dialogs, activity states, financial displays, and overlays. Maintain accessible contrast and visible focus in every palette.
 
-## Game-first copy and first-use tours
+## Game-first copy
 - Write UI copy as the game world speaks. Prefer short, natural labels used by a school, bank, workplace, home, clinic, or other in-world system; avoid generic AI-style phrases such as "Manage your...", "Current ...", "Your journey", "Overview of..." and repeated explanatory subtitles.
-- A screen normally needs one clear title. Do not stack an eyebrow, title, subtitle, explanatory paragraph, and another section title when they communicate the same context.
-- Remove copy that merely narrates what the screen already shows. Keep only decision-critical facts: cost, eligibility, risk, consequence, status, or what an action will do.
+- Use one navigation label or one screen title to establish context, not both. Remove repeated parent/child headings, eyebrow labels, subtitles, and explanatory paragraphs when the active navigation already identifies the screen.
+- Replace removed copy with compact, real game data when available: balances, rates, grade, attendance, progress, salary, requirements, capacity, dates, and status. Never invent a metric; omit it when the simulation does not track it.
 - Use short action labels that describe the in-world action ("Enroll", "Apply", "Book", "Transfer", "Rest"), not UI instructions ("Click here to manage...").
 - Prefer meaningful in-world names over invented dramatic names. Do not add flavor text that obscures what a system does.
 - Introduce each substantial new system with a brief, skippable, step-by-step tour when the player first enters it. Tours point at real controls and explain one useful thing at a time; they do not become permanent help panels or block normal play.
