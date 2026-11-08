@@ -32,15 +32,15 @@
 
   {#if activeView === 'overview'}
     <div class="finance-overview">
-      <div class="finance-balance-card"><small>AVAILABLE CASH</small><strong>{formatCharacterMoney(character)}</strong><span>Cash held outside accounts and assets.</span></div>
-      <div class="finance-networth-card"><small>ESTIMATED NET WORTH</small><strong>{formatCharacterMoney(character,getNetWorth(character))}</strong><span>Assets minus recorded debt and liabilities.</span></div>
+      <div class="finance-balance-card"><small>AVAILABLE CASH</small><strong>{formatCharacterMoney(character)}</strong><span>Unbanked funds</span></div>
+      <div class="finance-networth-card"><small>ESTIMATED NET WORTH</small><strong>{formatCharacterMoney(character,getNetWorth(character))}</strong><span>Assets − liabilities</span></div>
     </div>
     <div class="finance-shortcuts">
-      <button onclick={() => openView('banking')} disabled={character.age<16}><span class="shortcut-icon">▤</span><strong>Banking</strong><small>Accounts · Cards · Loans · Savings</small><b>Open →</b></button>
-      <button onclick={() => openView('taxes')} disabled={character.age<18}><span class="shortcut-icon">▤</span><strong>Taxes</strong><small>Assessment · Payments</small><b>View →</b></button>
-      <button onclick={() => openView('property')} disabled={character.age<18}><span class="shortcut-icon">⌂</span><strong>Property</strong><small>Rent · Buy · Manage</small><b>Open →</b></button>
-      <button onclick={() => openView('investments')} disabled={character.age<18}><span class="shortcut-icon">↗</span><strong>Investments</strong><small>Portfolio · Market</small><b>Open →</b></button>
-      <button onclick={() => openView('business')} disabled={character.age<18}><span class="shortcut-icon">▦</span><strong>Business</strong><small>Start · Operate</small><b>Open →</b></button>
+      <button onclick={() => openView('banking')} disabled={character.age<16}><span class="shortcut-icon">▤</span><strong>Banking</strong><small>Accounts · Cards · Credit · Savings</small><b>Open →</b></button>
+      <button onclick={() => openView('taxes')} disabled={character.age<18}><span class="shortcut-icon">▤</span><strong>Taxes</strong><small>Tax year · Liability</small><b>View →</b></button>
+      <button onclick={() => openView('property')} disabled={character.age<18}><span class="shortcut-icon">⌂</span><strong>Property</strong><small>Owned · Rented · Listed</small><b>Open →</b></button>
+      <button onclick={() => openView('investments')} disabled={character.age<18}><span class="shortcut-icon">↗</span><strong>Investments</strong><small>Holdings · Returns</small><b>Open →</b></button>
+      <button onclick={() => openView('business')} disabled={character.age<18}><span class="shortcut-icon">▦</span><strong>Business</strong><small>Businesses · Revenue</small><b>Open →</b></button>
     </div>
   {:else if activeView === 'banking'}
     <FinanceAccounts {character} {onChange} />
