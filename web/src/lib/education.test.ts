@@ -23,7 +23,7 @@ describe('education progression', () => {
   });
 
   it('rejects enrollment when tuition cannot be afforded', () => {
-    const student = { ...createCharacter('Student', 25), money: 0 };
+    const student = { ...createCharacter('Student', 25), money: 0, intelligence: 90, focus: 90, discipline: 90 };
     const result = enrollInEducation(student, 'bachelor-degree', 'Computer science');
     expect(result.character).toBe(student);
     expect(result.issue).toContain('tuition');
@@ -37,7 +37,7 @@ describe('education progression', () => {
   });
 
   it('improves grades when study and assignment work is completed', () => {
-    const student = enrollInEducation(createCharacter('Student', 10), 'primary-school', 'General studies').character;
+    const student = { ...enrollInEducation(createCharacter('Student', 10), 'primary-school', 'General studies').character, stress: 20, stamina: 80 };
     const result = resolveEducationWeek(student, ['study', 'assignment'], '2026-11-02', 8);
     expect(result.character.educationEnrollment?.grade).toBeGreaterThan(student.educationEnrollment!.grade);
   });
