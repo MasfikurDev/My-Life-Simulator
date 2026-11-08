@@ -48,7 +48,7 @@ flowchart TD
 ## Save compatibility
 Persist an explicit schema version. Validate data before use. Add forward migrations when shape changes. Malformed/unsupported data must not crash the app or silently overwrite an existing save. Keep game state separate from transient UI state. Web deployments must not reset saves without an explicit migration and documented reason.
 
-The current localStorage adapter supports three independent save slots. Schema version 2 stores the active slot ID and each slot's character plus update timestamp. Version 1's single-character save migrates into slot 1 without discarding the character. Settings such as sound preference are stored separately from game state. Saves remain device-local; no cloud sync or backup is implied.
+The current localStorage adapter uses schema version 4 and supports three independent save slots. Schema versions 2 and 3 store the active slot ID and each slot's character plus update timestamp; version 1's single-character save migrates into slot 1. The adapter migrates supported legacy formats to version 4, initializes weekly calendar/schedule defaults, and preserves the exact original payload under `my-life-simulator.save.pre-weekly-migration` before the first migration write. Settings such as sound preference are stored separately from game state. Saves remain device-local; no cloud sync or backup is implied.
 
 ## Simulation boundaries
 Core simulation inputs are game state, action/choice, and random source/seed. Outputs are updated state plus explicit effects/history. No DOM, Svelte, localStorage, network, or Android imports in core simulation. Time advancement is an explicit domain operation. Use integer minor units for money once currency arithmetic expands. Validate invariants at boundaries.
@@ -73,7 +73,7 @@ The Android WebView exposes a narrowly scoped `AndroidApp.copyToClipboard(text)`
 ## Education, employment, and recurring finances
 Education progress, employment records, salary, annual living-cost estimates, performance, experience, and promotions are fields on the simulation's Character model. These new fields are optional to preserve existing save compatibility; no storage schema bump is required. Eligibility is centralized in `progression.ts` and checked again by `performActivity`. Annual income/expenses and promotion outcomes are applied in `advanceYear`, then recorded in the character history. Keep country salary balancing explicitly provisional and never use the UI to invent finance state.
 
-Career progression's approved future design is documented in [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md). Work owns the current-job view, career path preview, role requirements, promotion decisions, bonuses, and career history. A read-only preview must not mutate Character state or the financial ledger; estimated compensation must be labeled separately from actual salary/payroll. Payroll and actual bonuses use the shared Finance transaction path. Do not add new save fields or claim employer/vacancy/bonus state exists until those mechanics are implemented.
+Career progression's current staged design and implementation boundary are documented in [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md). Work owns the current-job view, career path preview, role requirements, promotion decisions, bonuses, and career history. A read-only preview must not mutate Character state or the financial ledger; estimated compensation must be labeled separately from actual salary/payroll. Payroll and actual bonuses use the shared Finance transaction path. Do not add new save fields or claim employer/vacancy/bonus state exists until those mechanics are implemented.
 
 
 ## Native Android branding and launch experience
@@ -219,7 +219,7 @@ The live gameplay clock is date-based and weekly, not annual-action-based. The w
 - Monthly and annual settlement must have explicit date-based due rules and idempotency keys/period markers. Never run annual finance settlement in addition to monthly installments for the same obligation.
 - Do not divide existing annual costs/salary/interest by 12 without modeling rounding, due dates, inflation, payment failures, and save migration.
 - Multi-week advancement must call the same weekly resolver sequentially and stop at any decision boundary. It must not skip weeks with a coarse approximation.
-- Save migration must preserve legacy annual saves, all three slots, financial ledgers, liabilities/assets, event state, and history. Migration rules must be deterministic and tested before the UI switches to weekly progression.
+- The weekly migration is implemented for supported schema 1–3 saves. Preserve all three slots, financial ledgers, liabilities/assets, event state, and history in every future migration; keep the original payload recoverable and test each new schema transition before release.
 - The weekly cycle is the live playable time model. Annual mechanics remain only where their own cadence is currently intentional (birthdays, annual payroll/settlement, taxes, market updates, and annual life review); do not reintroduce annual action tokens or duplicate weekly effects through an annual fallback. Monthly settlement is a planned follow-up, not a live feature.
 
 Suggested future module boundaries (do not create empty abstractions prematurely):
