@@ -89,12 +89,11 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. Personal activities use a stamina budget; school/work are automatic background responsibilities and do not reserve calendar periods. Weekly review is simulation-backed and deterministic. Remaining work is listed separately below.
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
-- [x] Define a compact calendar model for genuine recurring commitments only; do not simulate every hour. The player-facing model has no day/period grid. Education and employment are automatic weekly background responsibilities; workload is calculated from those obligations and selected activities.
+- [x] Keep a compact date/week calendar for birthdays and time progression; do not simulate every hour or allocate daily periods. Education and employment are automatic weekly background responsibilities; workload is calculated from those obligations and selected activities.
 - [x] Remove the Schedule workspace and timetable grid; the Advance review is the consolidated plan/outcome surface.
 - [x] Centralize activity eligibility and validate weekly actions, stamina/money costs, and stamina allocation. Personal activities do not reserve calendar periods.
 - [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, business management, and contextual Work actions.
 - [x] Make weekly activity selection contextual across School, Work, Family, Business, Events, and Life; no date/period entry is exposed to the player.
-- [x] Retire the Schedule workspace; the Advance review is the single combined plan/outcome surface.
 - [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once; reject and preserve a turn if a selected action becomes stale or exceeds the stamina budget.
 - [x] Add deterministic, exactly-once weekly resolution with history, recap, and seven-day calendar advancement.
 - [ ] Adapt remaining contextual events, deadlines, and delayed consequences to date/week boundaries.
