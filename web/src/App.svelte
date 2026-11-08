@@ -1,16 +1,18 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { advanceWeek, canAffordActivity, formatCharacterMoney, planActivityInNextFreeTime, planEventChoiceInNextFreeTime } from './lib/simulation';
+  import { advanceWeek, formatCharacterMoney, planEventChoiceInNextFreeTime } from './lib/simulation';
   import { addCalendarDays, getWeekStart } from './lib/calendar';
-  import { getAvailableActivityIds, getEducationStage, getLifeStage } from './lib/progression';
+  import { getEducationStage, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
   import FinanceWorkspace from './FinanceWorkspace.svelte';
   import LifeWorkspace from './LifeWorkspace.svelte';
   import WorkWorkspace from './WorkWorkspace.svelte';
+  import EducationWorkspace from './EducationWorkspace.svelte';
+  import HealthWorkspace from './HealthWorkspace.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
-  import type { ActivityId, Character, SaveSlot, SaveSlotId } from './lib/types';
+  import type { Character, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
     isFullscreen: () => boolean;
     setFullscreen: (enabled: boolean) => void;
@@ -139,62 +141,6 @@
       oscillator.onended = () => { void context.close(); };
     } catch { /* Audio is optional and may be unavailable in a WebView. */ }
   }
-  function activityTitle(activity: {id: ActivityId; title: string}, age: number) {
-    if (age < 6 && activity.id === 'study') return 'Discover & learn';
-    if (age < 16 && activity.id === 'study') return 'Learn & explore';
-    if (age < 13 && activity.id === 'exercise') return 'Play & explore';
-    if (age < 16 && activity.id === 'socialize') return 'Family & friends';
-    if (age >= 16 && age < 18 && activity.id === 'work') return 'One-off work';
-    if (age >= 65 && activity.id === 'study') return 'Lifelong learning';
-    if (age >= 65 && activity.id === 'exercise') return 'Stay active';
-    if (age >= 45 && age < 65 && activity.id === 'socialize') return 'Social connections';
-    if (activity.id === 'career') return 'Career development';
-    return activity.title;
-  }
-  function activityDetail(activity: {id: ActivityId; detail: string}, age: number) {
-    if (activity.id === 'career') return 'Improve work performance and qualify for promotions.';
-    if (activity.id === 'study') {
-      if (age < 6) return 'Explore letters, numbers and new ideas.';
-      if (age < 13) return 'Build school knowledge and learning habits.';
-      if (age < 18) return 'Strengthen school subjects and prepare for next steps.';
-      if (age < 65) return 'Develop skills for work and personal goals.';
-      return 'Keep learning at your own pace.';
-    }
-    if (activity.id === 'exercise') {
-      if (age < 6) return 'Play and move to build coordination.';
-      if (age < 13) return 'Build coordination, strength and healthy habits.';
-      if (age < 65) return 'Support fitness, health and mood.';
-      return 'Maintain mobility and wellbeing.';
-    }
-    if (activity.id === 'socialize') {
-      if (age < 6) return 'Spend time with family and familiar people.';
-      if (age < 13) return 'Build friendships and family connections.';
-      if (age < 18) return 'Spend time with friends and strengthen relationships.';
-      if (age < 65) return 'Maintain friendships and social connections.';
-      return 'Stay connected with family and community.';
-    }
-    if (age < 18) return 'Take a one-off paid shift for extra money.';
-    if (age < 65) return 'Take extra work for additional earnings.';
-    return 'Take an extra paid shift if it suits your circumstances.';
-  }
-  function activityCost(activity: {id: ActivityId; cost: string}, current: Character) {
-    if (activity.id === 'career') return 'Time';
-    if (!canAffordActivity(current, activity.id)) return 'Insufficient funds';
-    if (current.age < 16 && (activity.id === 'study' || activity.id === 'socialize')) return 'Time';
-    const scale = current.currencyScale ?? 1;
-    if (activity.id === 'work') return '+' + formatCharacterMoney(current, 180 * scale);
-    if (activity.id === 'study') return formatCharacterMoney(current, 35 * scale);
-    if (activity.id === 'socialize') return formatCharacterMoney(current, 20 * scale);
-    return activity.cost;
-  }
-  function act(id: ActivityId) {
-    if (!character) return;
-    const planned = planActivityInNextFreeTime(character, id);
-    if (planned.issue) { notify(planned.message ?? 'No suitable time is available this week.'); return; }
-    persist(planned.character); playSound('action');
-    const slot = planned.scheduledActivity;
-    notify(slot ? 'Study session confirmed for ' + slot.date + ' (' + slot.startPeriod + ').' : 'Study session confirmed.');
-  }
   function chooseLifeEvent(choiceId: string) {
     if (!character) return;
     const planned = planEventChoiceInNextFreeTime(character, choiceId);
@@ -239,13 +185,7 @@
     } catch { notify('Fullscreen is not available in this browser.'); }
   }
   function refreshGame() { const url = new URL(window.location.href); url.searchParams.set('refresh', Date.now().toString()); window.location.replace(url.toString()); }
-  const activities: {id:ActivityId;title:string;detail:string;icon:string;cost:string}[] = [
-    {id:'study',title:'Study',detail:'Build knowledge for future opportunities.',icon:'↗',cost:'35'},
-    {id:'exercise',title:'Exercise',detail:'Improve fitness, health, and mood.',icon:'⌁',cost:'Time'},
-    {id:'socialize',title:'Socialize',detail:'Make time for the people around you.',icon:'◎',cost:'20'},
-    {id:'work',title:'Extra work',detail:'Earn additional money with an extra shift.',icon:'＋',cost:'+180'},
-    {id:'career',title:'Career development',detail:'Improve performance and work toward a promotion.',icon:'◆',cost:'Time'}
-  ];
+
 </script>
 <svelte:head><title>{character ? character.name + ' · My Life Simulator' : 'My Life Simulator'}</title></svelte:head>
 <div class="app-shell">
@@ -279,7 +219,7 @@
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
-        {#each [{id:'home',label:'Overview',icon:'⌂'},...(character && character.age >= 3 ? [{id:'school',label:'School',icon:'▤'}] : []),...(character && character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'}] : []),{id:'life',label:'Life',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'settings',label:'Settings',icon:'⚙'}] as item}
+        {#each [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},{id:'health',label:'Health',icon:'♡'},...(character && character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'}] : []),{id:'life',label:'Life',icon:'✳'},...(character && character.age >= 16 ? [{id:'finances',label:'Finances',icon:'◈'}] : []),{id:'settings',label:'Settings',icon:'⚙'}] as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => navigateTab(item.id)}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>Active save</strong><small>Slot {activeSlotId.slice(-1)}</small></div></div>{/if}
@@ -324,7 +264,7 @@
           </section>
           <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
         {:else if character && activeTab==='home'}
-          {@const educationStatus = character.education === 'Higher education' ? 'Higher education' : character.education ?? getEducationStage(character.age)}
+          {@const educationStatus = character.educationEnrollment ? character.educationEnrollment.field + ' · ' + character.educationEnrollment.institution : character.education ?? getEducationStage(character.age)}
           {@const workStatus = character.employment
             ? character.employment.title
             : character.age < 16
@@ -341,7 +281,7 @@
             <div class="overview-context-item">
               <span>EDUCATION</span>
               <strong>{educationStatus}</strong>
-              <small>{character.age < 3 ? 'Not started' : character.age < 6 ? 'Early learning stage' : character.age < 18 ? 'School-age learning' : character.education === 'Higher education' ? 'Qualification completed' : 'Secondary education completed'}</small>
+              <small>{character.age < 3 ? 'Early development' : character.age < 6 ? 'Early learning stage' : character.age < 18 ? 'School-age learning' : character.educationEnrollment ? Math.round(character.educationEnrollment.grade) + '% current grade' : character.academicHistory?.length ? character.academicHistory.length + ' completed programme(s)' : 'No active enrollment'}</small>
             </div>
             <div class="overview-context-item">
               <span>WORK & CAREER</span>
@@ -415,17 +355,10 @@
               <p class="overview-empty-activities">Activities will appear here as you make choices and spend time.</p>
             {/if}
           </section>
-        {:else if character && activeTab==='school' && character.age >= 3}
-          <div class="page-heading"><div><div class="eyebrow">EDUCATION</div><h1>School & learning</h1><p>Your current education stage and learning progress.</p></div></div>
-          <section class="domain-panel">
-            <div class="domain-panel-head"><div><div class="eyebrow">CURRENT EDUCATION</div><h2>{character.education ?? 'Education in progress'}</h2><p>{character.age < 6 ? 'Early learning and foundational skills.' : character.age < 13 ? 'Primary-stage learning.' : character.age < 18 ? 'Secondary-stage learning.' : character.education === 'Higher education' ? 'Higher education completed.' : 'Continuing education and personal development.'}</p></div><span class="domain-status">{character.age < 18 ? 'SCHOOL AGE' : 'LEARNING'}</span></div>
-            <div class="domain-progress-label"><span>Learning progress</span><strong>{character.educationProgress ?? 0}%</strong></div>
-            <div class="meter"><span class="blue" style="width:{character.educationProgress ?? 0}%"></span></div>
-            <div class="domain-note">{character.age < 18 ? 'Study sessions build knowledge as you progress through school stages.' : 'Study sessions build knowledge and can unlock higher education.'}</div>
-          </section>
-          <div class="section-heading"><div><span class="section-index">01</span><h3>Study options</h3></div><span class="section-hint">Confirm a session; time is placed automatically</span></div>
-          <div class="activity-grid activity-grid-large">{#each activities.filter((activity) => activity.id === 'study' && getAvailableActivityIds(character!.age, character!.employment).includes(activity.id)) as activity}<button class="activity-card" disabled={!canAffordActivity(character, activity.id)} onclick={() => act(activity.id)}><span class="activity-icon">{activity.icon}</span><span class="activity-title">{activityTitle(activity, character.age)}</span><span class="activity-detail">{activityDetail(activity, character.age)}</span><span class="activity-cost">{activityCost(activity, character)} <span>→</span></span></button>{/each}</div>
-
+        {:else if character && activeTab==='education'}
+          <EducationWorkspace {character} onChange={persist} onNotify={notify} />
+        {:else if character && activeTab==='health'}
+          <HealthWorkspace {character} onChange={persist} onNotify={notify} />
         {:else if character && activeTab==='work' && character.age >= 16}
           <WorkWorkspace {character} onChange={persist} onNotify={notify} />
 

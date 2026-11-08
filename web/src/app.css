@@ -720,3 +720,87 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
   .topbar-week-dots{gap:3px}
   .topbar-week-dots i{width:5px;height:5px}
 }
+
+/* Education and health systems */
+.education-hero,.education-intro,.health-overview{margin-bottom:24px}
+.education-hero-top,.health-overview-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px}
+.education-hero-top h2,.education-intro h2,.health-overview h2{margin:9px 0 5px;font-size:24px;letter-spacing:-.7px}
+.education-hero-top p,.education-intro>p,.health-overview-head p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.education-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:25px 0 17px}
+.education-metrics>div,.health-stat{padding:15px;border:1px solid var(--line);background:var(--surface);border-radius:12px;min-width:0}
+.education-metrics span,.health-stat span{display:block;color:var(--subtle);font-size:9px;font-weight:800;letter-spacing:1px}
+.education-metrics strong,.health-stat strong{display:block;font-size:25px;letter-spacing:-1px;margin:7px 0 3px}
+.education-metrics small,.health-stat small{color:var(--muted);font-size:11px}
+.education-subjects{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:22px}
+.education-subject{padding:12px;border:1px solid var(--line);border-radius:10px;background:#080b09}
+.education-subject>span{display:block;color:var(--muted);font-size:11px}
+.education-subject>strong{display:block;margin:7px 0;font-size:18px}
+.education-subject .meter{height:4px}
+.education-footnote,.education-section-copy{color:var(--muted);font-size:12px;line-height:1.65;margin:18px 0 0}
+.education-pause{margin-top:18px}
+.education-task-section,.education-history-section,.health-care-section,.health-conditions-section{margin:27px 0}
+.education-task-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:15px}
+.education-task-card{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:9px;padding:17px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--text);min-height:175px}
+.education-task-card:hover:not(:disabled),.education-program-card:hover{border-color:var(--line-strong);background:var(--surface-hover)}
+.education-task-card:disabled{opacity:.7}
+.education-task-icon,.health-care-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--accent-soft);color:var(--accent);font-size:18px}
+.education-task-card strong,.health-care-card strong{font-size:13px}
+.education-task-card small{font-size:11px;color:var(--muted);line-height:1.5;flex:1}
+.education-task-card b{font-size:11px;color:var(--accent)}
+.education-program-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:20px}
+.education-program-card{position:relative;display:flex;flex-direction:column;gap:7px;text-align:left;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text)}
+.education-program-selected{border-color:var(--accent)!important;background:var(--accent-soft)!important}
+.education-program-type{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--accent);font-weight:800}
+.education-program-card strong{font-size:13px}
+.education-program-card small{font-size:11px;color:var(--muted)}
+.education-program-cost{font-size:11px;color:var(--text);font-weight:700}
+.education-enrol-panel{margin-top:16px;padding:19px;border:1px solid var(--line-strong);border-radius:13px;background:#0b100d}
+.education-enrol-panel h3{margin:8px 0 4px;font-size:18px}
+.education-enrol-panel p{margin:0;color:var(--muted);font-size:12px}
+.education-field-label{display:flex;flex-direction:column;gap:8px;margin:17px 0;color:var(--muted);font-size:11px}
+.education-field-label select{background:var(--surface);border:1px solid var(--line-strong);border-radius:9px;color:var(--text);padding:12px;font:inherit}
+.education-enrol-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.education-enrol-footer strong{color:var(--text)}
+.education-history-row,.health-condition-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 0;border-bottom:1px solid var(--line)}
+.education-history-row strong,.health-condition-row strong{display:block;font-size:12px}
+.education-history-row small,.health-condition-row small{display:block;margin-top:5px;color:var(--muted);font-size:10px}
+.education-history-row>span{font-size:10px;color:var(--muted);text-align:right}
+.education-history-row .education-result-pass{color:var(--accent)}
+.health-stat-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:22px}
+.health-stat .meter{margin:9px 0 6px;height:5px}
+.health-stat .meter span.stress-meter{background:var(--coral)}
+.health-warning{display:flex;flex-direction:column;gap:5px;margin-top:17px;padding:14px;border:1px solid #5b4430;background:#17110b;border-radius:10px}
+.health-warning strong{font-size:12px;color:var(--amber)}
+.health-warning span{font-size:11px;color:var(--muted);line-height:1.5}
+.health-care-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px}
+.health-care-card{display:flex;flex-direction:column;align-items:flex-start;gap:9px;padding:17px;border:1px solid var(--line);border-radius:13px;background:var(--surface)}
+.health-care-card p{margin:0;color:var(--muted);font-size:11px;line-height:1.55;flex:1}
+.health-care-card small{color:var(--subtle);font-size:10px}
+.health-care-card button{margin-top:5px}
+.health-condition-severity{width:100px;flex-shrink:0;text-align:right}
+.health-condition-severity strong{font-size:15px}
+.health-condition-severity .meter{height:5px;margin-top:6px}
+.health-empty{padding:18px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
+.health-empty strong{font-size:12px}
+.health-empty p,.health-disclaimer{color:var(--muted);font-size:11px;line-height:1.6}
+.health-medication-list{display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:15px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:11px}
+.health-medication-list span{color:var(--muted)}
+.health-disclaimer{margin-top:17px}
+@media(max-width:760px){
+  .education-metrics{gap:7px}
+  .education-metrics>div,.health-stat{padding:11px}
+  .education-metrics strong,.health-stat strong{font-size:21px}
+  .education-subjects{grid-template-columns:1fr}
+  .education-task-grid{grid-template-columns:1fr}
+  .education-task-card{min-height:0}
+  .education-program-list{grid-template-columns:1fr}
+  .health-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .health-care-grid{grid-template-columns:1fr}
+}
+
+.education-class-schedule,.education-planned-list{display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
+.education-class-schedule strong,.education-planned-list strong{font-size:11px;color:var(--text)}
+.education-class-schedule span,.education-planned-list span{font-size:10px;color:var(--muted)}
+
+.education-planned-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.education-planned-row .text-button{padding:4px 7px;font-size:10px}

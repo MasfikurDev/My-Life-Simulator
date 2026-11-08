@@ -42,7 +42,7 @@ export function getLifeStage(age: number): LifeStage {
 }
 
 export function getEducationStage(age: number): string {
-  if (age < 3) return 'Not started';
+  if (age < 3) return 'Early development';
   if (age < 6) return 'Early learning';
   if (age < 13) return 'Primary education';
   if (age < 18) return 'Secondary education';

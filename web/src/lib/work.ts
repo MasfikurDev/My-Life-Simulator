@@ -19,6 +19,8 @@ export interface CareerRole {
   minSocialSkills?: number;
   minConfidence?: number;
   requiredQualificationIds?: string[];
+  requiredQualificationFields?: string[];
+  requiredQualificationCategory?: 'certificate' | 'license' | 'diploma' | 'degree' | 'professional';
   annualSalaryMin: number;
   annualSalaryMax: number;
   nextRoleId?: string;
@@ -50,8 +52,8 @@ export const CAREER_ROLES: CareerRole[] = [
   { id: 'operations-assistant', pathId: 'operations', pathName: 'Operations', title: 'Operations assistant', level: 1, description: 'Support daily operations, records and routine coordination.', minAge: 16, maxAge: 120, minIntelligence: 32, minExperienceYears: 0, requiresHigherEducation: false, annualSalaryMin: 14000, annualSalaryMax: 22000, nextRoleId: 'operations-coordinator' },
   { id: 'operations-coordinator', pathId: 'operations', pathName: 'Operations', title: 'Operations coordinator', level: 2, description: 'Coordinate processes, schedules and cross-team work.', minAge: 18, maxAge: 120, minIntelligence: 48, minExperienceYears: 2, requiresHigherEducation: false, minDiscipline: 50, annualSalaryMin: 22000, annualSalaryMax: 35000, nextRoleId: 'operations-manager' },
   { id: 'operations-manager', pathId: 'operations', pathName: 'Operations', title: 'Operations manager', level: 3, description: 'Lead an operational team and take responsibility for delivery.', minAge: 23, maxAge: 120, minIntelligence: 58, minExperienceYears: 5, requiresHigherEducation: false, minConfidence: 55, minDiscipline: 60, annualSalaryMin: 30000, annualSalaryMax: 50000 },
-  { id: 'it-support', pathId: 'technology', pathName: 'Technology', title: 'IT support technician', level: 1, description: 'Troubleshoot devices, accounts and common technical issues.', minAge: 18, maxAge: 120, minIntelligence: 55, minExperienceYears: 0, requiresHigherEducation: false, minFocus: 55, annualSalaryMin: 18000, annualSalaryMax: 30000, nextRoleId: 'software-developer' },
-  { id: 'software-developer', pathId: 'technology', pathName: 'Technology', title: 'Software developer', level: 2, description: 'Build, test and maintain software used by customers or teams.', minAge: 18, maxAge: 120, minIntelligence: 65, minExperienceYears: 2, requiresHigherEducation: true, minFocus: 65, annualSalaryMin: 32000, annualSalaryMax: 56000, nextRoleId: 'senior-developer' },
+  { id: 'it-support', pathId: 'technology', pathName: 'Technology', title: 'IT support technician', level: 1, description: 'Troubleshoot devices, accounts and common technical issues.', minAge: 18, maxAge: 120, minIntelligence: 55, minExperienceYears: 0, requiresHigherEducation: false, minFocus: 55, requiredQualificationFields: ['Digital skills', 'Programming'], requiredQualificationCategory: 'certificate', annualSalaryMin: 18000, annualSalaryMax: 30000, nextRoleId: 'software-developer' },
+  { id: 'software-developer', pathId: 'technology', pathName: 'Technology', title: 'Software developer', level: 2, description: 'Build, test and maintain software used by customers or teams.', minAge: 18, maxAge: 120, minIntelligence: 65, minExperienceYears: 2, requiresHigherEducation: true, minFocus: 65, requiredQualificationFields: ['Computer science', 'Computing', 'Engineering'], requiredQualificationCategory: 'degree', annualSalaryMin: 32000, annualSalaryMax: 56000, nextRoleId: 'senior-developer' },
   { id: 'senior-developer', pathId: 'technology', pathName: 'Technology', title: 'Senior software developer', level: 3, description: 'Own technical decisions, mentor developers and deliver complex work.', minAge: 23, maxAge: 120, minIntelligence: 72, minExperienceYears: 5, requiresHigherEducation: true, minFocus: 75, minCreativity: 60, annualSalaryMin: 55000, annualSalaryMax: 85000 },
   { id: 'sales-associate', pathId: 'sales', pathName: 'Sales', title: 'Sales associate', level: 1, description: 'Understand customer needs and help people choose suitable products.', minAge: 16, maxAge: 120, minIntelligence: 30, minExperienceYears: 0, requiresHigherEducation: false, minSocialSkills: 40, annualSalaryMin: 6500, annualSalaryMax: 13000, nextRoleId: 'account-executive' },
   { id: 'account-executive', pathId: 'sales', pathName: 'Sales', title: 'Account executive', level: 2, description: 'Manage customer accounts and develop long-term business relationships.', minAge: 18, maxAge: 120, minIntelligence: 48, minExperienceYears: 2, requiresHigherEducation: false, minSocialSkills: 55, annualSalaryMin: 18000, annualSalaryMax: 32000, nextRoleId: 'sales-manager' },
@@ -116,7 +118,7 @@ export function getCareerRequirements(character: Character, role: CareerRole): C
   const experience = getCareerExperience(character);
   return [
     { label: 'Age', met: character.age >= role.minAge && character.age <= role.maxAge, detail: role.minAge >= 65 ? 'Later-life role' : role.minAge > 16 ? 'Age ' + role.minAge + ' or older' : 'Age 16 or older' },
-    { label: 'Education', met: !role.requiresHigherEducation || character.education === 'Higher education', detail: role.requiresHigherEducation ? 'Higher education' : 'No specific degree required' },
+    { label: 'Education', met: !role.requiresHigherEducation || character.education === 'Higher education' || (character.educationRecords ?? []).some((record) => record.status === 'completed' && ['bachelor', 'master', 'doctorate', 'professional-specialist'].includes(record.level)) || (character.qualifications ?? []).some((qualification) => qualification.category === 'degree' || (qualification.category === 'professional' && qualification.programId !== 'professional-certificate')), detail: role.requiresHigherEducation ? "Bachelor's degree or equivalent professional qualification" : 'No specific degree required' },
     { label: 'Knowledge', met: character.intelligence >= role.minIntelligence, detail: 'Intelligence ' + role.minIntelligence + '+' },
     ...(role.minFocus ? [{ label: 'Focus', met: (character.focus ?? 50) >= role.minFocus, detail: 'Focus ' + role.minFocus + '+' }] : []),
     ...(role.minSocialSkills ? [{ label: 'Social skills', met: (character.socialSkills ?? 50) >= role.minSocialSkills, detail: 'Social skills ' + role.minSocialSkills + '+' }] : []),
@@ -124,9 +126,16 @@ export function getCareerRequirements(character: Character, role: CareerRole): C
     ...(role.minDiscipline ? [{ label: 'Discipline', met: (character.discipline ?? 50) >= role.minDiscipline, detail: 'Discipline ' + role.minDiscipline + '+' }] : []),
     ...(role.minCreativity ? [{ label: 'Creativity', met: (character.creativity ?? 50) >= role.minCreativity, detail: 'Creativity ' + role.minCreativity + '+' }] : []),
     ...(role.requiredQualificationIds ?? []).map((id) => {
-      const qualification = (character.qualifications ?? []).find((item) => item.id === id && (item.expiresAtAge === undefined || character.age <= item.expiresAtAge));
+      const qualification = (character.qualifications ?? []).find((item) => (item.id === id || item.programId === id) && (item.expiresAtAge === undefined || character.age <= item.expiresAtAge));
       return { label: 'Qualification', met: Boolean(qualification), detail: qualification?.name ?? id };
     }),
+    ...(role.requiredQualificationFields?.length ? [{
+      label: 'Relevant qualification',
+      met: (character.qualifications ?? []).some((item) => role.requiredQualificationFields!.includes(item.field) &&
+        (!role.requiredQualificationCategory || item.category === role.requiredQualificationCategory) &&
+        (item.expiresAtAge === undefined || character.age <= item.expiresAtAge)),
+      detail: role.requiredQualificationFields.join(' / ')
+    }] : []),
     { label: 'Experience', met: experience >= role.minExperienceYears, detail: role.minExperienceYears + '+ years of career experience' }
   ];
 }

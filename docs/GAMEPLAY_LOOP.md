@@ -13,7 +13,7 @@ The weekly gameplay foundation and the annual-action-to-weekly-turn transition a
 - Age and life-stage eligibility change on the character's birthday. Annual financial settlement and annual event expiry remain at the year boundary.
 - The save migration preserves existing slots and stores the original pre-migration payload as a recovery copy.
 
-Still planned: date-based event deadlines and richer event cooldown/content, monthly financial settlement and reporting, broader cross-domain consequences, fuller School attendance/grades, family lifecycle expansion, health/recovery depth, retirement, mortality, and terminal-life completion. The weekly loop is live, but the complete birth-to-death redesign is not finished.
+Still planned: date-based event deadlines and richer event cooldown/content, monthly financial settlement and reporting, broader cross-domain consequences, family lifecycle expansion, deeper chronic-care/insurance/healthcare localization, retirement, mortality, and terminal-life completion. Education now has enrollment, class commitments, weekly academic tasks and grades; Health now has stress/workload, recovery, counselling, check-ups and basic condition/treatment loops. The complete birth-to-death redesign is not finished.
 
 ## 1. The game we are making
 
@@ -74,7 +74,7 @@ The week is shaped by recurring commitments and the player's discretionary choic
 - Player-directed activities consume one or more free-time blocks, plus money and/or energy when appropriate. Different activities can take different amounts of time.
 - A time block is a scheduling constraint, not an action token. The same activity cannot be scheduled into overlapping time; unavailable time cannot be spent twice.
 - Do not require the player to fill every day or every block. Rest, unplanned time, and quiet weeks are valid.
-- Do not add an energy stat merely to create another meter. If energy is introduced, define its source, recovery, bounds, effects, UI explanation, and tests before using it as a cost. Until then, existing health/fitness/happiness rules remain authoritative.
+- Stamina is a bounded physical-capacity stat with explicit recovery and workload effects. Stress is inverse-scored (higher is worse) and affects learning/work efficiency. Do not add further need meters without a complete simulation and UI contract.
 - Some activities are immediate choices; others become recurring routines or commitments. A routine must show its duration, schedule, cost, benefit, and cancellation/change rules.
 - Events may interrupt or offer alternatives to a schedule. The player should understand which commitment is affected and what the trade-off is.
 
@@ -84,11 +84,11 @@ The week is shaped by recurring commitments and the player's discretionary choic
 
 The simulation now has a reusable, save-compatible weekly schedule model:
 - A week is represented as seven days with three broad periods: morning, afternoon, and evening. These are planning blocks, not hourly simulation.
-- Recurring commitments reserve one or more consecutive periods on a selected weekday. Employment now generates a simple default shift pattern from the job type: full-time roles reserve weekday morning/afternoon blocks, part-time roles reserve three afternoon blocks, and flexible roles reserve three morning blocks. School hours remain unmodeled and are not invented.
+- Recurring commitments reserve one or more consecutive periods on a selected weekday. Employment now generates a simple default shift pattern from the job type: full-time roles reserve weekday morning/afternoon blocks, part-time roles reserve three afternoon blocks, and flexible roles reserve three morning blocks. Education enrollment now generates class commitments from the programme's timetable, fitting around existing commitments where possible.
 - Planned activities reserve dated periods in the selected week and must remain within that week.
 - The pure schedule resolver expands commitments, identifies free periods, and reports duplicate IDs, invalid dates/durations, out-of-week activities, and overlapping placements.
 - New characters receive an empty versioned schedule. Legacy saves are migrated without discarding character or slot data; saves that lack calendar data are anchored to the first Monday on or after January 1 of their stored year, and the obsolete annual action counter is removed.
-- Routine actions are initiated from their owning domains: study in School, applications/interviews and career development in Work, family interactions in Family, business management in Business, and personal activities in Life. Confirming the action is the only scheduling input required.
+- Routine actions are initiated from their owning domains: enrollment and academic tasks in Education, care and recovery in Health, applications/interviews and career development in Work, family interactions in Family, business management in Business, and personal activities in Life. Confirming the action is the only scheduling input required.
 - A shared simulation planner finds the earliest suitable contiguous free period in the current week, validates eligibility, duration, recurring commitments, overlaps, and aggregate planned costs, then returns the exact placement to the owning screen. The player never chooses a date or time for routine actions.
 - The Schedule workspace is a review surface: it shows the seven-day/21-period view, recurring commitments, reservations, available periods, and planned costs. It supports removing a reservation; it is not a second place to initiate routine actions.
 - Study and extra work take two consecutive periods; exercise, socializing, job applications, and career development take one. Family interactions take one; business management takes two; event choices use their authored duration or resolve immediately when no time is required.
@@ -111,7 +111,8 @@ Show a compact "This week" view:
 **Phase B — Make choices in their own workspaces**
 
 The player visits the relevant domain and chooses what to do:
-- **School:** attend scheduled classes, study, complete assignments, prepare for exams, and respond to school situations when those mechanics exist.
+- **Education:** attend automatically scheduled classes, plan study/assignment/assessment tasks, maintain grades, progress through courses and earn qualifications. Missing weekly learning targets lowers grades.
+- **Health:** monitor condition and pressure, plan rest/mindfulness/counselling/medical check-ups, and manage treatment. Workload and sustained stress can cause burnout and reduce task efficiency.
 - **Work:** attend shifts, perform work activities, develop skills, pursue opportunities, and respond to workplace situations when implemented.
 - **Life:** wellbeing, personal growth, relationships, family, recreation, and personal commitments.
 - **Finance:** banking, spending, saving, debt, assets, household planning, and business decisions.
@@ -222,7 +223,7 @@ Present a compact current-week view containing:
 
 ### Phase B — Make life decisions
 The player chooses from age- and circumstance-appropriate actions in the relevant domain workspaces:
-- School: study and, when implemented, enrollment, classes, attendance, exams, and education choices.
+- Education: enrollment, automatically scheduled classes, weekly study/assignment/assessment tasks, grades, course milestones and qualifications.
 - Work: job search, applications, career development, workplace choices, and later retirement decisions.
 - Life: wellbeing, personal growth, relationships, family, recreation, and personal commitments.
 - Finance: banking, spending, saving, debt, assets, household planning, and business decisions.
@@ -314,7 +315,7 @@ Keep domain workspaces separate in the UI, but connect their simulation effects.
 
 | System | What it should influence |
 |---|---|
-| Health and wellbeing | Available actions, energy/capacity, medical costs when implemented, work/study participation, later-life independence |
+| Health and wellbeing | Physical and mental condition, stamina, stress, workload, recovery, professional support, medical costs and later-life care |
 | Education | Qualifications, opportunities, career access, income potential, school relationships and milestones |
 | Work and career | Income, stability, time, stress, skills, colleagues/relationships, retirement and pension eligibility |
 | Family and relationships | Emotional support, obligations, household choices, major events, dependants, inheritance/legacy |
@@ -326,10 +327,12 @@ Cross-domain effects must be explicit and auditable. For example, payroll credit
 
 ## 6. Stats must affect play
 
-Health, happiness, intelligence, and fitness are not decorative bars. Each needs a defined, tested role:
+Health, happiness, intelligence, fitness, stamina and stress are not decorative bars. Each needs a defined, tested role:
 - **Health:** influences vulnerability, recovery, physical limitations, medical events, and later-life risk. Zero health is a critical state, not a meaningless number.
 - **Happiness:** influences wellbeing and selected social/decision outcomes; low happiness should create contextual pressure and possible support opportunities, not randomly punish every action.
 - **Intelligence:** influences learning outcomes and eligibility/odds for relevant education and career paths, without guaranteeing success.
+- **Stamina:** falls under sustained workload and recovers through rest and lighter weeks; low stamina reduces study efficiency.
+- **Stress:** rises under excessive commitments, falls through recovery/support and reduces study/work efficiency; sustained high pressure can produce burnout or anxiety conditions.
 - **Fitness:** influences physical activities, resilience, and age-related capability where appropriate.
 
 Use bounded values, gradual change, multiple ways to recover, and meaningful trade-offs. Avoid a single optimal routine that maximizes every stat with no downside. Do not introduce hidden stat penalties that the player cannot understand.

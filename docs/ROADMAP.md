@@ -19,10 +19,12 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Establish life-stage bands and enforce initial activity eligibility in both UI and simulation.
 - [x] Add the initial age-derived education labels and study-progress foundation.
 - [x] Add optional structured education-history and qualification records to the character model, plus generated stamina, focus, confidence, discipline, creativity, social skills and stress attributes.
-- [ ] Replace the generic higher-education shortcut with a complete early-learning-to-doctorate pathway, including primary, lower/upper secondary, vocational, associate/foundation, bachelor's, master's, doctoral and professional-specialist routes.
-- [ ] Build Education workspace loops for enrollment, age-appropriate attendance, subjects, grades, exams, transfers, pauses, tuition/fees and education history.
-- [ ] Add training courses, certificates, licenses, apprenticeships and qualification renewal; connect actual completed credentials to job eligibility and career changes.
-- [ ] Expand attribute simulation with meaningful long-term growth, recovery, stress management, health/stamina effects, diminishing returns and role/course-specific prerequisites.
+- [x] Add a playable education catalogue from early learning and primary/secondary school through vocational, college, bachelor's, master's, doctoral and professional certificate/specialist routes.
+- [x] Build the Education workspace with enrollment, automatically arranged class commitments, subjects, grades, weekly study/assignment/assessment tasks, tuition, pause/resume and academic history.
+- [x] Add professional certificate courses and programme-linked qualifications; connect completed degrees and programme IDs to career eligibility.
+- [ ] Expand localized course catalogs, regulated licensing, qualification expiry/renewal, scholarships, retakes and apprenticeship placements.
+- [x] Add role/course-specific ability prerequisites and weekly stress/stamina effects on learning and work efficiency.
+- [ ] Expand long-term attribute growth, diminishing returns and broader health-condition variety.
 - [x] Add teen part-time applications, adult full-time employment, later-life flexible-work offers, and adult job changes.
 - [x] Add annual salary, estimated living costs, career performance, and promotion progression.
 - [x] Enforce affordability for paid activities in both the UI and simulation, with currency-scaled costs and no free effects when funds are insufficient.
@@ -45,7 +47,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add Life → Lifestyle with a provider marketplace, supermarket checkout, owned subscriptions/services, payment-method references, and household costs.
 - [x] Separate School and Work into age-gated, domain-native destinations using existing simulation actions and save fields.
 - [x] Consolidate personal wellbeing, personal growth, personal activities, and complete life history under a modular Life workspace.
-- [ ] Expand School with enrollment, attendance, classes, grades, and education history only when each mechanic has a complete simulation loop.
+- [x] Expand Education with enrollment, attendance commitments, classes, grades, weekly tasks, programme completion and education history.
 - [x] Implement a weekly job board, visible role requirements, scheduled applications and interviews, expiring offers, acceptance/decline, career-path previews, player-controlled promotion offers, and voluntary resignation.
 - [x] Add initial role-specific eligibility gates for focus, social skills, confidence, discipline and creativity alongside age, education, intelligence and experience.
 - [ ] Expand work into a complete age-appropriate path spanning part-time work, internships, apprenticeships, skilled occupations, professional careers, management and flexible later-life work; connect it to real education and credential records.
@@ -56,7 +58,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. The annual-action cutover, automatic contextual placement, and deterministic weekly resolution are implemented. Remaining work is listed separately below.
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
-- [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment now adds type-based recurring Work shifts; School attendance remains unmodeled until its own schedule loop exists.
+- [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment adds type-based recurring Work shifts; Education enrollment adds recurring class commitments to the same validated schedule.
 - [x] Add a Schedule review workspace with a seven-day, 21-period grid, recurring commitments, automatic reservations, duration visibility, planned-cost summary, and reservation removal. Routine actions are initiated only from their owning domain.
 - [x] Centralize per-activity time requirements and validate planned activities in the simulation: life-stage eligibility, current-week boundaries, duration fit, overlaps, and aggregate planned cash costs.
 - [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, business management, and contextual Work actions.
@@ -89,7 +91,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Acceptance:** Device ownership and costs persist accurately; failed transactions are atomic; capabilities enable specific contextual opportunities; other domains do not duplicate device management; existing saves remain valid. Detailed rules: [PERSONAL_TECHNOLOGY.md](PERSONAL_TECHNOLOGY.md).
 
 ## Milestone 5 — Deepen School and Work into playable systems
-- [ ] Add real school progression choices, enrollment, attendance, classes, grades/exams, and fees in the School workspace.
+- [x] Add education progression choices, enrollment, class commitments, weekly assignments/exams, grades, tuition and academic history in the Education workspace.
 - [x] Add recruitment stages with applications, interviews, offers, acceptance/decline, generated employer identity, and job-change/resignation flow in Work.
 - [ ] Add persistent employer operations, workplace decisions, layoffs/job security, and role-specific skill development.
 - [ ] Clarify the current-job card and add a read-only career-path preview with estimated salary/bonus ranges; see [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md).
@@ -120,8 +122,9 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Acceptance:** Family is represented by real people and validated relationships, not a single score. Interactions materially affect the selected relationship and are recorded. Financial support cannot create money or hidden debt. New and legacy saves remain valid. Different family structures and child/adult/later-life scenarios are tested. No unimplemented partner, child, care, death, or inheritance state is shown as fact.
 
 ## Milestone 7 — Health, aging, retirement, and later-life economy
-- [ ] Make health, happiness, and fitness affect gameplay through transparent, bounded rules.
-- [ ] Add illness/injury/recovery and healthcare costs only as complete playable loops.
+- [x] Add bounded workload/stress/stamina effects and recovery actions; keep health/happiness/fitness connected to weekly outcomes.
+- [x] Add a basic medical-care loop with condition monitoring, scheduled check-ups, counselling, rest, mindfulness and short treatment courses.
+- [ ] Expand into illness/injury variety, chronic care, healthcare access, insurance and localized medical costs.
 - [ ] Add retirement choices, sustainable pension/retirement income, and age-appropriate later-life expenses.
 - [ ] Support continuing work, flexible work, or retirement without arbitrary forced retirement.
 

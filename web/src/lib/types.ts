@@ -2,7 +2,16 @@ export type ActivityId = 'study' | 'exercise' | 'socialize' | 'work' | 'apply-jo
 export type Gender = 'male' | 'female' | 'non-binary';
 export type EducationLevel = 'early-learning' | 'primary' | 'lower-secondary' | 'upper-secondary' | 'vocational' | 'associate' | 'bachelor' | 'master' | 'doctorate' | 'professional-specialist';
 export interface EducationRecord { id: string; level: EducationLevel; institution: string; field?: string; startedAtAge: number; completedAtAge?: number; status: 'enrolled' | 'completed' | 'paused' | 'withdrawn'; }
-export interface Qualification { id: string; name: string; category: 'certificate' | 'license' | 'diploma' | 'degree' | 'professional'; issuer: string; field: string; awardedAtAge: number; expiresAtAge?: number; }
+export type EducationTaskType = 'study' | 'assignment' | 'exam';
+export interface EducationSubject { id: string; name: string; grade: number; }
+export interface EducationEnrollment { recordId: string; status: 'enrolled' | 'paused'; programId: string; institution: string; level: EducationLevel; field: string; startedAtAge: number; tuitionPaid: number; weeksCompleted: number; totalWeeks: number; grade: number; attendance: number; weeklyStudyTarget: number; subjects: EducationSubject[]; }
+export interface AcademicResult { programId: string; institution: string; level: EducationLevel; field: string; grade: number; completedAtAge: number; outcome: 'completed' | 'failed' | 'withdrawn'; }
+export type HealthConditionType = 'burnout' | 'anxiety' | 'common-illness' | 'injury' | 'chronic';
+export interface HealthCondition { id: string; type: HealthConditionType; name: string; severity: number; diagnosed: boolean; weeksActive: number; treatment: 'rest' | 'professional-support' | 'medical-care' | 'ongoing-management' | null; }
+export interface MedicationCourse { id: string; name: string; weeksRemaining: number; }
+export interface MedicalState { conditions: HealthCondition[]; medications: MedicationCourse[]; highStressWeeks: number; lastCheckupWeek?: string; lastTherapyWeek?: string; }
+export type CareActionType = 'rest' | 'counselling' | 'medical-checkup' | 'mindfulness';
+export interface Qualification { id: string; programId?: string; name: string; category: 'certificate' | 'license' | 'diploma' | 'degree' | 'professional'; issuer: string; field: string; awardedAtAge: number; expiresAtAge?: number; }
 export type EmploymentType = 'part-time' | 'full-time' | 'flexible';
 export type HouseholdArrangement = 'family-supported' | 'shared' | 'independent';
 export type SavingsGoalMonths = 1 | 3 | 6;
@@ -186,7 +195,7 @@ export interface GameCalendar {
 }
 export type Weekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export type DayPeriod = 'morning' | 'afternoon' | 'evening';
-export type ScheduleDomain = 'school' | 'work' | 'household' | 'other';
+export type ScheduleDomain = 'school' | 'work' | 'healthcare' | 'household' | 'other';
 export interface WeeklyCommitment {
   id: string;
   title: string;
@@ -200,7 +209,9 @@ export type PlannedAction =
   | { kind: 'family'; personId: string; interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support'; supportAmount?: number }
   | { kind: 'business'; businessId: string }
   | { kind: 'event'; eventId: string; choiceId: string }
-  | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string };
+  | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string }
+  | { kind: 'education'; taskType: EducationTaskType }
+  | { kind: 'care'; careType: CareActionType };
 
 export interface PlannedActivity {
   id: string;
@@ -226,7 +237,7 @@ export interface Character {
   lastWeekRecap?: string[];
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
-  educationProgress?: number; educationLevel?: EducationLevel; educationRecords?: EducationRecord[]; qualifications?: Qualification[]; employment?: Employment | null;
+  educationProgress?: number; educationLevel?: EducationLevel; educationRecords?: EducationRecord[]; qualifications?: Qualification[]; educationEnrollment?: EducationEnrollment | null; academicHistory?: AcademicResult[]; medicalState?: MedicalState; employment?: Employment | null;
   careerExperienceYears?: number; jobApplications?: JobApplication[]; jobOffers?: JobOffer[]; promotionOffer?: PromotionOffer | null;
   lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number; lastYearTax?: number; taxBalance?: number;
   householdArrangement?: HouseholdArrangement; savingsGoalMonths?: SavingsGoalMonths | null;
