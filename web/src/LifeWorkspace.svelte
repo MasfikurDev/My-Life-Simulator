@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getActivityDefinition, getAvailableActivityIds, getLifeStage } from './lib/progression';
+  import { formatCharacterMoney } from './lib/simulation';
   import { planActivityInNextFreeTime } from './lib/simulation';
   import type { ActivityId, Character } from './lib/types';
   import LifestyleWorkspace from './LifestyleWorkspace.svelte';
@@ -24,6 +25,28 @@
     { id: 'socialize', title: 'Socialize', detail: 'Make time for the people around you.', icon: '◎', cost: '20' }
   ];
   const stage = $derived(getLifeStage(character.age));
+  function financialFlow(type: string): 'income' | 'expense' | null {
+    if (['income', 'interest', 'business-income', 'investment-sell', 'property-sale'].includes(type)) return 'income';
+    if (['expense', 'family-support', 'loan-payment', 'loan-interest', 'card-purchase', 'card-interest', 'recurring-payment', 'investment-buy', 'property-purchase', 'property-rent', 'business-expense', 'tax', 'fee'].includes(type)) return 'expense';
+    return null;
+  }
+  function groupLifeMilestones() {
+    const groups = new Map<string, { key: string; age: number; year: number; events: Character['history']; transactions: NonNullable<Character['financialTransactions']> }>();
+    for (const event of character.history.filter((item) => item.kind !== 'activity')) {
+      const key = event.age + '-' + event.year;
+      const group = groups.get(key) ?? { key, age: event.age, year: event.year, events: [], transactions: [] };
+      group.events.push(event);
+      groups.set(key, group);
+    }
+    for (const transaction of character.financialTransactions ?? []) {
+      const key = transaction.age + '-' + transaction.year;
+      const group = groups.get(key) ?? { key, age: transaction.age, year: transaction.year, events: [], transactions: [] };
+      group.transactions.push(transaction);
+      groups.set(key, group);
+    }
+    return [...groups.values()].filter((group) => group.events.length || group.transactions.length)
+      .sort((a, b) => b.year - a.year || b.age - a.age);
+  }
   const availablePersonalActivities = $derived(personalActivities.filter((item) => getAvailableActivityIds(character.age, character.employment).includes(item.id)));
   function scheduleActivity(activityId: ActivityId) {
     const planned = planActivityInNextFreeTime(character, activityId);
@@ -94,15 +117,42 @@
   {:else if activeView === 'lifestyle'}
     <LifestyleWorkspace {character} {onChange} />
   {:else if activeView === 'history'}
-    {@const achievements = character.history.filter((item) => item.kind === 'milestone')}
-    <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS</div><h2>Life history</h2><p>Major achievements and important life-stage milestones.</p></div><span class="year-pill">{character.history.filter((item) => item.kind === 'milestone').length} ACHIEVEMENTS</span></div>
-    <section class="history-card full-history">
-      {#if achievements.length === 0}<p>No major achievements have been recorded yet.</p>{:else}
-        {#each achievements as item}
-          <div class="timeline-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>
+    {@const milestoneGroups = groupLifeMilestones()}
+    <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS & FINANCES</div><h2>Life history</h2><p>Important events, achievements and financial changes across your life.</p></div><span class="year-pill">{milestoneGroups.length} PERIODS</span></div>
+    {#if milestoneGroups.length}
+      <div class="life-milestone-list">
+        {#each milestoneGroups as group, index}
+          {@const income = group.transactions.filter((item) => financialFlow(item.type) === 'income').reduce((sum, item) => sum + item.amount, 0)}
+          {@const expenses = group.transactions.filter((item) => financialFlow(item.type) === 'expense').reduce((sum, item) => sum + item.amount, 0)}
+          {@const transfers = group.transactions.filter((item) => item.type === 'transfer').reduce((sum, item) => sum + item.amount, 0)}
+          <details class="life-milestone-group" open={index === 0}>
+            <summary><span><strong>Age {group.age}</strong><small>YEAR {group.year} · {group.events.length} {group.events.length === 1 ? 'EVENT' : 'EVENTS'}</small></span><i aria-hidden="true"></i></summary>
+            <div class="life-milestone-content">
+              {#if group.transactions.length}
+                <div class="life-milestone-finance">
+                  <div><small>INCOME</small><strong class="milestone-income">+{formatCharacterMoney(character, income)}</strong></div>
+                  <div><small>EXPENSES</small><strong class="milestone-expense">−{formatCharacterMoney(character, expenses)}</strong></div>
+                  <div><small>NET</small><strong>{income - expenses < 0 ? '−' : '+'}{formatCharacterMoney(character, Math.abs(income - expenses))}</strong></div>
+                  {#if transfers > 0}<div><small>TRANSFERS</small><strong>{formatCharacterMoney(character, transfers)}</strong></div>{/if}
+                </div>
+              {/if}
+              {#each group.events as event}
+                <div class="life-milestone-event"><span class:milestone-event-dot={event.kind === 'event'}></span><div><strong>{event.title}</strong><p>{event.description}</p></div></div>
+              {/each}
+              {#if group.transactions.length}
+                <details class="life-milestone-transactions"><summary>Financial records <span>{group.transactions.length}</span></summary>
+                  {#each group.transactions as transaction}
+                    <div><span><strong>{transaction.description}</strong><small>{transaction.type.replaceAll('-', ' ')}</small></span><b>{formatCharacterMoney(character, transaction.amount)}</b></div>
+                  {/each}
+                </details>
+              {/if}
+            </div>
+          </details>
         {/each}
-      {/if}
-    </section>
+      </div>
+    {:else}
+      <p class="life-milestones-empty">Major life events and financial records will appear here as your story progresses.</p>
+    {/if}
   {/if}
 </section>
 
