@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createCharacter, advanceWeek, planEducationTaskInNextFreeTime, planCareActionInNextFreeTime } from './simulation';
-import { enrollInEducation } from './education';
+import { enrollInEducation, pauseEducation } from './education';
 
 describe('weekly education and care integration', () => {
   it('resolves scheduled study and assignment tasks into academic progress', () => {
@@ -33,4 +33,13 @@ describe('weekly education and care integration', () => {
     expect(result.character.stress).toBeLessThan(character.stress!);
     expect(result.character.stamina).toBeGreaterThan(character.stamina!);
   });
+  it('removes uncompleted academic reservations when a programme is paused', () => {
+    const enrolled = enrollInEducation(createCharacter('Student', 10), 'primary-school', 'General studies').character;
+    const planned = planEducationTaskInNextFreeTime(enrolled, 'study');
+    expect(planned.issue).toBeNull();
+    const paused = pauseEducation(planned.character);
+    expect(paused.educationEnrollment?.status).toBe('paused');
+    expect(paused.weeklySchedule?.activities.some((item) => item.action?.kind === 'education')).toBe(false);
+  });
+
 });
