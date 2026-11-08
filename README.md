@@ -7,7 +7,7 @@ A modern, Android-first, single-player life simulation. The game is built as a T
 The game is built around a connected life story: meaningful choices, evolving relationships, education, work, personal wellbeing, finances, opportunities, and consequences. It prioritizes enjoyable play, player agency, coherent simulation, replayability, and a polished mobile experience over feature count or unnecessary realism.
 
 The canonical gameplay clock is:
-- **Week:** the playable turn. Players confirm actions in their own domain; the simulation finds suitable free time automatically. Advancing the week resolves accepted commitments and consequences.
+- **Week:** the playable turn. Players toggle personal activities in their own domain; stamina is their effort budget. Genuine school/work commitments remain on the recurring calendar. The weekly review previews costs, rewards and wellbeing outcomes before resolution.
 - **Month:** the intended recurring finance and reporting cadence. Monthly settlement is still a planned follow-up; current salary and household settlement remain annual.
 - **Year:** birthdays, age/life-stage progression, annual financial settlement, and longer-term life review.
 
@@ -32,8 +32,8 @@ System specifications:
 
 - Scenario-led character creation with coherent randomized identity and age-appropriate starting state.
 - Three independent local save slots, backward-compatible weekly-calendar migration, and a retained pre-migration recovery copy.
-- Weekly calendar and schedule model with recurring employment shifts, activity durations, conflict validation, and explicit player-controlled advancement.
-- Contextual automatic scheduling across School, Work, Family, Business, Events, and Life. Routine actions are confirmed in their owning domain; Schedule is for review and cancellation.
+- Weekly calendar for recurring school/work commitments, plus stamina-based personal activities with direct add/remove toggles.
+- Domain-native activity selection across School, Work, Family, Business, Events and Health; Schedule provides a combined review/cancellation list.
 - Deterministic weekly resolution, activity effects/costs, history records, recap, and stale-plan protection.
 - Domain workspaces for School, Work, Life, Finance, Lifestyle, and Business.
 - A persistent family graph with targeted interactions and auditable financial support.
