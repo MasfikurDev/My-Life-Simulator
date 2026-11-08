@@ -405,8 +405,8 @@
             <div class="character-avatar" aria-hidden="true">{character.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</div>
             <div class="character-profile-copy">
               <div class="character-profile-heading"><h2>{character.name}</h2><span class="character-age">AGE {character.age}</span></div>
-              <p>{getLifeStage(character.age)} <span>·</span> {character.country ?? character.nationality ?? 'Life in progress'}</p>
-              <div class="character-profile-tags"><span>{workStatus}</span><span>{educationStatus}</span></div>
+              <p>{getLifeStage(character.age).label} <span>·</span> {character.country ?? character.nationality ?? 'Life in progress'}</p>
+              <div class="character-profile-tags"><span>{character.employment?.title ?? 'Not employed'}</span><span>{character.educationEnrollment?.institution ?? (character.educationLevel ? character.educationLevel.replaceAll('-', ' ') : getEducationStage(character.age))}</span></div>
             </div>
             <div class="character-cash-summary"><small>AVAILABLE CASH</small><strong>{formatCharacterMoney(character)}</strong></div>
           </section>
