@@ -18,11 +18,12 @@ describe('life simulation', () => {
     expect(canAffordActivity(adult, 'study')).toBe(true);
     expect(canAffordActivity({ ...adult, money: 3499 }, 'study')).toBe(false);
   });
-  it('defines different time requirements for activities', () => {
+  it('defines activity stamina costs while retaining legacy duration metadata for save compatibility', () => {
+    expect(getActivityDefinition('study').staminaCost).toBe(8);
+    expect(getActivityDefinition('work').staminaCost).toBe(16);
+    expect(getActivityDefinition('exercise').staminaCost).toBe(10);
+    expect(getActivityDefinition('socialize').staminaCost).toBe(6);
     expect(getActivityDefinition('study').durationBlocks).toBe(2);
-    expect(getActivityDefinition('work').durationBlocks).toBe(2);
-    expect(getActivityDefinition('exercise').durationBlocks).toBe(1);
-    expect(getActivityDefinition('apply-job').durationBlocks).toBe(1);
   });
   it('plans activities into the current week without spending annual action tokens or cash early', () => {
     const adult = { ...createCharacter('Planner', 30), money: 100, currencyScale: 1 };
@@ -130,6 +131,7 @@ describe('life simulation', () => {
     expect(review.projectedStamina).toBe(resolved.character.stamina);
     expect(review.projectedStress).toBe(resolved.character.stress);
     expect(review.projectedHealth).toBe(resolved.character.health);
+    expect(resolved.character.stamina).toBe(63);
   });
 
   it('resolves a planned week once, charges costs, clears reservations and advances exactly seven days', () => {
