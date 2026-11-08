@@ -26,6 +26,7 @@ const collegeSchedule = ([1, 2, 3, 4] as const).map((weekday) => ({ weekday, sta
 const flexibleSchedule = ([2, 4] as const).map((weekday) => ({ weekday, startPeriod: 'evening' as const, durationBlocks: 1 }));
 
 export const EDUCATION_PROGRAMS: EducationProgram[] = [
+  { id: 'early-development', title: 'Early development & guided play', institutionType: 'Family-led early development', level: 'early-learning', minAge: 0, maxAge: 2, durationWeeks: 104, tuition: 0, weeklyStudyTarget: 1, fieldOptions: ['Play & discovery', 'Language & stories', 'Movement & coordination'], schedule: ([1, 3, 5] as const).map((weekday) => ({ weekday, startPeriod: 'morning', durationBlocks: 1 })) },
   { id: 'early-learning', title: 'Early learning & preschool', institutionType: 'Preschool', level: 'early-learning', minAge: 3, maxAge: 5, durationWeeks: 32, tuition: 0, weeklyStudyTarget: 1, fieldOptions: ['Foundations'], schedule: ([1, 3, 5] as const).map((weekday) => ({ weekday, startPeriod: 'morning', durationBlocks: 1 })) },
   { id: 'primary-school', title: 'Primary school', institutionType: 'Public school', level: 'primary', minAge: 6, maxAge: 11, durationWeeks: 240, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies'], schedule: schoolSchedule },
   { id: 'lower-secondary', title: 'Lower secondary school', institutionType: 'Secondary school', level: 'lower-secondary', minAge: 12, maxAge: 14, durationWeeks: 120, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies', 'Science', 'Humanities', 'Business studies'], schedule: schoolSchedule, prerequisite: 'primary' },
@@ -104,7 +105,7 @@ export function enrollInEducation(character: Character, programId: string, field
     recordId: id, status: 'enrolled', programId, institution: program.institutionType, level: program.level, field, startedAtAge: character.age,
     tuitionPaid: tuition, weeksCompleted: 0, totalWeeks: program.durationWeeks, grade: 65, attendance: 100,
     weeklyStudyTarget: program.weeklyStudyTarget,
-    subjects: (program.level === 'primary' || program.level === 'early-learning' ? ['Literacy', 'Numeracy', 'Discovery'] :
+    subjects: (program.id === 'early-development' ? ['Language & stories', 'Movement', 'Play & discovery'] : program.level === 'primary' || program.level === 'early-learning' ? ['Literacy', 'Numeracy', 'Discovery'] :
       program.level === 'lower-secondary' || program.level === 'upper-secondary' ? ['Core studies', field, 'Communication'] :
       ['Core theory', field, 'Practical work']).map((name, index) => ({ id: 'subject-' + index, name, grade: 65 }))
   };
@@ -177,7 +178,7 @@ export function resolveEducationWeek(character: Character, tasks: EducationTaskT
       ? { ...record, status: outcome === 'completed' ? 'completed' as const : 'withdrawn' as const, completedAtAge: outcome === 'completed' ? character.age : undefined }
       : record);
     let qualifications: Qualification[] = [...(character.qualifications ?? [])];
-    if (outcome === 'completed') qualifications.push({
+    if (outcome === 'completed' && !['early-learning', 'primary', 'lower-secondary', 'upper-secondary'].includes(enrollment.level)) qualifications.push({
       id: 'qualification-' + enrollment.programId + '-' + (character.calendar?.currentDate ?? weekStart), programId: enrollment.programId,
       name: getEducationProgram(enrollment.programId)?.title ?? enrollment.level,
       category: enrollment.level === 'vocational' ? 'diploma' : enrollment.level === 'professional-specialist' ? 'professional' : 'degree',
