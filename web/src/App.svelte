@@ -292,6 +292,14 @@
     {/if}
   </header>
   {#if !character && activeTab === 'menu'}
+    {#if saveFormatIssue}
+      <section class="game-event-panel save-format-notice">
+        <div class="eyebrow">SAVE FORMAT UPDATE</div>
+        <h2>Start with a fresh save</h2>
+        <p>{saveFormatIssue}</p>
+        <button class="primary-button" onclick={resetUnsupportedSaves}>Discard old saves and start fresh</button>
+      </section>
+    {/if}
     <MainMenu {slots} onContinue={continueLife} onNewGame={startNewLife} onPresets={startNewLife} onFullCustom={openCustomLife} onAchievements={() => activeTab='achievements'} onSettings={() => activeTab='settings'} onExit={exitGame} />
   {:else}
     <main class="main-layout">
