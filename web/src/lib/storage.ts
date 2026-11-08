@@ -95,12 +95,20 @@ export function clearSave(slotId: SaveSlotId = getActiveSlotId()): void {
   data.slots = data.slots.map((slot) => slot.id === slotId ? { id: slotId, character: null, updatedAt: null } : slot);
   writeData(data);
 }
-export function getSoundEnabled(): boolean {
+type LocalGameSettings = { soundEnabled?: boolean; theme?: string };
+function readSettings(): LocalGameSettings {
   try {
-    const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') as { soundEnabled?: boolean };
-    return settings.soundEnabled !== false;
-  } catch { return true; }
+    const value = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') as unknown;
+    return value && typeof value === 'object' ? value as LocalGameSettings : {};
+  } catch { return {}; }
 }
-export function setSoundEnabled(enabled: boolean): void {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify({ soundEnabled: enabled }));
+function writeSettings(patch: Partial<LocalGameSettings>): void {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...readSettings(), ...patch }));
 }
+export function getSoundEnabled(): boolean { return readSettings().soundEnabled !== false; }
+export function setSoundEnabled(enabled: boolean): void { writeSettings({ soundEnabled: enabled }); }
+export function getThemePreference(): string {
+  const theme = readSettings().theme;
+  return theme === 'midnight' || theme === 'graphite' || theme === 'paper' ? theme : 'amoled';
+}
+export function setThemePreference(theme: string): void { writeSettings({ theme }); }
