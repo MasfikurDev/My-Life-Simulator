@@ -1,12 +1,11 @@
 import type { GameTheme } from './theme';
 import type { Character, SaveData, SaveSlot, SaveSlotId } from './types';
 import { createGameCalendar } from './calendar';
-import { syncEmploymentCommitments } from './work';
 
 const KEY = 'my-life-simulator.save';
 const MIGRATION_BACKUP_KEY = KEY + '.pre-weekly-migration';
 const SETTINGS_KEY = 'my-life-simulator.settings';
-const CURRENT_SCHEMA = 4;
+const CURRENT_SCHEMA = 5;
 const SLOT_IDS: SaveSlotId[] = ['slot-1', 'slot-2', 'slot-3'];
 const emptySlots = (): SaveSlot[] => SLOT_IDS.map((id) => ({ id, character: null, updatedAt: null }));
 function validCharacter(value: unknown): value is Character {
@@ -20,9 +19,9 @@ function migrateCharacter(character: Character): Character {
   delete migrated.actionsRemaining;
   if (!migrated.calendar) migrated.calendar = createGameCalendar(migrated.age, migrated.year);
   if (!migrated.weeklySchedule) migrated.weeklySchedule = { version: 1, commitments: [], activities: [] };
-  if (migrated.employment && !migrated.weeklySchedule.commitments.some((commitment) => commitment.domain === 'work')) {
-    Object.assign(migrated, syncEmploymentCommitments(migrated, migrated.employment));
-  }
+  // Schema 5 removes all calendar/time-slot commitments. Preserve planned
+  // personal actions, but keep the old payload in the migration backup.
+  migrated.weeklySchedule = { ...migrated.weeklySchedule, commitments: [] };
   if (migrated.pendingGameEvent?.choices) {
     migrated.pendingGameEvent = {
       ...migrated.pendingGameEvent,
@@ -57,7 +56,7 @@ function readData(): SaveData {
     persistMigration(raw, migrated);
     return migrated;
   }
-  if (![2, 3, CURRENT_SCHEMA].includes(parsed.schemaVersion ?? 0) || !Array.isArray(parsed.slots)) {
+  if (![2, 3, 4, CURRENT_SCHEMA].includes(parsed.schemaVersion ?? 0) || !Array.isArray(parsed.slots)) {
     throw new Error('The saved game format is not recognized. Your existing data has been left untouched.');
   }
   const slots = emptySlots().map((empty) => {
