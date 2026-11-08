@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Character } from './lib/types';
   import { establishFamilyBackground, getFamilyConnections, validateFamilyState } from './lib/family';
-  import { formatCharacterMoney, planFamilyInteractionInNextFreeTime } from './lib/simulation';
+  import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
 
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   let supportAmount = $state(0);
@@ -11,13 +11,12 @@
   const errors = $derived(family ? validateFamilyState(family) : []);
   const livingCount = $derived(connections.filter((item) => item.living).length);
   function interact(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
+    const existing = (character.weeklySchedule?.activities ?? []).find((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
+    if (existing) { onChange(removePlannedActivity(character, existing.id)); feedback = 'Interaction removed from this week.'; return; }
     const planned = planFamilyInteractionInNextFreeTime(character, personId, action, supportAmount);
-    if (planned.issue) { feedback = planned.message ?? 'That interaction could not be planned.'; return; }
+    if (planned.issue) { feedback = planned.message ?? 'That interaction could not be added.'; return; }
     onChange(planned.character);
-    const slot = planned.scheduledActivity;
-    feedback = slot
-      ? 'Confirmed for ' + slot.date + ' (' + slot.startPeriod + '). It will take effect when the week is resolved.'
-      : 'Interaction confirmed for this week.';
+    feedback = 'Interaction added to this week. It will take effect when the week resolves.';
   }
 </script>
 
@@ -40,7 +39,7 @@
     {#if feedback}<p class="family-footnote" role="status">{feedback}</p>{/if}
     <section class="family-panel">
       <div class="family-panel-head">
-        <div><div class="eyebrow">YOUR FAMILY</div><h2>Family connections</h2><p>People and relationships recorded in this life. Choose an interaction to confirm it; the game places it into suitable free time automatically.</p></div>
+        <div><div class="eyebrow">YOUR FAMILY</div><h2>Family connections</h2><p>People and relationships recorded in this life. Toggle an interaction to include or remove it from this week. Family interactions use stamina, not calendar slots.</p></div>
         <span class="family-count">{livingCount} living</span>
       </div>
       <div class="family-summary">
