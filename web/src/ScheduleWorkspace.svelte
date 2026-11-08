@@ -84,6 +84,7 @@
     {/each}
   </section>
 
+  {#if feedback}<p class="schedule-feedback" role="status">{feedback}</p>{/if}
   {#if result.issues.length}
     <section class="schedule-issues" role="alert">
       <strong>Schedule needs attention</strong>
@@ -120,6 +121,7 @@
   .period-entry strong{overflow-wrap:anywhere;color:var(--text);font-size:9px;line-height:1.35}
   .period-entry small{font-size:8px;color:var(--muted)}
   .period-entry button{flex:none;width:18px;height:18px;border:0;border-radius:5px;background:color-mix(in srgb,var(--bg) 8%, transparent);color:var(--text);font-size:14px;line-height:1}
+  .schedule-feedback{margin:0;color:var(--muted);font-size:10px}
   .schedule-issues{padding:12px;border:1px solid var(--danger);border-radius:10px;background:color-mix(in srgb,var(--danger) 8%, transparent);color:var(--text);font-size:11px}
   .schedule-issues p{margin:5px 0 0;color:var(--muted)}
   .schedule-footnote{margin:0;color:var(--muted);font-size:10px;line-height:1.55}
