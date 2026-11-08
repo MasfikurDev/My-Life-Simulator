@@ -191,6 +191,7 @@
   .work-nav button.active{border-color:var(--accent);background:var(--accent-soft);color:var(--text)}
   .work-panel,.work-listing,.work-offer{min-width:0;padding:15px;border:1px solid var(--line);border-radius:13px;background:var(--surface)}
   .work-panel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .work-panel-heading h2{font-size:24px;line-height:1.2;letter-spacing:-.7px}
   .work-panel h2,.work-offer h2{margin:4px 0;color:var(--text);font-size:21px}
   .work-panel p,.work-offer p{margin:5px 0;color:var(--muted);font-size:11px;line-height:1.55}
   .work-status{flex:none;padding:6px 8px;border-radius:7px;background:var(--accent-soft);color:var(--text);font-size:9px;font-weight:750;letter-spacing:.5px}
