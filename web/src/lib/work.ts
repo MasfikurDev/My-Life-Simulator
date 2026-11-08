@@ -116,7 +116,7 @@ export function getCareerRequirements(character: Character, role: CareerRole): C
   const experience = getCareerExperience(character);
   return [
     { label: 'Age', met: character.age >= role.minAge && character.age <= role.maxAge, detail: role.minAge >= 65 ? 'Later-life role' : role.minAge > 16 ? 'Age ' + role.minAge + ' or older' : 'Age 16 or older' },
-    { label: 'Education', met: !role.requiresHigherEducation || character.education === 'Higher education' || (character.educationRecords ?? []).some((record) => record.status === 'completed' && ['bachelor', 'master', 'doctorate', 'professional-specialist'].includes(record.level)) || (character.qualifications ?? []).some((qualification) => qualification.category === 'degree' || qualification.category === 'professional'), detail: role.requiresHigherEducation ? "Bachelor's degree or equivalent professional qualification" : 'No specific degree required' },
+    { label: 'Education', met: !role.requiresHigherEducation || character.education === 'Higher education' || (character.educationRecords ?? []).some((record) => record.status === 'completed' && ['bachelor', 'master', 'doctorate', 'professional-specialist'].includes(record.level)) || (character.qualifications ?? []).some((qualification) => qualification.category === 'degree' || (qualification.category === 'professional' && qualification.programId !== 'professional-certificate')), detail: role.requiresHigherEducation ? "Bachelor's degree or equivalent professional qualification" : 'No specific degree required' },
     { label: 'Knowledge', met: character.intelligence >= role.minIntelligence, detail: 'Intelligence ' + role.minIntelligence + '+' },
     ...(role.minFocus ? [{ label: 'Focus', met: (character.focus ?? 50) >= role.minFocus, detail: 'Focus ' + role.minFocus + '+' }] : []),
     ...(role.minSocialSkills ? [{ label: 'Social skills', met: (character.socialSkills ?? 50) >= role.minSocialSkills, detail: 'Social skills ' + role.minSocialSkills + '+' }] : []),
@@ -124,7 +124,7 @@ export function getCareerRequirements(character: Character, role: CareerRole): C
     ...(role.minDiscipline ? [{ label: 'Discipline', met: (character.discipline ?? 50) >= role.minDiscipline, detail: 'Discipline ' + role.minDiscipline + '+' }] : []),
     ...(role.minCreativity ? [{ label: 'Creativity', met: (character.creativity ?? 50) >= role.minCreativity, detail: 'Creativity ' + role.minCreativity + '+' }] : []),
     ...(role.requiredQualificationIds ?? []).map((id) => {
-      const qualification = (character.qualifications ?? []).find((item) => item.id === id && (item.expiresAtAge === undefined || character.age <= item.expiresAtAge));
+      const qualification = (character.qualifications ?? []).find((item) => (item.id === id || item.programId === id) && (item.expiresAtAge === undefined || character.age <= item.expiresAtAge));
       return { label: 'Qualification', met: Boolean(qualification), detail: qualification?.name ?? id };
     }),
     { label: 'Experience', met: experience >= role.minExperienceYears, detail: role.minExperienceYears + '+ years of career experience' }
