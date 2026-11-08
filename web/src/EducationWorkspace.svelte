@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Character, EducationTaskType } from './lib/types';
-  import { enrollInEducation, getAvailableEducationPrograms, pauseEducation } from './lib/education';
+  import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation } from './lib/education';
   import { formatCharacterMoney, planEducationTaskInNextFreeTime } from './lib/simulation';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   let selectedProgramId = $state('');
@@ -23,7 +23,8 @@
     onChange(result.character); onNotify('Academic task added to this week.');
   }
   function taskPlanned(task: EducationTaskType) { return plannedTasks.some((item) => item.action?.kind === 'education' && item.action.taskType === task); }
-  function pause() { onChange(pauseEducation(character)); onNotify('Education paused. Class commitments have been removed.'); }
+  function pause() { onChange(pauseEducation(character)); onNotify('Education paused. Progress has been saved.'); }
+  function resume() { const result = resumeEducation(character); if (result.issue) { onNotify(result.issue); return; } onChange(result.character); onNotify('Programme resumed. Classes have been arranged automatically.'); }
   function gradeLabel(value: number) { return value >= 85 ? 'Excellent' : value >= 70 ? 'Good' : value >= 60 ? 'Pass' : value >= 45 ? 'At risk' : 'Critical'; }
 </script>
 
@@ -31,7 +32,7 @@
 
 {#if enrollment}
   <section class="education-hero domain-panel">
-    <div class="education-hero-top"><div><div class="eyebrow">CURRENT ENROLLMENT · {enrollment.institution.toUpperCase()}</div><h2>{enrollment.level === 'bachelor' ? "Bachelor's degree" : enrollment.level === 'master' ? "Master's degree" : enrollment.level === 'doctorate' ? 'Doctoral programme' : enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">ENROLLED</span></div>
+    <div class="education-hero-top"><div><div class="eyebrow">CURRENT ENROLLMENT · {enrollment.institution.toUpperCase()}</div><h2>{enrollment.level === 'bachelor' ? "Bachelor's degree" : enrollment.level === 'master' ? "Master's degree" : enrollment.level === 'doctorate' ? 'Doctoral programme' : enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">{enrollment.status === 'paused' ? 'PAUSED' : 'ENROLLED'}</span></div>
     <div class="education-metrics">
       <div><span>OVERALL GRADE</span><strong>{Math.round(enrollment.grade)}%</strong><small>{gradeLabel(enrollment.grade)}</small></div>
       <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%</strong><small>Class participation</small></div>
@@ -43,10 +44,11 @@
         <div class="education-subject"><span>{subject.name}</span><strong>{Math.round(subject.grade)}%</strong><div class="meter"><span class="blue" style="width:{subject.grade}%"></span></div></div>
       {/each}
     </div>
-    <div class="education-footnote">Classes are reserved automatically each week. Your weekly study target is {enrollment.weeklyStudyTarget} task points. Missing study, assignments or exams lowers your grades; workload, stress, stamina and health also affect results.</div>
+    <div class="education-footnote">{#if enrollment.status === 'paused'}This programme is paused. Your grades and completed weeks are preserved. Resume when you are ready.{:else}Classes are reserved automatically each week. Your weekly study target is {enrollment.weeklyStudyTarget} task points. Missing study, assignments or exams lowers your grades; workload, stress, stamina and health also affect results.</div>
     <button class="secondary-button education-pause" onclick={pause}>Pause programme</button>
   </section>
 
+  {#if enrollment.status === 'enrolled'}
   <section class="education-task-section">
     <div class="section-heading"><div><span class="section-index">01</span><h3>This week's academic work</h3></div><span class="section-hint">{plannedTasks.length} tasks scheduled</span></div>
     <p class="education-section-copy">Choose the work you can realistically complete. Each task is automatically placed in free time around classes, work and other commitments.</p>
@@ -57,6 +59,7 @@
     </div>
     <div class="education-footnote">A study task is not free: it uses time, energy and a small learning expense. Doing every possible task is not always the best strategy if you are already overloaded.</div>
   </section>
+  {/if}
 {:else}
   <section class="education-intro domain-panel">
     <div class="eyebrow">YOUR NEXT STEP</div><h2>Choose a learning path</h2><p>Programmes unlock through age and completed qualifications. Vocational routes and professional certificates can lead to meaningful careers without following a university-only path.</p>
