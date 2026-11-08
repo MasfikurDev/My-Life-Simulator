@@ -1,5 +1,4 @@
 import type { AcademicResult, Character, EducationEnrollment, EducationLevel, EducationRecord, EducationTaskType, Qualification, WeeklyCommitment } from './types';
-import { formatCharacterMoney } from './simulation';
 
 export interface EducationProgram {
   id: string;
@@ -40,9 +39,14 @@ function completedLevels(character: Character): Set<EducationLevel> {
 }
 export function getAvailableEducationPrograms(character: Character): EducationProgram[] {
   const completed = completedLevels(character);
-  return EDUCATION_PROGRAMS.filter((program) => character.age >= program.minAge && character.age <= program.maxAge &&
-    (!program.prerequisite || completed.has(program.prerequisite) || (program.prerequisite === 'upper-secondary' && character.age >= 18 && character.education === 'Higher education')) &&
-    program.id !== 'professional-certificate' ? true : character.age >= 16);
+  return EDUCATION_PROGRAMS.filter((program) => {
+    if (character.age < program.minAge || character.age > program.maxAge) return false;
+    if (!program.prerequisite || completed.has(program.prerequisite)) return true;
+    if (program.prerequisite === 'primary') return character.age >= 12;
+    if (program.prerequisite === 'lower-secondary') return character.age >= 15;
+    if (program.prerequisite === 'upper-secondary') return character.age >= 18;
+    return false;
+  });
 }
 export function getEducationProgram(programId: string): EducationProgram | undefined {
   return EDUCATION_PROGRAMS.find((program) => program.id === programId);
@@ -85,7 +89,7 @@ export function resolveEducationWeek(character: Character, tasks: EducationTaskT
   if (!enrollment) return { character, recap: [] };
   const taskScore = tasks.reduce((score, task) => score + (task === 'assignment' ? 1.25 : task === 'exam' ? 1.6 : 1), 0);
   const stress = character.stress ?? 30;
-  const fatiguePenalty = Math.max(0, Math.floor((stress - 55) / 12)) + (character.stamina ?? 50) < 25 ? 2 : Math.max(0, Math.floor((stress - 55) / 12));
+  const fatiguePenalty = Math.max(0, Math.floor((stress - 55) / 12)) + ((character.stamina ?? 50) < 25 ? 2 : 0);
   const expected = enrollment.weeklyStudyTarget;
   const attendance = character.health < 25 || stress > 90 ? 65 : character.health < 45 || stress > 78 ? 82 : 100;
   const attendanceGap = attendance < 90 ? 3 : 0;
