@@ -144,7 +144,7 @@ function financeRecord(character: Character, type: FinancialTransaction['type'],
   const existing = character.financialTransactions ?? [];
   const record: FinancialTransaction = {
     id: String(character.year) + '-' + String(character.age) + '-' + String(existing.length + 1),
-    year: character.year, age: character.age, type, amount: Math.round(amount), description, from, to
+    year: character.year, age: character.age, date: character.calendar?.currentDate, type, amount: Math.round(amount), description, from, to
   };
   return [...existing, record].slice(-300);
 }

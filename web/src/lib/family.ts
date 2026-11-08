@@ -317,6 +317,7 @@ export function interactWithFamily(character: Character, personId: string, inter
       id: 'family-support-' + character.year + '-' + (transactions.length + 1),
       year: character.year,
       age: character.age,
+      date: character.calendar?.currentDate,
       type: 'family-support',
       amount: supportAmount,
       description: 'Financial support provided to ' + person.name + '.',

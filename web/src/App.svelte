@@ -14,7 +14,7 @@
   import EducationWorkspace from './EducationWorkspace.svelte';
   import HealthWorkspace from './HealthWorkspace.svelte';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
-  import type { Character, SaveSlot, SaveSlotId } from './lib/types';
+  import type { Character, FinancialTransaction, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
     isFullscreen: () => boolean;
     setFullscreen: (enabled: boolean) => void;
@@ -37,6 +37,7 @@
   let pendingSlotId = $state<SaveSlotId | null>(null);
   let debugCopying = $state(false);
   let advanceReviewOpen = $state(false);
+  let weeklyFinanceOpen = $state(false);
   onMount(() => {
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
@@ -76,6 +77,23 @@
     return start.getUTCMonth() === end.getUTCMonth()
       ? startMonth + ' ' + startDay + '–' + endDay + ', ' + endYear
       : startMonth + ' ' + startDay + ' – ' + endMonth + ' ' + endDay + ', ' + endYear;
+  }
+  function financialFlow(type: FinancialTransaction['type']): 'income' | 'expense' | null {
+    if (['income', 'interest', 'business-income', 'investment-sell', 'property-sale'].includes(type)) return 'income';
+    if (['expense', 'family-support', 'loan-payment', 'loan-interest', 'card-purchase', 'card-interest', 'recurring-payment', 'investment-buy', 'property-purchase', 'property-rent', 'business-expense', 'tax', 'fee'].includes(type)) return 'expense';
+    return null;
+  }
+  function groupWeeklyFinances(transactions: FinancialTransaction[], flow: 'income' | 'expense') {
+    const groups = new Map<string, { source: string; total: number; transactions: FinancialTransaction[] }>();
+    for (const transaction of transactions) {
+      if (financialFlow(transaction.type) !== flow) continue;
+      const source = flow === 'income' ? transaction.from : transaction.to;
+      const group = groups.get(source) ?? { source, total: 0, transactions: [] };
+      group.total += transaction.amount;
+      group.transactions.push(transaction);
+      groups.set(source, group);
+    }
+    return [...groups.values()].sort((a, b) => b.total - a.total);
   }
   function groupActivityHistory(items: Character['history']) {
     const groups = new Map<string, { key: string; label: string; sortDate: string; items: Character['history'] }>();
@@ -309,6 +327,49 @@
           {@const workDetail = character.employment
             ? character.employment.type === 'part-time' ? 'Part-time employment' : character.employment.type === 'flexible' ? 'Flexible employment' : 'Full-time employment'
             : character.age < 16 ? 'Employment unlocks at age 16' : character.age < 18 ? 'School-age work only' : character.age >= 65 ? 'Optional later-life work' : 'No current position'}
+          {@const currentWeekStart = activityWeekKey(character.calendar?.currentDate)}
+          {@const weeklyTransactions = (character.financialTransactions ?? []).filter((item) => item.date && activityWeekKey(item.date) === currentWeekStart)}
+          {@const weeklyIncomeGroups = groupWeeklyFinances(weeklyTransactions, 'income')}
+          {@const weeklyExpenseGroups = groupWeeklyFinances(weeklyTransactions, 'expense')}
+          {@const weeklyIncome = weeklyIncomeGroups.reduce((sum, group) => sum + group.total, 0)}
+          {@const weeklyExpense = weeklyExpenseGroups.reduce((sum, group) => sum + group.total, 0)}
+          <button class="weekly-finance-card" onclick={() => weeklyFinanceOpen = true} aria-haspopup="dialog">
+            <span class="weekly-finance-heading"><span><small>THIS WEEK</small><strong>Weekly finances</strong></span><span class="weekly-finance-open">View breakdown ↗</span></span>
+            <span class="weekly-finance-balance"><small>CURRENT BALANCE</small><strong>{formatCharacterMoney(character)}</strong></span>
+            <span class="weekly-finance-flow">
+              <span class="weekly-finance-in"><small>IN</small><strong>+{formatCharacterMoney(character, weeklyIncome)}</strong></span>
+              <span class="weekly-finance-out"><small>OUT</small><strong>−{formatCharacterMoney(character, weeklyExpense)}</strong></span>
+              <span class="weekly-finance-net"><small>NET THIS WEEK</small><strong>{weeklyIncome - weeklyExpense < 0 ? '−' : '+'}{formatCharacterMoney(character, Math.abs(weeklyIncome - weeklyExpense))}</strong></span>
+            </span>
+          </button>
+          {#if weeklyFinanceOpen}
+            <div class="weekly-finance-backdrop" role="presentation" onclick={(event) => { if (event.target === event.currentTarget) weeklyFinanceOpen = false; }}>
+              <section class="weekly-finance-dialog" role="dialog" aria-modal="true" aria-labelledby="weekly-finance-title">
+                <header><div><div class="eyebrow">WEEKLY MONEY REPORT</div><h2 id="weekly-finance-title">Income & expenses</h2><p>{activityWeekLabel(currentWeekStart)}</p></div><button class="weekly-finance-close" aria-label="Close breakdown" onclick={() => weeklyFinanceOpen = false}>×</button></header>
+                <div class="weekly-finance-totals">
+                  <div><small>MONEY IN</small><strong class="weekly-finance-in">+{formatCharacterMoney(character, weeklyIncome)}</strong></div>
+                  <div><small>MONEY OUT</small><strong class="weekly-finance-out">−{formatCharacterMoney(character, weeklyExpense)}</strong></div>
+                </div>
+                {#each [{ title: 'Income by source', groups: weeklyIncomeGroups, flow: 'income' as const }, { title: 'Expenses by source', groups: weeklyExpenseGroups, flow: 'expense' as const }] as section}
+                  <section class="weekly-finance-source-section"><h3>{section.title}</h3>
+                    {#if section.groups.length}
+                      {#each section.groups as group}
+                        <details class="weekly-finance-source" open>
+                          <summary><span>{group.source}</span><strong class:weekly-finance-in={section.flow === 'income'} class:weekly-finance-out={section.flow === 'expense'}>{section.flow === 'income' ? '+' : '−'}{formatCharacterMoney(character, group.total)}</strong></summary>
+                          {#each group.transactions as transaction}
+                            <div class="weekly-finance-transaction"><span><strong>{transaction.description}</strong><small>{transaction.date ?? 'Date unavailable'} · {transaction.type.replaceAll('-', ' ')}</small></span><b>{formatCharacterMoney(character, transaction.amount)}</b></div>
+                          {/each}
+                        </details>
+                      {/each}
+                    {:else}
+                      <p class="weekly-finance-empty">No {section.flow} recorded this week.</p>
+                    {/if}
+                  </section>
+                {/each}
+                <p class="weekly-finance-note">Only transactions recorded during this game week are included. Transfers between your own accounts are excluded from income and expenses.</p>
+              </section>
+            </div>
+          {/if}
           <section class="overview-context" aria-label="Current situation">
             <div class="overview-context-item">
               <span>EDUCATION</span>
