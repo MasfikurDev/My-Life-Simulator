@@ -96,7 +96,7 @@ describe('education progression', () => {
   });
 
   it('uses a relevant professional certificate to unlock a matching job', () => {
-    const capable = { ...createCharacter('Technician', 25), intelligence: 80, focus: 80, discipline: 80, health: 90, stress: 20, stamina: 80, money: 5000 };
+    const capable = { ...createCharacter('Technician', 25), intelligence: 80, focus: 80, discipline: 80, health: 100, stress: 0, stamina: 100, currencyScale: 1, money: 5000 };
     const role = getCareerRole('it-support')!;
     expect(isEligibleForRole(capable, role)).toBe(false);
     const enrollmentResult = enrollInEducation(capable, 'professional-certificate', 'Programming');
