@@ -1,6 +1,6 @@
 # Weekly Activity Review
 
-**Status:** Implemented in the current follow-up branch; CI verification pending  
+**Status:** Implemented in PR #88; CI passed (155 tests, 0 type-check errors)  
 **Scope:** A simulation-backed weekly review for optional activities, background responsibilities, stamina allocation, and combined wellbeing outcomes.
 
 ## Product intent
