@@ -117,6 +117,26 @@ export interface ScheduledGameConsequence {
   description: string;
   effects: GameEventEffects;
 }
+export type DecisionTreeId = 'life' | 'education' | 'career' | 'relationships' | 'health' | 'finance';
+export interface DecisionTreeBranch {
+  choiceId: string;
+  label: string;
+  detail: string;
+  rewards: GameEventEffects;
+  followUp?: { title: string; description: string };
+}
+export interface DecisionTreeRecord {
+  id: string;
+  treeId: DecisionTreeId;
+  eventId: string;
+  title: string;
+  description: string;
+  age: number;
+  year: number;
+  chosenChoiceId: string;
+  chosenLabel: string;
+  branches: DecisionTreeBranch[];
+}
 export interface GameEventFollowUp {
   delayYears: number;
   title: string;
@@ -257,7 +277,7 @@ export interface Character {
   economy?: EconomicConditions;
   businesses?: OwnedBusiness[];
   appearance?: { height: string; build: string; hair: string; eyes: string };
-  pendingGameEvent?: PendingGameEvent | null;
+  pendingGameEvent?: PendingGameEvent | null;\n  decisionTreeHistory?: DecisionTreeRecord[];
   eventPreparedYear?: number;
   resolvedGameEventIds?: string[];
   scheduledGameConsequences?: ScheduledGameConsequence[];
