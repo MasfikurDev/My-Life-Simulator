@@ -252,8 +252,8 @@ describe('life simulation', () => {
   it('rejects conflicting recurring commitments without advancing time', () => {
     const base = createCharacter('Planner', 30);
     const invalid = { ...base, weeklySchedule: { version: 1 as const, commitments: [
-      { id: 'a', title: 'Work shift', domain: 'work' as const, weekday: 0, startPeriod: 'morning' as const, durationBlocks: 2 },
-      { id: 'b', title: 'School session', domain: 'school' as const, weekday: 0, startPeriod: 'morning' as const, durationBlocks: 1 }
+      { id: 'a', title: 'Work shift', domain: 'work' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 2 },
+      { id: 'b', title: 'School session', domain: 'school' as const, weekday: 1 as const, startPeriod: 'morning' as const, durationBlocks: 1 }
     ], activities: [] } };
     const result = advanceWeek(invalid);
     expect(result.issue).toBe('invalid-schedule');
