@@ -54,10 +54,6 @@
 </script>
 
 <section class="work-workspace">
-  <header class="work-header">
-    <div><div class="eyebrow">WORK & CAREER</div><h1>Work</h1><p>Find opportunities, build experience and make deliberate career decisions.</p></div>
-    <span class="work-date">{character.calendar?.currentDate ?? character.year}</span>
-  </header>
   <nav class="work-nav" aria-label="Work sections">
     <button class:active={activeView === 'jobs'} aria-current={activeView === 'jobs' ? 'page' : undefined} onclick={() => activeView='jobs'}>Jobs & applications</button>
     <button class:active={activeView === 'career'} aria-current={activeView === 'career' ? 'page' : undefined} onclick={() => activeView='career'}>Career path</button>
