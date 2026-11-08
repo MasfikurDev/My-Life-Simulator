@@ -623,7 +623,7 @@
   .review-activity-row small{font-size:9px;line-height:1.4;color:var(--muted)}
   .review-activity-cost{flex:none;display:grid;gap:4px;text-align:right}
   .review-activity-cost b{font-size:10px;color:var(--text)}
-  .review-resource-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .review-resource-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
   .review-resource-grid>div{display:grid;gap:4px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
   .review-resource-grid small{font-size:9px;color:var(--muted)}
   .review-resource-grid strong{font-size:17px;color:var(--text)}
