@@ -972,7 +972,9 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   let next = { ...character, history: [...character.history] };
   const recap: string[] = [];
   const occupiedBlocks = validation.blocks.filter((block) => block.entryId !== null).length;
-  const wellbeing = resolveWeeklyWellbeing(next, occupiedBlocks, weekStart);
+  const activityEffortUnits = Math.ceil(schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaCost(item), 0) / 6);
+  const weeklyWorkload = Math.min(21, occupiedBlocks + activityEffortUnits);
+  const wellbeing = resolveWeeklyWellbeing(next, weeklyWorkload, weekStart);
   next = wellbeing.character;
   recap.push(...wellbeing.recap);
   const educationTasks: EducationTaskType[] = [];
@@ -1021,7 +1023,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   }
   const nextSchedule = { ...schedule, activities: [] };
   next = { ...next, weeklySchedule: nextSchedule, lastResolvedWeekStart: weekStart, lastWeekRecap: recap };
-  const academic = resolveEducationWeek(next, educationTasks, weekStart, occupiedBlocks);
+  const academic = resolveEducationWeek(next, educationTasks, weekStart, weeklyWorkload);
   next = academic.character;
   recap.push(...academic.recap);
   next.lastWeekRecap = recap;
