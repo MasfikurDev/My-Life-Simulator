@@ -1144,7 +1144,6 @@ export function performActivity(character: Character, activity: ActivityId, rand
       next.happiness = clamp(next.happiness - 1);
       next.focus = clamp((next.focus ?? 50) + 3);
       next.discipline = clamp((next.discipline ?? 50) + 1);
-      next.stamina = clamp((next.stamina ?? 50) - 2);
       next.stress = Math.min(100, (next.stress ?? 30) + 1);
       if (next.age >= 16) next.money -= getActivityCost(next, 'study');
       if (next.educationEnrollment) {
@@ -1175,7 +1174,6 @@ export function performActivity(character: Character, activity: ActivityId, rand
       const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
       next.money += Math.round(180 * scale * workEfficiency);
       next.happiness = clamp(next.happiness - 2);
-      next.stamina = clamp((next.stamina ?? 50) - 5);
       next.confidence = clamp((next.confidence ?? 50) + 1);
       next.stress = Math.min(100, (next.stress ?? 30) + 3);
       next.history.unshift(event(next, 'Picked up extra work', 'You earned some money, although it took time and energy.'));
