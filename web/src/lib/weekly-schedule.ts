@@ -137,7 +137,7 @@ export function buildWeeklySchedule(weekStart: string, schedule: WeeklySchedule)
       continue;
     }
     if (!validDuration(activity.durationBlocks, activity.startPeriod)) {
-      issues.push({ code: 'invalid-duration', entryId: activity.id, date: activity.date, message: 'An activity must occupy one or more available periods on the same day.' });
+      issues.push({ code: 'invalid-duration', entryId: activity.id, date: activity.date, message: 'A legacy activity record must contain a valid duration value.' });
       continue;
     }
     // Discretionary actions use stamina, not calendar slots. Only real recurring commitments occupy this grid.
@@ -157,7 +157,7 @@ export function buildWeeklySchedule(weekStart: string, schedule: WeeklySchedule)
           conflictingEntryId: block.entryId,
           date: placement.date,
           period,
-          message: 'This time period is already reserved by another commitment or activity.'
+          message: 'This time period is already reserved by another recurring commitment.'
         });
         continue;
       }
