@@ -1,6 +1,6 @@
 # Family System
 
-**Canonical system specification · Simulation-first · Foundation implemented · Reviewed 2026-11-08**
+**Canonical system specification · Simulation-first · Foundation implemented · Reviewed 2026-11-09**
 
 ## Purpose
 
