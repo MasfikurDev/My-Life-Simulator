@@ -214,7 +214,7 @@
     const existing = eventChoicePlanned(choiceId);
     if (existing) { persist(removePlannedActivity(character, existing.id)); notify('Decision removed from this week.'); return; }
     const planned = planEventChoiceInNextFreeTime(character, choiceId);
-    if (planned.issue) { notify(planned.message ?? 'That decision could not be scheduled.'); return; }
+    if (planned.issue) { notify(planned.message ?? 'That decision could not be added.'); return; }
     const immediate = character.pendingGameEvent?.choices.find((choice) => choice.id === choiceId)?.timeBlocks === 0;
     persist(planned.character); playSound('action');
     notify(immediate ? 'Decision recorded.' : 'Decision added to this week.');
@@ -477,7 +477,7 @@
               <p class="game-event-description">{lifeEvent.description}</p>
               <div class="game-event-choices">
                 {#each lifeEvent.choices as choice}
-                  <button class="game-event-choice" class:planned={!!eventChoicePlanned(choice.id)} disabled={character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
+                  <button class="game-event-choice" class:planned={!!eventChoicePlanned(choice.id)} disabled={!eventChoicePlanned(choice.id) && character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
                     <span class="game-event-choice-copy"><strong>{choice.label}</strong><small>{choice.detail}</small></span>
                     <span class="game-event-choice-cost">
                       {#if choice.timeBlocks > 0}<span>Stamina 5</span>{/if}
