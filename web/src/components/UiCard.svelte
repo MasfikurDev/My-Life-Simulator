@@ -4,7 +4,7 @@
     children: import('svelte').Snippet; class?: string;
   } = $props();
 </script>
-<svelte:element this={as} class="ui-card" class:padded class:interactive class={className}>
+<svelte:element this={as} class={`ui-card ${padded ? 'padded' : ''} ${interactive ? 'interactive' : ''} ${className}`}>
   {@render children()}
 </svelte:element>
 <style>
