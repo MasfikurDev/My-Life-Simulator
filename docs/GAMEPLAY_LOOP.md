@@ -44,7 +44,7 @@ Our differentiator is a connected, age-aware life simulation with domain-native 
 
 ## 3. The weekly gameplay loop
 
-**Decision: the week is the fundamental playable time unit.** Months organize recurring finances and reports; years organize birthdays, life-stage transitions, annual milestones, and long-term reviews. The old three-actions-per-year budget is retired as a design direction. Do not merely change it to three actions per week: the new loop is based on a calendar, recurring commitments, and available free time.
+**Decision: the week is the fundamental playable time unit.** Months organize recurring finances and reports; years organize birthdays, life-stage transitions, annual milestones, and long-term reviews. The old three-actions-per-year budget is retired. Do not replace it with a weekly action quota: the loop uses stamina-based personal activities and genuine recurring calendar commitments.
 
 The player should feel that a life is unfolding, not that they are spending abstract action tokens. A normal week should take a few deliberate choices and resolve quickly. Quiet weeks are allowed; important weeks can contain more decisions.
 
@@ -67,9 +67,9 @@ The player should feel that a life is unfolding, not that they are spending abst
 - Existing saves are migrated to the weekly model without discarding character or slot data. Saves without calendar data are anchored to the first Monday on or after January 1 of their stored year; the original payload is retained under a separate recovery key.
 - Calendar helpers, weekly advancement, schedule consumption, and birthday-based aging are implemented and tested. Monthly settlement, date-based event deadlines, and recurring payment cadence remain future work.
 
-### 3.2 Weekly schedule: commitments first, free time second
+### 3.2 Weekly schedule: recurring commitments and stamina-based activities
 
-The week is shaped by recurring commitments and the player's discretionary choices.
+The week is shaped by genuine recurring commitments and the player's stamina budget for discretionary activities.
 
 - School, employment, household responsibilities, and other implemented commitments may reserve recurring day/period blocks. These schedules belong to their own domain workspaces.
 - The player sees the commitments that matter this week and the free-time capacity they leave. Accepting or leaving a job updates the recurring Work commitments, so career status changes the time available for personal plans.
@@ -80,7 +80,7 @@ The week is shaped by recurring commitments and the player's discretionary choic
 - Some choices resolve immediately; others are included in the next weekly simulation. Each activity must show its stamina cost, expected stat/skill rewards, money cost where relevant, and a direct add/remove toggle. The weekly review previews the combined effects before resolution.
 - Events may interrupt or offer alternatives to a schedule. The player should understand which commitment is affected and what the trade-off is.
 
-**No arbitrary universal activity quota:** available free time is derived from the character's actual modeled commitments and schedule. Where a domain has not yet implemented a schedule, it must not invent one or pretend the character attends school/works set hours. Use a clearly labeled provisional free-time allowance only for that domain until its schedule exists, and keep that allowance consistent and testable.
+**No arbitrary universal activity quota:** personal activity choices are limited by stamina and modeled prerequisites, not by free-time slots. Only genuine recurring commitments reserve calendar periods. Where a domain has not implemented a schedule, it must not invent attendance or work hours.
 
 ### 3.2.1 Schedule model foundation (implemented first slice)
 
@@ -120,7 +120,7 @@ The player visits the relevant domain and chooses what to do:
 - **Finance:** banking, spending, saving, debt, assets, household planning, and business decisions.
 - **Lifestyle:** services, purchases, and home arrangements.
 
-Every activity must state its time requirement, monetary cost/income, prerequisites, and meaningful effects before confirmation. Only charge resources after the simulation validates and accepts the activity. Activities that fail validation must leave the save unchanged.
+Every activity must state its stamina cost, monetary cost/income where relevant, prerequisites, and meaningful stat/skill effects before confirmation. Only charge resources after the simulation validates and accepts the activity. Activities that fail validation must leave the save unchanged.
 
 **Phase C — Handle events and interruptions**
 
@@ -187,9 +187,9 @@ The final order may be adjusted to satisfy domain dependencies, but it must rema
 ### 3.7 Weekly loop acceptance tests
 
 A playable weekly loop is not complete until:
-1. A new player can understand the current week, commitments, free time, and next action without reading documentation.
-2. Confirming an action from School, Work, Family, Business, Events, or Life automatically places it in the earliest suitable contiguous free period and reports that placement in the originating domain.
-3. The player is never required to choose a date or period for a routine action; Schedule is used to review or cancel existing reservations.
+1. A new player can understand the current week, recurring commitments, stamina and next action without reading documentation.
+2. Personal activities can be toggled in their owning workspaces without choosing a date or period.
+3. The weekly review lists all selected activities with stamina costs, reward categories and projected combined outcomes; Schedule remains the central review/cancellation surface.
 4. The player can confirm at least two different actions with different time costs and see that they cannot overlap.
 5. School/work recurring commitments reserve time only when actual schedule data exists.
 6. A weekly activity can create a meaningful immediate effect and a persistent delayed consequence.
@@ -377,7 +377,7 @@ Replayability should come from interacting systems and different viable lives, n
 ## 9. Scope and implementation sequence
 
 Build one complete playable slice at a time:
-Completed foundation: date-based weekly calendar, backward-compatible save migration, weekly schedule/free-time model, and deterministic weekly resolution.
+Completed foundation: date-based weekly calendar, backward-compatible save migration, recurring commitment timetable, stamina-based personal activities, and deterministic weekly resolution.
 
 Next implementation stages:
 1. Move financial systems to explicit monthly/annual cadences without duplicate or lost settlements.
