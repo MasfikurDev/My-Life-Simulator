@@ -49,6 +49,7 @@ export interface FinancialTransaction {
   id: string;
   year: number;
   age: number;
+  date?: string;
   type: FinancialTransactionType;
   amount: number;
   description: string;
