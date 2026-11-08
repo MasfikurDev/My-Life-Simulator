@@ -64,7 +64,7 @@ Do not call this a generic "Advance" confirmation. The primary action should com
 - Resolving the week after preview must apply each cost and reward exactly once.
 - The preview and actual resolution must agree for deterministic effects. If random outcomes exist, show ranges or clearly label them as estimates; do not present uncertain outcomes as guaranteed.
 - Stamina is the activity workload resource. Personal activities do not reserve or consume time blocks. Genuine recurring commitments such as school/work continue to occupy calendar availability.
-- The activity enable/disable state and automatic placement rules must be respected by both UI and simulation validation.
+- Weekly add/remove toggle state must be respected by both UI and simulation validation; there is no persistent per-activity schedule or calendar placement.
 - Preserve existing saves through a non-destructive migration/default for any newly persisted activity state.
 - Keep schedule conflict validation centralized; this dialog must not become an individual schedule editor.
 
