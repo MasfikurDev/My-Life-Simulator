@@ -115,12 +115,18 @@ export function formatCharacterMoney(character: Character, amount = character.mo
   return (symbols[currency] ?? currency + ' ') + Math.round(amount).toLocaleString('en-US');
 }
 
+function hasHigherEducation(character: Character): boolean {
+  return character.education === 'Higher education' ||
+    (character.educationRecords ?? []).some((record) => record.status === 'completed' && ['associate', 'bachelor', 'master', 'doctorate', 'professional-specialist'].includes(record.level)) ||
+    (character.qualifications ?? []).some((qualification) => qualification.category === 'degree' || (qualification.category === 'professional' && qualification.programId !== 'professional-certificate'));
+}
+
 function createEmployment(character: Character): Employment {
   const scale = character.currencyScale ?? 1;
   if (character.age < 18) {
     return { title: 'Service assistant', type: 'part-time', annualSalary: 5000 * scale, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: character.age, roleId: 'service-assistant', careerPathId: 'customer-service', employer: 'Local employer', level: 1, startedAtDate: character.calendar?.currentDate };
   }
-  const qualified = character.education === 'Higher education';
+  const qualified = hasHigherEducation(character);
   const flexible = character.age >= 65;
   const baseSalary = qualified ? 28000 : 18000;
   return {
@@ -994,7 +1000,8 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
 }
 
 export function performActivity(character: Character, activity: ActivityId, random: () => number = Math.random): Character {
-  if (!isActivityAvailable(character.age, activity, character.employment) || !canAffordActivity(character, activity)) return character;
+  const earlyDevelopmentStudy = activity === 'study' && character.age < 3 && character.educationEnrollment?.programId === 'early-development';
+  if ((!earlyDevelopmentStudy && !isActivityAvailable(character.age, activity, character.employment)) || !canAffordActivity(character, activity)) return character;
   const next = { ...character, history: [...character.history] };
   const scale = character.currencyScale ?? 1;
   switch (activity) {
@@ -1013,7 +1020,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
         next.history.unshift(event(next, 'Studied for your programme', 'You invested time in your current studies and strengthened your knowledge.'));
       } else {
         next.educationProgress = Math.min(100, (next.educationProgress ?? 0) + (next.age < 18 ? 8 : 12));
-        next.history.unshift(event(next, 'Independent learning', 'You invested time in self-directed learning and improved your knowledge.'));
+        next.history.unshift(event(next, 'Made time to study', 'You invested time in self-directed learning and improved your knowledge.'));
       }
       break;
     }
@@ -1045,7 +1052,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
     case 'apply-job': {
       const offeredJob = createEmployment(next);
       const personalityBonus = (next.personality ?? []).some((trait) => trait === 'Ambitious' || trait === 'Disciplined') ? 0.06 : 0;
-      const qualificationBonus = next.education === 'Higher education' ? 0.16 : 0;
+      const qualificationBonus = hasHigherEducation(next) ? 0.16 : 0;
       const skillBonus = (next.intelligence - 50) / 300;
       const successChance = next.age < 18 ? 0.86 : Math.max(0.35, Math.min(0.92, 0.62 + qualificationBonus + skillBonus + personalityBonus));
       if (random() < successChance) {
