@@ -38,6 +38,7 @@
   let debugCopying = $state(false);
   let advanceReviewOpen = $state(false);
   let weeklyFinanceOpen = $state(false);
+  let characterProfileExpanded = $state(false);
   onMount(() => {
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
@@ -351,15 +352,6 @@
           {@const weeklyExpenseGroups = groupWeeklyFinances(weeklyTransactions, 'expense')}
           {@const weeklyIncome = weeklyIncomeGroups.reduce((sum, group) => sum + group.total, 0)}
           {@const weeklyExpense = weeklyExpenseGroups.reduce((sum, group) => sum + group.total, 0)}
-          <button class="weekly-finance-card" onclick={() => weeklyFinanceOpen = true} aria-haspopup="dialog">
-            <span class="weekly-finance-heading"><span><small>THIS WEEK</small><strong>Weekly finances</strong></span><span class="weekly-finance-open">View breakdown ↗</span></span>
-            <span class="weekly-finance-balance"><small>CURRENT BALANCE</small><strong>{formatCharacterMoney(character)}</strong></span>
-            <span class="weekly-finance-flow">
-              <span class="weekly-finance-in"><small>IN</small><strong>+{formatCharacterMoney(character, weeklyIncome)}</strong></span>
-              <span class="weekly-finance-out"><small>OUT</small><strong>−{formatCharacterMoney(character, weeklyExpense)}</strong></span>
-              <span class="weekly-finance-net"><small>NET THIS WEEK</small><strong>{weeklyIncome - weeklyExpense < 0 ? '−' : '+'}{formatCharacterMoney(character, Math.abs(weeklyIncome - weeklyExpense))}</strong></span>
-            </span>
-          </button>
           {#if weeklyFinanceOpen}
             <div class="weekly-finance-backdrop" role="presentation" onclick={(event) => { if (event.target === event.currentTarget) weeklyFinanceOpen = false; }}>
               <section class="weekly-finance-dialog" role="dialog" aria-modal="true" aria-labelledby="weekly-finance-title">
@@ -409,7 +401,15 @@
               <div class="character-profile-tags"><span>{character.employment?.title ?? 'Not employed'}</span><span>{character.educationEnrollment?.institution ?? (character.educationLevel ? character.educationLevel.replaceAll('-', ' ') : getEducationStage(character.age))}</span></div>
             </div>
             <div class="character-cash-summary"><small>AVAILABLE CASH</small><strong>{formatCharacterMoney(character)}</strong></div>
+            <div class="character-profile-weekly">
+              <div><small>WEEKLY IN</small><strong class="weekly-finance-in">+{formatCharacterMoney(character, weeklyIncome)}</strong></div>
+              <div><small>WEEKLY OUT</small><strong class="weekly-finance-out">−{formatCharacterMoney(character, weeklyExpense)}</strong></div>
+              <div><small>WEEKLY NET</small><strong>{weeklyIncome - weeklyExpense < 0 ? '−' : '+'}{formatCharacterMoney(character, Math.abs(weeklyIncome - weeklyExpense))}</strong></div>
+              <button class="character-profile-breakdown" onclick={() => weeklyFinanceOpen = true}>Breakdown</button>
+            </div>
+            <button class="character-profile-toggle" aria-expanded={characterProfileExpanded} onclick={() => characterProfileExpanded = !characterProfileExpanded}>{characterProfileExpanded ? 'Hide attributes' : 'View attributes'} <span>{characterProfileExpanded ? '−' : '+'}</span></button>
           </section>
+          {#if characterProfileExpanded}
           <section class="character-stats-section" aria-label="Character attributes">
             <div class="page-heading"><div><div class="eyebrow">YOUR CHARACTER</div><h2>Attributes</h2><p>Abilities and condition shape weekly outcomes.</p></div></div>
             <div class="character-stats-grid">
@@ -422,6 +422,7 @@
               {/each}
             </div>
           </section>
+          {/if}
           <section class="overview-context" aria-label="Current situation">
             <div class="overview-context-item">
               <span>EDUCATION</span>
