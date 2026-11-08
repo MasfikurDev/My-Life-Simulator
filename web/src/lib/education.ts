@@ -95,7 +95,6 @@ export function resumeEducation(character: Character): { character: Character; i
       ...character,
       educationEnrollment: { ...enrollment, status: 'enrolled' },
       educationRecords: (character.educationRecords ?? []).map((record) => record.id === enrollment.recordId ? { ...record, status: 'enrolled' } : record),
-      weeklyPlan: { ...schedule, commitments: [...schedule.commitments.filter((item) => item.domain !== 'school'), ...planned.commitments] }
     },
     issue: null
   };
@@ -108,7 +107,7 @@ export function pauseEducation(character: Character): Character {
     ...character,
     educationEnrollment: { ...enrollment, status: 'paused' },
     educationRecords: (character.educationRecords ?? []).map((record) => record.id === enrollment.recordId ? { ...record, status: 'paused' } : record),
-    weeklyPlan: { ...(character.weeklyPlan ?? { version: 1 as const, commitments: [], activities: [] }), commitments: (character.weeklyPlan?.commitments ?? []).filter((item) => item.domain !== 'school'), activities: (character.weeklyPlan?.activities ?? []).filter((item) => item.action?.kind !== 'education') }
+    weeklyPlan: { ...character.weeklyPlan, activities: character.weeklyPlan.activities.filter((item) => item.action.kind !== 'education') }
   };
 }
 
