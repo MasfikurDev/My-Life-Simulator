@@ -86,3 +86,14 @@ Do not render multiple controls or components for the same action or destination
 - School owns the current learning/study experience; enrollment, attendance, classes, grades, and fees remain planned until their full simulation loop exists. Work owns the implemented recruitment/job-search and employment/career flows. These systems must not be represented as generic status cards inside Finance.
 - Keep the shared AMOLED theme, typography, spacing, accessibility and navigation shell consistent. Domain identity comes from relevant information architecture, terminology, actions and contextual layouts—not arbitrary unrelated colors or decorative imitation.
 - Use progressive disclosure within each domain. Do not show controls from unrelated domains or repeat the same summary and action on multiple screens.
+
+
+## Theme system and reusable UI foundation
+
+- AMOLED remains the default regardless of operating-system appearance. Player-selected themes are explicit and locally persisted: AMOLED, Midnight, Graphite, and Paper.
+- Theme preference is presentation-only, stored alongside local app preferences and never inside a character save. It must not change gameplay state or require a save migration.
+- Theme selection is available in Settings → Appearance, updates immediately, and survives app restarts. Missing or invalid preferences fall back to AMOLED.
+- Shared UI primitives live in `web/src/components/`; theme metadata and local preference handling live in `web/src/lib/theme.ts` and `web/src/lib/storage.ts`.
+- Shared tokens and theme palettes are defined in `web/src/styles/`. Domain-specific components remain in their owning workspaces and consume shared primitives/tokens where appropriate.
+- Build new UI from existing primitives before introducing one-off markup or CSS. Add variants only for genuinely shared behavior; do not flatten domain-native experiences into generic cards.
+- Theme changes must cover navigation, forms, dialogs, activity states, financial displays, and overlays. Maintain accessible contrast and visible focus in every palette.

@@ -148,3 +148,11 @@ Generational play beyond the first complete legacy loop, cloud backup, online/so
 
 ## Scope control
 Every milestone needs a playable outcome and acceptance criteria. Avoid parallel implementation of multiple future systems. Prioritize coherence and fun over feature count.
+
+
+## UI foundation (in progress)
+
+- Establish semantic design tokens and reusable Svelte primitives before expanding the component catalogue.
+- Keep AMOLED as the default and add explicit, locally persisted player themes through Settings → Appearance.
+- Migrate repeated controls and surfaces incrementally; preserve each domain's own visual language and avoid a generic dashboard/card system.
+- Expand the shared component set only when multiple screens have a real repeated pattern. Verify contrast, focus, touch targets and responsive behavior across every theme.
