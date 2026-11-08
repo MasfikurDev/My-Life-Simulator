@@ -51,7 +51,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add the initial age-derived education labels and study-progress foundation.
 - [x] Add optional structured education-history and qualification records to the character model, plus generated stamina, focus, confidence, discipline, creativity, social skills and stress attributes.
 - [x] Add a playable education catalogue from early learning and primary/secondary school through vocational, college, bachelor's, master's, doctoral and professional certificate/specialist routes.
-- [x] Build the Education workspace with enrollment, automatically arranged class commitments, subjects, grades, weekly study/assignment/assessment tasks, tuition, pause/resume and academic history.
+- [x] Build the Education workspace with enrollment, automatic attendance and progression, subjects, grades, weekly study/assignment/assessment tasks, tuition, pause/resume and academic history.
 - [x] Add professional certificate courses and programme-linked qualifications; connect completed degrees and programme IDs to career eligibility.
 - [ ] Expand localized course catalogs, regulated licensing, qualification expiry/renewal, scholarships, retakes and apprenticeship placements.
 - [x] Add role/course-specific ability prerequisites and weekly stress/stamina effects on learning and work efficiency.
@@ -78,7 +78,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add Life → Lifestyle with a provider marketplace, supermarket checkout, owned subscriptions/services, payment-method references, and household costs.
 - [x] Separate School and Work into age-gated, domain-native destinations using existing simulation actions and save fields.
 - [x] Consolidate personal wellbeing, personal growth, personal activities, and complete life history under a modular Life workspace.
-- [x] Expand Education with enrollment, attendance commitments, classes, grades, weekly tasks, programme completion and education history.
+- [x] Expand Education with enrollment, automatic attendance and course progression, grades, weekly tasks, programme completion and education history.
 - [x] Implement a weekly job board, visible role requirements, scheduled applications and interviews, expiring offers, acceptance/decline, career-path previews, player-controlled promotion offers, and voluntary resignation.
 - [x] Add initial role-specific eligibility gates for focus, social skills, confidence, discipline and creativity alongside age, education, intelligence and experience.
 - [ ] Expand work into a complete age-appropriate path spanning part-time work, internships, apprenticeships, skilled occupations, professional careers, management and flexible later-life work; connect it to real education and credential records.
