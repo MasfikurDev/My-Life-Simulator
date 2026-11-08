@@ -15,6 +15,13 @@ The playable time model is:
 
 Do not reintroduce a universal three-actions-per-week quota. Time availability comes from actual commitments and free blocks; routine actions are initiated in their owning workspace and placed automatically after confirmation. Schedule is a review/cancellation surface, not a generic action launcher.
 
+## Weekly activity model (implemented on feature branch)
+
+- Personal activities are selected with direct add/remove toggles in their owning workspaces and consume activity-specific stamina.
+- Recurring school/work commitments remain in the calendar; personal actions do not take time slots.
+- The Schedule workspace is a combined review/cancellation surface for selected personal activities and recurring commitments.
+- The Advance dialog previews every selected activity's stamina/money cost, reward categories, deterministic projected stat changes, and wellbeing warnings using the same weekly resolver as actual advancement.
+
 ## Implementation snapshot
 
 | Area | Status | Implemented foundation | Main remaining work |
