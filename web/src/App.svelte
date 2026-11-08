@@ -13,7 +13,8 @@
   import WorkWorkspace from './WorkWorkspace.svelte';
   import EducationWorkspace from './EducationWorkspace.svelte';
   import ThemeOption from './components/ThemeOption.svelte';
-  import { getThemePreference, setThemePreference, type GameTheme } from './lib/theme';
+  import type { GameTheme } from './lib/theme';
+  import { getThemePreference, setThemePreference } from './lib/storage';
   import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled } from './lib/storage';
   import type { Character, FinancialTransaction, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
