@@ -702,6 +702,8 @@ export interface ActivityPlanningResult {
  */
 export function getPlannedActivityCost(character: Character, item: PlannedActivity): number {
   if (item.action?.kind === 'work') return 0;
+  if (item.action?.kind === 'education') return getActivityCost(character, 'study');
+  if (item.action?.kind === 'care') return Math.round((item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (character.currencyScale ?? 1));
   if (item.action?.kind === 'family' && item.action.interaction === 'provide-support') return item.action.supportAmount ?? 0;
   if (item.action?.kind === 'business') {
     const businessId = item.action.businessId;
@@ -997,8 +999,11 @@ export function performActivity(character: Character, activity: ActivityId, rand
   const next = { ...character, history: [...character.history] };
   const scale = character.currencyScale ?? 1;
   switch (activity) {
-    case 'study':
-      next.intelligence = clamp(next.intelligence + 5);
+    case 'study': {
+      const pressure = next.stress ?? 30;
+      const energy = next.stamina ?? 50;
+      const studyGain = pressure >= 85 || energy < 20 ? 1 : pressure >= 70 || energy < 35 ? 3 : 5;
+      next.intelligence = clamp(next.intelligence + studyGain);
       next.happiness = clamp(next.happiness - 1);
       next.focus = clamp((next.focus ?? 50) + 3);
       next.discipline = clamp((next.discipline ?? 50) + 1);
@@ -1012,6 +1017,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
         next.history.unshift(event(next, 'Independent learning', 'You invested time in self-directed learning and improved your knowledge.'));
       }
       break;
+    }
     case 'exercise':
       next.fitness = clamp(next.fitness + 6);
       next.health = clamp(next.health + 2);
@@ -1029,7 +1035,8 @@ export function performActivity(character: Character, activity: ActivityId, rand
       break;
     case 'work':
       if (next.age < 16) return character;
-      next.money += 180 * scale;
+      const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
+      next.money += Math.round(180 * scale * workEfficiency);
       next.happiness = clamp(next.happiness - 2);
       next.stamina = clamp((next.stamina ?? 50) - 5);
       next.confidence = clamp((next.confidence ?? 50) + 1);
@@ -1054,7 +1061,8 @@ export function performActivity(character: Character, activity: ActivityId, rand
     }
     case 'career':
       if (!next.employment) return character;
-      next.employment = { ...next.employment, performance: clamp(next.employment.performance + 12) };
+      const careerGain = (next.stress ?? 30) >= 85 ? 3 : (next.stress ?? 30) >= 70 ? 7 : 12;
+      next.employment = { ...next.employment, performance: clamp(next.employment.performance + careerGain) };
       next.happiness = clamp(next.happiness + 1);
       next.focus = clamp((next.focus ?? 50) + 2);
       next.confidence = clamp((next.confidence ?? 50) + 1);
