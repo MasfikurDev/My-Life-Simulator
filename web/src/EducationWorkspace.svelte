@@ -10,6 +10,8 @@
   const enrollment = $derived(character.educationEnrollment ?? null);
   const progress = $derived(enrollment ? Math.min(100, Math.round(enrollment.weeksCompleted / enrollment.totalWeeks * 100)) : 0);
   const plannedTasks = $derived(character.weeklySchedule?.activities.filter((item) => item.action?.kind === 'education') ?? []);
+  const classCommitments = $derived(character.weeklySchedule?.commitments.filter((item) => item.domain === 'school') ?? []);
+  function weekdayName(day: number) { return ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day - 1] ?? 'Day'; }
   function enroll() {
     if (!selectedProgram) return;
     const field = selectedField && selectedProgram.fieldOptions.includes(selectedField) ? selectedField : selectedProgram.fieldOptions[0];
@@ -46,12 +48,14 @@
     </div>
     <div class="education-footnote">{#if enrollment.status === 'paused'}This programme is paused. Your grades and completed weeks are preserved. Resume when you are ready.{:else}Classes are reserved automatically each week. Your weekly study target is {enrollment.weeklyStudyTarget} task points. Missing study, assignments or exams lowers your grades; workload, stress, stamina and health also affect results.{/if}</div>
     {#if enrollment.status === 'paused'}<button class="primary-button education-pause" onclick={resume}>Resume programme</button>{:else}<button class="secondary-button education-pause" onclick={pause}>Pause programme</button>{/if}
+    {#if classCommitments.length}<div class="education-class-schedule"><strong>Automatic weekly timetable</strong>{#each classCommitments as item}<span>{weekdayName(item.weekday)} · {item.startPeriod} · {item.title}</span>{/each}</div>{/if}
   </section>
 
   {#if enrollment.status === 'enrolled'}
   <section class="education-task-section">
     <div class="section-heading"><div><span class="section-index">01</span><h3>This week's academic work</h3></div><span class="section-hint">{plannedTasks.length} tasks scheduled</span></div>
     <p class="education-section-copy">Choose the work you can realistically complete. Each task is automatically placed in free time around classes, work and other commitments.</p>
+    {#if plannedTasks.length}<div class="education-planned-list"><strong>Already planned</strong>{#each plannedTasks as task}<span>{task.date} · {task.startPeriod} · {task.action?.kind === 'education' ? task.action.taskType.replaceAll('-', ' ') : 'Academic task'}</span>{/each}</div>{/if}
     <div class="education-task-grid">
       <button class="education-task-card" disabled={taskPlanned('study')} onclick={() => planTask('study')}><span class="education-task-icon">↗</span><strong>{enrollment.level === 'early-learning' ? 'Guided play' : 'Focused study'}</strong><small>{enrollment.level === 'early-learning' ? 'Build curiosity, language and coordination through play · 1 time block' : 'Review lessons and strengthen understanding · 1 time block'}</small><b>{taskPlanned('study') ? 'Scheduled' : enrollment.level === 'early-learning' ? 'Plan play session' : 'Plan study'}</b></button>
       <button class="education-task-card" disabled={taskPlanned('assignment')} onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>{enrollment.level === 'early-learning' ? 'Story time' : 'Assignment'}</strong><small>{enrollment.level === 'early-learning' ? 'Build language and communication with shared stories · 1 time block' : 'Complete coursework and practical exercises · 1 time block'}</small><b>{taskPlanned('assignment') ? 'Scheduled' : enrollment.level === 'early-learning' ? 'Plan story time' : 'Plan assignment'}</b></button>
