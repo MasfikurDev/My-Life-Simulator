@@ -733,7 +733,7 @@ export function getPlannedActivityStaminaCost(item: PlannedActivity): number {
   if (item.action?.kind === 'family') return item.action.interaction === 'provide-support' ? 3 : 6;
   if (item.action?.kind === 'business') return 12;
   if (item.action?.kind === 'event') return 5;
-  return ({ study: 8, exercise: 10, socialize: 6, work: 16, 'apply-job': 8, career: 8 } as Record<ActivityId, number>)[item.activityId as ActivityId] ?? 5;
+  return getActivityDefinition(item.activityId as ActivityId)?.staminaCost ?? 5;
 }
 
 function getPlannedActivityTitle(character: Character, item: PlannedActivity): string {
