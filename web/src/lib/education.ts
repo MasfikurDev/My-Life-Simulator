@@ -1,4 +1,6 @@
-import type { AcademicResult, Character, EducationEnrollment, EducationLevel, EducationRecord, EducationTaskType, Qualification, WeeklyCommitment } from './types';
+import type { AcademicResult, Character, EducationEnrollment, EducationLevel, EducationRecord, EducationTaskType, Qualification, WeeklyCommitment, DayPeriod } from './types';
+import { buildWeeklySchedule } from './weekly-schedule';
+import { getWeekStart, getFirstWeekStartOfYear } from './calendar';
 
 export interface EducationProgram {
   id: string;
@@ -69,12 +71,31 @@ export function enrollInEducation(character: Character, programId: string, field
       ['Core theory', field, 'Practical work']).map((name, index) => ({ id: 'subject-' + index, name, grade: 65 }))
   };
   const record: EducationRecord = { id, level: program.level, institution: program.institutionType, field, startedAtAge: character.age, status: 'enrolled' };
-  const commitments: WeeklyCommitment[] = program.schedule.map((slot, index) => ({
-    id: 'education-' + id + '-' + index, title: program.level === 'early-learning' ? 'Early learning' : 'Classes · ' + program.institutionType,
-    domain: 'school', ...slot
-  }));
   const schedule = character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] };
-  const nextSchedule = { ...schedule, commitments: [...schedule.commitments.filter((item) => item.domain !== 'school'), ...commitments] };
+  const baseSchedule = { ...schedule, commitments: schedule.commitments.filter((item) => item.domain !== 'school') };
+  const weekStart = getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
+  const preferred = character.employment?.type === 'full-time'
+    ? program.schedule.slice(0, Math.min(2, program.schedule.length)).map((slot) => ({ ...slot, startPeriod: 'evening' as const, durationBlocks: 1 }))
+    : program.schedule;
+  const candidates: Array<{ weekday: 1 | 2 | 3 | 4 | 5 | 6 | 7; startPeriod: DayPeriod; durationBlocks: number }> = [];
+  for (const slot of [...preferred, ...program.schedule]) {
+    for (const period of [slot.startPeriod, 'afternoon', 'evening', 'morning'] as DayPeriod[]) {
+      const candidate = { weekday: slot.weekday, startPeriod: period, durationBlocks: Math.min(slot.durationBlocks, 1) };
+      if (!candidates.some((item) => item.weekday === candidate.weekday && item.startPeriod === candidate.startPeriod)) candidates.push(candidate);
+    }
+  }
+  const commitments: WeeklyCommitment[] = [];
+  for (const slot of candidates) {
+    if (commitments.length >= preferred.length) break;
+    const candidate: WeeklyCommitment = {
+      id: 'education-' + id + '-' + commitments.length, title: program.level === 'early-learning' ? 'Early learning' : 'Classes · ' + program.institutionType,
+      domain: 'school', ...slot
+    };
+    const trial = { ...baseSchedule, commitments: [...baseSchedule.commitments, ...commitments, candidate] };
+    if (buildWeeklySchedule(weekStart, trial).valid) commitments.push(candidate);
+  }
+  if (commitments.length < Math.min(preferred.length, 2)) return { character, issue: 'There is not enough free time for this programme alongside current commitments. Reduce other commitments or choose a more flexible course.' };
+  const nextSchedule = { ...baseSchedule, commitments: [...baseSchedule.commitments, ...commitments] };
   const next: Character = {
     ...character, money: character.money - tuition, educationEnrollment: enrollment,
     educationRecords: [...(character.educationRecords ?? []), record],
@@ -126,6 +147,5 @@ export function resolveEducationWeek(character: Character, tasks: EducationTaskT
 }
 export function pauseEducation(character: Character): Character {
   if (!character.educationEnrollment) return character;
-  const id = character.educationEnrollment.programId + '-' + (character.calendar?.currentDate ?? character.year + '-01-01');
-  return { ...character, educationEnrollment: null, educationRecords: (character.educationRecords ?? []).map((record) => record.id === id ? { ...record, status: 'paused' } : record), weeklySchedule: { ...(character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] }), commitments: (character.weeklySchedule?.commitments ?? []).filter((item) => item.domain !== 'school') } };
+  return { ...character, educationEnrollment: null, educationRecords: (character.educationRecords ?? []).map((record) => record.status === 'enrolled' && record.level === character.educationEnrollment?.level ? { ...record, status: 'paused' } : record), weeklySchedule: { ...(character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] }), commitments: (character.weeklySchedule?.commitments ?? []).filter((item) => item.domain !== 'school') } };
 }
