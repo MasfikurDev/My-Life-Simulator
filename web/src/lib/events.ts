@@ -1,4 +1,4 @@
-import type { Character, GameEventChoice, GameEventEffects, LifeEvent, PendingGameEvent, ScheduledGameConsequence } from './types';
+import type { Character, DecisionTreeId, GameEventChoice, GameEventEffects, LifeEvent, PendingGameEvent, ScheduledGameConsequence } from './types';
 import { applyFamilyBondEffect, getFamilyConnections } from './family';
 
 const clampStat = (value: number) => Math.max(0, Math.min(100, value));
@@ -178,6 +178,36 @@ export function prepareGameEvent(character: Character): Character {
     ? candidates[stableHash([character.name, character.year, character.age, character.history.length].join('|')) % candidates.length]
     : null;
   return { ...character, eventPreparedYear: character.year, pendingGameEvent: selected };
+}
+
+function getDecisionTreeId(eventId: string): DecisionTreeId {
+  if (eventId.startsWith('family-check-in-')) return 'relationships';
+  if (eventId.includes('wellbeing')) return 'health';
+  if (eventId.includes('school') || eventId.includes('reading')) return 'education';
+  if (eventId.includes('career') || eventId.includes('job') || eventId.includes('work')) return 'career';
+  if (eventId.includes('finance') || eventId.includes('money') || eventId.includes('business')) return 'finance';
+  return 'life';
+}
+
+function decisionRecord(character: Character, pending: PendingGameEvent, chosen: GameEventChoice) {
+  return {
+    id: pending.id + ':' + chosen.id,
+    treeId: getDecisionTreeId(pending.id),
+    eventId: pending.id,
+    title: pending.title,
+    description: pending.description,
+    age: character.age,
+    year: character.year,
+    chosenChoiceId: chosen.id,
+    chosenLabel: chosen.label,
+    branches: pending.choices.map((option) => ({
+      choiceId: option.id,
+      label: option.label,
+      detail: option.detail,
+      rewards: { ...option.effects },
+      ...(option.followUp ? { followUp: { title: option.followUp.title, description: option.followUp.description } } : {})
+    }))
+  };
 }
 
 export function resolveGameEvent(character: Character, choiceId: string): Character {

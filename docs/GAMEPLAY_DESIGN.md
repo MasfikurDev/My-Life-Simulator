@@ -215,3 +215,8 @@ The current code implements family-of-origin generation, graph validation, and a
 
 Partnership, parenthood, adoption, caregiving, family mortality, inheritance, and legacy remain unimplemented until they have complete simulation rules and tests. Do not present UI-only placeholders as working mechanics.
 
+## Life tree and decision progression
+
+The Life workspace contains a dedicated **Life tree** with separate branches for Life choices, Education, Career, Relationships, Health, and Finance. It is a retrospective skill-tree view: resolved decisions become connected nodes, the chosen route is highlighted, and alternative branches remain visible with their modeled attribute rewards and delayed consequences. A decision record stores the event, age/year, selected option, all available branches, direct attribute effects, and any follow-up outcome. Existing saves without decision-tree history remain valid.
+
+Decision rewards must be meaningful and tied to the choice. Use the existing simulation effect system for actual stat changes; the tree displays those same effects rather than inventing separate bonuses. Do not grant a second reward merely for viewing the tree. As new decision systems are added, record their choices in the appropriate tree category so the tabs become populated by real gameplay rather than placeholder nodes.
