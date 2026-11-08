@@ -76,7 +76,7 @@
 
 <section class="lifestyle-workspace">
   <header class="lifestyle-heading">
-    <div><div class="eyebrow">LIFE · LIFESTYLE</div><h2>{activeView === 'discover' ? 'Discover services' : activeView === 'services' ? 'My services' : 'Home & household'}</h2><p>{activeView === 'discover' ? 'Shop with providers and everyday stores.' : activeView === 'services' ? 'Your active subscriptions and payment methods.' : 'Your living arrangement and planned household costs.'}</p></div>
+    <div><div class="eyebrow">LIFE · MARKET</div><h2>{activeView === 'discover' ? 'Discover services' : activeView === 'services' ? 'My services' : 'Home & household'}</h2><p>{activeView === 'discover' ? 'Shop with providers and everyday stores.' : activeView === 'services' ? 'Your active subscriptions and payment methods.' : 'Your living arrangement and planned household costs.'}</p></div>
     {#if activeView === 'services'}<span class="service-count">{activeSubscriptions.length} ACTIVE</span>{/if}
   </header>
   <nav class="lifestyle-nav" aria-label="Lifestyle sections">
