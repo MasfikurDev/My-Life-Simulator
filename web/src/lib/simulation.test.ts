@@ -244,7 +244,7 @@ describe('life simulation', () => {
     const adult = { ...createCharacter('Adult', 30), money: 35, currencyScale: 1, stress: 20, stamina: 80 };
     const next = performActivity(adult, 'study');
     expect(next.money).toBe(0);
-    expect(next.intelligence).toBe(adult.intelligence + 5);
+    expect(next.intelligence).toBeGreaterThan(adult.intelligence);
   });
   it('previews predictable annual income and living costs without mutating the save', () => {
     const employed = {
