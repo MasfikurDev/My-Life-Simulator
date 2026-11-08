@@ -1,13 +1,12 @@
 # Technical Architecture
 
-## Education, qualifications and character attributes
+## Education, qualifications, wellbeing and medical state
 
-The character save model keeps education history and qualifications separate from the legacy display string. `educationRecords` represent formal enrollment/completion history; `qualifications` represent earned degrees, certificates, licenses, diplomas or professional credentials. Role requirements may reference qualification IDs and role-specific attributes. These arrays are optional so older local saves remain readable.
+The pure TypeScript domain modules `education.ts` and `wellbeing.ts` own education and health state transitions. The Education workspace calls domain functions for programme availability, enrollment, pause/resume and weekly academic task planning. Enrolling creates `EducationEnrollment`, an `EducationRecord`, and recurring `school` commitments in the shared weekly schedule. Programme prerequisites and minimum ability thresholds are checked by the education domain. A completed passing programme records an `AcademicResult` and a `Qualification` with its source `programId`; Work reads those records for eligibility and does not issue or mutate them.
 
-Character attributes distinguish ability (intelligence, focus, creativity, discipline, confidence, social skills) from physical condition (health, fitness, stamina) and wellbeing (happiness, stress). Stress is inverse-scored; the other values are higher-is-better. New fields remain optional for backward compatibility and use safe defaults in simulation logic.
+The weekly resolver dispatches education and care actions from `PlannedAction`, applies their costs/effects, resolves academic grades against completed task points, attendance, workload, stress, stamina and health, then updates wellbeing once per week from the actual occupied schedule blocks. Missing academic targets reduces grades. Overload increases stress/fatigue and can trigger burnout/anxiety conditions; rest, mindfulness, counselling and medical check-ups are modeled as scheduled care actions. Medical conditions, treatment plans and short medication courses are stored in optional `medicalState`.
 
-Keep education progression, course rules and qualification issuance in the Education domain. Work may query those records through shared eligibility helpers but must not issue or mutate education credentials. Weekly activities are automatically placed by the existing schedule service; school attendance and course calendars must integrate with that service rather than introduce a second manually managed calendar. Full academic progression and course lifecycle are planned and must not be described as implemented until tested.
-
+New education and medical fields are optional and preserve old local saves without a schema bump. Keep education, healthcare and career rules in their domain modules; keep UI components independent. Shared time reservations remain in `weekly-schedule.ts` and `simulation.ts`. Do not create a second calendar or manually managed timetable.
 
 **Canonical implementation direction · Reviewed 2026-11-08**
 
