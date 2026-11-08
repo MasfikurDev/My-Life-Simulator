@@ -555,7 +555,7 @@
                   <button class="secondary-button" onclick={closeAdvanceReview}>Back to this week</button>
                   <button class="primary-button" disabled={weeklyReview.issue !== null} onclick={advanceWeekNow}>Resolve reviewed week</button>
                 </div>
-              </section>
+              </dialog>
             </div>
           {/if}
           {@const activities = character.history.filter((item) => item.kind === 'activity')}
