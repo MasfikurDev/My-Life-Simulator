@@ -1,17 +1,17 @@
 # Roadmap
 
-**Working sequence, not date promises · Reviewed 2026-11-06**
+**Working sequence, not date promises · Reviewed 2026-11-08**
 
 ## Milestone 0 — GitHub-first foundation
 - [x] Preserve product, gameplay, visual, architecture, and AI collaboration decisions.
-- [ ] Build web client and independent simulation boundary.
-- [ ] Build minimal Android WebView wrapper.
-- [ ] Add focused Actions validation and Pages deployment.
-- [ ] Produce installable APK artifact.
-- [ ] Verify web updates reach the installed app after fresh launch.
+- [x] Build web client and independent simulation boundary.
+- [x] Build minimal Android WebView wrapper.
+- [x] Add focused Actions validation and Pages deployment.
+- [x] Produce installable APK artifact.
+- [x] Verify web updates reach the installed app after fresh launch.
 
 ## Milestone 1 — First enjoyable life loop
-Scenario-led character creation with coherent randomized identities; three independent local save slots; readable dashboard; meaningful age-appropriate activities with costs/consequences; deliberate year progression; contextual events and life-history entries; reliable save recovery/migration tests; optional sound feedback.
+Scenario-led character creation with coherent randomized identities; three independent local save slots; readable domain-native workspaces; meaningful age-appropriate activities with costs/consequences; explicit weekly progression; contextual events and life-history entries; three local save slots; reliable save recovery/migration tests; optional sound feedback.
 
 Selectable starting ages are an entry point, not a claim that full childhood, education, retirement, or generational systems are complete.
 
@@ -44,9 +44,9 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Implement a weekly job board, visible role requirements, scheduled applications and interviews, expiring offers, acceptance/decline, career-path previews, player-controlled promotion offers, and voluntary resignation.
 - [ ] Add richer workplace interactions, employer structures, layoffs/job security, and persistent vacancies; do not display placeholder stages.
 
-## Milestone 3 — Replace annual actions with the weekly gameplay cycle (in progress)
+## Milestone 3 — Replace annual actions with the weekly gameplay cycle (core transition complete)
 
-**Design decision:** weekly is the playable time unit; monthly is the financial/reporting unit; yearly is the life-progression unit. This milestone is a foundational redesign, not a cosmetic change from "3 actions/year" to "3 actions/week".
+**Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. The annual-action cutover, automatic contextual placement, and deterministic weekly resolution are implemented. Remaining work is listed separately below.
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
 - [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment now adds type-based recurring Work shifts; School attendance remains unmodeled until its own schedule loop exists.
@@ -57,12 +57,12 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Keep Schedule as a review/cancellation surface rather than a generic action launcher.
 - [x] Resolve planned activities deterministically, apply gameplay effects, and charge accepted costs exactly once; reject and preserve a turn if a reservation becomes stale before resolution.
 - [x] Add deterministic, exactly-once weekly resolution with history, recap, and seven-day calendar advancement.
-- [ ] Adapt contextual events, deadlines, and delayed consequences to date/week boundaries.
+- [ ] Adapt remaining contextual events, deadlines, and delayed consequences to date/week boundaries.
 - [ ] Move recurring payments, employment payroll, and business operating cash flow to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries. Until then, salary and household settlement remain annual and are a known pacing limitation of the weekly loop.
 - [ ] Prevent duplicate or skipped financial settlement across month/year boundaries; document rounding and payment-failure behavior.
 - [x] Migrate schema 1 single-save and schema 2 multi-slot saves to the weekly model; preserve valid character records and all three slots, anchor missing calendars without changing displayed age, and retain the original payload as a recovery copy.
 - [ ] Add multi-week advancement only after single-week resolution is reliable; it must stop before important decisions, deadlines, events, birthdays, and payment failures.
-- [ ] Replace the year-only review with a concise weekly review, monthly Finance statement, and annual life review without duplicating domain workspaces.
+- [ ] Complete the concise weekly review, add a monthly Finance statement when monthly settlement is implemented, and keep the annual life review separate from weekly recap.
 
 **Acceptance:** A fresh and migrated save can play several weeks with different activity durations, meaningful time conflicts, contextual events, and persistent consequences. Month-end and year-end processing occur exactly once. Birthday/age eligibility changes on the correct date. Quiet weeks can be advanced quickly. Scenario tests cover a school-age child, employed adult, unemployed adult, and later-life character. Existing saves and all financial invariants remain intact.
 
@@ -93,9 +93,9 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 **Acceptance:** Education and career choices change future options and have visible consequences; no placeholder status is shown as a real mechanic.
 
-## Milestone 6 — Persistent family and relationships
+## Milestone 6 — Persistent family and relationships (foundation implemented)
 
-**Specification:** [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md). Family is simulation-first: persistent people, validated kinship/guardianship graph, separate closeness/trust/tension, household/dependency state, and auditable family history.
+**Specification:** [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md). The simulation-first foundation and targeted weekly interaction loop are implemented; lifecycle expansion remains staged. Family is: persistent people, validated kinship/guardianship graph, separate closeness/trust/tension, household/dependency state, and auditable family history.
 
 - [x] Add optional, backward-compatible family graph types and stable player/relative identities.
 - [x] Generate a modest family-of-origin context for new characters without assuming a partner or children.
