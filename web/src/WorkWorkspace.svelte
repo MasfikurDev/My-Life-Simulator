@@ -199,8 +199,6 @@
 <style>
   .work-workspace{display:grid;gap:14px;min-width:0}
   .work-header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-  .work-header h1{margin:4px 0;color:var(--text);font-size:clamp(25px,4vw,34px);letter-spacing:-.8px}
-  .work-header p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
   .work-date{flex:none;padding:8px 10px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:10px}
   .work-nav{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px}
   .work-nav button{flex:none;min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:650}
