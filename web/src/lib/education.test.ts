@@ -88,6 +88,7 @@ describe('education progression', () => {
     const completed = resolveEducationWeek(shortCourse, ['study', 'assignment', 'exam'], '2026-11-02', 6).character;
     const candidate = { ...completed, careerExperienceYears: 2 };
     expect(candidate.qualifications?.some((item) => item.programId === 'bachelor-degree')).toBe(true);
+    expect(candidate.financialTransactions?.some((item) => item.description.includes('Education tuition'))).toBe(true);
     expect(isEligibleForRole(candidate, getCareerRole('software-developer')!)).toBe(true);
   });
 
