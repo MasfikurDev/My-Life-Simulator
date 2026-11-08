@@ -64,6 +64,7 @@ export function loadSave(slotId: SaveSlotId = getActiveSlotId()): Character | nu
   catch { return null; }
 }
 export function saveCharacter(character: Character, slotId: SaveSlotId = getActiveSlotId()): void {
+  if (!isCurrentCharacter(character)) throw new Error('The character does not match the current save format.');
   const data = readData();
   data.slots = data.slots.map((slot) => slot.id === slotId ? { id: slotId, character, updatedAt: Date.now() } : slot);
   data.activeSlotId = slotId;
