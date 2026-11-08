@@ -12,6 +12,7 @@ export function resolveCareAction(character: Character, careType: CareActionType
     next.health = clamp(next.health + 4);
     next.happiness = clamp(next.happiness + 3);
     next.stress = clamp((next.stress ?? 30) - 14);
+    next.medicalState = { ...nextState, conditions: nextState.conditions.map((condition) => condition.type === 'injury' || condition.type === 'common-illness' ? { ...condition, treatment: 'rest', severity: clamp(condition.severity - 10) } : condition).filter((condition) => condition.severity > 0) };
     next.history.unshift({ id: 'care-rest-' + weekStart, age: next.age, year: next.year, date: weekStart, kind: 'activity', title: 'Took time to recover', description: 'Rest restored energy and reduced accumulated pressure.' });
   } else if (careType === 'mindfulness') {
     next.stress = clamp((next.stress ?? 30) - 10);
@@ -31,7 +32,7 @@ export function resolveCareAction(character: Character, careType: CareActionType
     next.health = clamp(next.health + 12);
     next.stamina = clamp((next.stamina ?? 50) + 5);
     next.medicalState = { ...nextState, lastCheckupWeek: weekStart, conditions: nextState.conditions.map((condition) => ({
-      ...condition, diagnosed: true, treatment: condition.type === 'burnout' || condition.type === 'anxiety' ? 'professional-support' : 'medical-care',
+      ...condition, diagnosed: true, treatment: condition.type === 'burnout' || condition.type === 'anxiety' ? 'professional-support' : condition.type === 'chronic' ? 'ongoing-management' : 'medical-care',
       severity: clamp(condition.severity - 22), weeksActive: condition.weeksActive
     })).filter((condition) => condition.severity > 0) };
     const stateAfter = next.medicalState;
@@ -59,13 +60,15 @@ export function resolveWeeklyWellbeing(character: Character, occupiedBlocks: num
   const highStressWeeks = nextStress >= 82 ? state.highStressWeeks + 1 : Math.max(0, state.highStressWeeks - 1);
   let conditions = state.conditions.map((condition) => {
     const treated = condition.treatment !== null;
-    const recovery = treated ? (condition.treatment === 'professional-support' ? 8 : 5) : 0;
-    const worsening = condition.type === 'burnout' && nextStress >= 75 ? 5 : condition.type === 'common-illness' && character.health < 45 ? 3 : 1;
+    const recovery = treated ? (condition.treatment === 'professional-support' ? 8 : condition.treatment === 'ongoing-management' ? 3 : 5) : 0;
+    const worsening = condition.type === 'burnout' && nextStress >= 75 ? 5 : condition.type === 'common-illness' && character.health < 45 ? 3 : condition.type === 'chronic' ? 2 : 1;
     return { ...condition, severity: clamp(condition.severity + (treated ? -recovery : worsening)), weeksActive: condition.weeksActive + 1 };
   }).filter((condition) => condition.severity > 0);
   if (highStressWeeks >= 2) conditions = addCondition(conditions, { id: 'condition-burnout-' + weekStart, type: 'burnout', name: 'Burnout', severity: 45, diagnosed: false, weeksActive: 1, treatment: null });
   if (highStressWeeks >= 4) conditions = addCondition(conditions, { id: 'condition-anxiety-' + weekStart, type: 'anxiety', name: 'Ongoing anxiety', severity: 35, diagnosed: false, weeksActive: 1, treatment: null });
   if (character.health <= 25) conditions = addCondition(conditions, { id: 'condition-illness-' + weekStart, type: 'common-illness', name: 'Illness / low immunity', severity: 35, diagnosed: false, weeksActive: 1, treatment: null });
+  if ((character.fitness <= 15 || nextStamina <= 10) && occupiedBlocks >= 16) conditions = addCondition(conditions, { id: 'condition-injury-' + weekStart, type: 'injury', name: 'Strain or minor injury', severity: 30, diagnosed: false, weeksActive: 1, treatment: null });
+  if (character.age >= 65 && character.health <= 30) conditions = addCondition(conditions, { id: 'condition-chronic-' + weekStart, type: 'chronic', name: 'Ongoing health condition', severity: 35, diagnosed: false, weeksActive: 1, treatment: null });
   const medications = state.medications.map((item) => ({ ...item, weeksRemaining: Math.max(0, item.weeksRemaining - 1) })).filter((item) => item.weeksRemaining > 0);
   const medicationRecovery = state.medications.length > 0 ? 2 : 0;
   const activeSeverity = conditions.reduce((sum, condition) => sum + condition.severity, 0);
