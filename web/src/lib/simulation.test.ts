@@ -369,14 +369,14 @@ describe('life simulation', () => {
     const partTime = performActivity(teen, 'apply-job', () => 0);
     expect(partTime.employment?.type).toBe('part-time');
     expect(partTime.employment?.annualSalary).toBe(5000);
-    expect(partTime.weeklyPlan?.commitments).toHaveLength(0);
+    expect(partTime.weeklyPlan.activities).toHaveLength(0);
     expect(getAvailableActivityIds(16, partTime.employment)).toContain('career');
     expect(getAvailableActivityIds(16, partTime.employment)).not.toContain('apply-job');
     const adult = { ...createCharacter('Adult', 18), currencyScale: 1 };
     const fullTime = performActivity(adult, 'apply-job', () => 0);
     expect(fullTime.employment?.type).toBe('full-time');
     expect(fullTime.employment?.annualSalary).toBe(18000);
-    expect(fullTime.weeklyPlan?.commitments).toHaveLength(0);
+    expect(fullTime.weeklyPlan.activities).toHaveLength(0);
     expect(getAvailableActivityIds(18, fullTime.employment)).not.toContain('apply-job');
   });
   it('uses completed university education to unlock a better-qualified role', () => {
@@ -387,7 +387,7 @@ describe('life simulation', () => {
     const hired = performActivity(graduate, 'apply-job', () => 0);
     expect(hired.employment?.title).toBe('Operations coordinator');
     expect(hired.employment?.annualSalary).toBe(28000);
-    expect(hired.weeklyPlan?.commitments).toHaveLength(0);
+    expect(hired.weeklyPlan.activities).toHaveLength(0);
   });
   it('credits annual salary and living costs when the year advances', () => {
     const worker = {
@@ -447,7 +447,7 @@ describe('life simulation', () => {
     expect(hired.employment?.roleId).toBe(listing!.roleId);
     expect(hired.employment?.employer).toBe(listing!.employer);
     expect(hired.jobOffers).toHaveLength(0);
-    expect(hired.weeklyPlan?.commitments.filter((item) => item.domain === 'work')).toHaveLength(0);
+    expect(hired.weeklyPlan.activities).toHaveLength(0);
   });
   it('records a declined job offer in the application history', () => {
     const candidate = {
