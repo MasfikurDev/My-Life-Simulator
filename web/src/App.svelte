@@ -160,11 +160,13 @@
     loadSlot(available.find((slot) => slot.id === activeSlotId && slot.character) ?? available[0]);
   }
   function startNewLife() {
+    if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     const empty = slots.find((slot) => !slot.character);
     if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
     openCreation(empty.id);
   }
   function openCustomLife() {
+    if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     const empty = slots.find((slot) => !slot.character);
     if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
     pendingSlotId = empty.id; activeTab = 'custom';
