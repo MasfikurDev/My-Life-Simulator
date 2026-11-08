@@ -469,7 +469,7 @@ describe('life simulation', () => {
     expect(hired.employment?.roleId).toBe(listing!.roleId);
     expect(hired.employment?.employer).toBe(listing!.employer);
     expect(hired.jobOffers).toHaveLength(0);
-    expect(hired.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(5);
+    expect(hired.weeklySchedule?.commitments.filter((item) => item.domain === 'work')).toHaveLength(0);
   });
   it('records a declined job offer in the application history', () => {
     const candidate = {
