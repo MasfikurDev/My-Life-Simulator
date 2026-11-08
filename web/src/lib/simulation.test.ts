@@ -165,7 +165,7 @@ describe('life simulation', () => {
     expect(afterYearBoundary.health).toBe(beforeYearBoundary.health - 2);
   });
   it('reproduces random weekly outcomes from the same saved state and schedule', () => {
-    const base = { ...createCharacter('Consistent', 30), intelligence: 90, education: 'Higher education', careerExperienceYears: 5 };
+    const base = { ...createCharacter('Consistent', 30), intelligence: 100, focus: 100, socialSkills: 100, confidence: 100, discipline: 100, creativity: 100, health: 100, stamina: 100, stress: 0, education: 'Higher education', careerExperienceYears: 10, qualifications: [{ id: 'qualification-bachelor', programId: 'bachelor-degree', name: "Bachelor's degree", category: 'degree' as const, issuer: 'University', field: 'Computer science', awardedAtAge: 24 }] };
     const listing = getJobListings(base).find((item) => { const role = getCareerRole(item.roleId); return role ? isEligibleForRole(base, role) : false; })!;
     const planned = planWorkActionInNextFreeTime(base, 'apply', listing.id).character;
     expect(advanceWeek(planned).character).toEqual(advanceWeek(planned).character);
