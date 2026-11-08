@@ -53,8 +53,13 @@ describe('education progression', () => {
   it('pauses education and releases recurring class time', () => {
     const enrolled = enrollInEducation(createCharacter('Student', 10), 'primary-school', 'General studies').character;
     const paused = pauseEducation(enrolled);
-    expect(paused.educationEnrollment).toBeNull();
+    expect(paused.educationEnrollment?.status).toBe('paused');
+    expect(paused.educationEnrollment?.weeksCompleted).toBe(enrolled.educationEnrollment?.weeksCompleted);
     expect(paused.weeklySchedule?.commitments.some((item) => item.domain === 'school')).toBe(false);
     expect(paused.educationRecords?.[0].status).toBe('paused');
+    const resumed = resumeEducation(paused);
+    expect(resumed.issue).toBeNull();
+    expect(resumed.character.educationEnrollment?.status).toBe('enrolled');
+    expect(resumed.character.weeklySchedule?.commitments.some((item) => item.domain === 'school')).toBe(true);
   });
 });
