@@ -433,7 +433,7 @@
                   </section>
                 {/each}
                 <p class="weekly-finance-note">Only transactions recorded during this game week are included. Transfers between your own accounts are excluded from income and expenses.</p>
-              </section>
+              </dialog>
             </div>
           {/if}
           <section class="character-profile-card" aria-label="Character profile">
@@ -492,7 +492,7 @@
           {/if}
           {#if advanceReviewOpen && weeklyReview}
             <div class="modal-backdrop week-review-backdrop" role="presentation">
-              <section class="modal week-review-dialog" role="dialog" aria-modal="true" aria-labelledby="week-review-title">
+              <dialog open class="modal week-review-dialog" aria-modal="true" aria-labelledby="week-review-title">
                 <button class="modal-close" onclick={closeAdvanceReview} aria-label="Close weekly review">×</button>
                 <div class="eyebrow">WEEKLY SIMULATION · AGE {character.age}</div>
                 <h2 id="week-review-title">Review this week</h2>
@@ -607,7 +607,7 @@
 
 <style>
   .week-review-backdrop{z-index:1000;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
-  .week-review-dialog{width:min(680px,100%);max-width:none;max-height:min(90dvh,900px);overflow:auto;display:grid;gap:14px;padding:20px}
+  .week-review-dialog{position:relative;margin:0;inset:auto;width:min(680px,100%);max-width:none;max-height:min(90dvh,900px);overflow:auto;display:grid;gap:14px;padding:20px}
   .week-review-dialog h2{margin:0;font-size:clamp(22px,4vw,28px);letter-spacing:-.6px}
   .week-review-dialog .game-event-description{margin:0}
   .review-section{display:grid;gap:9px;padding-top:12px;border-top:1px solid var(--line)}
