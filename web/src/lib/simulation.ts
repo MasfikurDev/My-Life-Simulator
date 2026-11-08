@@ -972,7 +972,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   const weekRandom = random ?? createWeeklyRandom(character, weekStart);
   const staminaCost = schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaCost(item), 0);
   const staminaRecovery = schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0);
-  if ((character.stamina ?? 50) + staminaRecovery < staminaCost) return { character, issue: 'insufficient-stamina', recap: [] };
+  if (Math.min(100, (character.stamina ?? 50) + staminaRecovery) < staminaCost) return { character, issue: 'insufficient-stamina', recap: [] };
   let next = { ...character, history: [...character.history] };
   const recap: string[] = [];
   const backgroundObligations = (character.educationEnrollment?.status === 'enrolled' ? 4 : 0) + (character.employment ? (character.employment.type === 'full-time' ? 6 : 3) : 0);
@@ -1135,7 +1135,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   const projectedStamina = projected.stamina ?? 50;
   const currentStress = character.stress ?? 30;
   const projectedStress = projected.stress ?? 30;
-  if (currentStamina + schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0) < activities.reduce((total, item) => total + item.staminaCost, 0)) warnings.push('This plan uses more stamina than you have available, even after planned recovery. Add rest or remove demanding activities before resolving.');
+  if (Math.min(100, currentStamina + schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0)) < activities.reduce((total, item) => total + item.staminaCost, 0)) warnings.push('This plan uses more stamina than you have available, even after planned recovery. Add rest or remove demanding activities before resolving.');
   if (projectedStamina < 25) warnings.push('Stamina is projected to fall to a very low level. Recovery may be needed before another demanding week.');
   if (projectedStress >= 80 && projectedStress > currentStress) warnings.push('Stress is projected to enter a critical range, which can reduce future performance and recovery.');
   else if (projectedStress >= 60 && projectedStress > currentStress) warnings.push('Stress is projected to rise into an elevated range.');
