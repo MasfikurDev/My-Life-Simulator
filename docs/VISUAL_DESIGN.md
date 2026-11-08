@@ -70,12 +70,10 @@ Use concise, factual, context-aware language. Every message must communicate use
 ## Avoid duplicate functionality
 Do not render multiple controls or components for the same action or destination on one screen. Before adding a shortcut, inspect the current screen and navigation for an existing equivalent. Keep one clear primary control; remove redundant summaries that repeat the same actions already available as interactive cards. Responsive navigation may provide alternate layouts for different viewport modes, but do not show redundant desktop controls alongside the same navigation destination.
 
-
 ## Native app logo and splash
 - Use the original title artwork only as the Android launcher/app logo.
 - Use the title-less life-progression artwork only as the centered Android launch splash image. Keep it visible until the WebView's first page finishes loading; then animate it upward and fade it away.
 - Do not place either native artwork in the web welcome or character-creation screens. Preserve the original PNG files unchanged.
-
 
 ## Domain-native interface language
 - A system must look and behave like the real-world environment it represents, simplified for play. Do not reuse one generic dashboard layout for every domain.
@@ -87,9 +85,7 @@ Do not render multiple controls or components for the same action or destination
 - Keep the shared AMOLED theme, typography, spacing, accessibility and navigation shell consistent. Domain identity comes from relevant information architecture, terminology, actions and contextual layouts—not arbitrary unrelated colors or decorative imitation.
 - Use progressive disclosure within each domain. Do not show controls from unrelated domains or repeat the same summary and action on multiple screens.
 
-
 ## Theme system and reusable UI foundation
-
 - AMOLED remains the default regardless of operating-system appearance. Player-selected themes are explicit and locally persisted: AMOLED, Midnight, Graphite, and Paper.
 - Theme preference is presentation-only, stored alongside local app preferences and never inside a character save. It must not change gameplay state or require a save migration.
 - Theme selection is available in Settings → Appearance, updates immediately, and survives app restarts. Missing or invalid preferences fall back to AMOLED.
@@ -97,3 +93,13 @@ Do not render multiple controls or components for the same action or destination
 - Shared tokens and theme palettes are defined in `web/src/styles/`. Domain-specific components remain in their owning workspaces and consume shared primitives/tokens where appropriate.
 - Build new UI from existing primitives before introducing one-off markup or CSS. Add variants only for genuinely shared behavior; do not flatten domain-native experiences into generic cards.
 - All existing screen and workspace styles are migrated to semantic theme tokens; new and revised UI must use shared tokens rather than hard-coded palette colors. Theme coverage includes navigation, forms, dialogs, activity states, financial displays, and overlays. Maintain accessible contrast and visible focus in every palette.
+
+## Game-first copy and first-use tours
+- Write UI copy as the game world speaks. Prefer short, natural labels used by a school, bank, workplace, home, clinic, or other in-world system; avoid generic AI-style phrases such as "Manage your...", "Current ...", "Your journey", "Overview of..." and repeated explanatory subtitles.
+- A screen normally needs one clear title. Do not stack an eyebrow, title, subtitle, explanatory paragraph, and another section title when they communicate the same context.
+- Remove copy that merely narrates what the screen already shows. Keep only decision-critical facts: cost, eligibility, risk, consequence, status, or what an action will do.
+- Use short action labels that describe the in-world action ("Enroll", "Apply", "Book", "Transfer", "Rest"), not UI instructions ("Click here to manage...").
+- Prefer meaningful in-world names over invented dramatic names. Do not add flavor text that obscures what a system does.
+- Introduce each substantial new system with a brief, skippable, step-by-step tour when the player first enters it. Tours point at real controls and explain one useful thing at a time; they do not become permanent help panels or block normal play.
+- Persist tour completion per system in local app preferences, not in character simulation state. Offer a replay entry from that system's own help/menu control. Do not repeat completed tours on every visit or force players to finish a tour before using the system.
+- Keep tours specific to implemented behavior. Never explain placeholder mechanics or promise features that do not exist.

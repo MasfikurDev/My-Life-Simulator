@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { getLifeStage } from './lib/progression';
   import { formatCharacterMoney } from './lib/simulation';
   import type { Character } from './lib/types';
   import LifestyleWorkspace from './LifestyleWorkspace.svelte';
@@ -11,12 +10,11 @@
   let activeView = $state<LifeView>(initialView);
   const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
-    { id: 'lifestyle', label: 'Market' },
+    { id: 'lifestyle', label: 'Lifestyle' },
     { id: 'family', label: 'Family' },
-    { id: 'tree', label: 'Life tree' },
-    { id: 'history', label: 'Life history' }
+    { id: 'tree', label: 'Family tree' },
+    { id: 'history', label: 'Life story' }
   ];
-  const stage = $derived(getLifeStage(character.age));
   function financialFlow(type: string): 'income' | 'expense' | null {
     if (['income', 'interest', 'business-income', 'investment-sell', 'property-sale'].includes(type)) return 'income';
     if (['expense', 'family-support', 'loan-payment', 'loan-interest', 'card-purchase', 'card-interest', 'recurring-payment', 'investment-buy', 'property-purchase', 'property-rent', 'business-expense', 'tax', 'fee'].includes(type)) return 'expense';
@@ -43,8 +41,8 @@
 
 <section class="life-workspace">
   <header class="finance-header">
-    <div><div class="eyebrow">LIFE</div><h1>{views.find((item) => item.id === activeView)?.label}</h1><p>Your personal wellbeing, everyday life and recorded milestones.</p></div>
-    {#if activeView !== 'overview'}<button class="finance-back" onclick={() => activeView='overview'}>← Life overview</button>{/if}
+    <h1>{views.find((item) => item.id === activeView)?.label}</h1>
+    {#if activeView !== 'overview'}<button class="finance-back" onclick={() => activeView='overview'}>← Life</button>{/if}
   </header>
   <nav class="finance-nav" aria-label="Life sections">
     {#each views as item}
@@ -52,10 +50,6 @@
     {/each}
   </nav>
   {#if activeView === 'overview'}
-    <section class="domain-panel">
-      <div class="domain-panel-head"><div><div class="eyebrow">CURRENT LIFE STAGE</div><h2>{stage.label}</h2><p>Age {character.age} · {stage.ageRange}. {stage.description}</p></div><span class="domain-status">YEAR {character.year}</span></div>
-      {#if stage.nextAge !== null}<div class="domain-note">Next life stage begins at age {stage.nextAge}.</div>{/if}
-    </section>
     <HealthWorkspace {character} {onChange} {onNotify} />
   {:else if activeView === 'family'}
     <FamilyWorkspace {character} {onChange} />
@@ -65,7 +59,7 @@
     <LifestyleWorkspace {character} {onChange} />
   {:else if activeView === 'history'}
     {@const milestoneGroups = groupLifeMilestones()}
-    <div class="page-heading"><div><div class="eyebrow">RECORDED EVENTS & FINANCES</div><h2>Life history</h2><p>Important events, achievements and financial changes across your life.</p></div><span class="year-pill">{milestoneGroups.length} PERIODS</span></div>
+    <div class="page-heading"><h2>Life story</h2><span class="year-pill">{milestoneGroups.length} PERIODS</span></div>
     {#if milestoneGroups.length}
       <div class="life-milestone-list">
         {#each milestoneGroups as group, index}
@@ -98,7 +92,7 @@
         {/each}
       </div>
     {:else}
-      <p class="life-milestones-empty">Major life events and financial records will appear here as your story progresses.</p>
+      <p class="life-milestones-empty">Your major life events will appear here.</p>
     {/if}
   {/if}
 </section>
@@ -109,34 +103,21 @@
     gap:14px;
     min-width:0;
   }
-
   .life-workspace .finance-header {
     display:flex;
-    align-items:flex-end;
+    align-items:center;
     justify-content:space-between;
     gap:12px;
     min-width:0;
   }
-
-  .life-workspace .finance-header > div {
-    min-width:0;
-  }
-
+  .life-workspace .finance-header > div { min-width:0; }
   .life-workspace .finance-header h1 {
-    margin:4px 0 3px;
-    color:var(--text);
-    font-size:clamp(24px, 4vw, 32px);
-    line-height:1.15;
-    letter-spacing:-.8px;
-  }
-
-  .life-workspace .finance-header p {
     margin:0;
-    color:var(--muted);
-    font-size:12px;
-    line-height:1.5;
+    color:var(--text);
+    font-size:clamp(22px, 4vw, 28px);
+    line-height:1.15;
+    letter-spacing:-.6px;
   }
-
   .life-workspace .finance-back {
     flex:none;
     min-height:40px;
@@ -148,12 +129,10 @@
     font-size:11px;
     white-space:nowrap;
   }
-
   .life-workspace .finance-back:hover {
     border-color:var(--line-strong);
     background:var(--surface-hover);
   }
-
   .life-workspace .finance-nav {
     display:flex;
     gap:6px;
@@ -165,7 +144,6 @@
     scrollbar-width:thin;
     scrollbar-color:var(--line-strong) transparent;
   }
-
   .life-workspace .finance-nav button {
     flex:0 0 auto;
     min-height:42px;
@@ -179,87 +157,41 @@
     white-space:nowrap;
     transition:color .18s, background .18s, border-color .18s;
   }
-
   .life-workspace .finance-nav button:hover {
     border-color:var(--line-strong);
     color:var(--text);
   }
-
   .life-workspace .finance-nav button.active {
     border-color:color-mix(in srgb,var(--accent) 50%, transparent);
     background:var(--accent-soft);
     color:var(--accent);
   }
-
   .life-workspace .page-heading h2 {
-    margin:8px 0 5px;
+    margin:0;
     color:var(--text);
-    font-size:clamp(23px, 3vw, 29px);
-    line-height:1.15;
-    letter-spacing:-1px;
+    font-size:clamp(20px, 3vw, 25px);
+    line-height:1.2;
+    letter-spacing:-.5px;
   }
-
-  .life-workspace .page-heading p {
-    line-height:1.5;
-  }
-
   .life-workspace .full-history > p {
     margin:0;
     color:var(--muted);
     font-size:11px;
     line-height:1.5;
   }
-
   @media (max-width: 620px) {
-    .life-workspace {
-      gap:12px;
-    }
-
-    .life-workspace .finance-header {
-      align-items:flex-start;
-    }
-
-    .life-workspace .finance-header h1 {
-      font-size:25px;
-    }
-
-    .life-workspace .finance-header p {
-      font-size:11px;
-    }
-
-    .life-workspace .finance-back {
-      min-height:38px;
-      padding:8px 9px;
-      font-size:10px;
-    }
-
+    .life-workspace { gap:12px; }
     .life-workspace .finance-nav {
       margin-right:-2px;
       padding-bottom:7px;
     }
-
     .life-workspace .finance-nav button {
       min-height:40px;
       padding:0 11px;
       font-size:10px;
     }
-
-    .life-workspace .page-heading h2 {
-      font-size:24px;
-    }
   }
-
   @media (max-width: 360px) {
-    .life-workspace .finance-header {
-      flex-wrap:wrap;
-    }
-
-    .life-workspace .finance-back {
-      margin-top:2px;
-    }
-
-    .life-workspace .life-shortcuts button {
-      padding:9px;
-    }
+    .life-workspace .finance-header { flex-wrap:wrap; }
   }
 </style>
