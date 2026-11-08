@@ -6,7 +6,7 @@
 
 This is a repository-backed progress snapshot, not a claim that every visible workspace is a complete simulation system. The detailed system specifications below remain authoritative for behavior and acceptance criteria.
 
-- **Weekly simulation:** the annual-action-to-weekly-turn transition is implemented. Date/week calendar, automatic School/Work responsibilities, stamina-based personal activities, deterministic weekly resolution, history, recap, and schema 5 timetable-removal migration are in place.
+- **Weekly simulation:** the annual-action-to-weekly-turn transition is implemented. Date/week calendar, automatic School/Work responsibilities, stamina-based personal activities, deterministic weekly resolution, history, recap, and schema 6 current weekly-plan save baseline are in place.
 - **Education:** playable foundation from school through higher education/professional programmes, with enrollment, automatic attendance/progression, weekly study/assessment tasks, grades, tuition, and qualification records. Localization, licensing, scholarships, retakes, and apprenticeships remain incomplete.
 - **Work:** recruitment, applications, interviews, offers, employment, job changes/resignation, career previews, and player-controlled promotion offers exist. Employer operations, persistent vacancies, workplace decisions, layoffs, benefits, bonuses, and monthly payroll remain incomplete.
 - **Finance:** broad systems exist for accounts, cards, savings, loans, recurring payments, property, investments, business ownership, taxes, credit scoring, and economic indicators. The weekly-to-monthly settlement transition is not complete; salary and household settlement remain annual, a known pacing limitation.
@@ -42,7 +42,7 @@ This is a point-in-time baseline, not a guarantee about later commits. Re-run CI
 - [x] Verify web updates reach the installed app after fresh launch.
 
 ## Milestone 1 — First enjoyable life loop
-Scenario-led character creation with coherent randomized identities; three independent local save slots; readable domain-native workspaces; meaningful age-appropriate activities with costs/consequences; explicit weekly progression; contextual events and life-history entries; three local save slots; reliable save recovery/migration tests; optional sound feedback.
+Scenario-led character creation with coherent randomized identities; three independent local save slots; readable domain-native workspaces; meaningful age-appropriate activities with costs/consequences; explicit weekly progression; contextual events and life-history entries; three local save slots; strict current-schema validation and explicit unsupported-save reset tests; optional sound feedback.
 
 Selectable starting ages are an entry point, not a claim that full childhood, education, retirement, or generational systems are complete.
 
@@ -99,12 +99,12 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Adapt remaining contextual events, deadlines, and delayed consequences to date/week boundaries.
 - [ ] Move recurring payments, employment payroll, and business operating cash flow to explicit monthly/weekly due dates only where supported; retain annual taxes, market updates, and annual reviews at defined annual boundaries. Until then, salary and household settlement remain annual and are a known pacing limitation of the weekly loop.
 - [ ] Prevent duplicate or skipped financial settlement across month/year boundaries; document rounding and payment-failure behavior.
-- [x] Migrate schema 1 single-save and schema 2/3/4 multi-slot saves to the weekly model; preserve valid character records and all three slots, anchor missing calendars without changing displayed age, and retain the original payload as a recovery copy.
-- [x] Add schema 5 timetable-removal migration: preserve planned personal actions and character data, clear legacy school/work time-slot commitments, and stop regenerating them.
+- [x] Establish schema 6 as the sole supported save format with three independent slots, required calendar data, and a strict weekly action plan.
+- [x] Reject unsupported older save formats without mutating their stored bytes; provide an explicit player-confirmed reset path instead of migration adapters.
 - [ ] Add multi-week advancement only after single-week resolution is reliable; it must stop before important decisions, deadlines, events, birthdays, and payment failures.
 - [ ] Complete the concise weekly review, add a monthly Finance statement when monthly settlement is implemented, and keep the annual life review separate from weekly recap.
 
-**Acceptance:** A fresh and migrated save can play several weeks with stamina-limited personal activities, automatic school/work responsibilities, contextual events, and persistent consequences. Month-end and year-end processing occur exactly once. Birthday/age eligibility changes on the correct date. Quiet weeks can be advanced quickly. Scenario tests cover a school-age child, employed adult, unemployed adult, and later-life character. Existing saves and all financial invariants remain intact.
+**Acceptance:** A fresh schema 6 save can play several weeks with stamina-limited personal activities, automatic school/work responsibilities, contextual events, and persistent consequences. Month-end and year-end processing occur exactly once. Birthday/age eligibility changes on the correct date. Quiet weeks can be advanced quickly. Scenario tests cover a school-age child, employed adult, unemployed adult, and later-life character. Current-schema saves and all financial invariants remain intact; older save formats are intentionally unsupported.
 
 ## Milestone 4 — Personal Technology (after weekly time foundation)
 
@@ -137,7 +137,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 **Specification:** [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md). The simulation-first foundation and targeted weekly interaction loop are implemented; lifecycle expansion remains staged. Family is: persistent people, validated kinship/guardianship graph, separate closeness/trust/tension, household/dependency state, and auditable family history.
 
-- [x] Add optional, backward-compatible family graph types and stable player/relative identities.
+- [x] Add current-schema family graph types and stable player/relative identities.
 - [x] Generate a modest family-of-origin context for new characters without assuming a partner or children.
 - [x] Add graph validation for identity, relationship endpoints, duplicate links, parent/guardian cycles, bonds, and history.
 - [x] Add targeted spend-time, reach-out, and conflict-reconciliation interactions with simulation-side age/time validation.
@@ -150,7 +150,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Add estate, inheritance, and generational continuation only after people, assets, dependants, and terminal-life state are reliable.
 - [x] Migrate family interactions from annual actions to stamina-based weekly activity toggles.
 
-**Acceptance:** Family is represented by real people and validated relationships, not a single score. Interactions materially affect the selected relationship and are recorded. Financial support cannot create money or hidden debt. New and legacy saves remain valid. Different family structures and child/adult/later-life scenarios are tested. No unimplemented partner, child, care, death, or inheritance state is shown as fact.
+**Acceptance:** Family is represented by real people and validated relationships, not a single score. Interactions materially affect the selected relationship and are recorded. Financial support cannot create money or hidden debt. Current-schema saves remain valid. Different family structures and child/adult/later-life scenarios are tested. No unimplemented partner, child, care, death, or inheritance state is shown as fact.
 
 ## Milestone 7 — Health, aging, retirement, and later-life economy
 - [x] Add bounded workload/stress/stamina effects and recovery actions; keep health/happiness/fitness connected to weekly outcomes.
