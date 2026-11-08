@@ -1,4 +1,4 @@
-export type ActivityId = 'study' | 'exercise' | 'socialize' | 'work' | 'apply-job' | 'career' | 'healthcare';
+export type ActivityId = 'study' | 'exercise' | 'socialize' | 'work' | 'apply-job' | 'career';
 export type Gender = 'male' | 'female' | 'non-binary';
 export type EducationLevel = 'early-learning' | 'primary' | 'lower-secondary' | 'upper-secondary' | 'vocational' | 'associate' | 'bachelor' | 'master' | 'doctorate' | 'professional-specialist';
 export interface EducationRecord { id: string; level: EducationLevel; institution: string; field?: string; startedAtAge: number; completedAtAge?: number; status: 'enrolled' | 'completed' | 'paused' | 'withdrawn'; }
