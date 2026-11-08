@@ -770,7 +770,7 @@ function getPlannedActivityReward(item: PlannedActivity): string {
   } as Record<ActivityId, string>)[item.activityId as ActivityId] ?? 'Character progression';
 }
 
-function addWeeklyAction(character: Character, activityId: PlannedActivity['activityId'], date: string, startPeriod: DayPeriod, durationBlocks: number, action: PlannedAction, cost: number): ActivityPlanningResult {
+function addWeeklyAction(character: Character, activityId: PlannedActivity['activityId'], date: string, _startPeriod: DayPeriod, _durationBlocks: number, action: PlannedAction, cost: number): ActivityPlanningResult {
   let currentWeek: string;
   let activityWeek: string;
   try {
