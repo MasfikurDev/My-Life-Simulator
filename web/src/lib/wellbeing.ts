@@ -74,7 +74,7 @@ export function resolveWeeklyWellbeing(character: Character, occupiedBlocks: num
   const activeSeverity = conditions.reduce((sum, condition) => sum + condition.severity, 0);
   const next: Character = {
     ...character, stress: nextStress, stamina: nextStamina,
-    health: clamp(character.health + (occupiedBlocks <= 10 ? 1 : 0) + medicationRecovery - (activeSeverity >= 120 ? 2 : activeSeverity >= 70 ? 1 : 0)),
+    health: clamp(character.health + medicationRecovery - (activeSeverity >= 120 ? 2 : activeSeverity >= 70 ? 1 : 0)),
     happiness: clamp(character.happiness + (nextStress >= 85 ? -3 : nextStress >= 70 ? -1 : nextStress <= 35 ? 1 : 0)),
     medicalState: { ...state, conditions, medications, highStressWeeks }
   };
