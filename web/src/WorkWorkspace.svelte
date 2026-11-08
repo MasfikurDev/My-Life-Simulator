@@ -147,11 +147,9 @@
   {:else if activeView === 'career'}
     <section class="work-panel">
       <div class="work-panel-heading"><div><div class="eyebrow">CAREER PROGRESSION</div><h2>{currentRole?.pathName ?? 'Explore career paths'}</h2><p>Career paths are guides, not promises. Estimated salary bands are not job offers.</p></div></div>
-      <label class="path-picker">Career path
-          <select bind:value={selectedPath}>
-            <option value="operations">Operations</option><option value="customer-service">Customer service</option><option value="technology">Technology</option><option value="sales">Sales</option>
-          </select>
-      </label>
+      <div class="path-picker"><span>Choose a career path</span>
+        <GameChoice label="Career path" value={selectedPath} options={[{value:'operations',label:'Operations',detail:'Coordination and management'},{value:'customer-service',label:'Customer service',detail:'Support and communication'},{value:'technology',label:'Technology',detail:'Technical and digital roles'},{value:'sales',label:'Sales',detail:'Business development'}]} onSelect={(path) => selectedPath = path as CareerPathId} columns={2} />
+      </div>
       <div class="career-path">
         {#each careerRoles as role, index (role.id)}
           {@const requirements = getCareerRequirements(character, role)}
