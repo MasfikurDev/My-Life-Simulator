@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { CareActionType, Character } from './lib/types';
   import EmptyState from './components/EmptyState.svelte';
-  import { formatCharacterMoney, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import { formatCharacterMoney, getPlannedActivityStaminaCost, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getWellbeingLoadLabel } from './lib/wellbeing';
   import { getValueColor } from './lib/progression';
   import { buildWeeklySchedule } from './lib/weekly-schedule';
@@ -11,7 +11,9 @@
   const schedule = $derived(character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] });
   const weekStart = $derived(getWeekStart(character.calendar?.currentDate ?? character.year + '-01-01'));
   const occupied = $derived(buildWeeklySchedule(weekStart, schedule).blocks.filter((block) => block.entryId !== null).length);
-  const load = $derived(getWellbeingLoadLabel(occupied));
+  const activityEffort = $derived(Math.ceil(schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaCost(item), 0) / 6));
+  const workload = $derived(Math.min(21, occupied + activityEffort));
+  const load = $derived(getWellbeingLoadLabel(workload));
   const plannedCare = $derived(schedule.activities.filter((item) => item.action?.kind === 'care'));
   function plan(type: CareActionType) {
     const existing = plannedCare.find((item) => item.action?.kind === 'care' && item.action.careType === type);
@@ -33,13 +35,13 @@
 
 <div class="page-heading"><div><div class="eyebrow">BODY · MIND · RECOVERY</div><h1>Health & <em>wellbeing</em></h1><p>Manage your health, energy and pressure. Recovery is part of the weekly plan, not wasted time.</p></div></div>
 <section class="health-overview domain-panel">
-  <div class="health-overview-head"><div><div class="eyebrow">CURRENT CONDITION</div><h2>{load} weekly load</h2><p>{occupied} of 21 periods are reserved by recurring commitments. Personal activities use stamina instead of time slots.</p></div><span class="domain-status">{(character.stress ?? 30) >= 82 ? 'HIGH PRESSURE' : (character.stress ?? 30) >= 60 ? 'ELEVATED' : 'MANAGEABLE'}</span></div>
+  <div class="health-overview-head"><div><div class="eyebrow">CURRENT CONDITION</div><h2>{load} weekly load</h2><p>Estimated workload: {workload}/21 units, including {occupied} recurring-commitment periods and stamina-based personal activities.</p></div><span class="domain-status">{(character.stress ?? 30) >= 82 ? 'HIGH PRESSURE' : (character.stress ?? 30) >= 60 ? 'ELEVATED' : 'MANAGEABLE'}</span></div>
   <div class="health-stat-grid">
     {#each stats as stat}
       <div class="health-stat"><div><span>{stat.label}</span><strong>{Math.round(stat.value)}%</strong></div><div class="meter"><span class:blue={stat.tone !== 'stress'} class:stress-meter={stat.tone === 'stress'} style="width:{stat.value}%;background:{getValueColor(stat.value, stat.inverse)}"></span></div><small>{stat.inverse ? stat.value >= 80 ? 'Critical pressure' : stat.value >= 60 ? 'Elevated pressure' : 'Manageable' : stat.value < 25 ? 'Critical' : stat.value < 45 ? 'Low' : stat.value < 70 ? 'Fair' : 'Strong'}</small></div>
     {/each}
   </div>
-  {#if (character.stress ?? 30) >= 70 || occupied >= 14}
+  {#if (character.stress ?? 30) >= 70 || workload >= 14}
     <div class="health-warning"><strong>Your current load is affecting recovery.</strong><span>Reduce commitments, take a break, exercise gently or seek professional support. Pushing harder can make every task less effective.</span></div>
   {/if}
 </section>
