@@ -6,7 +6,7 @@
 
 This is a repository-backed progress snapshot, not a claim that every visible workspace is a complete simulation system. The detailed system specifications below remain authoritative for behavior and acceptance criteria.
 
-- **Weekly simulation:** the annual-action-to-weekly-turn transition is implemented. Calendar, automatic contextual scheduling, recurring School/Work commitments, deterministic weekly resolution, history, recap, and save migration are in place.
+- **Weekly simulation:** the annual-action-to-weekly-turn transition is implemented. Calendar, recurring School/Work commitments, stamina-based personal activities, deterministic weekly resolution, history, recap, and save migration are in place.
 - **Education:** playable foundation from school through higher education/professional programmes, with enrollment, class commitments, weekly study/assessment tasks, grades, tuition, and qualification records. Localization, licensing, scholarships, retakes, and apprenticeships remain incomplete.
 - **Work:** recruitment, applications, interviews, offers, employment, job changes/resignation, career previews, and player-controlled promotion offers exist. Employer operations, persistent vacancies, workplace decisions, layoffs, benefits, bonuses, and monthly payroll remain incomplete.
 - **Finance:** broad systems exist for accounts, cards, savings, loans, recurring payments, property, investments, business ownership, taxes, credit scoring, and economic indicators. The weekly-to-monthly settlement transition is not complete; salary and household settlement remain annual, a known pacing limitation.
@@ -89,8 +89,8 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 **Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. Personal activities now use stamina rather than individual time slots; recurring school/work commitments continue to reserve the calendar. Weekly review is simulation-backed and deterministic. Remaining work is listed separately below.
 
 - [x] Specify and test pure date helpers: Monday–Sunday week boundaries, month/year rollover, leap years, birthdays, and age calculation.
-- [x] Define a compact schedule model for actual recurring commitments and discretionary free-time blocks; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment adds type-based recurring Work shifts; Education enrollment adds recurring class commitments to the same validated schedule.
-- [x] Add a Schedule review workspace with a seven-day, 21-period grid, recurring commitments, automatic reservations, duration visibility, planned-cost summary, and reservation removal. Routine actions are initiated only from their owning domain.
+- [x] Define a compact calendar model for genuine recurring commitments only; do not simulate every hour. The first model uses three broad periods per day and validates overlaps. Employment adds type-based recurring Work shifts; Education enrollment adds recurring class commitments to the same validated schedule.
+- [x] Add a Schedule review workspace with a seven-day, 21-period grid for recurring commitments, plus a consolidated personal-activity list with stamina/money costs and cancellation. Routine actions are initiated only from their owning domain.
 - [x] Centralize activity eligibility and validate weekly actions, stamina/money costs, and recurring commitment conflicts. Personal activities do not reserve calendar periods.
 - [x] Complete the cutover from annual action tokens across personal activities, family interactions, event choices, business management, and contextual Work actions.
 - [x] Make routine scheduling contextual and automatic across School, Work, Family, Business, Events, and Life; return the chosen date/period to the originating screen and keep the player out of generic date/time forms.
@@ -104,7 +104,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Add multi-week advancement only after single-week resolution is reliable; it must stop before important decisions, deadlines, events, birthdays, and payment failures.
 - [ ] Complete the concise weekly review, add a monthly Finance statement when monthly settlement is implemented, and keep the annual life review separate from weekly recap.
 
-**Acceptance:** A fresh and migrated save can play several weeks with different activity durations, meaningful time conflicts, contextual events, and persistent consequences. Month-end and year-end processing occur exactly once. Birthday/age eligibility changes on the correct date. Quiet weeks can be advanced quickly. Scenario tests cover a school-age child, employed adult, unemployed adult, and later-life character. Existing saves and all financial invariants remain intact.
+**Acceptance:** A fresh and migrated save can play several weeks with stamina-limited personal activities, genuine school/work timetable conflicts, contextual events, and persistent consequences. Month-end and year-end processing occur exactly once. Birthday/age eligibility changes on the correct date. Quiet weeks can be advanced quickly. Scenario tests cover a school-age child, employed adult, unemployed adult, and later-life character. Existing saves and all financial invariants remain intact.
 
 ## Milestone 4 — Personal Technology (after weekly time foundation)
 
