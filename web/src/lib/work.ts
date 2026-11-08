@@ -361,7 +361,7 @@ export function resignFromJob(character: Character): Character {
   if (!character.employment) return character;
   const previous = character.employment;
   let next = {
-    ...next,
+    ...character,
     employment: null,
     careerExperienceYears: getCareerExperience(character),
     promotionOffer: null,
