@@ -1110,6 +1110,12 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     return bonds.length ? bonds.reduce((total, bond) => total + bond.closeness, 0) / bonds.length : undefined;
   };
   addChange('family-closeness', 'Average family closeness', averageBond(character), averageBond(projected));
+  const averageBondMetric = (value: Character, key: 'trust' | 'tension') => {
+    const bonds = value.family?.bonds ?? [];
+    return bonds.length ? bonds.reduce((total, bond) => total + bond[key], 0) / bonds.length : undefined;
+  };
+  addChange('family-trust', 'Average family trust', averageBondMetric(character, 'trust'), averageBondMetric(projected, 'trust'));
+  addChange('family-tension', 'Average family tension', averageBondMetric(character, 'tension'), averageBondMetric(projected, 'tension'));
   const averageBusiness = (value: Character) => {
     const businesses = value.businesses ?? [];
     return businesses.length ? businesses.reduce((total, business) => total + business.performance, 0) / businesses.length : undefined;
