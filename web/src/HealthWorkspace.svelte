@@ -47,6 +47,7 @@
     <article class="health-care-card"><span class="health-care-icon">♡</span><strong>Professional counselling</strong><p>Get structured support for persistent pressure, anxiety or burnout.</p><small>{formatCharacterMoney(character, 90 * (character.currencyScale ?? 1))} · 1 time block</small><button class="secondary-button" disabled={isPlanned('counselling')} onclick={() => plan('counselling')}>{isPlanned('counselling') ? 'Scheduled' : 'Seek support'}</button></article>
     <article class="health-care-card"><span class="health-care-icon">✚</span><strong>Medical check-up</strong><p>Review physical health, diagnose conditions and update a treatment plan.</p><small>{formatCharacterMoney(character, 120 * (character.currencyScale ?? 1))} · 1 time block</small><button class="secondary-button" disabled={isPlanned('medical-checkup')} onclick={() => plan('medical-checkup')}>{isPlanned('medical-checkup') ? 'Scheduled' : 'Book check-up'}</button></article>
   </div>
+  {#if plannedCare.length}<div class="education-planned-list"><strong>Appointments scheduled this week</strong>{#each plannedCare as item}<span>{item.date} · {item.startPeriod} · {item.action?.kind === 'care' ? item.action.careType.replaceAll('-', ' ') : 'Care'}</span>{/each}</div>{/if}
 </section>
 
 <section class="health-conditions-section">
