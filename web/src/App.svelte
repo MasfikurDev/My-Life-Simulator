@@ -207,7 +207,7 @@
     } catch { /* Audio is optional and may be unavailable in a WebView. */ }
   }
   function eventChoicePlanned(choiceId: string) {
-    return (character?.weeklySchedule?.activities ?? []).find((item) => item.action?.kind === 'event' && item.action.choiceId === choiceId);
+    return (character?.weeklyPlan?.activities ?? []).find((item) => item.action?.kind === 'event' && item.action.choiceId === choiceId);
   }
   function chooseLifeEvent(choiceId: string) {
     if (!character) return;
@@ -215,7 +215,7 @@
     if (existing) { persist(removePlannedActivity(character, existing.id)); notify('Decision removed from this week.'); return; }
     const planned = planEventChoiceInNextFreeTime(character, choiceId);
     if (planned.issue) { notify(planned.message ?? 'That decision could not be added.'); return; }
-    const immediate = character.pendingGameEvent?.choices.find((choice) => choice.id === choiceId)?.timeBlocks === 0;
+    const immediate = character.pendingGameEvent?.choices.find((choice) => choice.id === choiceId)?.staminaCost === 0;
     persist(planned.character); playSound('action');
     notify(immediate ? 'Decision recorded.' : 'Decision added to this week.');
   }
@@ -480,9 +480,9 @@
                   <button class="game-event-choice" class:planned={!!eventChoicePlanned(choice.id)} disabled={!eventChoicePlanned(choice.id) && character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
                     <span class="game-event-choice-copy"><strong>{choice.label}</strong><small>{choice.detail}</small></span>
                     <span class="game-event-choice-cost">
-                      {#if choice.timeBlocks > 0}<span>Stamina 5</span>{/if}
+                      {#if choice.staminaCost > 0}<span>Stamina {choice.staminaCost}</span>{/if}
                       {#if choice.moneyCost > 0}<span>{formatCharacterMoney(character, choice.moneyCost)}</span>{/if}
-                      {#if choice.timeBlocks === 0 && choice.moneyCost === 0}<span>Immediate</span>{/if}
+                      {#if choice.staminaCost === 0 && choice.moneyCost === 0}<span>Immediate</span>{/if}
                     </span>
                   </button>
                 {/each}
