@@ -3,9 +3,9 @@ import { enrollInEducation, resolveEducationWeek } from './education';
 import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditProfile, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getActivityDefinition, getActivityStaminaCost, getAvailableActivityIds, getLifeStage, getValueColor } from './progression';
 import { loadPrepaidCard } from './simulation';
-import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
+import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, redeemCardRewards, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
-import { getCareerRole, getJobListings, isEligibleForRole } from './work';
+import { getCareerRole, getJobListings, isEligibleForRole, resolveJobApplication, resolveJobInterview } from './work';
 import { prepareGameEvent, resolveGameEvent } from './events';
 
 describe('life simulation', () => {
@@ -1075,6 +1075,47 @@ describe('life simulation', () => {
     const ids = current.financialTransactions!.map((transaction) => transaction.id);
     expect(ids).toHaveLength(300);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+
+  it('calculates extra-shift earnings from employment, performance and workload and records the income', () => {
+    const worker = {
+      ...createCharacter('Worker', 30),
+      currencyScale: 1,
+      money: 1000,
+      stress: 30,
+      employment: { title: 'Analyst', type: 'full-time' as const, annualSalary: 52000, experienceYears: 1, performance: 100, promotions: 0, startedAtAge: 30 }
+    };
+    const worked = performActivity(worker, 'work');
+    expect(worked.money).toBe(1625);
+    expect(worked.financialTransactions?.[0]).toMatchObject({ type: 'income', amount: 625 });
+    expect(worked.history[0].description).toContain('625');
+  });
+
+  it('filters job listings to the selected career path and explains recruitment rejection reasons', () => {
+    const candidate = { ...createCharacter('Candidate', 30), careerPathId: 'operations' as const, intelligence: 90, careerExperienceYears: 0 };
+    const listings = getJobListings(candidate);
+    expect(listings.length).toBeGreaterThan(0);
+    expect(listings.every((listing) => listing.pathName === 'Operations')).toBe(true);
+    const listing = listings.find((item) => item.roleId === 'operations-assistant')!;
+    const rejected = resolveJobApplication(candidate, listing.id, () => 1);
+    expect(rejected.jobApplications?.[0].status).toBe('rejected');
+    expect(rejected.jobApplications?.[0].outcome).toContain('relevant experience');
+    const invited = resolveJobApplication(candidate, listing.id, () => 0);
+    const interviewRejected = resolveJobInterview(invited, invited.jobApplications![0].id, () => 1);
+    expect(interviewRejected.jobApplications?.[0].status).toBe('rejected');
+    expect(interviewRejected.jobApplications?.[0].outcome).not.toBe('The interview did not lead to an offer.');
+  });
+
+  it('accrues and redeems rewards from prebuilt credit card purchases', () => {
+    const base = { ...createCharacter('Cardholder', 30), currencyScale: 1, money: 1000 };
+    const issued = issueBankCard(base, 'credit', 'Rewards Credit', undefined, 500, { id: 'rewards-credit', minimumCreditScore: 520, minimumAssets: 0, annualInterestRate: 0.18, rewardsRate: 0.02 });
+    const purchased = makeCardPurchase(issued, issued.cards![0].id, 200, 'Groceries');
+    expect(purchased.cards![0].rewardBalance).toBe(4);
+    const redeemed = redeemCardRewards(purchased, purchased.cards![0].id);
+    expect(redeemed.money).toBe(purchased.money + 4);
+    expect(redeemed.cards![0].rewardBalance).toBe(0);
+    expect(redeemed.financialTransactions?.some((transaction) => transaction.type === 'income')).toBe(true);
   });
 
 });

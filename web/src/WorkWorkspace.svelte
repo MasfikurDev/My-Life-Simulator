@@ -8,14 +8,14 @@
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   type WorkView = 'jobs' | 'extra' | 'career' | 'history';
   let activeView = $state<WorkView>('jobs');
-  let selectedPath = $state<CareerPathId>('operations');
+  let selectedPath = $state<CareerPathId>(character.careerPathId ?? 'operations');
   let confirmResignation = $state(false);
 
   const listings = $derived(getJobListings(character));
   const currentRole = $derived(getCareerRole(character.employment?.roleId, character.employment?.title));
   const promotion = $derived(getPromotionReadiness(character));
   const careerRoles = $derived(getCareerPath(selectedPath));
-  $effect(() => { if (currentRole) selectedPath = currentRole.pathId; });
+  $effect(() => { if (character.careerPathId) selectedPath = character.careerPathId; else if (currentRole) selectedPath = currentRole.pathId; });
   const careerEvents = $derived(character.history.filter((item) => /job|work|career|promotion|interview|employment/i.test(item.title + ' ' + item.description)));
   const plannedActivities = $derived(character.weeklyPlan?.activities ?? []);
   function plannedWorkAction(workAction: 'apply' | 'interview', jobId: string) { return plannedActivities.find((item) => item.action?.kind === 'work' && item.action.workAction === workAction && item.action.jobId === jobId); }
@@ -136,7 +136,7 @@
               {/each}
             </div>
             <div class="listing-actions">
-              <button class="work-primary" class:planned={!!plannedWorkAction('apply', listing.id)} disabled={!eligible || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : !eligible ? 'Requirements not met' : plannedWorkAction('apply', listing.id) ? 'Remove application plan' : 'Apply · ' + getActivityStaminaCost('apply-job') + ' stamina'}</button>
+              <button class="work-primary" class:planned={!!plannedWorkAction('apply', listing.id)} disabled={!eligible || alreadyApplied || !!plannedWorkAction('apply', listing.id)} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : !eligible ? 'Requirements not met' : plannedWorkAction('apply', listing.id) ? 'Applied · resolves this week' : 'Apply · ' + getActivityStaminaCost('apply-job') + ' stamina'}</button>
             </div>
           </article>
         {/each}
@@ -153,15 +153,15 @@
   {:else if activeView === 'extra'}
     <section class="work-panel extra-work-panel">
       <div class="eyebrow">EXTRA EARNINGS</div><h2>{character.employment ? 'Additional shift' : 'Casual work'}</h2>
-      <p>Take on optional work for extra income. It uses stamina and can increase stress, so balance it against study, health and personal activities.</p>
-      <div class="work-metrics"><div><span>Weekly stamina cost</span><strong>{getActivityStaminaCost('work')}</strong></div><div><span>Employment</span><strong>{character.employment ? 'Employed' : 'Not employed'}</strong></div></div>
+      <p>Take an additional shift or casual assignment for extra income. Pay reflects your employment, role level, performance and current workload. High stress reduces earnings.</p>
+      <div class="work-metrics"><div><span>Weekly stamina cost</span><strong>{getActivityStaminaCost('work')}</strong></div><div><span>Estimated shift pay</span><strong>{formatCharacterMoney(character, Math.round(Math.max(180 * (character.currencyScale ?? 1), (character.employment?.annualSalary ?? 0) / 52 * 0.5) * (character.employment ? 0.75 + character.employment.performance / 200 : 1) * ((character.stress ?? 30) >= 85 ? 0.6 : (character.stress ?? 30) >= 70 ? 0.8 : 1)))}</strong></div></div>
       <button class="work-secondary" class:planned={!!extraWorkPlan} onclick={planExtraWork}>{extraWorkPlan ? 'Remove from this week' : (character.employment ? 'Add extra shift' : 'Find casual work') + ' · ' + getActivityStaminaCost('work') + ' stamina'}</button>
     </section>
   {:else if activeView === 'career'}
     <section class="work-panel">
       <div class="work-panel-heading"><div><div class="eyebrow">CAREER PROGRESSION</div><h2>{currentRole?.pathName ?? 'Career paths'}</h2></div></div>
       <div class="path-picker"><span>Choose a career path</span>
-        <GameChoice label="Career path" value={selectedPath} options={[{value:'operations',label:'Operations',detail:'Coordination and management'},{value:'customer-service',label:'Customer service',detail:'Support and communication'},{value:'technology',label:'Technology',detail:'Technical and digital roles'},{value:'sales',label:'Sales',detail:'Business development'}]} onSelect={(path) => selectedPath = path as CareerPathId} columns={2} />
+        <GameChoice label="Career path" value={selectedPath} options={[{value:'operations',label:'Operations',detail:'Coordination and management'},{value:'customer-service',label:'Customer service',detail:'Support and communication'},{value:'technology',label:'Technology',detail:'Technical and digital roles'},{value:'sales',label:'Sales',detail:'Business development'}]} onSelect={(path) => { selectedPath = path as CareerPathId; onChange({ ...character, careerPathId: path as CareerPathId }); onNotify('Career path selected. Job opportunities will focus on this path.'); }} columns={2} />
       </div>
       <div class="career-path">
         {#each careerRoles as role, index (role.id)}
@@ -215,7 +215,7 @@
   .work-metrics span{color:var(--muted);font-size:9px}.work-metrics strong{color:var(--text);font-size:15px;overflow-wrap:anywhere}
   .work-note{margin-top:12px!important;font-size:10px!important}
   .current-job-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
-  .extra-work-panel{display:flex;align-items:center;justify-content:space-between;gap:14px}.extra-work-panel h3{margin:3px 0;font-size:14px}.extra-work-panel p{margin:0;font-size:10px;line-height:1.5;color:var(--muted)}.extra-work-panel button{flex:none}
+  .extra-work-panel{display:flex;align-items:center;justify-content:space-between;gap:14px}.extra-work-panel :global(h3){margin:3px 0;font-size:14px}.extra-work-panel p{margin:0;font-size:10px;line-height:1.5;color:var(--muted)}.extra-work-panel button{flex:none}
   .work-primary.planned,.work-secondary.planned{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}.resign-confirm{display:grid;gap:7px;margin-top:12px;padding:12px;border:1px solid var(--danger);border-radius:9px}.resign-confirm strong{color:var(--text);font-size:12px}.resign-confirm p{margin:0}.resign-confirm>div{display:flex;flex-wrap:wrap;gap:7px}
   .work-secondary,.work-primary{min-height:38px;padding:8px 11px;border-radius:8px;font-size:10px;font-weight:700}
   .work-primary{border:1px solid var(--accent);background:var(--accent);color:var(--on-accent)}

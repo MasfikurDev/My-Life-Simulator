@@ -201,7 +201,7 @@ export function tradeInvestment(character: Character, type: InvestmentType, acti
   if (capitalGainsTax > 0) next.financialTransactions = financeRecord(next, 'tax', capitalGainsTax, 'Capital-gains tax on sale of ' + type + '.', 'Cash', 'Tax authority');
   return next;
 }
-export function buyProperty(character: Character, type: PropertyType, name: string, price: number, downPayment: number, annualRate = 0.07, termYears = 20, primaryResidence = false): Character {
+export function buyProperty(character: Character, type: PropertyType, name: string, price: number, downPayment: number, annualRate = 0.07, termYears = 20, primaryResidence = false, marketProfile?: { expectedGrowthRate: number; marketVolatility: number }): Character {
   const value = Math.floor(price), down = Math.floor(downPayment);
   const purchaseFee = Math.ceil(value * 0.01);
   if (character.age < 18 || (character.properties ?? []).length >= 5 || !validAmount(value) || !Number.isSafeInteger(down) || down < Math.ceil(value * 0.2) || down > value || character.money < down + purchaseFee || !Number.isFinite(annualRate) || annualRate < 0 || annualRate > 0.5 || !Number.isInteger(termYears) || termYears < 1 || termYears > 30) return character;
@@ -213,7 +213,7 @@ export function buyProperty(character: Character, type: PropertyType, name: stri
   }
   const mortgage = financed > 0 ? (next.loans ?? [])[Math.max(0, (next.loans ?? []).length - 1)] : undefined;
   const label = name.trim().slice(0, 36) || (type === 'house' ? 'House' : 'Apartment');
-  const property: PropertyAsset = { id: 'property-' + character.year + '-' + character.age + '-' + ((character.properties ?? []).length + 1), name: label, type, marketValue: value, purchasePrice: value, annualMaintenance: Math.max(1, Math.round(value * 0.01)), mortgageLoanId: mortgage?.id, rentedOut: false, annualRentalIncome: 0 };
+  const property: PropertyAsset = { id: 'property-' + character.year + '-' + character.age + '-' + ((character.properties ?? []).length + 1), name: label, type, marketValue: value, purchasePrice: value, annualMaintenance: Math.max(1, Math.round(value * 0.01)), mortgageLoanId: mortgage?.id, rentedOut: false, annualRentalIncome: 0, expectedGrowthRate: marketProfile?.expectedGrowthRate, marketVolatility: marketProfile?.marketVolatility };
   next = { ...next, money: next.money - value - purchaseFee, properties: [...(next.properties ?? []), property], primaryResidenceId: primaryResidence ? property.id : next.primaryResidenceId, rentalHome: primaryResidence ? null : next.rentalHome, history: [...next.history] };
   next.financialTransactions = financeRecord(next, 'property-purchase', value, 'Purchased ' + label + '.', 'Cash and mortgage', label);
   next.financialTransactions = financeRecord(next, 'fee', purchaseFee, 'Property purchase and transfer fees for ' + label + '.', 'Cash', 'Property services');
@@ -320,8 +320,13 @@ function settleAnnualAssets(character: Character): Character {
   const oldPrices = next.marketPrices ?? { stocks: 100 * scale, gold: 150 * scale, lastUpdatedYear: next.year - 1 };
   next = { ...next, marketPrices: { stocks: Math.max(1, Math.round(oldPrices.stocks * (1 + stockMovement))), gold: Math.max(1, Math.round(oldPrices.gold * (1 + goldMovement))), lastUpdatedYear: next.year } };
   if ((next.properties ?? []).length) {
-    const propertyGrowth = Math.max(-0.08, Math.min(0.12, economy.inflationRate * 0.35 + economy.growthRate * 0.45 + 0.005));
-    next = { ...next, properties: (next.properties ?? []).map((property) => ({ ...property, marketValue: Math.max(1, Math.round(property.marketValue * (1 + propertyGrowth))) })) };
+    next = { ...next, properties: (next.properties ?? []).map((property) => {
+      const typeGrowth = property.expectedGrowthRate ?? (property.type === 'house' ? 0.008 : 0.004);
+      const volatility = property.marketVolatility ?? (property.type === 'house' ? 0.018 : 0.012);
+      const marketShock = Math.sin(next.year * 1.37 + property.name.length * 0.21) * volatility;
+      const propertyGrowth = Math.max(-0.08, Math.min(0.12, economy.inflationRate * 0.25 + economy.growthRate * 0.45 + typeGrowth + marketShock));
+      return { ...property, marketValue: Math.max(1, Math.round(property.marketValue * (1 + propertyGrowth))) };
+    }) };
     for (const property of next.properties ?? []) {
       if (property.rentedOut && property.annualRentalIncome > 0) {
         next = { ...next, money: next.money + property.annualRentalIncome };
@@ -330,8 +335,12 @@ function settleAnnualAssets(character: Character): Character {
     }
   }
   for (const business of next.businesses ?? []) {
-    const profitRate = ((business.performance - 50) / 100) * 0.1 + economy.growthRate * 0.35;
+    const profile = business.type === 'retail' ? { base: 0.045, cashCost: 0.018, volatility: 0.035 } : business.type === 'online' ? { base: 0.065, cashCost: 0.008, volatility: 0.075 } : { base: 0.035, cashCost: 0.025, volatility: 0.065 };
+    const marketShock = Math.sin(next.year * 1.83 + business.name.length * 0.17) * profile.volatility;
+    const performanceEffect = ((business.performance - 60) / 100) * 0.08;
+    const profitRate = profile.base - profile.cashCost + performanceEffect + economy.growthRate * 0.35 + marketShock;
     const profit = Math.round(business.investedCapital * profitRate);
+    next = { ...next, businesses: (next.businesses ?? []).map((item) => item.id === business.id ? { ...item, valuation: Math.max(1, Math.round(item.valuation * (1 + profitRate * 0.65))) } : item) };
     if (profit > 0) {
       next = { ...next, money: next.money + profit };
       next.financialTransactions = financeRecord(next, 'business-income', profit, 'Annual operating profit from ' + business.name + '.', business.name, 'Cash');
@@ -352,12 +361,16 @@ function accountExists(character: Character, id?: string): boolean { return !!id
 function updateAccountBalance(character: Character, id: string, delta: number): BankAccount[] {
   return (character.bankAccounts ?? []).map((account) => account.id === id ? { ...account, balance: account.balance + delta } : account);
 }
-export function issueBankCard(character: Character, type: CardType, name: string, linkedAccountId?: string, creditLimit = 0): Character {
+export function issueBankCard(character: Character, type: CardType, name: string, linkedAccountId?: string, creditLimit = 0, product?: { id: string; minimumCreditScore?: number; minimumAssets?: number; annualInterestRate?: number; rewardsRate?: number }): Character {
   if (character.age < (type === 'credit' ? 18 : 16) || (character.cards ?? []).length >= 6) return character;
   if (type === 'debit' && !accountExists(character, linkedAccountId)) return character;
+  if (linkedAccountId && !accountExists(character, linkedAccountId)) return character;
+  if (product && (character.cards ?? []).some((card) => card.productId === product.id)) return character;
   if (type === 'credit' && (!validAmount(creditLimit) || creditLimit > 100000000 || (linkedAccountId && !accountExists(character, linkedAccountId)))) return character;
+  if (product?.minimumCreditScore && getCreditScore(character) < product.minimumCreditScore) return character;
+  if (product?.minimumAssets && getNetWorth(character) < product.minimumAssets) return character;
   const label = name.trim().slice(0, 28) || (type === 'credit' ? 'Credit card' : type === 'prepaid' ? 'Prepaid card' : 'Debit card');
-  const card: BankCard = { id: 'card-' + character.year + '-' + character.age + '-' + ((character.cards ?? []).length + 1), name: label, type, linkedAccountId, creditLimit: type === 'credit' ? creditLimit : 0, balance: 0, annualInterestRate: type === 'credit' ? 0.18 : 0, active: true };
+  const card: BankCard = { id: 'card-' + character.year + '-' + character.age + '-' + ((character.cards ?? []).length + 1), name: label, type, linkedAccountId, creditLimit: type === 'credit' ? creditLimit : 0, balance: 0, annualInterestRate: type === 'credit' ? (product?.annualInterestRate ?? 0.18) : 0, active: true, productId: product?.id, rewardsRate: product?.rewardsRate ?? 0 };
   const next = { ...character, cards: [...(character.cards ?? []), card], history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'card-issued', 0, 'Issued ' + label + '.', 'Bank', label);
   next.history.unshift(event(next, 'Payment card issued', 'You added a ' + type + ' card named ' + label + '.', 'milestone'));
@@ -397,24 +410,36 @@ export function makeCardPurchase(character: Character, cardId: string, amount: n
   const value = Math.floor(amount);
   const card = (character.cards ?? []).find((item) => item.id === cardId && item.active);
   if (!card || !validAmount(value)) return character;
+  const reward = value * (card.rewardsRate ?? 0);
   if (card.type === 'prepaid') {
     if (card.balance < value) return character;
-    const next = { ...character, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance - value } : item), history: [...character.history] };
+    const next = { ...character, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance - value, rewardBalance: (item.rewardBalance ?? 0) + reward } : item), history: [...character.history] };
     next.financialTransactions = financeRecord(next, 'card-purchase', value, description + ' using ' + card.name + '.', card.name, 'Merchant');
     return next;
   }
   if (card.type === 'debit') {
     const account = (character.bankAccounts ?? []).find((item) => item.id === card.linkedAccountId);
     if (!account || account.balance < value) return character;
-    const next = { ...character, bankAccounts: updateAccountBalance(character, account.id, -value), history: [...character.history] };
+    const next = { ...character, bankAccounts: updateAccountBalance(character, account.id, -value), cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, rewardBalance: (item.rewardBalance ?? 0) + reward } : item), history: [...character.history] };
     next.financialTransactions = financeRecord(next, 'card-purchase', value, description + ' using ' + card.name + '.', account.name, 'Merchant');
     return next;
   }
   if (card.balance + value > card.creditLimit) return character;
-  const next = { ...character, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance + value } : item), history: [...character.history] };
+  const next = { ...character, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance + value, rewardBalance: (item.rewardBalance ?? 0) + reward } : item), history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'card-purchase', value, description + ' using ' + card.name + '.', card.name, 'Merchant');
   return next;
 }
+export function redeemCardRewards(character: Character, cardId: string): Character {
+  const card = (character.cards ?? []).find((item) => item.id === cardId && item.active);
+  const accrued = card?.rewardBalance ?? 0;
+  const reward = Math.floor(accrued);
+  if (!card || reward <= 0) return character;
+  const next = { ...character, money: character.money + reward, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, rewardBalance: accrued - reward } : item), history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'income', reward, 'Redeemed rewards from ' + card.name + '.', card.name, 'Cash');
+  next.history.unshift(event(next, 'Card rewards redeemed', formatCharacterMoney(next, reward) + ' in rewards was credited to cash.'));
+  return next;
+}
+
 export function payCreditCard(character: Character, cardId: string, amount: number, source: 'cash' | 'account' = 'cash', sourceId?: string): Character {
   const value = Math.floor(amount);
   const card = (character.cards ?? []).find((item) => item.id === cardId && item.type === 'credit' && item.active);
@@ -1228,11 +1253,15 @@ export function performActivity(character: Character, activity: ActivityId, rand
     case 'work':
       if (next.age < 16) return character;
       const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
-      next.money += Math.round(180 * scale * workEfficiency);
+      const roleFactor = next.employment ? 0.75 + next.employment.performance / 200 : 1;
+      const baseShiftPay = next.employment ? Math.max(180 * scale, next.employment.annualSalary / 52 * 0.5) : 180 * scale;
+      const extraShiftPay = Math.max(1, Math.round(baseShiftPay * roleFactor * workEfficiency));
+      next.money += extraShiftPay;
+      next.financialTransactions = financeRecord(next, 'income', extraShiftPay, 'Extra earnings from an additional work shift.', next.employment?.employer ?? 'Casual employer', 'Cash');
       next.happiness = clamp(next.happiness - 2);
       next.confidence = clamp((next.confidence ?? 50) + 1);
       next.stress = Math.min(100, (next.stress ?? 30) + 3);
-      next.history.unshift(event(next, 'Picked up extra work', 'You earned some money, although it took time and energy.'));
+      next.history.unshift(event(next, 'Picked up extra work', 'You earned ' + formatCharacterMoney(next, extraShiftPay) + ' from an additional shift. Pay reflected your role, performance and workload.'));
       break;
     case 'apply-job': {
       const offeredJob = createEmployment(next);
