@@ -8,7 +8,7 @@
     planBoughtFoodInNextFreeTime
   } from './lib/simulation';
 
-  let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
+  let { character, onChange, onNotify, initialView = 'market' }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifestyleView } = $props();
   type LifestyleView = 'market' | 'subscriptions' | 'owned';
   type MarketProduct = {
     id: string; name: string; category: string; description: string; price: number;
@@ -16,7 +16,7 @@
     staminaRecovery?: number; health?: number; happiness?: number; stress?: number;
   };
   type Provider = { id: string; name: string; plan: string; category: string; price: number; detail: string };
-  let activeView = $state<LifestyleView>('market');
+  const activeView = $derived(initialView);
   let category = $state('All');
   let dialogKind = $state<'food' | 'product' | 'subscription' | null>(null);
   let selectedProductId = $state('');
@@ -143,12 +143,6 @@
     <div><div class="eyebrow">LIFESTYLE · EVERYDAY NEEDS</div><h2>{activeView === 'market' ? 'Market' : activeView === 'subscriptions' ? 'Subscriptions' : 'Owned'}</h2><p>{activeView === 'market' ? 'Buy food and useful things for everyday life.' : activeView === 'subscriptions' ? 'Manage services and recurring memberships.' : 'Your purchased items and personal inventory.'}</p></div>
     {#if activeView === 'subscriptions'}<span class="service-count">{activeSubscriptions.length} ACTIVE</span>{:else if activeView === 'owned'}<span class="service-count">{ownedItems.reduce((sum, item) => sum + item.quantity, 0)} ITEMS</span>{/if}
   </header>
-  <nav class="lifestyle-nav" aria-label="Lifestyle sections">
-    <button class:active={activeView === 'market'} aria-current={activeView === 'market' ? 'page' : undefined} onclick={() => activeView = 'market'}>Market</button>
-    <button class:active={activeView === 'subscriptions'} aria-current={activeView === 'subscriptions' ? 'page' : undefined} onclick={() => activeView = 'subscriptions'}>Subscriptions</button>
-    <button class:active={activeView === 'owned'} aria-current={activeView === 'owned' ? 'page' : undefined} onclick={() => activeView = 'owned'}>Owned</button>
-  </nav>
-
   {#if activeView === 'market'}
     <nav class="market-categories" aria-label="Market categories">
       {#each categories as item}<button class:active={category === item} onclick={() => category = item}>{item}</button>{/each}
