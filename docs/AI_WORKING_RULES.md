@@ -51,6 +51,8 @@ Then inspect relevant source and recent Git history. The repository, not an ephe
 31. Use the canonical life-stage bands in GAMEPLAY_DESIGN.md; age bands are progression rules, not assumptions about an individual's worth or inevitable life path.
 32. Settings must expose a concise chronological game log and a portable, versioned debug snapshot. Export only game state and history required to reproduce a report; never include device identifiers, browser data, credentials, or unrelated settings.
 
+For any change touching two or more gameplay domains, also read `docs/SYSTEM_INTEGRATION_REVIEW.md` before planning. Treat its ownership map, cross-domain contracts, confirmed findings, and staged revision sequence as binding until updated by evidence.
+
 ## Conflict resolution
 Latest explicit user instruction wins for the changed requirement; preserve all other decisions. If ambiguity materially affects architecture, ask one focused question. Record approved changes and consequences in canonical docs/ADRs.
 
