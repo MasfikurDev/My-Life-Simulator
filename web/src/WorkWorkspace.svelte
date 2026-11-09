@@ -137,7 +137,7 @@
               {/each}
             </div>
             <div class="listing-actions">
-              <ActivityStatusSeal status={alreadyApplied ? 'completed' : !eligible ? 'requirements' : plannedWorkAction('apply', listing.id) ? 'planned' : 'available'} />
+              <ActivityStatusSeal status={!role ? 'unavailable' : alreadyApplied ? 'completed' : !eligible ? 'requirements' : plannedWorkAction('apply', listing.id) ? 'planned' : 'available'} />
               <button class="work-primary" disabled={!eligible || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Application submitted' : plannedWorkAction('apply', listing.id) ? 'Remove weekly plan' : 'Apply · ' + getActivityStaminaCost('apply-job') + ' stamina'}</button>
             </div>
           </article>
