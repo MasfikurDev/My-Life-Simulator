@@ -3,6 +3,7 @@
   import { getCareerPath, getCareerRequirements, getCareerRole, getJobListings, getPromotionReadiness, isEligibleForRole } from './lib/work';
   import type { CareerPathId, Character } from './lib/types';
   import GameChoice from './GameChoice.svelte';
+  import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
   import { getActivityStaminaCost } from './lib/progression';
 
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
@@ -113,7 +114,7 @@
       {#each (character.jobApplications ?? []).filter((application) => application.status === 'interview') as application (application.id)}
         <article class="work-listing">
           <div class="listing-main"><div class="eyebrow">{application.employer}</div><h3>{application.title}</h3><p>Your application was shortlisted. Confirm the interview. It uses stamina rather than reserving calendar time.</p></div>
-          <button class="work-primary" class:planned={!!plannedWorkAction('interview', application.id)} onclick={() => planWork('interview', application.id)}>{plannedWorkAction('interview', application.id) ? 'Remove interview plan' : 'Confirm interview · 10 stamina'}</button>
+          <div class="listing-actions"><ActivityStatusSeal status={plannedWorkAction('interview', application.id) ? 'planned' : 'available'} /><button class="work-primary" onclick={() => planWork('interview', application.id)}>{plannedWorkAction('interview', application.id) ? 'Remove interview plan' : 'Confirm interview · 10 stamina'}</button></div>
         </article>
       {/each}
     {/if}
@@ -136,7 +137,8 @@
               {/each}
             </div>
             <div class="listing-actions">
-              <button class="work-primary" class:planned={!!plannedWorkAction('apply', listing.id)} disabled={!eligible || alreadyApplied || !!plannedWorkAction('apply', listing.id)} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : !eligible ? 'Requirements not met' : plannedWorkAction('apply', listing.id) ? 'Applied · resolves this week' : 'Apply · ' + getActivityStaminaCost('apply-job') + ' stamina'}</button>
+              <ActivityStatusSeal status={alreadyApplied ? 'completed' : !eligible ? 'requirements' : plannedWorkAction('apply', listing.id) ? 'planned' : 'available'} />
+              <button class="work-primary" disabled={!eligible || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Application submitted' : plannedWorkAction('apply', listing.id) ? 'Remove weekly plan' : 'Apply · ' + getActivityStaminaCost('apply-job') + ' stamina'}</button>
             </div>
           </article>
         {/each}
