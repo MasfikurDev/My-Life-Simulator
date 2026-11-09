@@ -15,7 +15,7 @@ The weekly gameplay foundation and the annual-action-to-weekly-turn transition a
 
 Still planned: date-based event deadlines and richer event cooldown/content, monthly financial settlement and reporting, broader cross-domain consequences, family lifecycle expansion, deeper chronic-care/insurance/healthcare localization, retirement, mortality, and terminal-life completion. Education has enrollment, automatic attendance/progression, weekly academic tasks and grades; Health has stress/workload, recovery, counselling, check-ups and basic condition/treatment loops. Work has a functional first recruitment/employment/promotion loop, but employer operations and monthly payroll are not complete. Finance has broad banking, debt, property, investment, tax, business, and credit foundations, but recurring financial settlement is still annual. The UI has moved to reusable primitives and semantic theme tokens, with visual QA still ongoing. The complete birth-to-death redesign is not finished.
 
-**Verified focused validation baseline (2026-11-09):** Banking/credit-score PR #97 passed Svelte checking with 0 errors and 0 warnings, 159 tests across 11 files, and the Vite production build. This is a dated PR validation result, not a guarantee about later commits or deployment; re-run the repository workflow after changes.
+**Verified focused validation baseline (2026-11-09):** Banking/credit-score PR #97 passed Svelte checking with 0 errors and 0 warnings, 159 tests across 11 files, and the Vite production build. Main CI run #482 also passed after the PR was integrated. These are dated validation results, not a guarantee about later commits or deployment; re-run the repository workflow after changes.
 
 ## 1. The game we are making
 
