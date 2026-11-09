@@ -17,13 +17,12 @@ This is a repository-backed progress snapshot, not a claim that every visible wo
 
 ### Latest verified validation baseline
 
-The latest inspected successful GitHub Pages workflow (2026-11-08) reported:
-- Svelte check: **0 errors, 19 warnings** across 7 files.
-- Vitest: **150 tests passed** across 10 test files.
+The latest focused validation inspected for Banking/credit-score PR #97 (2026-11-09) reported:
+- Svelte check: **0 errors, 0 warnings**.
+- Vitest: **159 tests passed** across 11 test files.
 - Vite production build: passed.
-- GitHub Pages artifact upload and deployment: passed.
 
-This is a point-in-time baseline, not a guarantee about later commits. Re-run CI after subsequent changes. The workflow also emitted Node.js/dependency deprecation warnings; track these as maintenance, not application test failures.
+This is a point-in-time PR validation baseline, not a guarantee about later commits or deployment. Re-run CI after subsequent changes.
 
 ### Current development priority
 
@@ -76,7 +75,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Add full affordability checks and variable-rate debt.
 - [ ] Add benefits and taxes after household budgets and financial flows are balanced.
 
-- [x] Organize Finance around Banking, Taxes, Property, Investments, and Business; group accounts, cards, loans, savings, and vault inside Banking.
+- [x] Organize Finance around Banking, Business, Property, Investments, and Taxes; group accounts, cards, loans, savings, and vault inside Banking.
 - [x] Add Life → Lifestyle with a provider marketplace, supermarket checkout, owned subscriptions/services, payment-method references, and household costs.
 - [x] Separate School and Work into age-gated, domain-native destinations using existing simulation actions and save fields.
 - [x] Consolidate personal wellbeing, personal growth, personal activities, and complete life history under a modular Life workspace.
