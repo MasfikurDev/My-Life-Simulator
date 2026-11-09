@@ -142,8 +142,14 @@ function createEmployment(character: Character): Employment {
 
 function financeRecord(character: Character, type: FinancialTransaction['type'], amount: number, description: string, from: string, to: string): FinancialTransaction[] {
   const existing = character.financialTransactions ?? [];
+  const prefix = String(character.year) + '-' + String(character.age) + '-';
+  const sequence = existing.reduce((maximum, transaction) => {
+    if (!transaction.id.startsWith(prefix)) return maximum;
+    const suffix = Number(transaction.id.slice(prefix.length));
+    return Number.isSafeInteger(suffix) ? Math.max(maximum, suffix) : maximum;
+  }, 0) + 1;
   const record: FinancialTransaction = {
-    id: String(character.year) + '-' + String(character.age) + '-' + String(existing.length + 1),
+    id: prefix + String(sequence),
     year: character.year, age: character.age, date: character.calendar?.currentDate, type, amount: Math.round(amount), description, from, to
   };
   return [...existing, record].slice(-300);
