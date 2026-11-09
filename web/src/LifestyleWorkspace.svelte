@@ -231,9 +231,9 @@
   .lifestyle-heading h2{font-size:24px;line-height:1.2;letter-spacing:-.7px;margin:3px 0 4px}
   .lifestyle-heading p{font-size:11px;line-height:1.5;color:var(--muted);margin:0}
   .service-count,.market-section-heading>span{font-size:9px;color:var(--muted);white-space:nowrap}
-  .lifestyle-nav,.market-categories{display:flex;gap:6px;overflow-x:auto;padding:2px 0 7px;scrollbar-width:thin}
-  .lifestyle-nav button,.market-categories button{flex:none;min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap}
-  .lifestyle-nav button.active,.market-categories button.active{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 50%,transparent);color:var(--accent)}
+  .market-categories{display:flex;gap:6px;overflow-x:auto;padding:2px 0 7px;scrollbar-width:thin}
+  .market-categories button{flex:none;min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap}
+  .market-categories button.active{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 50%,transparent);color:var(--accent)}
   .market-section,.service-section{padding:13px;border:1px solid var(--line);border-radius:13px;background:var(--surface);display:grid;gap:10px;min-width:0}
   .market-section-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .market-section-heading small{font-size:8px;letter-spacing:.8px;color:var(--muted);font-weight:800}
