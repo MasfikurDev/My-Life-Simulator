@@ -53,7 +53,7 @@ Every major life system must have a distinct, self-contained experience. A paren
 Education, Work, Life, and Finance are distinct top-level workspaces. Education owns programme discovery, enrollment, weekly study/assignment/exam actions, automatic attendance/progression, grades, tuition, and qualification history. Work owns job discovery, applications, interviews, offers, employment, extra earnings, career development, and promotion offers. Life owns wellbeing, Lifestyle, Family, the decision-based Life tree, and Life History. Personal activities remain inside their owning domain rather than becoming a separate top-level destination. All workspaces share the same character, weekly simulation, automatic background responsibilities, and event history without mixing domain-specific controls.
 
 
-Personal Technology is part of everyday life: smartphones, laptops, and desktop PCs can support communication, education, work, creativity, and entertainment. Devices create meaningful purchase, maintenance, and upgrade decisions while remaining optional assets rather than mandatory gates. Their management belongs to its own Life workspace and their purchases use the shared Finance system.
+Personal Technology is a planned part of everyday life: smartphones, laptops, and desktop PCs may support communication, education, work, creativity, and entertainment. Devices should create meaningful purchase, maintenance, and upgrade decisions while remaining optional assets rather than mandatory gates. Do not present device ownership or management as implemented until the corresponding persisted model, gameplay actions, and UI exist.
 
 ## Family as a persistent life system
 
