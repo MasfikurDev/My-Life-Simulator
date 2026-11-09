@@ -364,6 +364,8 @@ function updateAccountBalance(character: Character, id: string, delta: number): 
 export function issueBankCard(character: Character, type: CardType, name: string, linkedAccountId?: string, creditLimit = 0, product?: { id: string; minimumCreditScore?: number; minimumAssets?: number; annualInterestRate?: number; rewardsRate?: number }): Character {
   if (character.age < (type === 'credit' ? 18 : 16) || (character.cards ?? []).length >= 6) return character;
   if (type === 'debit' && !accountExists(character, linkedAccountId)) return character;
+  if (linkedAccountId && !accountExists(character, linkedAccountId)) return character;
+  if (product && (character.cards ?? []).some((card) => card.productId === product.id)) return character;
   if (type === 'credit' && (!validAmount(creditLimit) || creditLimit > 100000000 || (linkedAccountId && !accountExists(character, linkedAccountId)))) return character;
   if (product?.minimumCreditScore && getCreditScore(character) < product.minimumCreditScore) return character;
   if (product?.minimumAssets && getNetWorth(character) < product.minimumAssets) return character;
