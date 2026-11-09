@@ -59,3 +59,11 @@ Personal Technology is part of everyday life: smartphones, laptops, and desktop 
 
 Family is a simulation-owned network of people and relationships across the character's life. It must support varied family structures and optional life paths without assuming marriage, parenthood, or guaranteed support. Family decisions should create meaningful consequences in wellbeing, education, work, time, and finances through explicit cross-domain contracts. The UI is only the domain-native interface to this state. See [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md).
 
+
+
+## UI refinement direction · November 2026
+- Overview activity history groups actions by simulation week in compact expandable groups; the current week is expanded by default.
+- Attributes and progress meters use shared semantic colors for stable, caution, danger, and severe bands. Inverse metrics such as stress reverse the scale, and numeric/status cues remain visible.
+- Work navigation is Jobs, Extra Earnings, Career Path, and Career History. Applications and their statuses live within Jobs; extra shifts/casual work live on their own subpage.
+- Finance Overview removes navigation shortcuts and reports actual portfolio value/holdings, business value/performance, debt, cash, and net worth. Finance navigation order is Banking, Business, Property, Investments, Taxes.
+- Banking presents predefined account and card products with clear fictional terms and Apply/Open actions. Owned products show an Applied state; duplicate acquisition is prevented.
