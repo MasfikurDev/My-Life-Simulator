@@ -90,7 +90,7 @@
           <div><span>Career experience</span><strong>{character.careerExperienceYears ?? character.employment.experienceYears} years</strong></div>
         </div>
         <p class="work-note">Payroll: annual settlement · Monthly pay and benefits: not implemented</p>
-        <div class="current-job-actions"><button class="work-secondary" class:planned={!!developmentPlan} onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · ' + getActivityStaminaCost('career') + ' stamina'}</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
+        <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · ' + getActivityStaminaCost('career') + ' stamina'} <ActivityStatusSeal status={developmentPlan ? 'planned' : 'available'} /></button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
         {#if confirmResignation}<div class="resign-confirm"><strong>Leave {character.employment.title}?</strong><p>You will become unemployed. Your career experience and history will be kept.</p><div><button class="work-primary" onclick={confirmLeaveJob}>Confirm resignation</button><button class="work-secondary" onclick={() => confirmResignation = false}>Keep job</button></div></div>{/if}
       </section>
     {:else}
@@ -157,7 +157,7 @@
       <div class="eyebrow">EXTRA EARNINGS</div><h2>{character.employment ? 'Additional shift' : 'Casual work'}</h2>
       <p>Take an additional shift or casual assignment for extra income. Pay reflects your employment, role level, performance and current workload. High stress reduces earnings.</p>
       <div class="work-metrics"><div><span>Weekly stamina cost</span><strong>{getActivityStaminaCost('work')}</strong></div><div><span>Estimated shift pay</span><strong>{formatCharacterMoney(character, Math.round(Math.max(180 * (character.currencyScale ?? 1), (character.employment?.annualSalary ?? 0) / 52 * 0.5) * (character.employment ? 0.75 + character.employment.performance / 200 : 1) * ((character.stress ?? 30) >= 85 ? 0.6 : (character.stress ?? 30) >= 70 ? 0.8 : 1)))}</strong></div></div>
-      <button class="work-secondary" class:planned={!!extraWorkPlan} onclick={planExtraWork}>{extraWorkPlan ? 'Remove from this week' : (character.employment ? 'Add extra shift' : 'Find casual work') + ' · ' + getActivityStaminaCost('work') + ' stamina'}</button>
+      <button class="work-secondary" onclick={planExtraWork}>{extraWorkPlan ? 'Remove from this week' : (character.employment ? 'Add extra shift' : 'Find casual work') + ' · ' + getActivityStaminaCost('work') + ' stamina'} <ActivityStatusSeal status={extraWorkPlan ? 'planned' : 'available'} /></button>
     </section>
   {:else if activeView === 'career'}
     <section class="work-panel">
