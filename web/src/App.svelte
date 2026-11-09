@@ -313,7 +313,7 @@
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
-        {#each (character ? [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},...(character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'},{id:'finances',label:'Finance',icon:'◈'}] : []),{id:'life',label:'Life',icon:'✳'},{id:'profile',label:'Profile',icon:'◉'}] : [{id:'settings',label:'Settings',icon:'⚙'}]) as item}
+        {#each (character ? [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},...(character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'},{id:'finances',label:'Finance',icon:'◈'}] : []),{id:'life',label:'Lifestyle',icon:'✳'},{id:'profile',label:'Profile',icon:'◉'}] : [{id:'settings',label:'Settings',icon:'⚙'}]) as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => navigateTab(item.id)}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>Active save</strong><small>Slot {activeSlotId.slice(-1)}</small></div></div>{/if}
@@ -533,7 +533,7 @@
                       <div class="review-activity-list">
                         {#each weeklyReview.activities as activity (activity.id)}
                           <article class="review-activity-row">
-                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.reward}</small></div>
+                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.reward}</small>{#if activity.seal}<span class="review-bought-seal">{activity.seal}</span>{/if}</div>
                             <div class="review-activity-cost"><b>{activity.staminaCost ? '−' + activity.staminaCost + ' stamina' : 'No stamina cost'} </b>{#if activity.moneyCost > 0}<small>{formatCharacterMoney(character, activity.moneyCost)}</small>{/if}</div>
                             <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => removeReviewedActivity(activity.id)}>Remove</button>
                           </article>
@@ -662,7 +662,7 @@
   .review-activity-list{display:grid;gap:7px}
   .review-activity-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
   .review-activity-row>div:first-child{display:grid;gap:4px;min-width:0}
-  .review-activity-copy{flex:1}
+  .review-activity-copy{flex:1}\n  .review-bought-seal{justify-self:start;padding:3px 6px;border:1px solid color-mix(in srgb,var(--accent) 48%,transparent);border-radius:5px;background:var(--accent-soft);color:var(--accent);font-size:7px;font-weight:850;letter-spacing:.7px}
   .review-activity-row strong{font-size:11px;color:var(--text)}
   .review-activity-row small{font-size:9px;line-height:1.4;color:var(--muted)}
   .review-activity-cost{flex:none;display:grid;gap:4px;text-align:right}
