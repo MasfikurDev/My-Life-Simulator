@@ -30,7 +30,6 @@
   const accounts = $derived((character.bankAccounts ?? []).filter((account) => account.type !== 'fixed-deposit'));
   const activeSubscriptions = $derived((character.recurringPayments ?? []).filter((item) => item.active && item.category === 'subscription'));
   const ownedItems = $derived(character.ownedLifestyleItems ?? []);
-  const selectedOwnedQuantity = $derived(selectedProduct ? (ownedItems.find((item) => item.productId === selectedProduct.id)?.quantity ?? 0) : 0);
   const products: MarketProduct[] = [
     { id: 'meal-rice', name: 'Rice meal', category: 'Food', description: 'A filling everyday meal', price: 8, kind: 'food', staminaRecovery: 4, happiness: 1 },
     { id: 'meal-eggs', name: 'Eggs & toast', category: 'Food', description: 'Protein and carbohydrates for steady energy', price: 14, kind: 'food', staminaRecovery: 6, health: 1 },
@@ -58,6 +57,7 @@
   ];
   const categories = ['All', 'Food', 'Electronics', 'Transport', 'Books', 'Fitness', 'Accessories', 'Home'];
   const selectedProduct = $derived(products.find((item) => item.id === selectedProductId));
+  const selectedOwnedQuantity = $derived(selectedProduct ? (ownedItems.find((item) => item.productId === selectedProduct.id)?.quantity ?? 0) : 0);
   const selectedProvider = $derived(providers.find((item) => item.id === selectedProviderId));
   const orderQuantity = $derived(Math.max(1, Math.min(20, Math.floor(Number(quantity) || 1))));
   const orderTotal = $derived(selectedProduct ? Math.round(selectedProduct.price * scale) * orderQuantity : 0);
