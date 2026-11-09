@@ -1117,7 +1117,7 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
 .education-task-card:disabled strong,.health-care-card:disabled strong{color:var(--muted)}
 .education-task-card:disabled small,.health-care-card:disabled p,.health-care-card:disabled small{color:var(--muted)}
 .education-task-card:disabled b,.health-care-card:disabled b{color:var(--muted)}
-.education-task-card.planned::after,.health-care-card.planned::after{content:"PLANNED";position:absolute;inset:0;z-index:2;display:grid;place-items:center;pointer-events:none;background:color-mix(in srgb,var(--bg) 58%, transparent);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);border:1px solid color-mix(in srgb,var(--line-strong) 16%, transparent);border-radius:inherit;color:var(--text);font-size:9px;font-weight:850;letter-spacing:1.5px;text-shadow:0 1px 5px var(--shadow-color)}
+/* Status seals are rendered as explicit inline labels; planned cards stay fully readable and actionable. */
 
 .work-secondary.planned,.work-primary.planned,.relative-actions button.planned,.asset-actions button.planned,.education-independent-study button.planned{position:relative;overflow:hidden}
 .work-secondary.planned::after,.work-primary.planned::after,.relative-actions button.planned::after,.asset-actions button.planned::after,.education-independent-study button.planned::after{content:"PLANNED";position:absolute;inset:0;z-index:2;display:grid;place-items:center;pointer-events:none;background:color-mix(in srgb,var(--bg) 58%,transparent);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);border:1px solid color-mix(in srgb,var(--line-strong) 16%,transparent);border-radius:inherit;color:var(--text);font-size:9px;font-weight:850;letter-spacing:1.2px;text-shadow:0 1px 5px var(--shadow-color)}
@@ -1316,3 +1316,15 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
 /* Weekly activity selection states */
 .health-care-card.planned,.education-task-card.planned{border-color:var(--accent)!important;background:var(--accent-soft)!important}
 .health-care-card.planned>b,.education-task-card.planned>b{color:var(--accent)!important}
+
+/* Reusable activity status seals and career progression labels. */
+.career-role-status{display:flex;flex-wrap:wrap;align-items:center;gap:7px;min-width:0}
+.health-care-card>.activity-status-seal,.education-task-card>.activity-status-seal{margin-top:1px}
+.review-planned-summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:7px}
+@media(max-width:420px){
+  .review-activity-row{flex-wrap:wrap}
+  .review-activity-copy{flex:1 1 calc(100% - 100px)}
+  .review-activity-cost{margin-left:auto}
+  .review-remove-button{margin-left:auto}
+  .review-planned-totals{gap:6px}
+}
