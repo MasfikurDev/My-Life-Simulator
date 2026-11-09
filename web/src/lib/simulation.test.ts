@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { enrollInEducation, resolveEducationWeek } from './education';
-import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditProfile, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getActivityDefinition, getActivityStaminaCost, getAvailableActivityIds, getLifeStage, getValueColor } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
@@ -19,12 +19,13 @@ describe('life simulation', () => {
     expect(canAffordActivity({ ...adult, money: 3499 }, 'study')).toBe(false);
   });
   it('uses semantic threshold colors for normal and inverse progress values', () => {
-    expect(getValueColor(15)).toBe('var(--coral)');
-    expect(getValueColor(35)).toBe('var(--amber)');
-    expect(getValueColor(55)).toBe('var(--accent)');
-    expect(getValueColor(85)).toBe('var(--green)');
+    expect(getValueColor(10)).toBe('var(--danger)');
+    expect(getValueColor(20)).toBe('var(--coral)');
+    expect(getValueColor(40)).toBe('var(--warning)');
+    expect(getValueColor(60)).toBe('var(--info)');
+    expect(getValueColor(85)).toBe('var(--success)');
     expect(getValueColor(85, true)).toBe('var(--coral)');
-    expect(getValueColor(20, true)).toBe('var(--green)');
+    expect(getValueColor(20, true)).toBe('var(--success)');
     expect(getActivityStaminaCost('exercise')).toBe(10);
   });
   it('defines stamina costs without timetable metadata', () => {
@@ -996,6 +997,22 @@ describe('life simulation', () => {
     const paid = { ...base, financialTransactions: [{ id: 'paid-1', year: 1, age: 30, type: 'loan-payment' as const, amount: 100, description: 'Installment paid', from: 'Cash', to: 'Lender' }] };
     expect(getCreditScore(paid)).toBe(702);
   });
+  it('exposes a readable credit profile with utilization, payment history and debt', () => {
+    const base = { ...createCharacter('Credit profile', 30), currencyScale: 1, lastYearIncome: 50000 };
+    const card = issueBankCard(base, 'credit', 'Everyday credit', undefined, 1000);
+    const used = makeCardPurchase(card, card.cards![0].id, 250);
+    const profile = getCreditProfile(used);
+    expect(profile.score).toBe(getCreditScore(used));
+    expect(profile.utilization).toBe(25);
+    expect(profile.creditLimit).toBe(1000);
+    expect(profile.creditBalance).toBe(250);
+    expect(profile.rating).toBe('Good');
+    expect(profile.debtToIncome).toBe(1);
+    expect(profile.hasCreditHistory).toBe(true);
+    const missed = { ...used, financialTransactions: [...(used.financialTransactions ?? []), { id: 'missed-1', year: 1, age: 30, type: 'expense' as const, amount: 0, description: 'Missed minimum payment for Everyday credit.', from: 'Cash', to: 'Bank' }] };
+    expect(getCreditProfile(missed).missedPayments).toBe(1);
+  });
+
   it('sets score-based minimum loan rates and rejects unaffordable credit pricing', () => {
     const base = { ...createCharacter('Borrower', 30), currencyScale: 1, money: 1000 };
     expect(getMinimumLoanRate(base, 'personal')).toBe(0.09);

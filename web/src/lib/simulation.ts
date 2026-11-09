@@ -441,6 +441,22 @@ export function getCreditScore(character: Character): number {
   const taxPenalty = Math.min(60, Math.floor((character.taxBalance ?? 0) / Math.max(1, 1000 * (character.currencyScale ?? 1))) * 2);
   return Math.max(300, Math.min(850, 700 + Math.min(30, successfulPayments * 2) - Math.min(245, missed * 35) - utilizationPenalty - debtPenalty - taxPenalty));
 }
+export function getCreditProfile(character: Character) {
+  const transactions = character.financialTransactions ?? [];
+  const missedPayments = transactions.filter((item) => item.type === 'expense' && /missed (loan installment|minimum payment)/i.test(item.description)).length;
+  const successfulPayments = transactions.filter((item) => item.type === 'loan-payment' || item.type === 'card-payment').length;
+  const creditCards = (character.cards ?? []).filter((card) => card.active && card.type === 'credit');
+  const creditLimit = creditCards.reduce((sum, card) => sum + card.creditLimit, 0);
+  const creditBalance = creditCards.reduce((sum, card) => sum + card.balance, 0);
+  const utilization = creditLimit > 0 ? Math.round((creditBalance / creditLimit) * 100) : 0;
+  const totalDebt = (character.loans ?? []).filter((loan) => loan.active).reduce((sum, loan) => sum + loan.balance, 0) + creditBalance;
+  const annualIncome = character.lastYearIncome ?? character.employment?.annualSalary ?? 0;
+  const debtToIncome = annualIncome > 0 ? Math.round((totalDebt / annualIncome) * 100) : null;
+  const score = getCreditScore(character);
+  const rating = score >= 800 ? 'Excellent' : score >= 740 ? 'Very good' : score >= 680 ? 'Good' : score >= 620 ? 'Fair' : score >= 560 ? 'Poor' : 'Very poor';
+  return { score, rating, utilization, creditLimit, creditBalance, totalDebt, debtToIncome, missedPayments, successfulPayments, hasCreditHistory: creditCards.length > 0 || (character.loans ?? []).length > 0 || transactions.some((item) => item.type === 'loan-payment' || item.type === 'card-payment') };
+}
+
 export function getMinimumLoanRate(character: Character, type: LoanType): number {
   const base = type === 'mortgage' ? 0.065 : type === 'business' ? 0.11 : 0.09;
   const score = getCreditScore(character);
