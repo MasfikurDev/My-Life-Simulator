@@ -68,7 +68,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add predefined bank-card products with credit-score/asset eligibility, APR, rewards and redeemable purchase rewards.
 - [x] Add personal, mortgage, and business loan products with annual interest, scheduled installments, and extra repayments.
 - [x] Add housing/property ownership, mortgages, rental choices, rental income, maintenance and sale, plus predefined property opportunities with differentiated appreciation, volatility and rental-yield profiles.
-- [x] Add stock-index and gold trading with simulated price movement, open-position performance and transparent trading costs, plus predefined small-business opportunities with differentiated operating profiles and management.
+- [x] Add multi-asset trading for a broad market index, technology and energy shares, government bonds with annual coupons, and gold; include simulated price movement, open positions, brokerage and realized-gain tax, plus predefined small-business opportunities with differentiated operating profiles and management.
 - [x] Add bounded economic cycles, inflation, growth and benchmark-rate indicators; link inflation to living costs, subscriptions, rental agreements, and market valuations.
 - [x] Add simplified progressive income tax, rental/business income tax, annual property levy, and carried unpaid tax liability.
 - [x] Add a simplified 300–850 credit score using payment history, utilization, debt and unpaid taxes; price personal, mortgage and business loans from the score.
