@@ -176,7 +176,7 @@ The top-level Life destination is a modular UI workspace, not a new simulation s
 
 ## Banking and Lifestyle ownership
 
-- `FinanceWorkspace.svelte` owns only Finance-level destinations: Banking, Taxes, Property, Investments, and Business.
+- `FinanceWorkspace.svelte` owns only Finance-level destinations: Banking, Business, Property, Investments, and Taxes, in that order.
 - `FinanceAccounts.svelte` is the Banking shell and owns internal Accounts, Cards, Loans, and Savings & vault sections. It composes the existing `FinanceProducts.svelte` views for card, loan, and savings/vault operations.
 - `LifeWorkspace.svelte` owns the Lifestyle destination and composes `LifestyleWorkspace.svelte`.
 - `LifestyleWorkspace.svelte` provides Discover, My services, and Home. Discover uses existing recurring-payment actions for provider subscriptions and simulation purchase actions for supermarket checkouts. My services reads the existing `recurringPayments`, `cards`, and `financialTransactions` state; it does not maintain duplicate records. Home reuses `FinanceLivingCosts.svelte` for household arrangement and budget settings. Emergency savings goals are owned by the Banking savings section in `FinanceProducts.svelte`.
