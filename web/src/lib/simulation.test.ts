@@ -1013,6 +1013,14 @@ describe('life simulation', () => {
     expect(getCreditProfile(missed).missedPayments).toBe(1);
   });
 
+  it('records rejected loan applications and reduces credit standing', () => {
+    const base = createCharacter('Applicant', 30);
+    const rejected = rejectLoanApplication(base, 'Income is too low.');
+    expect(getCreditScore(rejected)).toBe(getCreditScore(base) - 25);
+    expect(getCreditProfile(rejected).rejectedApplications).toBe(1);
+    expect(rejected.history[0].title).toBe('Loan application rejected');
+  });
+
   it('sets score-based minimum loan rates and rejects unaffordable credit pricing', () => {
     const base = { ...createCharacter('Borrower', 30), currencyScale: 1, money: 1000 };
     expect(getMinimumLoanRate(base, 'personal')).toBe(0.09);
