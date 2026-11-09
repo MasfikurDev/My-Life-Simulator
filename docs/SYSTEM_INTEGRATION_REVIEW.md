@@ -55,13 +55,13 @@ The supplied debug snapshot uses `formatVersion: 2`. That is the debug-export en
 
 ## Confirmed issues and work status
 
-### Fixed in the current integration-foundation branch
+### Implemented on main (integration foundation, PR #93)
 
 - **Event costs bypassed the financial ledger.** `resolveGameEvent` deducted choice money directly and only wrote narrative history. A player could spend money on an event without seeing the expense in financial activity or weekly/yearly financial reporting.
 - **Delayed event money bypassed the financial ledger.** Money effects from scheduled consequences changed cash without a corresponding income/expense record.
 - **Financial transaction IDs could collide after the rolling ledger reached 300 records.** IDs used the current array length; once capped, later transactions in the same year/age reused the same suffix.
 
-The branch adds event cost/reward ledger entries with stable event/consequence identifiers, prevents event money effects from taking cash below zero, and derives transaction sequence numbers from retained IDs. Regression tests cover the event expense, delayed reward, and ledger-cap boundary.
+These event-cost and delayed-reward ledger entries, non-negative-cash protections, and ledger-cap-safe transaction IDs are present on `main`. The earlier branch-specific work was integrated; treat these contracts as implemented and preserve their regression coverage.
 
 ### Confirmed follow-up audit items
 
@@ -69,6 +69,7 @@ The branch adds event cost/reward ledger entries with stable event/consequence i
 - **Weekly-plan validation is incomplete as a domain boundary.** It checks action kinds and selected payload fields, but the full numeric/range constraints and all action-specific invariants need a centralized audit. A malformed nested payload must not survive until weekly resolution.
 - **Simulation orchestration and financial operations are concentrated in `simulation.ts`.** Character generation, weekly resolution, banking, cards, loans, assets, annual settlement, and finance calculations share a large module. Refactor by extracting stable domain ownership incrementally; do not perform a risky all-at-once rewrite.
 - **Annual settlement has many interacting subsystems.** Income, household costs, auto-deposits, recurring payments, loans, credit cards, tax, interest, rental income, business results, economic updates and asset valuation need an explicit tested order and exactly-once period guards. The current cadence remains annual. Monthly payroll/bills are not to be implied until implemented.
+- **Government-bond coupon basis needs correction.** `settleAnnualAssets` currently calculates the 4% coupon from units multiplied by the current market price. A conventional fixed-rate coupon should be calculated from face/par value, not a fluctuating secondary-market price. Add explicit face-value semantics and exact-amount, multi-year, ledger, and balance tests before treating coupon accounting as complete.
 - **Education and activity history need semantic verification.** A study session, assignment, and exam must remain distinguishable in history and recap. Validate that weekly study targets, task points, enrollment weeks, attendance, grade changes and qualification awards agree.
 - **Family and household semantics need validation.** The family graph, household-member IDs, dependency IDs, guardian links, and Character household arrangement must remain separate but consistent. Do not assume a family-supported arrangement means every relative lives in the household, or that co-residence automatically means financial support.
 - **Event cadence is intentionally sparse today.** Event preparation is currently year-scoped and the authored starter catalogue is small. Improve contextual triggers, deadlines and follow-through without forcing a random filler event every week.
@@ -91,13 +92,13 @@ The branch adds event cost/reward ledger entries with stable event/consequence i
 
 Each stage is a focused pull request with domain tests and integrated regression coverage. Do not merge a broad rewrite without evidence.
 
-1. **Financial event integrity — started in this branch.** Record event costs and delayed financial rewards; guarantee transaction ID uniqueness at the ledger cap.
-2. **Persistence and domain validation.** Add complete nested validators for Character, calendar, weekly actions, family graph, education, employment, events and financial products. Validate cross-references and prove rejected saves remain untouched.
+1. **Financial event integrity — implemented on main (PR #93).** Preserve event cost/reward ledger entries, non-negative-cash protections, and unique transaction IDs at the rolling-ledger cap.
+2. **Persistence and domain validation.** Add complete nested validators for Character, calendar, weekly actions, family graph, education, employment, events and financial products. Validate cross-references and prove rejected saves remain untouched. Current `storage.ts` still performs only partial nested validation.
 3. **Simulation transaction boundaries.** Audit all mutating commands for atomic failure behavior, unique action IDs, duplicate execution, and explicit domain ownership.
 4. **Weekly coordinator and wellbeing.** Verify the exact order of automatic education/work responsibilities, selected activities, care actions, workload, grades, health, stamina and recap. Ensure preview and actual resolution share one resolver.
 5. **Education ↔ Work.** Verify prerequisite chains, completed qualifications, fields/categories, role eligibility, application/interview timing, offers, resignation, promotions and actual payroll.
 6. **Family ↔ Household ↔ Finance ↔ Health.** Validate kinship, guardianship, co-residence, dependency, support, household budgets and future care contracts without assuming any of them from another.
-7. **Finance ↔ Lifestyle ↔ Assets ↔ Economy ↔ Tax.** Audit every operation against a balance-sheet invariant, recurring payment source, failed-payment behavior, interest, asset valuation, tax and net-worth calculation. Keep the annual cadence until a separately tested monthly cadence is approved and implemented.
+7. **Finance ↔ Lifestyle ↔ Assets ↔ Economy ↔ Tax.** Audit every operation against a balance-sheet invariant, recurring payment source, failed-payment behavior, interest, asset valuation, tax and net-worth calculation. Include the bond coupon face-value correction. Keep the annual cadence until a separately tested monthly cadence is approved and implemented.
 8. **Events ↔ every domain.** Add contextual triggers, due dates, expiry, follow-up chains and domain-owned effects; preserve sparse quiet weeks and deterministic outcomes.
 9. **Life-stage coverage.** Review childhood through later life for eligibility, meaningful choices, system availability, education/work transitions, household changes and missing terminal-life mechanics. Do not claim retirement, mortality, inheritance or legacy until complete.
 10. **Integrated scenario suite.** Add deterministic multi-week and multi-year scenarios for child/student, teen student-worker, university student, employed adult, job seeker, family-supported adult, independent household, caregiver when implemented, business/property owner, and later-life character. Assert state, money, ledger, history, dates, and persistence after each transition.
