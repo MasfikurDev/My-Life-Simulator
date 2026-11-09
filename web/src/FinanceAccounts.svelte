@@ -125,13 +125,6 @@
 
 .credit-profile{display:grid;gap:10px;padding:13px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .credit-profile summary{list-style:none;cursor:pointer}.credit-profile summary::-webkit-details-marker{display:none}.credit-summary{display:flex;align-items:center;justify-content:space-between;gap:10px}.credit-summary>span:first-child{display:grid;gap:3px}.credit-summary strong{font-size:14px}.credit-summary em{font-size:10px;font-style:normal;color:var(--success)}.credit-summary-hint{font-size:10px;color:var(--muted)}
-.credit-profile-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.credit-profile-heading>div:first-child{display:grid;gap:3px}
-.credit-profile-heading small,.credit-factors small,.credit-rate-hint{font-size:10px;color:var(--muted)}
-.credit-profile-heading h3{font-size:16px;margin:0}
-.credit-rating{font-size:11px;color:var(--success);font-weight:700}
-.credit-score{text-align:right;display:grid;gap:0}
-.credit-score strong{font-size:28px;line-height:1;font-variant-numeric:tabular-nums}
 .credit-score-track{height:8px;border-radius:99px;background:var(--surface-raised);overflow:hidden}
 .credit-score-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--danger),var(--warning),var(--success));transition:width .2s ease}
 .credit-score-scale{display:flex;justify-content:space-between;color:var(--muted);font-size:9px}
