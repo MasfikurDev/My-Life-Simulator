@@ -75,7 +75,7 @@
     {#if accounts.length === 0 && character.age < 16}<EmptyState title="Banking unlocks at age 16" description="Available account products will appear here when your character is eligible." />{/if}
   </div>
   {#if accountDialogOpen && selected}
-    <section class="account-dialog" role="dialog" aria-modal="false" aria-label={selected.name + ' account'}>
+    <dialog open class="account-dialog" aria-label={selected.name + ' account'}>
       <div class="account-dialog-heading"><div><small>ACCOUNT DETAILS</small><h3>{selected.name}</h3><strong>{formatCharacterMoney(character, selected.balance)}</strong></div><button class="quiet" onclick={() => accountDialogOpen = false}>Close</button></div>
       <p class="hint">{selected.type === 'fixed-deposit' ? 'Fixed deposits are locked until maturity. Withdrawals and outgoing payments are unavailable before maturity.' : selected.type === 'savings' ? 'Savings account · 2% annual interest. Transfers and withdrawals are available.' : 'Everyday account · instant access for transfers, withdrawals and recurring payments.'}</p>
       {#if selected.type !== 'fixed-deposit'}
@@ -99,7 +99,7 @@
       {:else}
         <small class="hint">Maturity year: {selected.maturesAtYear}. This account cannot be selected for automatic payments or outgoing transfers before maturity.</small>
       {/if}
-    </section>
+    </dialog>
   {/if}
   {#if notice}<p class="notice" role="status">{notice}</p>{/if}
   <div class="transactions"><h3>Recent money activity</h3>{#if transactions.length === 0}<EmptyState title="No money activity recorded" description="Deposits, withdrawals, transfers, income and interest appear here." />{:else}{#each transactions as transaction}<div class="transaction"><div><strong>{transaction.description}</strong><small>Age {transaction.age} · {transaction.year} · {transaction.from} → {transaction.to}</small></div><b>{transaction.amount ? formatCharacterMoney(character, transaction.amount) : '—'}</b></div>{/each}{/if}</div>
