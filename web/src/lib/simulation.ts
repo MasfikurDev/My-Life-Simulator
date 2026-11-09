@@ -481,6 +481,7 @@ export function payCreditCard(character: Character, cardId: string, amount: numb
 export function getCreditScore(character: Character): number {
   const transactions = character.financialTransactions ?? [];
   const missed = transactions.filter((item) => item.type === 'expense' && /missed/i.test(item.description)).length;
+  const rejectedApplications = transactions.filter((item) => item.type === 'expense' && /loan application rejected/i.test(item.description)).length;
   const successfulPayments = transactions.filter((item) => item.type === 'loan-payment' || item.type === 'card-payment').length;
   const creditCards = (character.cards ?? []).filter((card) => card.active && card.type === 'credit');
   const totalLimit = creditCards.reduce((sum, card) => sum + card.creditLimit, 0);
@@ -492,11 +493,12 @@ export function getCreditScore(character: Character): number {
   const utilizationPenalty = utilization > 0.3 ? Math.min(120, Math.round((utilization - 0.3) * 170)) : 0;
   const debtPenalty = debtRatio > 2 ? Math.min(80, Math.round((debtRatio - 2) * 20)) : 0;
   const taxPenalty = Math.min(60, Math.floor((character.taxBalance ?? 0) / Math.max(1, 1000 * (character.currencyScale ?? 1))) * 2);
-  return Math.max(300, Math.min(850, 700 + Math.min(30, successfulPayments * 2) - Math.min(245, missed * 35) - utilizationPenalty - debtPenalty - taxPenalty));
+  return Math.max(300, Math.min(850, 700 + Math.min(30, successfulPayments * 2) - Math.min(245, missed * 35) - Math.min(100, rejectedApplications * 25) - utilizationPenalty - debtPenalty - taxPenalty));
 }
 export function getCreditProfile(character: Character) {
   const transactions = character.financialTransactions ?? [];
   const missedPayments = transactions.filter((item) => item.type === 'expense' && /missed (loan installment|minimum payment)/i.test(item.description)).length;
+  const rejectedApplications = transactions.filter((item) => item.type === 'expense' && /loan application rejected/i.test(item.description)).length;
   const successfulPayments = transactions.filter((item) => item.type === 'loan-payment' || item.type === 'card-payment').length;
   const creditCards = (character.cards ?? []).filter((card) => card.active && card.type === 'credit');
   const creditLimit = creditCards.reduce((sum, card) => sum + card.creditLimit, 0);
@@ -507,7 +509,7 @@ export function getCreditProfile(character: Character) {
   const debtToIncome = annualIncome > 0 ? Math.round((totalDebt / annualIncome) * 100) : null;
   const score = getCreditScore(character);
   const rating = score >= 800 ? 'Excellent' : score >= 740 ? 'Very good' : score >= 680 ? 'Good' : score >= 620 ? 'Fair' : score >= 560 ? 'Poor' : 'Very poor';
-  return { score, rating, utilization, creditLimit, creditBalance, totalDebt, debtToIncome, missedPayments, successfulPayments, hasCreditHistory: creditCards.length > 0 || (character.loans ?? []).length > 0 || transactions.some((item) => item.type === 'loan-payment' || item.type === 'card-payment') };
+  return { score, rating, utilization, creditLimit, creditBalance, totalDebt, debtToIncome, missedPayments, rejectedApplications, successfulPayments, hasCreditHistory: creditCards.length > 0 || (character.loans ?? []).length > 0 || transactions.some((item) => item.type === 'loan-payment' || item.type === 'card-payment') };
 }
 
 export function getMinimumLoanRate(character: Character, type: LoanType): number {
@@ -515,6 +517,14 @@ export function getMinimumLoanRate(character: Character, type: LoanType): number
   const score = getCreditScore(character);
   const adjustment = score >= 800 ? -0.02 : score >= 740 ? -0.01 : score >= 680 ? 0 : score >= 620 ? 0.03 : score >= 560 ? 0.06 : 0.1;
   return Math.max(0.04, Math.min(0.4, base + adjustment));
+}
+
+export function rejectLoanApplication(character: Character, reason: string): Character {
+  const detail = reason.trim().slice(0, 180) || 'The application did not meet lender criteria.';
+  const next = { ...character, history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'expense', 0, 'Loan application rejected: ' + detail, 'Applicant', 'Lender');
+  next.history.unshift(event(next, 'Loan application rejected', detail + ' Credit score decreased by 25 points.', 'warning'));
+  return next;
 }
 
 export function takeLoan(character: Character, type: LoanType, name: string, principal: number, annualInterestRate: number, termYears: number, paymentAccountId?: string): Character {
