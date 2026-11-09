@@ -82,6 +82,7 @@ The same run included Node.js/dependency deprecation notices. These are maintena
 
 ## Canonical documents
 
+- [System integration review](SYSTEM_INTEGRATION_REVIEW.md) — system ownership, cross-domain dependencies, confirmed integration defects, and staged revision acceptance criteria.
 - [Roadmap](ROADMAP.md) — milestones, acceptance criteria, and implementation order.
 - [Gameplay loop](GAMEPLAY_LOOP.md) — calendar, weekly scheduling, turn resolution, and connected gameplay.
 - [Family system](FAMILY_SYSTEM.md) — people, relationships, lifecycle, and cross-system contracts.
