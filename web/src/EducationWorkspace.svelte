@@ -74,7 +74,7 @@
   <section class="education-intro domain-panel">
     <div class="education-independent-study">
       <div><strong>Independent study</strong><p>Build intelligence, focus and discipline without enrolling in a programme.</p><small>{getActivityStaminaCost('study')} stamina · {character.age >= 16 ? formatCharacterMoney(character, getActivityCost(character, 'study')) : 'No direct fee'}</small></div>
-      <button class:planned={!!independentStudy} onclick={toggleIndependentStudy}>{independentStudy ? 'Remove from this week' : 'Add study'}</button>
+      <button onclick={toggleIndependentStudy}>{independentStudy ? 'Remove from this week' : 'Add study'} <ActivityStatusSeal status={independentStudy ? 'planned' : 'available'} /></button>
     </div>
     <h2>Available programmes</h2>
     {#if programs.length}
