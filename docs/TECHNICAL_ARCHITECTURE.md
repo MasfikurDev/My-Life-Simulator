@@ -114,7 +114,7 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 - Property, rental-home, investment-holding, market-price, and business state is represented in the current character schema when applicable.
 - Mortgage-financed property acquisition issues an equal loan liability and asset value; the down payment is cash outflow. Property sale pays off the linked mortgage before proceeds return to cash.
 - Rental income and business operating results are posted to the financial ledger. Property maintenance is included in the annual housing budget. Property appreciation and market movements update asset values during year advancement.
-- Stock-index and gold holdings use whole units and current simulated prices. Trading moves cash to/from asset value. Market price updates are deterministic per simulated year to keep saves and tests reproducible while still allowing gains and losses.
+- Market holdings use whole units and current simulated prices for a broad index, technology shares, energy shares, government bonds, and gold. Trading moves cash to/from asset value, records brokerage and realized-gain tax, and government bonds post a 4% annual coupon. Market price updates are deterministic per simulated year to keep saves and tests reproducible while still allowing gains and losses.
 - Business startup moves cash into business valuation; operating profit/loss changes cash, and management consumes an action plus a cash cost.
 - Net worth includes all modeled asset classes and subtracts loan and credit-card liabilities.
 

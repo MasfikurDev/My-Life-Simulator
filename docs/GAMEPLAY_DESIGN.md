@@ -140,7 +140,7 @@ The settings page provides a concise recent-log view backed by the character's c
 ## Macroeconomic conditions and inflation
 - Each simulated year advances a compact economy model with an expansion, stable, or recession cycle; inflation, economic growth, and a benchmark interest rate are shown in the finance area.
 - Inflation changes the cost-of-living index, recurring bill/subscription amounts, and rental agreements. Deflation is possible but bounded. Household costs use the cost index rather than silently ignoring changing prices.
-- Market movements respond to the economic cycle: broad stock-index holdings react more strongly to growth and downturns; gold reacts more to inflation and can still lose value. Property appreciation responds to both inflation and growth. Business operating results respond to economic growth as well as management performance.
+- Market movements respond to the economic cycle: broad index holdings follow growth and downturns; technology and energy shares have higher sector volatility; government bonds have lower price volatility and pay a 4% annual coupon, with prices reacting inversely to benchmark rates; gold reacts more to inflation and can still lose value. Property appreciation responds to its selected growth/volatility profile and macro conditions. Business operating results respond to growth, business model, cash intensity, volatility, and management performance.
 - Economic conditions are deterministic for a given simulated year/age so saves and tests remain reproducible. Rates and returns are simplified fictional game mechanics, not financial advice or real market forecasts. Detailed monetary policy and variable-rate debt remain future work.
 
 ## Simplified taxation

@@ -166,7 +166,13 @@ export function getNetWorth(character: Character): number {
 
 export function getMarketPrice(character: Character, type: InvestmentType): number {
   const scale = character.currencyScale ?? 1;
-  return Math.max(1, Math.round(type === 'gold' ? (character.marketPrices?.gold ?? 150 * scale) : (character.marketPrices?.stocks ?? 100 * scale)));
+  const prices = character.marketPrices;
+  const value = type === 'gold' ? prices?.gold ?? 150 * scale
+    : type === 'technology-stock' ? prices?.technology ?? 125 * scale
+    : type === 'energy-stock' ? prices?.energy ?? 85 * scale
+    : type === 'government-bond' ? prices?.bonds ?? 100 * scale
+    : prices?.stocks ?? 100 * scale;
+  return Math.max(1, Math.round(value));
 }
 export function tradeInvestment(character: Character, type: InvestmentType, action: 'buy' | 'sell', units: number): Character {
   const quantity = Math.floor(units);
@@ -317,8 +323,30 @@ function settleAnnualAssets(character: Character): Character {
   const goldNoise = Math.sin(next.year * 3.17 + next.age * 1.7) * 0.035;
   const stockMovement = Math.max(-0.35, Math.min(0.3, economy.growthRate * 1.35 + stockNoise));
   const goldMovement = Math.max(-0.12, Math.min(0.2, economy.inflationRate * 0.75 - economy.growthRate * 0.15 + goldNoise));
+  const technologyNoise = Math.sin(next.year * 5.31 + next.age * 2.41) * 0.18;
+  const energyNoise = Math.sin(next.year * 2.71 + next.age * 4.13) * 0.14;
+  const bondNoise = Math.sin(next.year * 1.91 + next.age * 0.83) * 0.018;
+  const technologyMovement = Math.max(-0.5, Math.min(0.4, economy.growthRate * 1.6 + technologyNoise));
+  const energyMovement = Math.max(-0.4, Math.min(0.35, economy.growthRate * 0.8 - economy.inflationRate * 0.1 + energyNoise));
+  const bondMovement = Math.max(-0.08, Math.min(0.08, (0.035 - economy.baseInterestRate) * 0.35 + bondNoise));
   const oldPrices = next.marketPrices ?? { stocks: 100 * scale, gold: 150 * scale, lastUpdatedYear: next.year - 1 };
-  next = { ...next, marketPrices: { stocks: Math.max(1, Math.round(oldPrices.stocks * (1 + stockMovement))), gold: Math.max(1, Math.round(oldPrices.gold * (1 + goldMovement))), lastUpdatedYear: next.year } };
+  const marketPrices = {
+    stocks: Math.max(1, Math.round(oldPrices.stocks * (1 + stockMovement))),
+    technology: Math.max(1, Math.round((oldPrices.technology ?? 125 * scale) * (1 + technologyMovement))),
+    energy: Math.max(1, Math.round((oldPrices.energy ?? 85 * scale) * (1 + energyMovement))),
+    bonds: Math.max(1, Math.round((oldPrices.bonds ?? 100 * scale) * (1 + bondMovement))),
+    gold: Math.max(1, Math.round(oldPrices.gold * (1 + goldMovement))),
+    lastUpdatedYear: next.year
+  };
+  next = { ...next, marketPrices };
+  const bondHoldings = (next.investments ?? []).filter((holding) => holding.type === 'government-bond');
+  for (const holding of bondHoldings) {
+    const coupon = Math.round(holding.units * marketPrices.bonds * 0.04);
+    if (coupon > 0) {
+      next = { ...next, money: next.money + coupon };
+      next.financialTransactions = financeRecord(next, 'income', coupon, 'Annual 4% coupon income from government bonds.', 'Government bond', 'Cash');
+    }
+  }
   if ((next.properties ?? []).length) {
     next = { ...next, properties: (next.properties ?? []).map((property) => {
       const typeGrowth = property.expectedGrowthRate ?? (property.type === 'house' ? 0.008 : 0.004);
