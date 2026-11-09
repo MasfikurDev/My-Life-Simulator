@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { enrollInEducation, resolveEducationWeek } from './education';
-import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditProfile, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, getPlannedActivityStaminaRecovery, planBoughtFoodInNextFreeTime, addOwnedLifestyleItem, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditProfile, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getActivityDefinition, getActivityStaminaCost, getAvailableActivityIds, getLifeStage, getValueColor } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, redeemCardRewards, repayLoan, rejectLoanApplication, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
@@ -125,6 +125,38 @@ describe('life simulation', () => {
     expect(resolved.character.stamina).toBe(66);
   });
 
+  it('plans bought food with no stamina cost and applies its effects only when the week resolves', () => {
+    const base = { ...createCharacter('Food buyer', 30), stamina: 35, health: 50, happiness: 50, stress: 40, money: 100, currencyScale: 1 };
+    const planned = planBoughtFoodInNextFreeTime(base, {
+      productId: 'balanced-meal', name: 'Balanced meal', quantity: 1,
+      staminaRecovery: 8, health: 2, happiness: 3, stress: 2
+    });
+    expect(planned.issue).toBeNull();
+    expect(planned.plannedActivity).toMatchObject({ activityId: 'food', action: { kind: 'food', productId: 'balanced-meal', name: 'Balanced meal' } });
+    expect(getPlannedActivityStaminaCost(planned.plannedActivity!)).toBe(0);
+    expect(getPlannedActivityStaminaRecovery(planned.plannedActivity!)).toBe(8);
+    expect(planned.character.health).toBe(base.health);
+    expect(planned.character.happiness).toBe(base.happiness);
+    const review = getWeeklyActivityReview(planned.character);
+    expect(review.activities[0]).toMatchObject({ seal: 'BOUGHT', staminaCost: 0, moneyCost: 0 });
+    expect(review.staminaRecovery).toBe(8);
+    const resolved = advanceWeek(planned.character);
+    expect(resolved.issue).toBeNull();
+    expect(resolved.character.health).toBeGreaterThan(base.health);
+    expect(resolved.character.happiness).toBeGreaterThan(base.happiness);
+    expect(resolved.character.stamina).toBeGreaterThan(base.stamina);
+    expect(resolved.character.weeklyPlan.activities).toHaveLength(0);
+  });
+  it('adds durable Lifestyle purchases to Owned inventory and stacks matching products', () => {
+    const base = createCharacter('Collector', 30);
+    const first = addOwnedLifestyleItem(base, { productId: 'phone-basic', name: 'Everyday smartphone', category: 'Electronics', description: 'A practical phone', quantity: 1, kind: 'permanent' });
+    expect(first.ownedLifestyleItems).toHaveLength(1);
+    expect(first.ownedLifestyleItems![0]).toMatchObject({ productId: 'phone-basic', quantity: 1, kind: 'permanent' });
+    const second = addOwnedLifestyleItem(first, { productId: 'phone-basic', name: 'Everyday smartphone', category: 'Electronics', description: 'A practical phone', quantity: 2, kind: 'permanent' });
+    expect(second.ownedLifestyleItems).toHaveLength(1);
+    expect(second.ownedLifestyleItems![0].quantity).toBe(3);
+    expect(base.ownedLifestyleItems).toBeUndefined();
+  });
   it('resolves a planned week once, charges costs, clears reservations and advances exactly seven days', () => {
     const base = { ...createCharacter('Weekly', 30), money: 100, currencyScale: 1, stress: 20, stamina: 80 };
     const planned = planActivity(base, 'study', '2026-01-05');
