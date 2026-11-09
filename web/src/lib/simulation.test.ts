@@ -144,7 +144,9 @@ describe('life simulation', () => {
     expect(resolved.issue).toBeNull();
     expect(resolved.character.health).toBeGreaterThan(base.health);
     expect(resolved.character.happiness).toBeGreaterThan(base.happiness);
+    expect(resolved.character.stress).toBeLessThan(base.stress);
     expect(resolved.character.stamina).toBeGreaterThan(base.stamina);
+    expect(resolved.character.ownedLifestyleItems).toBeUndefined();
     expect(resolved.character.weeklyPlan.activities).toHaveLength(0);
   });
   it('adds durable Lifestyle purchases to Owned inventory and stacks matching products', () => {
