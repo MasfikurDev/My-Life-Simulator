@@ -128,7 +128,7 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 70. Before calling a milestone playable, test multiple years as a player—not only isolated functions. Include different ages and financial conditions, verify delayed consequences, replay determinism, save/load continuity, and terminal-state behavior when implemented.
 
 
-71. **Weekly time model is live and canonical:** one simulated week is the playable time unit; months own recurring finance/reporting cadence; years own birthdays, annual settlement, life-stage progression, and long-term reviews. The old annual-action system has been retired.
+71. **Weekly time model is live and canonical:** one simulated week is the playable time unit; monthly recurring finance/reporting cadence remains planned; current settlement is annual; years own birthdays, annual settlement, life-stage progression, and long-term reviews. The old annual-action system has been retired.
 72. Never impose a universal weekly action quota. Personal activities are toggled for the current week and consume stamina; they do not reserve calendar periods. No personal timetable or day/period reservations exist. Education and employment are automatic background responsibilities; do not simulate every hour or require filling every day.
 73. Education and Work own their education/employment records and automatic weekly progression. They do not create time-slot reservations. Never claim attendance/work participation unless the corresponding domain state supports it. Unimplemented domains must not invent commitments.
 74. Weekly time advancement is always explicit and deterministic. Screen visits, background time, app inactivity, save/load, and wall-clock time never advance the simulation.
