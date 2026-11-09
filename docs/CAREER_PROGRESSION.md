@@ -94,7 +94,7 @@ Keep compensation transparent and consistent with Finance:
 - Promotion, job change, offer acceptance, resignation, bonus payment, and payroll events must be recorded in history and use the shared financial transaction path where money changes.
 - Do not double-count bonuses in salary previews or payroll.
 
-The existing weekly gameplay direction remains authoritative: the week is the playable unit, months own recurring finance/reporting cadence, and years own long-term life progression. Employment type contributes to automatic background workload without assigning shifts or periods. Education enrollment records a programme and progresses automatically each week without class timetable reservations; country-specific term calendars and attendance exceptions remain future work.
+The existing weekly gameplay direction remains authoritative: the week is the playable unit, monthly recurring finance/reporting cadence remains planned; current settlement is annual, and years own long-term life progression. Employment type contributes to automatic background workload without assigning shifts or periods. Education enrollment records a programme and progresses automatically each week without class timetable reservations; country-specific term calendars and attendance exceptions remain future work.
 
 ## Domain boundaries
 
