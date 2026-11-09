@@ -149,7 +149,7 @@ export function getJobListings(character: Character): JobListing[] {
   const eligibleAge = CAREER_ROLES.filter((role) => character.age >= role.minAge && character.age <= role.maxAge);
   const candidates = eligibleAge.filter((role) => {
     const currentRole = getCareerRole(character.employment?.roleId, character.employment?.title);
-    return !currentRole || role.id !== currentRole.id;
+    return (!currentRole || role.id !== currentRole.id) && (!character.careerPathId || role.pathId === character.careerPathId);
   });
   if (!candidates.length) return [];
   const random = seeded(character.name + '|' + character.age + '|' + week + '|' + character.country);
@@ -230,6 +230,37 @@ export function createPromotionOffer(character: Character, issuedAt: string): Pr
   };
 }
 
+function getApplicationRejectionReason(character: Character, role: CareerRole): string {
+  const experience = getCareerExperience(character);
+  const performance = character.employment?.performance ?? 55;
+  const stress = character.stress ?? 30;
+  const weakSkills = [
+    { value: character.intelligence - role.minIntelligence, reason: 'The employer selected candidates with stronger role-related knowledge.' },
+    { value: (character.socialSkills ?? 50) - (role.minSocialSkills ?? 0), reason: 'The employer prioritized stronger communication and customer-facing skills.' },
+    { value: (character.focus ?? 50) - (role.minFocus ?? 0), reason: 'The employer prioritized candidates with stronger focus and attention to detail.' },
+    { value: (character.confidence ?? 50) - (role.minConfidence ?? 0), reason: 'The employer wanted stronger confidence for the responsibilities of this role.' },
+    { value: (character.discipline ?? 50) - (role.minDiscipline ?? 0), reason: 'The employer prioritized stronger consistency and discipline.' },
+    { value: (character.creativity ?? 50) - (role.minCreativity ?? 0), reason: 'The employer prioritized stronger creative problem-solving.' }
+  ].filter((item) => item.value >= 0).sort((a, b) => a.value - b.value);
+  if (experience < role.minExperienceYears + 2) return 'Your experience met the minimum, but other applicants had more directly relevant experience.';
+  if (performance < 65) return 'Your employment performance record was not as competitive as the shortlisted candidates.';
+  if (stress >= 75) return 'Your current workload and stress may have affected the strength of your application.';
+  return weakSkills[0]?.reason ?? 'The employer selected another candidate whose recent experience was a closer match.';
+}
+
+function getInterviewRejectionReason(character: Character, role: CareerRole): string {
+  const factors = [
+    { score: character.socialSkills ?? 50, reason: 'The interview feedback identified communication and relationship-building as areas to strengthen.' },
+    { score: character.confidence ?? 50, reason: 'The interview feedback indicated that your examples and answers lacked confidence.' },
+    { score: character.focus ?? 50, reason: 'The interview feedback suggested that your answers needed clearer structure and attention to detail.' },
+    { score: character.intelligence, reason: 'The interview panel wanted stronger role-specific problem-solving examples.' },
+    { score: 100 - (character.stress ?? 30), reason: 'The interview panel felt that pressure affected the clarity of your responses.' }
+  ].sort((a, b) => a.score - b.score);
+  if (character.employment && character.employment.performance < 60) return 'The employer was not fully convinced by your recent workplace performance.';
+  if (getCareerExperience(character) < role.minExperienceYears + 1) return 'The panel chose a candidate with more directly relevant experience.';
+  return factors[0].reason;
+}
+
 export function resolveJobApplication(character: Character, listingId: string, random: () => number): Character {
   const listing = getJobListings(character).find((job) => job.id === listingId);
   if (!listing || (character.jobApplications ?? []).some((application) => application.listingId === listingId)) return character;
@@ -250,7 +281,7 @@ export function resolveJobApplication(character: Character, listingId: string, r
     annualSalary: listing.annualSalary,
     appliedAt: character.calendar?.currentDate ?? character.year + '-01-01',
     status: invited ? 'interview' : 'rejected',
-    outcome: invited ? 'Your application was shortlisted. Schedule an interview to continue.' : 'The employer selected other candidates. You can build experience and try another opening.'
+    outcome: invited ? 'Your application passed the initial screening. Confirm the interview to continue.' : getApplicationRejectionReason(character, role)
   };
   const next = { ...character, jobApplications: [...(character.jobApplications ?? []), application], history: [...character.history] };
   next.history.unshift({
@@ -273,7 +304,9 @@ export function resolveJobInterview(character: Character, applicationId: string,
   const performance = character.employment?.performance ?? 55;
   const qualification = character.education === 'Higher education' ? 0.12 : 0;
   const personality = (character.personality ?? []).some((trait) => trait === 'Ambitious' || trait === 'Disciplined') ? 0.06 : 0;
-  const chance = Math.max(0.2, Math.min(0.9, 0.48 + (character.intelligence - 50) / 300 + (performance - 50) / 500 + qualification + personality));
+  const communication = ((character.socialSkills ?? 50) - 50) / 500 + ((character.confidence ?? 50) - 50) / 600;
+  const readiness = ((character.focus ?? 50) - 50) / 700 - Math.max(0, (character.stress ?? 30) - 60) / 500;
+  const chance = Math.max(0.15, Math.min(0.92, 0.48 + (character.intelligence - 50) / 300 + (performance - 50) / 500 + qualification + personality + communication + readiness));
   const passed = random() < chance;
   const issuedAt = character.calendar?.currentDate ?? character.year + '-01-01';
   const offer: JobOffer | null = passed ? {
@@ -288,7 +321,7 @@ export function resolveJobInterview(character: Character, applicationId: string,
     expiresAt: addCalendarDays(issuedAt, 14)
   } : null;
   const applications = (character.jobApplications ?? []).map((item) => item.id === application.id
-    ? { ...item, status: passed ? 'offered' as const : 'rejected' as const, outcome: passed ? 'The interview went well. You have received an offer.' : 'The interview did not lead to an offer.' }
+    ? { ...item, status: passed ? 'offered' as const : 'rejected' as const, outcome: passed ? 'The interview went well. You have received an offer.' : role ? getInterviewRejectionReason(character, role) : 'The employer selected another candidate.' }
     : item);
   const next = {
     ...character,
@@ -302,7 +335,7 @@ export function resolveJobInterview(character: Character, applicationId: string,
     age: character.age,
     date: character.calendar?.currentDate ?? String(character.year) + '-01-01',
     title: passed ? 'Job offer received' : 'Interview unsuccessful',
-    description: passed ? application.employer + ' offered you the ' + application.title + ' role at ' + formatSalary(character, application.annualSalary) + ' per year.' : 'The interview with ' + application.employer + ' was unsuccessful.',
+    description: passed ? application.employer + ' offered you the ' + application.title + ' role at ' + formatSalary(character, application.annualSalary) + ' per year.' : 'The interview with ' + application.employer + ' was unsuccessful. ' + (role ? getInterviewRejectionReason(character, role) : 'Another candidate was selected.'),
     kind: passed ? 'milestone' : 'activity'
   });
   return next;
