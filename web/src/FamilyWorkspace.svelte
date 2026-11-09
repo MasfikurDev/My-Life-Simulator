@@ -12,10 +12,10 @@
   const errors = $derived(family ? validateFamilyState(family) : []);
   const livingCount = $derived(connections.filter((item) => item.living).length);
   function interactionPlanned(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
-    return (character.weeklySchedule?.activities ?? []).some((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
+    return (character.weeklyPlan?.activities ?? []).some((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
   }
   function interact(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
-    const existing = (character.weeklySchedule?.activities ?? []).find((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
+    const existing = (character.weeklyPlan?.activities ?? []).find((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
     if (existing) { onChange(removePlannedActivity(character, existing.id)); feedback = 'Interaction removed from this week.'; return; }
     const planned = planFamilyInteractionInNextFreeTime(character, personId, action, supportAmount);
     if (planned.issue) { feedback = planned.message ?? 'That interaction could not be added.'; return; }

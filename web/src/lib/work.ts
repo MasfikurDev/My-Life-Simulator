@@ -313,12 +313,6 @@ function formatSalary(character: Character, amount: number): string {
   return currency + ' ' + Math.round(amount).toLocaleString('en-US');
 }
 
-/** Legacy adapter: employment is now a background responsibility, never a calendar reservation. */
-export function syncEmploymentCommitments(character: Character, _employment: Employment | null): Character {
-  const schedule = character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] };
-  return { ...character, weeklySchedule: { ...schedule, commitments: [] } };
-}
-
 export function acceptJobOffer(character: Character, offerId: string): Character {
   const offer = (character.jobOffers ?? []).find((item) => item.id === offerId);
   const today = character.calendar?.currentDate ?? character.year + '-01-01';
@@ -350,7 +344,6 @@ export function acceptJobOffer(character: Character, offerId: string): Character
       : item.status === 'offered' ? { ...item, status: 'declined' as const, outcome: 'You accepted another job offer.' } : item),
     history: [...character.history]
   };
-  next = syncEmploymentCommitments(next, employment);
   next.history.unshift({
     id: 'job-start-' + offer.id,
     year: character.year,
@@ -367,14 +360,12 @@ export function acceptJobOffer(character: Character, offerId: string): Character
 export function resignFromJob(character: Character): Character {
   if (!character.employment) return character;
   const previous = character.employment;
-  const schedule = character.weeklySchedule;
-  let next = syncEmploymentCommitments(character, null);
-  next = {
-    ...next,
+  let next = {
+    ...character,
     employment: null,
     careerExperienceYears: getCareerExperience(character),
     promotionOffer: null,
-    weeklySchedule: next.weeklySchedule ? { ...next.weeklySchedule, activities: next.weeklySchedule.activities.filter((item) => !(item.activityId === 'career' && item.action?.kind !== 'work')) } : schedule,
+    weeklyPlan: { ...character.weeklyPlan, activities: character.weeklyPlan.activities.filter((item) => !(item.activityId === 'career' && item.action.kind !== 'work')) },
     history: [...character.history]
   };
   next.history.unshift({

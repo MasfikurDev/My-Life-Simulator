@@ -53,12 +53,6 @@ export function getAvailableEducationPrograms(character: Character): EducationPr
 export function getEducationProgram(programId: string): EducationProgram | undefined {
   return EDUCATION_PROGRAMS.find((program) => program.id === programId);
 }
-function createClassCommitments(): { commitments: []; issue: null } {
-  // Education remains an automatic weekly responsibility; no player-facing
-  // class timetable or time-slot allocation is created.
-  return { commitments: [], issue: null };
-}
-
 export function enrollInEducation(character: Character, programId: string, field: string): { character: Character; issue: string | null } {
   const program = getEducationProgram(programId);
   if (!program || !getAvailableEducationPrograms(character).some((item) => item.id === programId)) return { character, issue: 'This programme is not available at your current age or education level.' };
@@ -68,8 +62,6 @@ export function enrollInEducation(character: Character, programId: string, field
   const tuition = Math.round(program.tuition * scale);
   if (character.money < tuition) return { character, issue: 'You cannot afford the programme tuition right now.' };
   const id = program.id + '-' + (character.calendar?.currentDate ?? character.year + '-01-01');
-  const planned = createClassCommitments();
-  if (planned.issue) return { character, issue: planned.issue };
   const enrollment: EducationEnrollment = {
     recordId: id, status: 'enrolled', programId, institution: program.institutionType, level: program.level, field, startedAtAge: character.age,
     tuitionPaid: tuition, weeksCompleted: 0, totalWeeks: program.durationWeeks, grade: 65, attendance: 100,
@@ -79,7 +71,6 @@ export function enrollInEducation(character: Character, programId: string, field
       ['Core theory', field, 'Practical work']).map((name, index) => ({ id: 'subject-' + index, name, grade: 65 }))
   };
   const record: EducationRecord = { id, level: program.level, institution: program.institutionType, field, startedAtAge: character.age, status: 'enrolled' };
-  const schedule = character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] };
   const next: Character = {
     ...character, money: character.money - tuition, educationEnrollment: enrollment,
     educationRecords: [...(character.educationRecords ?? []), record],
@@ -88,7 +79,6 @@ export function enrollInEducation(character: Character, programId: string, field
       year: character.year, age: character.age, date: character.calendar?.currentDate, type: 'expense' as const, amount: tuition,
       description: 'Education tuition · ' + program.title, from: 'Cash', to: program.institutionType
     }].slice(-300) : character.financialTransactions,
-    weeklySchedule: { ...schedule, commitments: [...schedule.commitments.filter((item) => item.domain !== 'school'), ...planned.commitments] },
     education: program.level === 'early-learning' ? 'Early learning' : program.level === 'primary' ? 'Primary education' : program.level === 'lower-secondary' || program.level === 'upper-secondary' ? 'Secondary education' : program.title
   };
   next.history = [{ id: 'education-enrol-' + id, age: next.age, year: next.year, date: next.calendar?.currentDate ?? next.year + '-01-01', kind: 'milestone', title: 'Enrolled in ' + program.title, description: 'Started ' + field + ' at ' + program.institutionType + '.', }, ...next.history];
@@ -100,15 +90,11 @@ export function resumeEducation(character: Character): { character: Character; i
   if (!enrollment || enrollment.status !== 'paused') return { character, issue: 'There is no paused programme to resume.' };
   const program = getEducationProgram(enrollment.programId);
   if (!program) return { character, issue: 'This programme is no longer available.' };
-  const planned = createClassCommitments();
-  if (planned.issue) return { character, issue: planned.issue };
-  const schedule = character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] };
   return {
     character: {
       ...character,
       educationEnrollment: { ...enrollment, status: 'enrolled' },
       educationRecords: (character.educationRecords ?? []).map((record) => record.id === enrollment.recordId ? { ...record, status: 'enrolled' } : record),
-      weeklySchedule: { ...schedule, commitments: [...schedule.commitments.filter((item) => item.domain !== 'school'), ...planned.commitments] }
     },
     issue: null
   };
@@ -121,7 +107,7 @@ export function pauseEducation(character: Character): Character {
     ...character,
     educationEnrollment: { ...enrollment, status: 'paused' },
     educationRecords: (character.educationRecords ?? []).map((record) => record.id === enrollment.recordId ? { ...record, status: 'paused' } : record),
-    weeklySchedule: { ...(character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] }), commitments: (character.weeklySchedule?.commitments ?? []).filter((item) => item.domain !== 'school'), activities: (character.weeklySchedule?.activities ?? []).filter((item) => item.action?.kind !== 'education') }
+    weeklyPlan: { ...character.weeklyPlan, activities: character.weeklyPlan.activities.filter((item) => item.action.kind !== 'education') }
   };
 }
 
@@ -158,7 +144,7 @@ export function resolveEducationWeek(character: Character, tasks: EducationTaskT
       category: enrollment.level === 'vocational' ? 'diploma' : enrollment.programId === 'professional-certificate' ? 'certificate' : enrollment.level === 'professional-specialist' ? 'professional' : 'degree',
       issuer: enrollment.institution, field: enrollment.field, awardedAtAge: character.age
     });
-    const next: Character = { ...character, educationEnrollment: null, educationRecords: records, academicHistory: [...(character.academicHistory ?? []), result], qualifications, weeklySchedule: { ...(character.weeklySchedule ?? { version: 1 as const, commitments: [], activities: [] }), commitments: (character.weeklySchedule?.commitments ?? []).filter((item) => item.domain !== 'school') } };
+    const next: Character = { ...character, educationEnrollment: null, educationRecords: records, academicHistory: [...(character.academicHistory ?? []), result], qualifications };
     next.history = [{ id: 'education-result-' + result.programId + '-' + next.year + '-' + next.academicHistory!.length, age: next.age, year: next.year, date: next.calendar?.currentDate ?? weekStart, kind: 'milestone', title: outcome === 'completed' ? 'Completed ' + result.level + ' education' : 'Did not complete ' + result.level + ' education', description: 'Final grade: ' + grade + '%. ' + (outcome === 'completed' ? 'A qualification was awarded.' : 'The programme was not passed; a future retake or alternative route remains possible.'), }, ...next.history];
     recap.push(outcome === 'completed' ? 'Education programme completed and qualification awarded.' : 'Education programme ended without a passing grade.');
     return { character: next, recap };

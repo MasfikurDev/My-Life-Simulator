@@ -2,7 +2,7 @@ import type { Character, SaveSlotId } from './types';
 
 export interface GameDebugSnapshot {
   format: 'my-life-simulator-debug';
-  formatVersion: 1;
+  formatVersion: 2;
   exportedAt: string;
   saveSlotId: SaveSlotId;
   character: Character;
@@ -14,7 +14,7 @@ export function createGameDebugSnapshot(character: Character, saveSlotId: SaveSl
   // instead of structuredClone, which may be missing in older Android WebViews.
   return {
     format: 'my-life-simulator-debug',
-    formatVersion: 1,
+    formatVersion: 2,
     exportedAt: now.toISOString(),
     saveSlotId,
     character: JSON.parse(JSON.stringify(character)) as Character

@@ -148,7 +148,7 @@ export interface GameEventChoice {
   id: string;
   label: string;
   detail: string;
-  timeBlocks: number;
+  staminaCost: number;
   moneyCost: number;
   effects: GameEventEffects;
   familyBondEffect?: FamilyBondEffect;
@@ -214,46 +214,31 @@ export interface GameCalendar {
   /** ISO 8601 date of birth; age is derived from this and currentDate. */
   birthDate: string;
 }
-export type Weekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
-export type DayPeriod = 'morning' | 'afternoon' | 'evening';
-export type ScheduleDomain = 'school' | 'work' | 'healthcare' | 'household' | 'other';
-export interface WeeklyCommitment {
-  id: string;
-  title: string;
-  domain: ScheduleDomain;
-  weekday: Weekday;
-  startPeriod: DayPeriod;
-  durationBlocks: number;
-}
 export type PlannedAction =
   | { kind: 'activity' }
   | { kind: 'family'; personId: string; interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support'; supportAmount?: number }
   | { kind: 'business'; businessId: string }
-  | { kind: 'event'; eventId: string; choiceId: string }
+  | { kind: 'event'; eventId: string; choiceId: string; staminaCost: number }
   | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string }
   | { kind: 'education'; taskType: EducationTaskType }
   | { kind: 'care'; careType: CareActionType };
 
 export interface PlannedActivity {
   id: string;
-  activityId: ActivityId | 'family' | 'business' | 'event';
-  date: string;
-  startPeriod: DayPeriod;
-  durationBlocks: number;
-  action?: PlannedAction;
+  activityId: ActivityId | 'family' | 'business' | 'event' | 'healthcare';
+  action: PlannedAction;
 }
-export interface WeeklySchedule {
+export interface WeeklyPlan {
   version: 1;
-  commitments: WeeklyCommitment[];
   activities: PlannedActivity[];
 }
 export interface Character {
   name: string; age: number; year: number; health: number; happiness: number;
   intelligence: number; fitness: number; money: number;
-  /** Optional for safe migration of existing saves. Ability/condition stats use 0–100; stress is inverse (lower is better). */
-  stamina?: number; focus?: number; confidence?: number; discipline?: number; creativity?: number; socialSkills?: number; stress?: number;
-  calendar?: GameCalendar;
-  weeklySchedule?: WeeklySchedule;
+  /** Ability/condition stats use 0–100; stress is inverse (lower is better). */
+  stamina: number; focus: number; confidence: number; discipline: number; creativity: number; socialSkills: number; stress: number;
+  calendar: GameCalendar;
+  weeklyPlan: WeeklyPlan;
   lastResolvedWeekStart?: string;
   lastWeekRecap?: string[];
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;

@@ -11,8 +11,8 @@
   const selectedProgram = $derived(programs.find((item) => item.id === selectedProgramId) ?? programs[0]);
   const enrollment = $derived(character.educationEnrollment ?? null);
   const progress = $derived(enrollment ? Math.min(100, Math.round(enrollment.weeksCompleted / enrollment.totalWeeks * 100)) : 0);
-  const plannedTasks = $derived(character.weeklySchedule?.activities.filter((item) => item.action?.kind === 'education') ?? []);
-  const independentStudy = $derived(character.weeklySchedule?.activities.find((item) => item.activityId === 'study' && item.action?.kind === 'activity'));
+  const plannedTasks = $derived(character.weeklyPlan?.activities.filter((item) => item.action?.kind === 'education') ?? []);
+  const independentStudy = $derived(character.weeklyPlan?.activities.find((item) => item.activityId === 'study' && item.action?.kind === 'activity'));
   function enroll() {
     if (!selectedProgram) return;
     const field = selectedField && selectedProgram.fieldOptions.includes(selectedField) ? selectedField : selectedProgram.fieldOptions[0];

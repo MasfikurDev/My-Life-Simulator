@@ -16,7 +16,7 @@
   import EmptyState from './components/EmptyState.svelte';
   import UiCard from './components/UiCard.svelte';
   import type { GameTheme } from './lib/theme';
-  import { clearSave, getActiveSlotId, getSaveSlots, getSoundEnabled, getThemePreference, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled, setThemePreference } from './lib/storage';
+  import { clearSave, getActiveSlotId, getSaveFormatIssue, getSaveSlots, resetSaveData, getSoundEnabled, getThemePreference, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled, setThemePreference } from './lib/storage';
   import type { Character, FinancialTransaction, SaveSlot, SaveSlotId } from './lib/types';
   type AndroidBridge = {
     isFullscreen: () => boolean;
@@ -35,6 +35,7 @@
   let showRestartConfirm = $state(false);
   let activeSlotId = $state<SaveSlotId>('slot-1');
   let slots = $state<SaveSlot[]>([]);
+  let saveFormatIssue = $state<string | null>(null);
   let soundEnabled = $state(true);
   let selectedTheme = $state<GameTheme>('amoled');
   let slotToDelete = $state<SaveSlotId | null>(null);
@@ -44,6 +45,7 @@
   let weeklyFinanceOpen = $state(false);
   const weeklyReview = $derived(character ? getWeeklyActivityReview(character) : null);
   onMount(() => {
+    saveFormatIssue = getSaveFormatIssue();
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
     character = loadSave(activeSlotId);
@@ -135,11 +137,17 @@
   function navigateTab(tab: string) { activeTab = tab; }
   function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
   function startLife(nextCharacter: Character) {
+    if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
     try {
       persist(nextCharacter);
       activeTab = 'home'; notify('Life saved.'); playSound('start');
     } catch { notify('The save could not be written. Check available device storage and try again.'); }
+  }
+  function resetUnsupportedSaves() {
+    if (!saveFormatIssue || !window.confirm('Discard the unsupported old save data on this device and start with empty slots? This cannot be undone.')) return;
+    resetSaveData(); saveFormatIssue = null; slots = getSaveSlots(); activeSlotId = 'slot-1'; setActiveSlotId('slot-1');
+    notify('Old saves cleared. You can start a new life.');
   }
   function openCreation(slotId: SaveSlotId) {
     if (slots.find((slot) => slot.id === slotId)?.character) { notify('Delete or switch that save slot before starting another life.'); return; }
@@ -152,11 +160,13 @@
     loadSlot(available.find((slot) => slot.id === activeSlotId && slot.character) ?? available[0]);
   }
   function startNewLife() {
+    if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     const empty = slots.find((slot) => !slot.character);
     if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
     openCreation(empty.id);
   }
   function openCustomLife() {
+    if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     const empty = slots.find((slot) => !slot.character);
     if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
     pendingSlotId = empty.id; activeTab = 'custom';
@@ -207,7 +217,7 @@
     } catch { /* Audio is optional and may be unavailable in a WebView. */ }
   }
   function eventChoicePlanned(choiceId: string) {
-    return (character?.weeklySchedule?.activities ?? []).find((item) => item.action?.kind === 'event' && item.action.choiceId === choiceId);
+    return (character?.weeklyPlan?.activities ?? []).find((item) => item.action?.kind === 'event' && item.action.choiceId === choiceId);
   }
   function chooseLifeEvent(choiceId: string) {
     if (!character) return;
@@ -215,7 +225,7 @@
     if (existing) { persist(removePlannedActivity(character, existing.id)); notify('Decision removed from this week.'); return; }
     const planned = planEventChoiceInNextFreeTime(character, choiceId);
     if (planned.issue) { notify(planned.message ?? 'That decision could not be added.'); return; }
-    const immediate = character.pendingGameEvent?.choices.find((choice) => choice.id === choiceId)?.timeBlocks === 0;
+    const immediate = character.pendingGameEvent?.choices.find((choice) => choice.id === choiceId)?.staminaCost === 0;
     persist(planned.character); playSound('action');
     notify(immediate ? 'Decision recorded.' : 'Decision added to this week.');
   }
@@ -224,7 +234,7 @@
   function advanceWeekNow() {
     if (!character) return;
     const result = advanceWeek(character);
-    if (result.issue) { notify(result.issue === 'insufficient-stamina' ? 'Your plan exceeds the available stamina. Add recovery or remove activities.' : result.issue === 'invalid-schedule' ? 'The saved weekly plan needs repair before advancing.' : result.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action is no longer available. Remove it before advancing.'); return; }
+    if (result.issue) { notify(result.issue === 'insufficient-stamina' ? 'Your plan exceeds the available stamina. Add recovery or remove activities.' : result.issue === 'invalid-plan' ? 'The weekly plan is invalid and needs attention before advancing.' : result.issue === 'already-resolved' ? 'This week has already been resolved.' : 'A planned action is no longer available. Remove it before advancing.'); return; }
     const crossedYear = result.character.year > character.year;
     persist(result.character); advanceReviewOpen = false;
     notify(crossedYear ? 'Week completed. A new year begins.' : 'Week completed. The next week begins.');
@@ -284,6 +294,14 @@
     {/if}
   </header>
   {#if !character && activeTab === 'menu'}
+    {#if saveFormatIssue}
+      <section class="game-event-panel save-format-notice">
+        <div class="eyebrow">SAVE FORMAT UPDATE</div>
+        <h2>Start with a fresh save</h2>
+        <p>{saveFormatIssue}</p>
+        <button class="primary-button" onclick={resetUnsupportedSaves}>Discard old saves and start fresh</button>
+      </section>
+    {/if}
     <MainMenu {slots} onContinue={continueLife} onNewGame={startNewLife} onPresets={startNewLife} onFullCustom={openCustomLife} onAchievements={() => activeTab='achievements'} onSettings={() => activeTab='settings'} onExit={exitGame} />
   {:else}
     <main class="main-layout">
@@ -480,9 +498,9 @@
                   <button class="game-event-choice" class:planned={!!eventChoicePlanned(choice.id)} disabled={!eventChoicePlanned(choice.id) && character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
                     <span class="game-event-choice-copy"><strong>{choice.label}</strong><small>{choice.detail}</small></span>
                     <span class="game-event-choice-cost">
-                      {#if choice.timeBlocks > 0}<span>Stamina 5</span>{/if}
+                      {#if choice.staminaCost > 0}<span>Stamina {choice.staminaCost}</span>{/if}
                       {#if choice.moneyCost > 0}<span>{formatCharacterMoney(character, choice.moneyCost)}</span>{/if}
-                      {#if choice.timeBlocks === 0 && choice.moneyCost === 0}<span>Immediate</span>{/if}
+                      {#if choice.staminaCost === 0 && choice.moneyCost === 0}<span>Immediate</span>{/if}
                     </span>
                   </button>
                 {/each}

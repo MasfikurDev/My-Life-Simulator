@@ -3,18 +3,17 @@ import type { ActivityId, Employment } from './types';
 export interface ActivityDefinition {
   id: ActivityId;
   title: string;
-  durationBlocks: number;
   staminaCost: number;
   detail: string;
 }
 
 export const ACTIVITY_DEFINITIONS: Record<ActivityId, ActivityDefinition> = {
-  study: { id: 'study', title: 'Study & learning', durationBlocks: 2, staminaCost: 8, detail: 'Focused learning that builds intelligence, focus and discipline.' },
-  exercise: { id: 'exercise', title: 'Exercise', durationBlocks: 1, staminaCost: 10, detail: 'Physical activity that builds fitness and supports health.' },
-  socialize: { id: 'socialize', title: 'Social time', durationBlocks: 1, staminaCost: 6, detail: 'Time with friends that improves social skills and happiness.' },
-  work: { id: 'work', title: 'Extra work', durationBlocks: 2, staminaCost: 16, detail: 'A demanding work session that earns additional income.' },
-  'apply-job': { id: 'apply-job', title: 'Apply for a job', durationBlocks: 1, staminaCost: 8, detail: 'Prepare and submit an application.' },
-  career: { id: 'career', title: 'Career development', durationBlocks: 1, staminaCost: 8, detail: 'Focused professional development that improves work performance.' }
+  study: { id: 'study', title: 'Study & learning', staminaCost: 8, detail: 'Focused learning that builds intelligence, focus and discipline.' },
+  exercise: { id: 'exercise', title: 'Exercise', staminaCost: 10, detail: 'Physical activity that builds fitness and supports health.' },
+  socialize: { id: 'socialize', title: 'Social time', staminaCost: 6, detail: 'Time with friends that improves social skills and happiness.' },
+  work: { id: 'work', title: 'Extra work', staminaCost: 16, detail: 'A demanding work session that earns additional income.' },
+  'apply-job': { id: 'apply-job', title: 'Apply for a job', staminaCost: 8, detail: 'Prepare and submit an application.' },
+  career: { id: 'career', title: 'Career development', staminaCost: 8, detail: 'Focused professional development that improves work performance.' }
 };
 
 export interface LifeStage { id: string; label: string; ageRange: string; description: string; nextAge: number | null; }

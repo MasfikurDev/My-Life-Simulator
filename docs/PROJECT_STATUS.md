@@ -15,11 +15,11 @@ The playable time model is:
 
 Do not reintroduce a universal three-actions-per-week quota. Personal activities are toggled in their owning workspaces and use a shared stamina budget. Education and employment are automatic background responsibilities; there are no player-managed timetables, period reservations, or Schedule workspace.
 
-## Weekly activity model (implemented in PR #88; CI passed)
+## Weekly action plan and current save baseline (implemented in this PR)
 
 - Personal activities are selected with direct add/remove toggles in their owning workspaces and consume activity-specific stamina.
 - Education and employment progress automatically as background responsibilities; they no longer create calendar commitments.
-- Schema 5 migration clears legacy time-slot commitments, preserves planned personal actions, and stores an exact pre-timetable recovery copy.
+- Schema 6 stores a strict `weeklyPlan` of domain-specific actions with no dates, periods, durations, or commitment grid. Old schema versions are rejected without mutation; reset requires explicit confirmation.
 - The Advance dialog previews every selected activity's stamina/money cost, reward categories, deterministic projected stat changes, and wellbeing warnings using the same weekly resolver as actual advancement.
 - CI verified: Svelte check 0 errors (19 existing warnings), 155 tests passed, and Vite production build succeeded.
 
@@ -27,7 +27,7 @@ Do not reintroduce a universal three-actions-per-week quota. Personal activities
 
 | Area | Status | Implemented foundation | Main remaining work |
 |---|---|---|---|
-| Character creation and saves | Implemented foundation | Randomized character profiles, age-aware creation, three save slots, migration/recovery support | Broader scenario validation and deeper life-stage content |
+| Character creation and saves | Implemented foundation | Randomized character profiles, age-aware creation, three save slots, strict current-schema validation | Broader scenario validation and deeper life-stage content |
 | Weekly simulation | Core implemented | Calendar, date/week calendar, automatic education/work obligations, stamina-based personal activities, deterministic resolution, history and recap | Date-based deadlines, richer delayed consequences, multi-week advancement |
 | Education | Playable foundation | Enrollment, programmes, classes, weekly tasks, grades, tuition, history, qualifications | Localization, scholarships, retakes, licensing, apprenticeships |
 | Work | Playable foundation | Job board, applications, interviews, offers, employment, job changes, resignation, career previews and promotion offers | Persistent employers/vacancies, workplace decisions, layoffs, benefits, bonuses, monthly payroll |

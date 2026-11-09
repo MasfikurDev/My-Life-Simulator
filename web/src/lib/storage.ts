@@ -1,78 +1,55 @@
 import type { GameTheme } from './theme';
 import type { Character, SaveData, SaveSlot, SaveSlotId } from './types';
-import { createGameCalendar } from './calendar';
+import { isValidWeeklyPlan } from './weekly-plan';
 
 const KEY = 'my-life-simulator.save';
-const MIGRATION_BACKUP_KEY = KEY + '.pre-weekly-migration';
-const TIMETABLE_MIGRATION_BACKUP_KEY = KEY + '.pre-timetable-migration';
 const SETTINGS_KEY = 'my-life-simulator.settings';
-const CURRENT_SCHEMA = 5;
+export const CURRENT_SCHEMA = 6;
 const SLOT_IDS: SaveSlotId[] = ['slot-1', 'slot-2', 'slot-3'];
 const emptySlots = (): SaveSlot[] => SLOT_IDS.map((id) => ({ id, character: null, updatedAt: null }));
-function validCharacter(value: unknown): value is Character {
+
+function isCurrentCharacter(value: unknown): value is Character {
   if (!value || typeof value !== 'object') return false;
   const c = value as Partial<Character>;
-  return typeof c.name === 'string' && Number.isInteger(c.age) && Number.isInteger(c.year) &&
-    Number.isInteger(c.money) && Array.isArray(c.history);
+  if (typeof c.name !== 'string' || !c.name.trim() || !Number.isInteger(c.age) || !Number.isInteger(c.year) ||
+      !Number.isInteger(c.money) || !Array.isArray(c.history)) return false;
+  if (!c.calendar || !/^\d{4}-\d{2}-\d{2}$/.test(c.calendar.currentDate) || !/^\d{4}-\d{2}-\d{2}$/.test(c.calendar.birthDate)) return false;
+  if (![c.stamina, c.focus, c.confidence, c.discipline, c.creativity, c.socialSkills, c.stress].every((value) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100)) return false;
+  if (!isValidWeeklyPlan(c.weeklyPlan)) return false;
+  if (c.pendingGameEvent && (!Array.isArray(c.pendingGameEvent.choices) || c.pendingGameEvent.choices.some((choice) =>
+    !Number.isFinite(choice.staminaCost) || choice.staminaCost < 0 || !Number.isFinite(choice.moneyCost) || choice.moneyCost < 0))) return false;
+  return true;
 }
-function migrateCharacter(character: Character): Character {
-  const migrated = { ...character } as Character & { actionsRemaining?: number };
-  delete migrated.actionsRemaining;
-  if (!migrated.calendar) migrated.calendar = createGameCalendar(migrated.age, migrated.year);
-  if (!migrated.weeklySchedule) migrated.weeklySchedule = { version: 1, commitments: [], activities: [] };
-  // Schema 5 removes all calendar/time-slot commitments. Preserve planned
-  // personal actions, but keep the old payload in the migration backup.
-  migrated.weeklySchedule = { ...migrated.weeklySchedule, commitments: [] };
-  if (migrated.pendingGameEvent?.choices) {
-    migrated.pendingGameEvent = {
-      ...migrated.pendingGameEvent,
-      choices: migrated.pendingGameEvent.choices.map((choice) => {
-        const legacyChoice = choice as typeof choice & { actionCost?: number };
-        const { actionCost, ...currentChoice } = legacyChoice;
-        return {
-          ...currentChoice,
-          timeBlocks: Number.isInteger(legacyChoice.timeBlocks)
-            ? legacyChoice.timeBlocks
-            : Number.isInteger(actionCost) ? actionCost! : 0
-        };
-      })
-    };
-  }
-  return migrated;
-}
-function persistMigration(raw: string, migrated: SaveData): void {
-  // Preserve the exact pre-migration payload before replacing it. If either
-  // write fails, the original save remains available for recovery.
-  if (!localStorage.getItem(MIGRATION_BACKUP_KEY)) localStorage.setItem(MIGRATION_BACKUP_KEY, raw);
-  if (!localStorage.getItem(TIMETABLE_MIGRATION_BACKUP_KEY)) localStorage.setItem(TIMETABLE_MIGRATION_BACKUP_KEY, raw);
-  localStorage.setItem(KEY, JSON.stringify(migrated));
-}
+
 function readData(): SaveData {
   const raw = localStorage.getItem(KEY);
   if (!raw) return { schemaVersion: CURRENT_SCHEMA, activeSlotId: 'slot-1', slots: emptySlots() };
-  const parsed = JSON.parse(raw) as Partial<SaveData> & { character?: unknown };
-  if (parsed.schemaVersion === 1 && validCharacter(parsed.character)) {
-    const slots = emptySlots();
-    slots[0] = { id: 'slot-1', character: migrateCharacter(parsed.character), updatedAt: Date.now() };
-    const migrated: SaveData = { schemaVersion: CURRENT_SCHEMA, activeSlotId: 'slot-1', slots };
-    persistMigration(raw, migrated);
-    return migrated;
+  let parsed: unknown;
+  try { parsed = JSON.parse(raw); }
+  catch { throw new Error('The saved game data is unreadable. It has been left untouched.'); }
+  if (!parsed || typeof parsed !== 'object') throw new Error('The saved game format is invalid. It has been left untouched.');
+  const data = parsed as Partial<SaveData>;
+  if (data.schemaVersion !== CURRENT_SCHEMA) {
+    throw new Error('This save uses an older format and cannot be loaded by this version. Your saved data has been left untouched. Reset the old saves to start a new life.');
   }
-  if (![2, 3, 4, CURRENT_SCHEMA].includes(parsed.schemaVersion ?? 0) || !Array.isArray(parsed.slots)) {
-    throw new Error('The saved game format is not recognized. Your existing data has been left untouched.');
+  if (!SLOT_IDS.includes(data.activeSlotId as SaveSlotId) || !Array.isArray(data.slots) || data.slots.length !== SLOT_IDS.length) {
+    throw new Error('The current save is incomplete or invalid. Your saved data has been left untouched.');
   }
-  const slots = emptySlots().map((empty) => {
-    const found = parsed.slots?.find((slot) => slot?.id === empty.id);
-    return found && validCharacter(found.character)
-      ? { id: empty.id, character: migrateCharacter(found.character), updatedAt: Number.isFinite(found.updatedAt) ? found.updatedAt! : null }
-      : empty;
+  const slots = SLOT_IDS.map((id) => {
+    const slot = data.slots!.find((item) => item?.id === id);
+    if (!slot || (slot.character !== null && !isCurrentCharacter(slot.character)) ||
+        (slot.updatedAt !== null && !Number.isFinite(slot.updatedAt))) {
+      throw new Error('A save slot is invalid or uses an unsupported character format. Your saved data has been left untouched.');
+    }
+    return { id, character: slot.character, updatedAt: slot.updatedAt };
   });
-  const activeSlotId = SLOT_IDS.includes(parsed.activeSlotId as SaveSlotId) ? parsed.activeSlotId as SaveSlotId : 'slot-1';
-  const migrated: SaveData = { schemaVersion: CURRENT_SCHEMA, activeSlotId, slots };
-  if (parsed.schemaVersion !== CURRENT_SCHEMA) persistMigration(raw, migrated);
-  return migrated;
+  return { schemaVersion: CURRENT_SCHEMA, activeSlotId: data.activeSlotId as SaveSlotId, slots };
 }
 function writeData(data: SaveData): void { localStorage.setItem(KEY, JSON.stringify(data)); }
+export function getSaveFormatIssue(): string | null {
+  try { readData(); return null; } catch (error) { return error instanceof Error ? error.message : 'The saved game format is not supported.'; }
+}
+export function resetSaveData(): void { localStorage.removeItem(KEY); }
 export function getSaveSlots(): SaveSlot[] {
   try { return readData().slots; } catch { return emptySlots(); }
 }
@@ -87,6 +64,7 @@ export function loadSave(slotId: SaveSlotId = getActiveSlotId()): Character | nu
   catch { return null; }
 }
 export function saveCharacter(character: Character, slotId: SaveSlotId = getActiveSlotId()): void {
+  if (!isCurrentCharacter(character)) throw new Error('The character does not match the current save format.');
   const data = readData();
   data.slots = data.slots.map((slot) => slot.id === slotId ? { id: slotId, character, updatedAt: Date.now() } : slot);
   data.activeSlotId = slotId;

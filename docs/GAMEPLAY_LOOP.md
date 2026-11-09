@@ -9,9 +9,9 @@ The weekly gameplay foundation and the annual-action-to-weekly-turn transition a
 - Contextual events are selected using character/year context and age/health eligibility.
 - Pending events and choices persist in the character save; the simulation validates choice requirements and costs.
 - Personal activities, family interactions, business management, job applications, interviews, and time-consuming event choices are selected as weekly actions, consume stamina and resolve in deterministic order.
-- Weekly resolution applies effects and costs, records Life History, clears successful reservations, and advances the calendar by seven days. A stale reservation blocks the turn and remains available for repair instead of being silently discarded.
+- Weekly resolution applies effects and costs, records Life History, clears resolved actions, and advances the calendar by seven days. A stale planned action blocks the turn and remains available for repair instead of being silently discarded.
 - Age and life-stage eligibility change on the character's birthday. Annual financial settlement and annual event expiry remain at the year boundary.
-- The save migration preserves existing slots and stores the original pre-migration payload as a recovery copy.
+- The current save format stores three independent slots and validates every current character before use.
 
 Still planned: date-based event deadlines and richer event cooldown/content, monthly financial settlement and reporting, broader cross-domain consequences, family lifecycle expansion, deeper chronic-care/insurance/healthcare localization, retirement, mortality, and terminal-life completion. Education has enrollment, automatic attendance/progression, weekly academic tasks and grades; Health has stress/workload, recovery, counselling, check-ups and basic condition/treatment loops. Work has a functional first recruitment/employment/promotion loop, but employer operations and monthly payroll are not complete. Finance has broad banking, debt, property, investment, tax, business, and credit foundations, but recurring financial settlement is still annual. The UI has moved to reusable primitives and semantic theme tokens, with visual QA still ongoing. The complete birth-to-death redesign is not finished.
 
@@ -64,7 +64,7 @@ The player should feel that a life is unfolding, not that they are spending abst
 - New characters receive an initial calendar anchored to the first Monday on or after January 1 of their starting game year. Their birth date is placed on the same month/day in the year implied by their chosen starting age, preserving that age at creation.
 - Age is calculated from birth date and current date, not from the number of week advances. A birthday changes age only when the current date reaches the birthday.
 - For a February 29 birth date in a non-leap year, the game observes the birthday on March 1. This is a consistent game-calendar convention, not a legal-age rule.
-- Existing saves are migrated to the weekly model without discarding character or slot data. Saves without calendar data are anchored to the first Monday on or after January 1 of their stored year; the original payload is retained under a separate recovery key.
+- The current save baseline requires a valid calendar and weekly plan. Older schema versions are not migrated; they remain untouched until the player explicitly confirms a reset.
 - Calendar helpers, weekly advancement, weekly activity resolution, and birthday-based aging are implemented and tested. Monthly settlement, date-based event deadlines, and recurring payment cadence remain future work.
 
 ### 3.2 Weekly activity plan: stamina and automatic responsibilities
@@ -84,12 +84,11 @@ The week is shaped by the character's automatic responsibilities and the player'
 
 **No universal action quota:** the player may plan many or few activities. Stamina, affordability, prerequisites, stress, health, and other modeled constraints determine what the character can sustain. The game does not require the player to fill a calendar.
 
-### 3.2.1 Save migration away from timetables
+### 3.2.1 Current weekly action record
 
-- Schema 5 clears legacy school/work calendar commitments while preserving the character, planned personal activities, history, finances, family, education, and employment.
-- The exact pre-migration save payload is retained under a dedicated recovery key before the migrated payload is written.
-- Enrollment, resuming education, hiring, changing jobs, and resignation do not create or remove time-slot reservations. Education and employment are represented by their domain records and automatic weekly simulation effects.
-- Legacy date/period fields on saved personal actions are compatibility-only metadata; they do not place actions on a calendar or affect weekly validation.
+- Schema 6 stores a versioned `weeklyPlan` containing contextual actions only. Each action has a stable ID, owning domain, and explicit action payload.
+- Planned actions do not contain dates, weekdays, periods, durations, or recurring commitments. The game calendar tracks week progression; it is not a timetable.
+- Enrollment, resuming education, hiring, changing jobs, and resignation update domain state only. Education and employment are automatic background responsibilities and never create time-slot reservations.
 - The old Schedule workspace and its seven-day/21-period grid are removed. The Advance review is the single consolidated plan and outcome surface.
 
 ### 3.3 The week in play
@@ -142,7 +141,7 @@ The player explicitly confirms **Start next week**. The simulation resolves the 
 - Process recurring subscriptions, household bills, loan installments, card obligations, savings contributions, and other monthly obligations on their actual due dates/cadence.
 - Produce a monthly financial statement/summary in Finance, not as a large global dashboard.
 - Handle month boundaries without double-charging or skipping due dates.
-- Existing annual financial mechanics must be migrated deliberately. Do not simply divide annual values by 12 without considering rounding, due dates, interest, inflation, and save compatibility.
+- Existing annual financial mechanics must be migrated deliberately. Do not simply divide annual values by 12 without considering rounding, due dates, interest, and inflation.
 
 **Yearly layer**
 - Birthday and age progression occur on the actual birthday.
@@ -190,17 +189,13 @@ A playable weekly loop is not complete until:
 7. One week advances exactly once; retry/reload cannot duplicate income, bills, effects, or history.
 8. Crossing month-end processes monthly payments once after monthly settlement is implemented; current annual settlement remains exactly once at year boundaries.
 9. A birthday changes age and eligibility on the correct date, not simply every 52 button presses.
-10. Old saves load with a documented migration and no lost cash, accounts, debt, investments, history, or pending events.
+10. Current-schema saves load without data loss. Unsupported old formats are rejected without mutation and require explicit confirmation before reset.
 11. A quiet week can be advanced quickly without fake chores or forced dramatic events.
 12. Multi-week scenario tests produce coherent results for a child in school, an employed adult, an unemployed adult, and a later-life character.
 
-### Legacy transition: annual actions to weekly activity plan
+### Current save baseline
 
-The annual-action-to-weekly-save migration is implemented:
-- Schema 1 single-save data and schema 2 multi-slot data migrate to schema 3 while preserving valid character records and all three slot identities.
-- Existing age and world year remain authoritative. When no calendar exists, the migration anchors the character to the first Monday on or after January 1 of the stored year and derives a matching birth date so the displayed age is unchanged at migration.
-- The obsolete annual action counter is retired; unused annual actions are not converted into extra weekly time or free activities. Pending legacy event choices retain their outcome and use the stamina-based weekly activity model when selected.
-- The exact pre-migration payload is retained under `my-life-simulator.save.pre-weekly-migration` before the new payload replaces the active save. Unknown formats are rejected without overwriting the original.
+Schema 6 is the sole supported persisted format. It contains three independent slots, required calendar dates, a versioned weekly action plan, and current domain state. The storage layer validates the complete envelope and action payloads before use. Older schema versions are intentionally unsupported: the app leaves their data untouched, explains that a fresh start is required, and only clears the old save after explicit player confirmation. No migration or compatibility adapter is maintained.
 
 ### Current implementation boundary
 
@@ -250,7 +245,7 @@ Before advancing, show a concise weekly review:
 - Planned activity costs and available cash where relevant.
 - Unresolved situations, an over-budget or stale activity plan, or known constraints.
 
-The player explicitly chooses to advance one week. The weekly resolver validates the complete plan, resolves accepted actions and due effects in deterministic order, applies costs exactly once, clears successful reservations, advances the calendar by seven days, and returns a concise recap. Month/year boundary settlement remains separate and must run exactly once.
+The player explicitly chooses to advance one week. The weekly resolver validates the complete plan, resolves accepted actions and due effects in deterministic order, applies costs exactly once, clears resolved actions, advances the calendar by seven days, and returns a concise recap. Month/year boundary settlement remains separate and must run exactly once.
 
 ### Phase E — Show what changed
 After weekly resolution, provide a compact weekly recap:
@@ -371,7 +366,7 @@ Replayability should come from interacting systems and different viable lives, n
 ## 9. Scope and implementation sequence
 
 Build one complete playable slice at a time:
-Completed foundation: date-based weekly calendar, backward-compatible save migration, automatic background responsibilities, stamina-based personal activities, and deterministic weekly resolution.
+Completed foundation: date-based weekly calendar, strict current-schema persistence, automatic background responsibilities, stamina-based personal activities, and deterministic weekly resolution.
 
 Next implementation stages:
 1. Move financial systems to explicit monthly/annual cadences without duplicate or lost settlements.
@@ -414,10 +409,10 @@ Do not assume every character has a partner or children. Partnership, parenthood
 
 
 
-## Timetable removal and weekly stamina allocation
+## Weekly action plan and stamina allocation
 
-The player-facing Schedule system is retired. Do not reintroduce a Schedule tab, seven-day grid, day/period picker, or time-slot allocation for school, work, or personal actions. Education attendance and employment are automatic background responsibilities that progress during weekly resolution and contribute to workload/stress without assigning weekdays or periods.
+The player-facing Schedule system is retired. Do not reintroduce a Schedule tab, seven-day grid, day/period picker, recurring commitments, or time-slot allocation for school, work, or personal actions. Education attendance and employment are automatic background responsibilities that progress during weekly resolution and contribute to workload/stress without assigning weekdays or periods.
 
-The weekly activity plan is a set of optional choices toggled in their domain workspaces. Stamina is reserved as a budget rather than deducted when an item is selected. The valid-plan rule is current stamina plus planned recovery minus all selected activity costs must be non-negative. Recovery is order-independent and applied once before reserved activity costs; weekly fatigue/recovery is applied separately. The Advance review must block an over-budget plan and must never show negative stamina.
+The weekly plan contains optional contextual actions toggled in their owning workspaces. Stamina is a shared budget: the player must include sufficient recovery before selecting actions whose costs exceed current stamina. Selection validates the combined planned recovery and action costs; weekly fatigue/recovery is applied separately. The Advance review blocks any invalid plan and never shows negative stamina.
 
-Existing saves are migrated by preserving all non-scheduling character data and selected personal actions, clearing legacy commitments, and retaining the original payload as a recovery backup. New enrollment and employment changes must not create calendar reservations.
+Schema 6 persists only the current action-plan shape. No old-save migrations or timetable compatibility adapters are maintained. Unsupported older saves remain untouched until the player explicitly confirms a reset. New enrollment and employment changes never create calendar reservations.
