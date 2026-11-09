@@ -662,7 +662,8 @@
   .review-activity-list{display:grid;gap:7px}
   .review-activity-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
   .review-activity-row>div:first-child{display:grid;gap:4px;min-width:0}
-  .review-activity-copy{flex:1}\n  .review-bought-seal{justify-self:start;padding:3px 6px;border:1px solid color-mix(in srgb,var(--accent) 48%,transparent);border-radius:5px;background:var(--accent-soft);color:var(--accent);font-size:7px;font-weight:850;letter-spacing:.7px}
+  .review-activity-copy{flex:1}
+  .review-bought-seal{justify-self:start;padding:3px 6px;border:1px solid color-mix(in srgb,var(--accent) 48%,transparent);border-radius:5px;background:var(--accent-soft);color:var(--accent);font-size:7px;font-weight:850;letter-spacing:.7px}
   .review-activity-row strong{font-size:11px;color:var(--text)}
   .review-activity-row small{font-size:9px;line-height:1.4;color:var(--muted)}
   .review-activity-cost{flex:none;display:grid;gap:4px;text-align:right}
