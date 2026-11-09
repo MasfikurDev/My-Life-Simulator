@@ -1052,7 +1052,8 @@ describe('life simulation', () => {
   });
 
   it('keeps ledger transaction IDs unique after the rolling ledger reaches its cap', () => {
-    let current = { ...createCharacter('Ledger Tester', 30), money: 1000, financialTransactions: [] };
+    let current = createCharacter('Ledger Tester', 30);
+    current = { ...current, money: 1000, financialTransactions: [] };
     for (let index = 0; index < 305; index += 1) current = depositToVault(current, 1);
     const ids = current.financialTransactions!.map((transaction) => transaction.id);
     expect(ids).toHaveLength(300);
