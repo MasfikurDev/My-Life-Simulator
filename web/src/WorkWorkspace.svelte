@@ -215,7 +215,7 @@
   .work-metrics span{color:var(--muted);font-size:9px}.work-metrics strong{color:var(--text);font-size:15px;overflow-wrap:anywhere}
   .work-note{margin-top:12px!important;font-size:10px!important}
   .current-job-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
-  .extra-work-panel{display:flex;align-items:center;justify-content:space-between;gap:14px}.extra-work-panel h3{margin:3px 0;font-size:14px}.extra-work-panel p{margin:0;font-size:10px;line-height:1.5;color:var(--muted)}.extra-work-panel button{flex:none}
+  .extra-work-panel{display:flex;align-items:center;justify-content:space-between;gap:14px}.extra-work-panel :global(h3){margin:3px 0;font-size:14px}.extra-work-panel p{margin:0;font-size:10px;line-height:1.5;color:var(--muted)}.extra-work-panel button{flex:none}
   .work-primary.planned,.work-secondary.planned{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}.resign-confirm{display:grid;gap:7px;margin-top:12px;padding:12px;border:1px solid var(--danger);border-radius:9px}.resign-confirm strong{color:var(--text);font-size:12px}.resign-confirm p{margin:0}.resign-confirm>div{display:flex;flex-wrap:wrap;gap:7px}
   .work-secondary,.work-primary{min-height:38px;padding:8px 11px;border-radius:8px;font-size:10px;font-weight:700}
   .work-primary{border:1px solid var(--accent);background:var(--accent);color:var(--on-accent)}
