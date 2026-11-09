@@ -1,6 +1,6 @@
 <script lang="ts">
   import { buyProperty, closeBusiness, formatCharacterMoney, getEconomicConditions, getMarketPrice, planBusinessManagementInNextFreeTime, removePlannedActivity, moveIntoOwnedProperty, rentHome, sellProperty, setPropertyRental, startBusiness, tradeInvestment } from './lib/simulation';
-  import type { Character, PropertyType } from './lib/types';
+  import type { Character, InvestmentType, PropertyType } from './lib/types';
   import GameChoice from './GameChoice.svelte';
   let { character, onChange, view = 'all' }: { character: Character; onChange: (next: Character) => void; view?: 'all' | 'property' | 'investments' | 'business' } = $props();
   const scale = $derived(character.currencyScale ?? 1);
@@ -8,6 +8,13 @@
   const holdings = $derived(character.investments ?? []);
   const businesses = $derived(character.businesses ?? []);
   const economy = $derived(getEconomicConditions(character));
+  const tradingInstruments: { type: InvestmentType; name: string; category: string; risk: string; description: string }[] = [
+    {type:'stock-index',name:'Broad market index',category:'Diversified equity',risk:'Moderate',description:'Tracks a broad basket of companies.'},
+    {type:'technology-stock',name:'Technology shares',category:'Sector equity',risk:'High',description:'Growth-oriented technology sector exposure.'},
+    {type:'energy-stock',name:'Energy shares',category:'Sector equity',risk:'High',description:'Energy producers with cyclical price exposure.'},
+    {type:'government-bond',name:'Government bonds',category:'Fixed income',risk:'Low',description:'Lower volatility with a 4% annual coupon.'},
+    {type:'gold',name:'Gold',category:'Commodity',risk:'Moderate',description:'Commodity exposure with inflation-sensitive pricing.'}
+  ];
   const rate = (value:number)=>((value*100).toFixed(1)+'%');
   let propertyType = $state<PropertyType>('apartment'); let propertyName = $state(''); let selectedPropertyId = $state(''); let propertyPrice = $state(''); let downPayment = $state(''); let mortgageRate = $state('7'); let mortgageTerm = $state('20'); let primaryResidence = $state(true);
   let rentalType = $state<PropertyType>('apartment'); let annualRent = $state(''); let rentalIncome = $state('');
@@ -31,15 +38,15 @@
   function rent(){run(()=>rentHome(character,rentalType,amount(annualRent)),'Rental home selected.');}
   function listRent(propertyId:string){run(()=>setPropertyRental(character,propertyId,true,amount(rentalIncome)),'Property listed for rent.');}
   function stopRent(propertyId:string){run(()=>setPropertyRental(character,propertyId,false),'Rental listing ended.');}
-  function buy(type:'stock-index'|'gold'){run(()=>tradeInvestment(character,type,'buy',amount(units)),'Investment purchased.');}
-  function sell(type:'stock-index'|'gold'){run(()=>tradeInvestment(character,type,'sell',amount(units)),'Investment sold.');}
+  function buy(type:InvestmentType){run(()=>tradeInvestment(character,type,'buy',amount(units)),'Investment purchased.');}
+  function sell(type:InvestmentType){run(()=>tradeInvestment(character,type,'sell',amount(units)),'Investment sold.');}
   function openBusiness(item: typeof businessCatalog[number]){run(()=>startBusiness(character,item.name,item.type,Math.round(item.capital*scale)),'Business started.');}
   function planManagement(businessId:string){const existing=(character.weeklyPlan?.activities??[]).find((item)=>item.action?.kind==='business'&&item.action.businessId===businessId);if(existing){onChange(removePlannedActivity(character,existing.id));notice='Management removed from this week.';return;}const result=planBusinessManagementInNextFreeTime(character,businessId);if(result.issue){notice=result.message??'Could not add management this week.';return;}onChange(result.character);notice='Management added · 12 stamina.';}
 </script>
 <section class="assets-panel">
   <div class="assets-heading"><div><small>{view === 'property' ? 'HOUSING & PROPERTY' : view === 'investments' ? 'MARKET PORTFOLIO' : view === 'business' ? 'BUSINESS OPERATIONS' : 'LONG-TERM WEALTH'}</small><h2>{view === 'property' ? 'Property & housing' : view === 'investments' ? 'Investments' : view === 'business' ? 'Business ownership' : 'Property & investments'}</h2></div>{#if view === 'all'}<span>{properties.length} properties · {businesses.length} businesses</span>{/if}</div>
   <div class="economy-strip"><div><small>ECONOMY</small><strong class={economy.cycle}>{economy.cycle}</strong></div><div><small>INFLATION</small><strong>{rate(economy.inflationRate)}</strong></div><div><small>GROWTH</small><strong>{rate(economy.growthRate)}</strong></div><div><small>BASE RATE</small><strong>{rate(economy.baseInterestRate)}</strong></div></div>
-  <p class="economy-note">Living costs and market prices respond to the economy. Stocks can fall in downturns; gold may react differently when inflation rises. Rates and returns are simplified game estimates.</p>
+  <p class="economy-note">Living costs and market prices respond to the economy. Equities can fall in downturns, sector stocks can be volatile, bonds pay a 4% annual coupon and gold reacts differently to inflation. Rates and returns are simplified game estimates.</p>
   {#if view === 'all' || view === 'property'}
   <details open={view !== 'all'}><summary>Housing: rent or own</summary>
     <div class="current-home"><small>CURRENT ARRANGEMENT</small><strong>{character.primaryResidenceId ? properties.find((p)=>p.id===character.primaryResidenceId)?.name ?? 'Owned home' : character.rentalHome ? 'Renting · '+character.rentalHome.type : 'Current household arrangement'}</strong>{#if character.rentalHome}<span>{formatCharacterMoney(character,character.rentalHome.annualRent)} annual rent</span>{/if}</div>
@@ -56,23 +63,23 @@
   {/if}
   {#if view === 'all' || view === 'investments'}
   <details open={view !== 'all'}><summary>Stocks & gold <span>Portfolio {formatCharacterMoney(character,holdings.reduce((sum,h)=>sum+h.units*getMarketPrice(character,h.type),0))}</span></summary>
-    <div class="market-grid"><div><small>BROAD MARKET INDEX · PER UNIT</small><strong>{formatCharacterMoney(character,getMarketPrice(character,'stock-index'))}</strong><span>{holdings.find((h)=>h.type==='stock-index')?.units??0} units · diversified market exposure</span></div><div><small>GOLD · PER UNIT</small><strong>{formatCharacterMoney(character,getMarketPrice(character,'gold'))}</strong><span>{holdings.find((h)=>h.type==='gold')?.units??0} units · commodity exposure</span></div></div>
+    <div class="market-grid">{#each tradingInstruments as instrument (instrument.type)}<div><small>{instrument.category.toUpperCase()} · PER UNIT</small><strong>{formatCharacterMoney(character,getMarketPrice(character,instrument.type))}</strong><span>{holdings.find((h)=>h.type===instrument.type)?.units??0} units · {instrument.risk} risk</span></div>{/each}</div>
     <h3>Open positions</h3>
     {#if holdings.length===0}<p class="hint">No open positions. Select an instrument below to place a buy order.</p>{:else}
       {#each holdings as holding}
         {@const marketPrice=getMarketPrice(character,holding.type)}
         {@const marketValue=marketPrice*holding.units}
         {@const costBasis=holding.averageCost*holding.units}
-        <div class="asset-row"><div><strong>{holding.type==='stock-index'?'Broad market index':'Gold'}</strong><small>{holding.units} units · average cost {formatCharacterMoney(character,holding.averageCost)} · current {formatCharacterMoney(character,marketPrice)}</small></div><div class="position-value"><b>{formatCharacterMoney(character,marketValue)}</b><small class:positive={marketValue>=costBasis} class:negative={marketValue<costBasis}>{marketValue>=costBasis?'+':''}{formatCharacterMoney(character,marketValue-costBasis)} unrealized</small></div></div>
+        <div class="asset-row"><div><strong>{tradingInstruments.find((item)=>item.type===holding.type)?.name??holding.type}</strong><small>{holding.units} units · average cost {formatCharacterMoney(character,holding.averageCost)} · current {formatCharacterMoney(character,marketPrice)}</small></div><div class="position-value"><b>{formatCharacterMoney(character,marketValue)}</b><small class:positive={marketValue>=costBasis} class:negative={marketValue<costBasis}>{marketValue>=costBasis?'+':''}{formatCharacterMoney(character,marketValue-costBasis)} unrealized</small></div></div>
       {/each}
     {/if}
-    <label>Units<input type="number" min="1" max="1000000" bind:value={units}/></label><div class="trade-grid"><div><strong>Index fund</strong><div><button onclick={()=>buy('stock-index')}>Buy</button><button onclick={()=>sell('stock-index')}>Sell</button></div></div><div><strong>Gold</strong><div><button onclick={()=>buy('gold')}>Buy</button><button onclick={()=>sell('gold')}>Sell</button></div></div></div>
+    <label>Order quantity (units)<input type="number" min="1" max="1000000" bind:value={units}/></label><div class="trade-grid">{#each tradingInstruments as instrument (instrument.type)}<div><strong>{instrument.name}</strong><small>{instrument.description}</small><div><button onclick={()=>buy(instrument.type)}>Buy</button><button onclick={()=>sell(instrument.type)}>Sell</button></div></div>{/each}</div>
     <small class="hint">Trading uses market orders, whole units and cash settlement. Brokerage is 0.5% on each trade; realized gains incur 10% capital-gains tax. Buy fees enter cost basis, while sell fees and taxes reduce proceeds. Prices update annually and returns are not guaranteed.</small>
   </details>
   {/if}
   {#if view === 'all' || view === 'business'}
   <details open={view !== 'all'}><summary>Start or manage a business <span>{businesses.length}/3</span></summary>
-    {#each businesses as business}<div class="asset-row"><div><strong>{business.name}</strong><small>{business.type} · value {formatCharacterMoney(character,business.valuation)} · performance {business.performance}/100</small><small>{business.type==='retail'?'Steady growth · moderate volatility · high cash intensity · 8–14% typical margin':business.type==='online'?'Fast growth · high volatility · low cash intensity · 10–22% typical margin':'Moderate growth · high volatility · high cash intensity · 6–12% typical margin'}</small></div><div class="asset-actions"><button class:planned={(character.weeklyPlan?.activities??[]).some((item)=>item.action?.kind==='business'&&item.action.businessId===business.id)} onclick={()=>planManagement(business.id)}>{(character.weeklyPlan?.activities??[]).some((item)=>item.action?.kind==='business'&&item.action.businessId===business.id)?'Remove management plan':'Manage this week · 12 stamina'}</button><button class="quiet" onclick={()=>run(()=>closeBusiness(character,business.id),'Business sold.')}>Sell</button></div></div>{/each}
+    {#each businesses as business}<div class="asset-row"><div><strong>{business.name}</strong><small>{business.type} · value {formatCharacterMoney(character,business.valuation)} · performance {business.performance}/100</small><small>{business.type==='retail'?'Steady growth · moderate volatility · high cash intensity · 3–7% annual result':business.type==='online'?'Fast growth · high volatility · low cash intensity · -1–14% annual result':'Moderate growth · high volatility · high cash intensity · -5–8% annual result'}</small></div><div class="asset-actions"><button class:planned={(character.weeklyPlan?.activities??[]).some((item)=>item.action?.kind==='business'&&item.action.businessId===business.id)} onclick={()=>planManagement(business.id)}>{(character.weeklyPlan?.activities??[]).some((item)=>item.action?.kind==='business'&&item.action.businessId===business.id)?'Remove management plan':'Manage this week · 12 stamina'}</button><button class="quiet" onclick={()=>run(()=>closeBusiness(character,business.id),'Business sold.')}>Sell</button></div></div>{/each}
     <h3>Prebuilt business opportunities</h3>
     <div class="catalog-grid business-catalog">
       {#each businessCatalog as item (item.id)}
