@@ -102,7 +102,7 @@
       {/if}
       <div class="account-tools">
         <h4>Automatic deposit</h4>
-        <div class="form-grid"><div class="choice-field"><span>Method</span><GameChoice label="Automatic deposit method" value={depositMethod} options={[{value:'percentage',label:'Percentage'},{value:'fixed',label:'Fixed amount'}]} onSelect={(value) => depositMethod = value as 'fixed'|'percentage'} columns={2}/></div><label>{depositMethod === 'percentage' ? 'Income percentage' : 'Amount per year'}<input type="number" min="1" max={depositMethod === 'percentage' ? 90 : 100000000} bind:value={depositValue}/></label></div>
+        <div class="form-grid"><div class="choice-field"><span>Method</span><GameChoice label="Automatic deposit method" value={depositMethod} options={[{value:'percentage',label:'Percentage'},{value:'fixed',label:'Fixed amount'}]} onSelect={(value) => depositMethod = value as 'fixed'|'percentage'} columns={2}/></div><label>{depositMethod === 'percentage' ? 'Income percentage' : 'Amount per year'}<input type="number" min="1" max={depositMethod === 'percentage' ? 90 : 100000000} value={depositValue} oninput={(event) => depositValue = event.currentTarget.value}/></label></div>
         <button onclick={configureAutoDeposit}>Set automatic deposit</button>
       </div>
 
