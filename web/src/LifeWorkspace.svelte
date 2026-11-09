@@ -52,7 +52,7 @@
   {:else if activeView === 'tree'}
     <LifeTreeWorkspace {character} />
   {:else if activeView === 'lifestyle'}
-    <LifestyleWorkspace {character} {onChange} />
+    <LifestyleWorkspace {character} {onChange} {onNotify} />
   {:else if activeView === 'history'}
     {@const milestoneGroups = groupLifeMilestones()}
     <div class="page-heading"><span class="year-pill">{milestoneGroups.length} PERIODS</span></div>
