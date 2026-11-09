@@ -11,7 +11,7 @@
   const rate = (value:number)=>((value*100).toFixed(1)+'%');
   let propertyType = $state<PropertyType>('apartment'); let propertyName = $state(''); let propertyPrice = $state(''); let downPayment = $state(''); let mortgageRate = $state('7'); let mortgageTerm = $state('20'); let primaryResidence = $state(true);
   let rentalType = $state<PropertyType>('apartment'); let annualRent = $state(''); let rentalIncome = $state('');
-  let units = $state('1'); let businessType = $state<BusinessType>('retail'); let businessName = $state(''); let businessCapital = $state('');
+  let units = $state('1');
   const propertyCatalog = [
     {id:'city-studio',name:'City studio apartment',type:'apartment' as const,price:42000,down:8400,growth:0.028,volatility:'Low',rentalYield:0.052,description:'Compact urban unit with steady rental demand.'},
     {id:'family-apartment',name:'Family apartment',type:'apartment' as const,price:78000,down:15600,growth:0.032,volatility:'Moderate',rentalYield:0.048,description:'Larger apartment suited to long-term tenants.'},
