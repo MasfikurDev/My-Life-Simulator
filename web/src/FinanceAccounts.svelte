@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { depositToAccount, getNetWorth, openBankAccount, transferBetweenAccounts, withdrawFromAccount, formatCharacterMoney } from './lib/simulation';
+  import { depositToAccount, getNetWorth, openBankAccount, transferBetweenAccounts, withdrawFromAccount, formatCharacterMoney, getCreditProfile, getMinimumLoanRate } from './lib/simulation';
   import type { BankAccountType, Character } from './lib/types';
   import FinanceProducts from './FinanceProducts.svelte';
   import EmptyState from './components/EmptyState.svelte';
@@ -14,6 +14,7 @@
   let notice = $state('');
   let activeBankingView = $state<'accounts'|'cards'|'loans'|'savings'>('accounts');
   const accounts = $derived(character.bankAccounts ?? []);
+  const creditProfile = $derived(getCreditProfile(character));
   const transactions = $derived([...(character.financialTransactions ?? [])].reverse().slice(0, 8));
   const selected = $derived(accounts.find((account) => account.id === selectedAccount) ?? accounts[0]);
   function createAccount(type: BankAccountType) { const names: Record<BankAccountType,string> = { checking: 'Everyday account', savings: 'Savings account', 'fixed-deposit': 'Fixed deposit' }; const next = openBankAccount(character, type, names[type], type === 'fixed-deposit' ? 1 : Number(fixedTermYears)); if (next === character) { notice = 'This account is unavailable or you already have this product.'; return; } onChange(next); notice = names[type] + ' opened.'; }
@@ -30,6 +31,24 @@
     <button class:active={activeBankingView==='loans'} onclick={() => activeBankingView='loans'} disabled={character.age<18}>Loans</button>
     <button class:active={activeBankingView==='savings'} onclick={() => activeBankingView='savings'}>Savings & vault</button>
   </nav>
+  {#if character.age >= 18}
+    <section class="credit-profile" aria-label="Credit score">
+      <div class="credit-profile-heading">
+        <div><small>CREDIT HEALTH</small><h3>Credit score</h3><span class="credit-rating">{creditProfile.rating} credit</span></div>
+        <div class="credit-score"><strong>{creditProfile.score}</strong><small>out of 850</small></div>
+      </div>
+      <div class="credit-score-track" role="meter" aria-label="Credit score" aria-valuemin="300" aria-valuemax="850" aria-valuenow={creditProfile.score}><span style={'width:' + ((creditProfile.score - 300) / 550 * 100) + '%'}></span></div>
+      <div class="credit-score-scale"><span>300 · Poor</span><span>850 · Excellent</span></div>
+      <div class="credit-factors">
+        <div><small>Payment record</small><strong>{creditProfile.successfulPayments} on time · {creditProfile.missedPayments} missed</strong></div>
+        <div><small>Credit use</small><strong>{creditProfile.utilization}%</strong></div>
+        <div><small>Total debt</small><strong>{formatCharacterMoney(character, creditProfile.totalDebt)}</strong></div>
+        <div><small>Debt / annual income</small><strong>{creditProfile.debtToIncome === null ? 'No income record' : creditProfile.debtToIncome + '%'}</strong></div>
+      </div>
+      <p class="credit-guidance">{creditProfile.missedPayments > 0 ? 'Missed repayments are lowering your score. Keep future installments funded and pay outstanding balances.' : creditProfile.utilization > 30 ? 'Your credit usage is high. Paying down card balances can improve your score.' : creditProfile.hasCreditHistory ? 'Your payment record is building. Keep balances manageable and repayments on time.' : 'Your file is new. Responsible borrowing and on-time repayments will establish your credit history.'}</p>
+      <small class="credit-rate-hint">Minimum loan rates · Personal {Math.round(getMinimumLoanRate(character, 'personal') * 1000) / 10}% · Mortgage {Math.round(getMinimumLoanRate(character, 'mortgage') * 1000) / 10}% · Business {Math.round(getMinimumLoanRate(character, 'business') * 1000) / 10}%</small>
+    </section>
+  {/if}
   {#if activeBankingView === 'accounts'}
   <div class="balances"><div><small>Cash</small><strong>{formatCharacterMoney(character)}</strong></div><div><small>In accounts</small><strong>{formatCharacterMoney(character, accounts.reduce((sum, account) => sum + account.balance, 0))}</strong></div></div>
   <div class="account-list">{#if accounts.length === 0}<EmptyState title="No bank accounts yet" description="Open an account to separate bank balances from cash." />{:else}{#each accounts as account}<article class="account"><div class="account-icon">{account.type === 'savings' || account.type === 'fixed-deposit' ? '◇' : '▤'}</div><div class="account-info"><strong>{account.name}</strong><small>{account.type === 'savings' ? 'Savings · 2% annual interest' : account.type === 'fixed-deposit' ? 'Fixed deposit · 4.5% annual · matures year ' + account.maturesAtYear : 'Everyday · no interest'}</small></div><strong class="account-balance">{formatCharacterMoney(character, account.balance)}</strong></article>{/each}{/if}</div>
@@ -57,4 +76,22 @@
 </section>
 <style>
 .banking-nav{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:thin}.banking-nav button{flex:none;min-height:40px;padding:0 12px;border:1px solid color-mix(in srgb,var(--line-strong) 12%, transparent);border-radius:9px;background:color-mix(in srgb,var(--surface-raised) 4%, transparent);color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap}.banking-nav button.active{border-color:color-mix(in srgb,var(--accent) 45%, transparent);background:color-mix(in srgb,var(--accent-strong) 10%, transparent);color:var(--accent)}.banking-nav button:disabled{opacity:.35}.bank-panel{background:color-mix(in srgb,var(--surface-raised) 2.5%, transparent);border:1px solid color-mix(in srgb,var(--line-strong) 9%, transparent);border-radius:18px;padding:18px;margin:18px 0;color:var(--text)}.panel-heading,.balances,.account,.transaction{display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-heading small,.balances small,.account-info small,.hint,.transaction small,.net-worth small{display:block;color:var(--muted);font-size:11px}h2{font-size:22px;margin:4px 0 0}.net-worth{text-align:right}.net-worth strong{display:block;font-size:17px;color:var(--accent);margin-top:4px}.balances{margin:16px 0;padding:12px;background:color-mix(in srgb,var(--surface-raised) 3.5%, transparent);border-radius:12px}.balances strong{display:block;margin-top:4px;font-size:15px}.account-list{display:grid;gap:8px}.account-catalogue{margin-top:14px}.account-catalogue h3{font-size:14px;margin:0 0 8px}.account-products{display:grid;gap:8px}.account-product{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px;border:1px solid color-mix(in srgb,var(--line-strong) 10%, transparent);border-radius:10px}.account-product strong,.account-product small{display:block}.account-product small{font-size:10px;color:var(--muted);margin-top:3px}.account-product button.applied{background:var(--success-soft);color:var(--success);border:1px solid var(--success)}.account{padding:12px;border:1px solid color-mix(in srgb,var(--line-strong) 8%, transparent);border-radius:12px}.account-icon{width:34px;height:34px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent-strong) 12%, transparent);color:var(--accent);border-radius:10px}.account-info{flex:1;min-width:0}.account-info strong{display:block;font-size:14px}.account-balance{font-size:14px;white-space:nowrap}.account-details{border-top:1px solid color-mix(in srgb,var(--line-strong) 8%, transparent);margin-top:14px;padding-top:12px}.account-details summary{cursor:pointer;font-weight:650;font-size:14px;padding:4px 0 10px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice-field{display:grid;gap:5px;margin:8px 0;color:var(--muted);font-size:12px}.choice-field :global(label){margin:0}label{display:grid;gap:6px;font-size:12px;color:var(--muted);margin:8px 0}input{width:100%;min-width:0;padding:11px;border-radius:9px;border:1px solid color-mix(in srgb,var(--line-strong) 12%, transparent);background:var(--surface);color:var(--text);font:inherit}button{border:1px solid color-mix(in srgb,var(--line-strong) 12%, transparent);background:color-mix(in srgb,var(--surface-raised) 6%, transparent);color:var(--text);padding:10px 12px;border-radius:9px;font:inherit;font-size:12px;font-weight:650;cursor:pointer}.primary{background:var(--accent,var(--accent-strong));color:var(--on-accent);border:0}.action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hint{margin-top:8px;line-height:1.5}.notice{font-size:12px;color:var(--accent);margin:10px 0 0}.transactions{border-top:1px solid color-mix(in srgb,var(--line-strong) 8%, transparent);margin-top:16px;padding-top:12px}.transactions h3{font-size:14px;margin:0 0 8px}.transaction{padding:9px 0;border-bottom:1px solid color-mix(in srgb,var(--line-strong) 5%, transparent)}.transaction div{min-width:0}.transaction strong{display:block;font-size:12px;line-height:1.4}.transaction small{margin-top:3px;overflow-wrap:anywhere}.transaction b{font-size:12px;white-space:nowrap}@media(max-width:480px){.bank-panel{padding:13px}.form-grid{grid-template-columns:1fr}.panel-heading{align-items:flex-start}}
+
+.credit-profile{display:grid;gap:10px;padding:15px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.credit-profile-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.credit-profile-heading>div:first-child{display:grid;gap:3px}
+.credit-profile-heading small,.credit-factors small,.credit-rate-hint{font-size:10px;color:var(--muted)}
+.credit-profile-heading h3{font-size:16px;margin:0}
+.credit-rating{font-size:11px;color:var(--success);font-weight:700}
+.credit-score{text-align:right;display:grid;gap:0}
+.credit-score strong{font-size:28px;line-height:1;font-variant-numeric:tabular-nums}
+.credit-score-track{height:8px;border-radius:99px;background:var(--surface-raised);overflow:hidden}
+.credit-score-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--danger),var(--warning),var(--success));transition:width .2s ease}
+.credit-score-scale{display:flex;justify-content:space-between;color:var(--muted);font-size:9px}
+.credit-factors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.credit-factors>div{display:grid;gap:3px;padding:9px;border-radius:9px;background:var(--surface-raised);min-width:0}
+.credit-factors strong{font-size:11px;overflow-wrap:anywhere}
+.credit-guidance{margin:0;color:var(--muted);font-size:11px;line-height:1.5}
+.credit-rate-hint{line-height:1.5}
+@media(max-width:360px){.credit-factors{grid-template-columns:1fr}}
 </style>
