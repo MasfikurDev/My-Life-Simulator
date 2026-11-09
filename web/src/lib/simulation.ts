@@ -410,7 +410,7 @@ export function makeCardPurchase(character: Character, cardId: string, amount: n
   const value = Math.floor(amount);
   const card = (character.cards ?? []).find((item) => item.id === cardId && item.active);
   if (!card || !validAmount(value)) return character;
-  const reward = Math.floor(value * (card.rewardsRate ?? 0));
+  const reward = value * (card.rewardsRate ?? 0);
   if (card.type === 'prepaid') {
     if (card.balance < value) return character;
     const next = { ...character, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance - value, rewardBalance: (item.rewardBalance ?? 0) + reward } : item), history: [...character.history] };
@@ -431,9 +431,10 @@ export function makeCardPurchase(character: Character, cardId: string, amount: n
 }
 export function redeemCardRewards(character: Character, cardId: string): Character {
   const card = (character.cards ?? []).find((item) => item.id === cardId && item.active);
-  const reward = Math.floor(card?.rewardBalance ?? 0);
+  const accrued = card?.rewardBalance ?? 0;
+  const reward = Math.floor(accrued);
   if (!card || reward <= 0) return character;
-  const next = { ...character, money: character.money + reward, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, rewardBalance: 0 } : item), history: [...character.history] };
+  const next = { ...character, money: character.money + reward, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, rewardBalance: accrued - reward } : item), history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'income', reward, 'Redeemed rewards from ' + card.name + '.', card.name, 'Cash');
   next.history.unshift(event(next, 'Card rewards redeemed', formatCharacterMoney(next, reward) + ' in rewards was credited to cash.'));
   return next;
