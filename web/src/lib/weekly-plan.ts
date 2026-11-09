@@ -27,7 +27,7 @@ export function isValidWeeklyPlan(value: unknown): value is WeeklyPlan {
       case 'work': return item.activityId === 'career' && ['apply', 'interview'].includes(String(action.workAction)) && typeof action.jobId === 'string' && typeof action.title === 'string';
       case 'education': return item.activityId === 'study' && ['study', 'assignment', 'exam'].includes(String(action.taskType));
       case 'care': return item.activityId === 'healthcare' && ['rest', 'counselling', 'medical-checkup', 'mindfulness'].includes(String(action.careType));
-      case 'food': return item.activityId === 'food' && typeof action.productId === 'string' && typeof action.name === 'string' && Number.isInteger(action.quantity) && Number(action.quantity) > 0 && [action.staminaRecovery, action.health, action.happiness, action.stress].every((value) => Number.isFinite(value) && Number(value) >= 0);
+      case 'food': return item.activityId === 'food' && typeof action.productId === 'string' && typeof action.name === 'string' && Number.isInteger(action.quantity) && Number(action.quantity) > 0 && Number(action.quantity) <= 20 && Number.isFinite(action.staminaRecovery) && Number(action.staminaRecovery) >= 0 && Number(action.staminaRecovery) <= 30 && Number.isFinite(action.health) && Number(action.health) >= 0 && Number(action.health) <= 12 && Number.isFinite(action.happiness) && Number(action.happiness) >= 0 && Number(action.happiness) <= 10 && Number.isFinite(action.stress) && Number(action.stress) >= 0 && Number(action.stress) <= 8;
       default: return false;
     }
   });
