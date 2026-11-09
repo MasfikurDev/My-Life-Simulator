@@ -30,6 +30,7 @@
   const accounts = $derived((character.bankAccounts ?? []).filter((account) => account.type !== 'fixed-deposit'));
   const activeSubscriptions = $derived((character.recurringPayments ?? []).filter((item) => item.active && item.category === 'subscription'));
   const ownedItems = $derived(character.ownedLifestyleItems ?? []);
+  const selectedOwnedQuantity = $derived(selectedProduct ? (ownedItems.find((item) => item.productId === selectedProduct.id)?.quantity ?? 0) : 0);
   const products: MarketProduct[] = [
     { id: 'meal-rice', name: 'Rice meal', category: 'Food', description: 'A filling everyday meal', price: 8, kind: 'food', staminaRecovery: 4, happiness: 1 },
     { id: 'meal-eggs', name: 'Eggs & toast', category: 'Food', description: 'Protein and carbohydrates for steady energy', price: 14, kind: 'food', staminaRecovery: 6, health: 1 },
@@ -76,13 +77,6 @@
     paymentSourceId = '';
     dialogKind = 'subscription';
   }
-  function choosePayment(value: string) {
-    if (value === 'cash') { paymentSource = 'cash'; paymentSourceId = ''; return; }
-    const account = accounts.find((item) => item.name === value);
-    if (account) { paymentSource = 'account'; paymentSourceId = account.id; return; }
-    const card = activeCards.find((item) => item.name === value);
-    if (card) { paymentSource = 'card'; paymentSourceId = card.id; }
-  }
   function purchaseFrom(source: Character, amount: number, description: string): Character {
     if (paymentSource === 'cash') return makeCashPurchase(source, amount, description);
     if (paymentSource === 'account') return paymentSourceId ? makeAccountPurchase(source, paymentSourceId, amount, description) : source;
@@ -90,6 +84,10 @@
   }
   function completePurchase() {
     if (!selectedProduct || !dialogKind || dialogKind === 'subscription') return;
+    if (dialogKind === 'product' && selectedOwnedQuantity + orderQuantity > 999) {
+      onNotify('Your Owned inventory already has the maximum quantity for this item.');
+      return;
+    }
     const description = 'Lifestyle market · ' + selectedProduct.name + (orderQuantity > 1 ? ' × ' + orderQuantity : '');
     let base = character;
     if (dialogKind === 'food') {
@@ -211,14 +209,14 @@
           <p>{selectedProduct.description}</p>
           <label class="quantity-field">Quantity<input type="number" min="1" max="20" bind:value={quantity} /></label>
           {#if dialogKind === 'food'}
-            <div class="food-benefits"><strong>Weekly plan effects</strong><span>Stamina +{Math.min(30, (selectedProduct.staminaRecovery ?? 0) * orderQuantity)}</span>{#if selectedProduct.health}<span>Health +{Math.min(12, selectedProduct.health * orderQuantity)}</span>{/if}{#if selectedProduct.happiness}<span>Happiness +{Math.min(10, selectedProduct.happiness * orderQuantity)}</span>{/if}</div>
+            <div class="food-benefits"><strong>Weekly plan effects</strong><span>Stamina +{Math.min(30, (selectedProduct.staminaRecovery ?? 0) * orderQuantity)}</span>{#if selectedProduct.health}<span>Health +{Math.min(12, selectedProduct.health * orderQuantity)}</span>{/if}{#if selectedProduct.happiness}<span>Happiness +{Math.min(10, selectedProduct.happiness * orderQuantity)}</span>{/if}{#if selectedProduct.stress}<span>Stress −{Math.min(8, selectedProduct.stress * orderQuantity)}</span>{/if}</div>
             <p class="dialog-note">Payment is taken now. The meal is marked BOUGHT in your planned activities and its effects apply when the week is resolved.</p>
           {:else}
             <p class="dialog-note">After successful checkout, this item will be added to your Owned inventory.</p>
           {/if}
           <div class="choice-field"><span>Payment source</span><GameChoice label="Purchase payment source" value={paymentSource === 'cash' ? 'cash' : paymentSourceId} options={[{value:'cash',label:'Cash',detail:formatCharacterMoney(character, character.money)},...accounts.map((account) => ({value:account.id,label:account.name,detail:formatCharacterMoney(character, account.balance)})),...activeCards.map((card) => ({value:card.id,label:card.name,detail:card.type + ' card'}))]} onSelect={(value) => { if (value === 'cash') { paymentSource = 'cash'; paymentSourceId = ''; } else if (accounts.some((account) => account.id === value)) { paymentSource = 'account'; paymentSourceId = value; } else { paymentSource = 'card'; paymentSourceId = value; } }} columns={2}/></div>
           <div class="dialog-total"><span>Total · {orderQuantity} {orderQuantity === 1 ? 'item' : 'items'}</span><strong>{formatCharacterMoney(character, orderTotal)}</strong></div>
-          <div class="dialog-actions"><button class="secondary" onclick={() => dialogKind = null}>Cancel</button><button class="primary" onclick={completePurchase}>Pay & {dialogKind === 'food' ? 'plan' : 'buy'}</button></div>
+          <div class="dialog-actions"><button class="secondary" onclick={() => dialogKind = null}>Cancel</button><button class="primary" onclick={completePurchase} disabled={dialogKind === 'product' && selectedOwnedQuantity + orderQuantity > 999}>Pay & {dialogKind === 'food' ? 'plan' : 'buy'}</button></div>
         {/if}
       </dialog>
     </div>
