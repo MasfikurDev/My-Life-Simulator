@@ -1118,4 +1118,18 @@ describe('life simulation', () => {
     expect(redeemed.financialTransactions?.some((transaction) => transaction.type === 'income')).toBe(true);
   });
 
+
+  it('trades sector equities and government bonds and credits annual bond coupons', () => {
+    const base = { ...createCharacter('Trader', 30), currencyScale: 1, money: 10000 };
+    const technology = tradeInvestment(base, 'technology-stock', 'buy', 2);
+    expect(technology.investments?.[0]).toMatchObject({ type: 'technology-stock', units: 2 });
+    const bonds = tradeInvestment(base, 'government-bond', 'buy', 10);
+    expect(bonds.investments?.[0]).toMatchObject({ type: 'government-bond', units: 10 });
+    const next = advanceYear(bonds);
+    expect(next.marketPrices?.technology).toBeGreaterThan(0);
+    expect(next.marketPrices?.energy).toBeGreaterThan(0);
+    expect(next.marketPrices?.bonds).toBeGreaterThan(0);
+    expect(next.financialTransactions?.some((item) => item.description.includes('Annual 4% coupon income'))).toBe(true);
+  });
+
 });
