@@ -444,7 +444,7 @@ export function getCreditScore(character: Character): number {
 export function getCreditProfile(character: Character) {
   const transactions = character.financialTransactions ?? [];
   const missedPayments = transactions.filter((item) => item.type === 'expense' && /missed (loan installment|minimum payment)/i.test(item.description)).length;
-  const successfulPayments = transactions.filter((item) => (item.type === 'loan-payment' || item.type === 'card-payment') && /payment|repaid|installment/i.test(item.description)).length;
+  const successfulPayments = transactions.filter((item) => item.type === 'loan-payment' || item.type === 'card-payment').length;
   const creditCards = (character.cards ?? []).filter((card) => card.active && card.type === 'credit');
   const creditLimit = creditCards.reduce((sum, card) => sum + card.creditLimit, 0);
   const creditBalance = creditCards.reduce((sum, card) => sum + card.balance, 0);
