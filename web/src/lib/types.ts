@@ -20,12 +20,12 @@ export type FinancialTransactionType = 'family-support' | 'account-opened' | 'de
 export type CardType = 'debit' | 'credit' | 'prepaid';
 export type LoanType = 'personal' | 'mortgage' | 'business';
 export type PropertyType = 'house' | 'apartment';
-export type InvestmentType = 'stock-index' | 'gold';
+export type InvestmentType = 'stock-index' | 'technology-stock' | 'energy-stock' | 'government-bond' | 'gold';
 export type BusinessType = 'retail' | 'online' | 'cafe';
 export interface PropertyAsset { id: string; name: string; type: PropertyType; marketValue: number; purchasePrice: number; annualMaintenance: number; mortgageLoanId?: string; rentedOut: boolean; annualRentalIncome: number; expectedGrowthRate?: number; marketVolatility?: number; }
 export interface RentalHome { type: PropertyType; annualRent: number; }
 export interface InvestmentHolding { type: InvestmentType; units: number; averageCost: number; }
-export interface MarketPrices { stocks: number; gold: number; lastUpdatedYear: number; }
+export interface MarketPrices { stocks: number; technology?: number; energy?: number; bonds?: number; gold: number; lastUpdatedYear: number; }
 export type EconomicCycle = 'expansion' | 'stable' | 'recession';
 export interface EconomicConditions { inflationRate: number; growthRate: number; baseInterestRate: number; cycle: EconomicCycle; costOfLivingIndex: number; lastUpdatedYear: number; }
 export interface OwnedBusiness { id: string; name: string; type: BusinessType; investedCapital: number; valuation: number; performance: number; }
