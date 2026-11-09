@@ -24,7 +24,6 @@
   let quantity = $state('1');
   let paymentSource = $state<PaymentSourceType>('cash');
   let paymentSourceId = $state('');
-  let notice = $state('');
 
   const scale = $derived(character.currencyScale ?? 1);
   const activeCards = $derived((character.cards ?? []).filter((card) => card.active));
@@ -63,11 +62,6 @@
   const orderTotal = $derived(selectedProduct ? Math.round(selectedProduct.price * scale) * orderQuantity : 0);
   const filteredProducts = $derived(category === 'All' ? products : products.filter((item) => item.category === category));
   const subscriptionCost = $derived(selectedProvider ? Math.round(selectedProvider.price * scale) : 0);
-  const paymentOptions = $derived([
-    { value: 'cash', label: 'Cash', detail: 'Pay from wallet' },
-    ...accounts.map((account) => ({ value: 'account', label: account.name, detail: formatCharacterMoney(character, account.balance) })),
-    ...activeCards.map((card) => ({ value: 'card', label: card.name, detail: card.type + ' card' }))
-  ]);
   function openProduct(product: MarketProduct) {
     selectedProductId = product.id;
     quantity = '1';
