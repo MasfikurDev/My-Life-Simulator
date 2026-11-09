@@ -1,7 +1,7 @@
 # Weekly Activity Review
 
-**Status:** Implemented in PR #88; CI passed (155 tests, 0 type-check errors)  
-**Scope:** A simulation-backed weekly review for optional activities, background responsibilities, stamina allocation, and combined wellbeing outcomes.
+**Status:** Implemented foundation; part of the live weekly turn system.  
+**Scope:** A simulation-backed weekly review for optional activities, background responsibilities, stamina allocation, affordability, and combined wellbeing outcomes. See `GAMEPLAY_LOOP.md` for the canonical time and resolution contract.
 
 ## Product intent
 
@@ -42,10 +42,10 @@ Do not turn this into a universal action quota. Players can choose a demanding w
 
 ## Current save format
 
-- Schema 6 is the sole supported persisted format and contains three independent slots.
+- Schema 6 is the sole supported local-save format and contains three independent slots. Older schemas are rejected without migration or mutation; a deliberate reset is required to start fresh.
 - Each current character requires calendar dates and a versioned weekly action plan.
 - Planned actions store a stable ID, owning domain, and explicit action payload; they contain no dates, periods, durations, or recurring timetable commitments.
-- Unsupported older save schemas are rejected without changing their stored bytes. The player must explicitly confirm a reset before starting a fresh life.
+- Unsupported older save schemas are rejected without changing their stored bytes. The player must explicitly confirm a reset before starting a fresh life. Current-schema shape changes require an explicit schema update and validation tests.
 - Education and employment remain automatic background responsibilities and never create timetable reservations.
 
 
