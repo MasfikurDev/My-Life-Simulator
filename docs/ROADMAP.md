@@ -64,9 +64,11 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add age-18+ household budgets with family-supported/shared/independent living, recurring expense categories, unemployment shortfall pressure, and emergency savings targets.
 - [x] Add a unified money ledger and age-gated checking, savings, and fixed-deposit accounts with deposits, withdrawals, transfers, interest, and a net-worth summary.
 - [x] Add configurable automatic deposits, debit/credit/prepaid cards, recurring bills and subscriptions, and a personal safe/vault.
+- [x] Consolidate account discovery and owned accounts into one account list with account-specific deposits, withdrawals, transfers, automatic deposits and eligible autopay controls.
+- [x] Add predefined bank-card products with credit-score/asset eligibility, APR, rewards and redeemable purchase rewards.
 - [x] Add personal, mortgage, and business loan products with annual interest, scheduled installments, and extra repayments.
-- [x] Add housing/property ownership, mortgages, rental choices, rental income, maintenance and sale.
-- [x] Add stock-index and gold trading with simulated price movement, plus small-business ownership and management.
+- [x] Add housing/property ownership, mortgages, rental choices, rental income, maintenance and sale, plus predefined property opportunities with differentiated appreciation, volatility and rental-yield profiles.
+- [x] Add stock-index and gold trading with simulated price movement, open-position performance and transparent trading costs, plus predefined small-business opportunities with differentiated operating profiles and management.
 - [x] Add bounded economic cycles, inflation, growth and benchmark-rate indicators; link inflation to living costs, subscriptions, rental agreements, and market valuations.
 - [x] Add simplified progressive income tax, rental/business income tax, annual property levy, and carried unpaid tax liability.
 - [x] Add a simplified 300–850 credit score using payment history, utilization, debt and unpaid taxes; price personal, mortgage and business loans from the score.
