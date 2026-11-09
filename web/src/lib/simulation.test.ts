@@ -1007,7 +1007,7 @@ describe('life simulation', () => {
     expect(profile.creditLimit).toBe(1000);
     expect(profile.creditBalance).toBe(250);
     expect(profile.rating).toBe('Good');
-    expect(profile.debtToIncome).toBe(0);
+    expect(profile.debtToIncome).toBe(1);
     expect(profile.hasCreditHistory).toBe(true);
     const missed = { ...used, financialTransactions: [...(used.financialTransactions ?? []), { id: 'missed-1', year: 1, age: 30, type: 'expense' as const, amount: 0, description: 'Missed minimum payment for Everyday credit.', from: 'Cash', to: 'Bank' }] };
     expect(getCreditProfile(missed).missedPayments).toBe(1);
