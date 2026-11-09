@@ -1163,6 +1163,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
 export interface WeeklyActivityReviewItem {
   id: string;
   title: string;
+  seal?: 'BOUGHT';
   staminaCost: number;
   moneyCost: number;
   reward: string;
@@ -1237,6 +1238,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   const activities = schedule.activities.map((item) => ({
     id: item.id,
     title: getPlannedActivityTitle(character, item),
+    seal: item.action?.kind === 'food' ? 'BOUGHT' as const : undefined,
     staminaCost: getPlannedActivityStaminaCost(item),
     moneyCost: getPlannedActivityCost(character, item),
     reward: getPlannedActivityReward(item)
