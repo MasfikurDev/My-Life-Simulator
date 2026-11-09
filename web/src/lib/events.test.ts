@@ -20,6 +20,10 @@ describe('game event decisions and delayed consequences', () => {
       chosenLabel: choice.label,
       treeId: 'life'
     });
+    expect(resolved.financialTransactions?.some((transaction) =>
+      transaction.id === 'event:' + pending!.id + ':' + choice.id + ':cost' &&
+      transaction.type === 'expense' && transaction.amount === choice.moneyCost
+    )).toBe(true);
     expect(resolved.scheduledGameConsequences).toHaveLength(1);
     expect(resolved.scheduledGameConsequences?.[0]).toMatchObject({
       id: pending!.id + ':' + choice.id,
@@ -35,6 +39,10 @@ describe('game event decisions and delayed consequences', () => {
     expect(rewarded.money).toBe(resolved.money + (choice.followUp?.effects.money ?? 0));
     expect(rewarded.scheduledGameConsequences).toEqual([]);
     expect(rewarded.history[0].title).toBe(choice.followUp?.title);
+    expect(rewarded.financialTransactions?.some((transaction) =>
+      transaction.id === 'consequence:' + pending!.id + ':' + choice.id + ':money' &&
+      transaction.type === 'income' && transaction.amount === (choice.followUp?.effects.money ?? 0)
+    )).toBe(true);
     expect(resolveDueGameConsequences(rewarded)).toBe(rewarded);
   });
 

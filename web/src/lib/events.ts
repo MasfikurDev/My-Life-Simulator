@@ -14,15 +14,36 @@ function historyEntry(character: Character, title: string, description: string):
   };
 }
 
-function applyEffects(character: Character, effects: GameEventEffects): Character {
-  return {
+function recordEventMoney(character: Character, id: string, signedAmount: number, description: string): Character {
+  const amount = Math.round(signedAmount);
+  if (!amount) return character;
+  const existing = character.financialTransactions ?? [];
+  if (existing.some((transaction) => transaction.id === id)) return character;
+  const transaction = {
+    id,
+    year: character.year,
+    age: character.age,
+    date: character.calendar?.currentDate,
+    type: amount > 0 ? 'income' as const : 'expense' as const,
+    amount: Math.abs(amount),
+    description,
+    from: amount > 0 ? 'Event' : 'Cash',
+    to: amount > 0 ? 'Cash' : 'Event'
+  };
+  return { ...character, financialTransactions: [...existing, transaction].slice(-300) };
+}
+
+function applyEffects(character: Character, effects: GameEventEffects, transactionId: string, description: string): Character {
+  const moneyChange = Math.max(-character.money, Math.round(effects.money ?? 0));
+  const next: Character = {
     ...character,
-    money: Math.max(0, character.money + (effects.money ?? 0)),
+    money: character.money + moneyChange,
     health: clampStat(character.health + (effects.health ?? 0)),
     happiness: clampStat(character.happiness + (effects.happiness ?? 0)),
     intelligence: clampStat(character.intelligence + (effects.intelligence ?? 0)),
     fitness: clampStat(character.fitness + (effects.fitness ?? 0))
   };
+  return recordEventMoney(next, transactionId, moneyChange, description);
 }
 
 function stableHash(value: string): number {
@@ -224,7 +245,10 @@ export function resolveGameEvent(character: Character, choiceId: string): Charac
     decisionTreeHistory: [...(character.decisionTreeHistory ?? []), decisionRecord(character, pending, choice)],
     scheduledGameConsequences: [...(character.scheduledGameConsequences ?? [])]
   };
-  next = applyEffects(next, choice.effects);
+  if (choice.moneyCost > 0) {
+    next = recordEventMoney(next, 'event:' + pending.id + ':' + choice.id + ':cost', -choice.moneyCost, 'Event cost: ' + pending.title + '.');
+  }
+  next = applyEffects(next, choice.effects, 'event:' + pending.id + ':' + choice.id + ':effect', 'Event outcome: ' + pending.title + '.');
   if (choice.familyBondEffect) next = applyFamilyBondEffect(next, choice.familyBondEffect);
 
   if (choice.followUp) {
@@ -270,7 +294,7 @@ export function resolveDueGameConsequences(character: Character): Character {
     scheduledGameConsequences: (character.scheduledGameConsequences ?? []).filter((item) => item.dueYear > character.year)
   };
   for (const consequence of due) {
-    next = applyEffects(next, consequence.effects);
+    next = applyEffects(next, consequence.effects, 'consequence:' + consequence.id + ':money', 'Delayed event outcome: ' + consequence.title + '.');
     next.history = [historyEntry(next, consequence.title, consequence.description), ...next.history];
   }
   return next;
