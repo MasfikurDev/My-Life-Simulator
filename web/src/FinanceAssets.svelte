@@ -2,6 +2,7 @@
   import { buyProperty, closeBusiness, formatCharacterMoney, getEconomicConditions, getMarketPrice, planBusinessManagementInNextFreeTime, removePlannedActivity, moveIntoOwnedProperty, rentHome, sellProperty, setPropertyRental, startBusiness, tradeInvestment } from './lib/simulation';
   import type { Character, InvestmentType, PropertyType } from './lib/types';
   import GameChoice from './GameChoice.svelte';
+  import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
   let { character, onChange, view = 'all' }: { character: Character; onChange: (next: Character) => void; view?: 'all' | 'property' | 'investments' | 'business' } = $props();
   const scale = $derived(character.currencyScale ?? 1);
   const properties = $derived(character.properties ?? []);
@@ -79,7 +80,7 @@
   {/if}
   {#if view === 'all' || view === 'business'}
   <details open={view !== 'all'}><summary>Start or manage a business <span>{businesses.length}/3</span></summary>
-    {#each businesses as business}<div class="asset-row"><div><strong>{business.name}</strong><small>{business.type} · value {formatCharacterMoney(character,business.valuation)} · performance {business.performance}/100</small><small>{business.type==='retail'?'Steady growth · moderate volatility · high cash intensity · 3–7% annual result':business.type==='online'?'Fast growth · high volatility · low cash intensity · -1–14% annual result':'Moderate growth · high volatility · high cash intensity · -5–8% annual result'}</small></div><div class="asset-actions"><button class:planned={(character.weeklyPlan?.activities??[]).some((item)=>item.action?.kind==='business'&&item.action.businessId===business.id)} onclick={()=>planManagement(business.id)}>{(character.weeklyPlan?.activities??[]).some((item)=>item.action?.kind==='business'&&item.action.businessId===business.id)?'Remove management plan':'Manage this week · 12 stamina'}</button><button class="quiet" onclick={()=>run(()=>closeBusiness(character,business.id),'Business sold.')}>Sell</button></div></div>{/each}
+    {#each businesses as business}<div class="asset-row"><div><strong>{business.name}</strong><small>{business.type} · value {formatCharacterMoney(character,business.valuation)} · performance {business.performance}/100</small><small>{business.type==='retail'?'Steady growth · moderate volatility · high cash intensity · 3–7% annual result':business.type==='online'?'Fast growth · high volatility · low cash intensity · -1–14% annual result':'Moderate growth · high volatility · high cash intensity · -5–8% annual result'}</small></div><div class="asset-actions"><button onclick={()=>planManagement(business.id)}>{(character.weeklyPlan?.activities??[]).some((item)=>item.action?.kind==='business'&&item.action.businessId===business.id)?'Remove management plan':'Manage this week · 12 stamina'} <ActivityStatusSeal status={(character.weeklyPlan?.activities??[]).some((item)=>item.action?.kind==='business'&&item.action.businessId===business.id)?'planned':'available'} /></button><button class="quiet" onclick={()=>run(()=>closeBusiness(character,business.id),'Business sold.')}>Sell</button></div></div>{/each}
     <h3>Prebuilt business opportunities</h3>
     <div class="catalog-grid business-catalog">
       {#each businessCatalog as item (item.id)}
