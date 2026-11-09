@@ -26,7 +26,7 @@
   let notice = $state('');
   function amount(v:string){const n=Number(v);return Number.isFinite(n)?Math.floor(n):0}
   function run(action:()=>Character,message:string){const next=action();if(next===character){notice='Action unavailable. Check your age, cash, property status, and limits.';return;}onChange(next);notice=message;}
-  function selectProperty(item: typeof propertyCatalog[number]) { selectedPropertyId=item.id; propertyType=item.type; propertyName=item.name; propertyPrice=String(Math.round(item.price*scale)); downPayment=String(Math.round(item.down*scale)); }
+  function selectProperty(item: typeof propertyCatalog[number]) { selectedPropertyId=item.id; propertyType=item.type; propertyName=item.name; propertyPrice=String(Math.round(item.price*scale)); downPayment=String(Math.round(item.down*scale)); rentalIncome=String(Math.round(item.price*item.rentalYield*scale)); }
   function purchase(){const profile=propertyCatalog.find((item)=>item.id===selectedPropertyId);run(()=>buyProperty(character,propertyType,propertyName,amount(propertyPrice),amount(downPayment),Number(mortgageRate)/100,amount(mortgageTerm),primaryResidence,profile?{expectedGrowthRate:profile.growth,marketVolatility:profile.volatility==='Low'?0.008:profile.volatility==='Moderate'?0.014:0.022}:undefined),'Property purchased.');propertyName='';selectedPropertyId='';}
   function rent(){run(()=>rentHome(character,rentalType,amount(annualRent)),'Rental home selected.');}
   function listRent(propertyId:string){run(()=>setPropertyRental(character,propertyId,true,amount(rentalIncome)),'Property listed for rent.');}
