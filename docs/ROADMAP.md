@@ -9,7 +9,7 @@ This is a repository-backed progress snapshot, not a claim that every visible wo
 - **Weekly simulation:** the annual-action-to-weekly-turn transition is implemented. Date/week calendar, automatic School/Work responsibilities, stamina-based personal activities, deterministic weekly resolution, history, recap, and schema 6 current weekly-plan save baseline are in place.
 - **Education:** playable foundation from school through higher education/professional programmes, with enrollment, automatic attendance/progression, weekly study/assessment tasks, grades, tuition, and qualification records. Localization, licensing, scholarships, retakes, and apprenticeships remain incomplete.
 - **Work:** recruitment, applications, interviews, offers, employment, job changes/resignation, career previews, and player-controlled promotion offers exist. Employer operations, persistent vacancies, workplace decisions, layoffs, benefits, bonuses, and monthly payroll remain incomplete.
-- **Finance:** broad systems exist for accounts, cards, savings, loans, recurring payments, property, investments, business ownership, taxes, credit scoring, and economic indicators. The weekly-to-monthly settlement transition is not complete; salary and household settlement remain annual, a known pacing limitation.
+- **Finance:** broad systems exist for accounts, cards, savings, loans, recurring payments, property, multi-asset investments (broad index, technology and energy shares, government bonds, and gold), business ownership, taxes, credit scoring, loan eligibility/rejection scoring, and economic indicators. The weekly-to-monthly settlement transition is not complete; salary and recurring financial settlement remain annual, a known pacing limitation.
 - **Family:** persistent people/relationship graph, bonds, targeted interactions, family history, and ledger-backed adult support exist. Partnership, parenthood, adoption, dependants, caregiving, family mortality, inheritance, and generational play remain planned.
 - **Health and wellbeing:** stress/workload, stamina/recovery, checkups, counselling, and basic treatment loops exist. Broader illness, chronic care, insurance, localized healthcare, and later-life health remain planned.
 - **UI foundation:** reusable Svelte primitives and semantic design tokens are established; AMOLED remains the default, with selectable themes. Recent UI work consolidated navigation, compact activity choices, weekly finance interactions, and shared spacing/hierarchy patterns. Visual QA remains ongoing.
@@ -17,7 +17,7 @@ This is a repository-backed progress snapshot, not a claim that every visible wo
 
 ### Latest verified validation baseline
 
-The latest focused validation inspected for Banking/credit-score PR #97 (2026-11-09) reported:
+Focused validation inspected for Banking/credit-score PR #97 (2026-11-09) reported:
 - Svelte check: **0 errors, 0 warnings**.
 - Vitest: **159 tests passed** across 11 test files.
 - Vite production build: passed.
@@ -70,7 +70,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add multi-asset trading for a broad market index, technology and energy shares, government bonds with annual coupons, and gold; include simulated price movement, open positions, brokerage and realized-gain tax, plus predefined small-business opportunities with differentiated operating profiles and management.
 - [x] Add bounded economic cycles, inflation, growth and benchmark-rate indicators; link inflation to living costs, subscriptions, rental agreements, and market valuations.
 - [x] Add simplified progressive income tax, rental/business income tax, annual property levy, and carried unpaid tax liability.
-- [x] Add a simplified 300–850 credit score using payment history, utilization, debt and unpaid taxes; price personal, mortgage and business loans from the score.
+- [x] Add a simplified 300–850 credit score using payment history, utilization, debt and unpaid taxes; price personal, mortgage and business loans from the score, with eligibility checks and bounded penalties for rejected applications.
 - [x] Add simplified brokerage/transfer fees and capital-gains tax on investment/property sales.
 - [ ] Add full affordability checks and variable-rate debt.
 - [ ] Add benefits and taxes after household budgets and financial flows are balanced.
@@ -78,7 +78,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Organize Finance around Banking, Business, Property, Investments, and Taxes; group accounts, cards, loans, savings, and vault inside Banking.
 - [x] Add Life → Lifestyle with a provider marketplace, supermarket checkout, owned subscriptions/services, payment-method references, and household costs.
 - [x] Separate School and Work into age-gated, domain-native destinations using existing simulation actions and save fields.
-- [x] Consolidate personal wellbeing, personal growth, personal activities, and complete life history under a modular Life workspace.
+- [x] Consolidate wellbeing, Lifestyle, Family, Family tree, and Life story under the modular Life workspace; the decision-based Life tree remains a distinct planned/implemented view only where backed by `LifeTreeWorkspace.svelte`.
 - [x] Expand Education with enrollment, automatic attendance and course progression, grades, weekly tasks, programme completion and education history.
 - [x] Implement a weekly job board, visible role requirements, scheduled applications and interviews, expiring offers, acceptance/decline, career-path previews, player-controlled promotion offers, and voluntary resignation.
 - [x] Add initial role-specific eligibility gates for focus, social skills, confidence, discipline and creativity alongside age, education, intelligence and experience.
