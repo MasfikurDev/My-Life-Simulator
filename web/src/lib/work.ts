@@ -269,7 +269,10 @@ export function resolveJobApplication(character: Character, listingId: string, r
   const requirements = getCareerRequirements(character, role);
   const fit = requirements.length ? requirements.filter((item) => item.met).length / requirements.length : 0;
   const performance = character.employment?.performance ?? 55;
-  const chance = Math.max(0.2, Math.min(0.9, 0.35 + fit * 0.35 + (performance - 50) / 500));
+  const experienceAdvantage = Math.min(0.12, Math.max(0, getCareerExperience(character) - role.minExperienceYears) * 0.015);
+  const roleSkillAdvantage = ((character.intelligence - role.minIntelligence) / 500) + (role.minSocialSkills ? ((character.socialSkills ?? 50) - role.minSocialSkills) / 650 : 0) + (role.minFocus ? ((character.focus ?? 50) - role.minFocus) / 700 : 0) + (role.minConfidence ? ((character.confidence ?? 50) - role.minConfidence) / 750 : 0);
+  const workloadPenalty = Math.max(0, (character.stress ?? 30) - 60) / 400;
+  const chance = Math.max(0.15, Math.min(0.92, 0.35 + fit * 0.25 + (performance - 50) / 500 + experienceAdvantage + roleSkillAdvantage - workloadPenalty));
   const invited = random() < chance;
   const application: JobApplication = {
     id: 'application-' + listing.id,
