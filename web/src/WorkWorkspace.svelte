@@ -3,6 +3,7 @@
   import { getCareerPath, getCareerRequirements, getCareerRole, getJobListings, getPromotionReadiness, isEligibleForRole } from './lib/work';
   import type { CareerPathId, Character } from './lib/types';
   import GameChoice from './GameChoice.svelte';
+  import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
   import { getActivityStaminaCost } from './lib/progression';
 
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
@@ -89,7 +90,7 @@
           <div><span>Career experience</span><strong>{character.careerExperienceYears ?? character.employment.experienceYears} years</strong></div>
         </div>
         <p class="work-note">Payroll: annual settlement · Monthly pay and benefits: not implemented</p>
-        <div class="current-job-actions"><button class="work-secondary" class:planned={!!developmentPlan} onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · ' + getActivityStaminaCost('career') + ' stamina'}</button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
+        <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · ' + getActivityStaminaCost('career') + ' stamina'} <ActivityStatusSeal status={developmentPlan ? 'planned' : 'available'} /></button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
         {#if confirmResignation}<div class="resign-confirm"><strong>Leave {character.employment.title}?</strong><p>You will become unemployed. Your career experience and history will be kept.</p><div><button class="work-primary" onclick={confirmLeaveJob}>Confirm resignation</button><button class="work-secondary" onclick={() => confirmResignation = false}>Keep job</button></div></div>{/if}
       </section>
     {:else}
@@ -113,7 +114,7 @@
       {#each (character.jobApplications ?? []).filter((application) => application.status === 'interview') as application (application.id)}
         <article class="work-listing">
           <div class="listing-main"><div class="eyebrow">{application.employer}</div><h3>{application.title}</h3><p>Your application was shortlisted. Confirm the interview. It uses stamina rather than reserving calendar time.</p></div>
-          <button class="work-primary" class:planned={!!plannedWorkAction('interview', application.id)} onclick={() => planWork('interview', application.id)}>{plannedWorkAction('interview', application.id) ? 'Remove interview plan' : 'Confirm interview · 10 stamina'}</button>
+          <div class="listing-actions"><ActivityStatusSeal status={plannedWorkAction('interview', application.id) ? 'planned' : 'available'} /><button class="work-primary" onclick={() => planWork('interview', application.id)}>{plannedWorkAction('interview', application.id) ? 'Remove interview plan' : 'Confirm interview · 10 stamina'}</button></div>
         </article>
       {/each}
     {/if}
@@ -136,7 +137,8 @@
               {/each}
             </div>
             <div class="listing-actions">
-              <button class="work-primary" class:planned={!!plannedWorkAction('apply', listing.id)} disabled={!eligible || alreadyApplied || !!plannedWorkAction('apply', listing.id)} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Applied' : !eligible ? 'Requirements not met' : plannedWorkAction('apply', listing.id) ? 'Applied · resolves this week' : 'Apply · ' + getActivityStaminaCost('apply-job') + ' stamina'}</button>
+              <ActivityStatusSeal status={!role ? 'unavailable' : alreadyApplied ? 'completed' : !eligible ? 'requirements' : plannedWorkAction('apply', listing.id) ? 'planned' : 'available'} />
+              <button class="work-primary" disabled={(!eligible && !plannedWorkAction('apply', listing.id)) || alreadyApplied} onclick={() => planWork('apply', listing.id)}>{alreadyApplied ? 'Application submitted' : plannedWorkAction('apply', listing.id) ? 'Remove weekly plan' : 'Apply · ' + getActivityStaminaCost('apply-job') + ' stamina'}</button>
             </div>
           </article>
         {/each}
@@ -155,7 +157,7 @@
       <div class="eyebrow">EXTRA EARNINGS</div><h2>{character.employment ? 'Additional shift' : 'Casual work'}</h2>
       <p>Take an additional shift or casual assignment for extra income. Pay reflects your employment, role level, performance and current workload. High stress reduces earnings.</p>
       <div class="work-metrics"><div><span>Weekly stamina cost</span><strong>{getActivityStaminaCost('work')}</strong></div><div><span>Estimated shift pay</span><strong>{formatCharacterMoney(character, Math.round(Math.max(180 * (character.currencyScale ?? 1), (character.employment?.annualSalary ?? 0) / 52 * 0.5) * (character.employment ? 0.75 + character.employment.performance / 200 : 1) * ((character.stress ?? 30) >= 85 ? 0.6 : (character.stress ?? 30) >= 70 ? 0.8 : 1)))}</strong></div></div>
-      <button class="work-secondary" class:planned={!!extraWorkPlan} onclick={planExtraWork}>{extraWorkPlan ? 'Remove from this week' : (character.employment ? 'Add extra shift' : 'Find casual work') + ' · ' + getActivityStaminaCost('work') + ' stamina'}</button>
+      <button class="work-secondary" onclick={planExtraWork}>{extraWorkPlan ? 'Remove from this week' : (character.employment ? 'Add extra shift' : 'Find casual work') + ' · ' + getActivityStaminaCost('work') + ' stamina'} <ActivityStatusSeal status={extraWorkPlan ? 'planned' : 'available'} /></button>
     </section>
   {:else if activeView === 'career'}
     <section class="work-panel">
@@ -170,7 +172,7 @@
           {@const ready = isEligibleForRole(character, role)}
           <article class:current={current} class:eligible={ready} class="career-role">
             <div class="career-level">LEVEL {role.level}</div><div><h3>{role.title}</h3><p>{role.description}</p><strong>{moneyRange(Math.round(role.annualSalaryMin * (character.currencyScale ?? 1)), Math.round(role.annualSalaryMax * (character.currencyScale ?? 1)))} <small>estimated full-time annual pay</small></strong></div>
-            <span class="career-state">{current ? 'Current role' : ready ? 'Meets entry requirements' : 'Future opportunity'}</span>
+            <div class="career-role-status"><ActivityStatusSeal status={current ? 'completed' : ready ? 'available' : requirements.some((requirement) => requirement.met) ? 'requirements' : 'locked'} /><span class="career-state">{current ? 'Current role' : ready ? 'Meets entry requirements' : 'Future opportunity'}</span></div>
             {#if !current}<details><summary>View requirements</summary><ul>{#each requirements as requirement}<li class:met={requirement.met}>{requirement.met ? '✓' : '•'} {requirement.label}: {requirement.detail}</li>{/each}</ul></details>{/if}
           </article>
           {#if index < careerRoles.length - 1}<div class="career-connector"></div>{/if}

@@ -2,6 +2,7 @@
   import type { Character } from './lib/types';
   import { establishFamilyBackground, getFamilyConnections, validateFamilyState } from './lib/family';
   import { getValueColor } from './lib/progression';
+  import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
   import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
 
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
@@ -79,16 +80,16 @@
               {/if}
               {#if connection.living}
                 <div class="relative-actions">
-                  <button class:planned={interactionPlanned(connection.person.id, 'spend-time')} onclick={() => interact(connection.person.id, 'spend-time')}>{interactionPlanned(connection.person.id, 'spend-time') ? 'Remove spend-time plan' : 'Spend time · 6 stamina'}</button>
-                  {#if character.age >= 10}<button class:planned={interactionPlanned(connection.person.id, 'reach-out')} onclick={() => interact(connection.person.id, 'reach-out')}>{interactionPlanned(connection.person.id, 'reach-out') ? 'Remove reach-out plan' : 'Reach out · 6 stamina'}</button>{/if}
-                  {#if character.age >= 13 && connection.bond.tension >= 15}<button class:planned={interactionPlanned(connection.person.id, 'reconcile')} onclick={() => interact(connection.person.id, 'reconcile')}>{interactionPlanned(connection.person.id, 'reconcile') ? 'Remove plan' : 'Work through conflict · 6 stamina'}</button>{/if}
+                  <button onclick={() => interact(connection.person.id, 'spend-time')}>{interactionPlanned(connection.person.id, 'spend-time') ? 'Remove spend-time plan' : 'Spend time · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'spend-time') ? 'planned' : 'available'} /></button>
+                  {#if character.age >= 10}<button onclick={() => interact(connection.person.id, 'reach-out')}>{interactionPlanned(connection.person.id, 'reach-out') ? 'Remove reach-out plan' : 'Reach out · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'reach-out') ? 'planned' : 'available'} /></button>{/if}
+                  {#if character.age >= 13 && connection.bond.tension >= 15}<button onclick={() => interact(connection.person.id, 'reconcile')}>{interactionPlanned(connection.person.id, 'reconcile') ? 'Remove plan' : 'Work through conflict · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'reconcile') ? 'planned' : 'available'} /></button>{/if}
                 </div>
                 {#if character.age >= 18}
                   <div class="support-row">
                     <label>Support amount
                       <input type="number" min="1" step="1" bind:value={supportAmount} />
                     </label>
-                    <button class:planned={interactionPlanned(connection.person.id, 'provide-support')} disabled={!interactionPlanned(connection.person.id, 'provide-support') && (!Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money)} onclick={() => interact(connection.person.id, 'provide-support')}>{interactionPlanned(connection.person.id, 'provide-support') ? 'Remove support plan' : 'Provide support · 3 stamina'}</button>
+                    <button disabled={!interactionPlanned(connection.person.id, 'provide-support') && (!Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money)} onclick={() => interact(connection.person.id, 'provide-support')}>{interactionPlanned(connection.person.id, 'provide-support') ? 'Remove support plan' : 'Provide support · 3 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'provide-support') ? 'planned' : 'available'} /></button>
                   </div>
                   <p class="support-note">Available cash: {formatCharacterMoney(character)}. Support is an actual expense and is recorded in Finance.</p>
                 {/if}
@@ -141,7 +142,7 @@
   .relative-actions{display:flex;flex-wrap:wrap;gap:7px}
   .relative-actions button,.support-row button,.primary-action{min-height:38px;border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:var(--surface-raised);color:var(--text);font-size:11px;font-weight:700}
   .relative-actions button:disabled,.support-row button:disabled{opacity:.4}
-  .relative-actions button.planned{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  
   .support-row{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
   .support-row label{display:grid;gap:4px;font-size:10px;color:var(--muted);flex:1;min-width:120px}
   .support-row input{width:100%;min-height:38px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised);color:var(--text);padding:0 9px}

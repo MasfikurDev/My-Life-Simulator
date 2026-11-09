@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Character, EducationTaskType } from './lib/types';
   import GameChoice from './GameChoice.svelte';
+  import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
   import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation } from './lib/education';
   import { formatCharacterMoney, getActivityCost, planActivityInNextFreeTime, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getActivityStaminaCost, getValueColor } from './lib/progression';
@@ -62,9 +63,9 @@
     <div class="section-heading"><div><span class="section-index">01</span><h3>This week's academic work</h3></div><span class="section-hint">{plannedTasks.length} tasks selected</span></div>
 
         <div class="education-task-grid">
-      <button class="education-task-card" class:planned={taskPlanned('study')}  onclick={() => planTask('study')}><span class="education-task-icon">↗</span><strong>{enrollment.level === 'early-learning' ? 'Guided play' : 'Focused study'}</strong><small>{enrollment.level === 'early-learning' ? 'Build curiosity, language and coordination through play' : 'Review lessons and strengthen understanding'}</small><b>{taskPlanned('study') ? 'REMOVE FROM WEEK' : 'ADD STUDY · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
-      <button class="education-task-card" class:planned={taskPlanned('assignment')}  onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>{enrollment.level === 'early-learning' ? 'Story time' : 'Assignment'}</strong><small>{enrollment.level === 'early-learning' ? 'Build language and communication with shared stories' : 'Complete coursework and practical exercises'}</small><b>{taskPlanned('assignment') ? 'REMOVE FROM WEEK' : 'ADD ASSIGNMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
-      <button class="education-task-card" class:planned={taskPlanned('exam')}  onclick={() => planTask('exam')}><span class="education-task-icon">✓</span><strong>{enrollment.level === 'early-learning' ? 'Discovery activity' : 'Quiz / exam prep'}</strong><small>{enrollment.level === 'early-learning' ? 'Explore objects, sounds and movement with a caregiver' : 'Prepare for an assessment or sit a weekly quiz'}</small><b>{taskPlanned('exam') ? 'REMOVE FROM WEEK' : 'ADD ASSESSMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
+      <button class="education-task-card" class:planned={taskPlanned('study')}  onclick={() => planTask('study')}><span class="education-task-icon">↗</span><strong>{enrollment.level === 'early-learning' ? 'Guided play' : 'Focused study'}</strong><ActivityStatusSeal status={taskPlanned('study') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Build curiosity, language and coordination through play' : 'Review lessons and strengthen understanding'}</small><b>{taskPlanned('study') ? 'REMOVE FROM WEEK' : 'ADD STUDY · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
+      <button class="education-task-card" class:planned={taskPlanned('assignment')}  onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>{enrollment.level === 'early-learning' ? 'Story time' : 'Assignment'}</strong><ActivityStatusSeal status={taskPlanned('assignment') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Build language and communication with shared stories' : 'Complete coursework and practical exercises'}</small><b>{taskPlanned('assignment') ? 'REMOVE FROM WEEK' : 'ADD ASSIGNMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
+      <button class="education-task-card" class:planned={taskPlanned('exam')}  onclick={() => planTask('exam')}><span class="education-task-icon">✓</span><strong>{enrollment.level === 'early-learning' ? 'Discovery activity' : 'Quiz / exam prep'}</strong><ActivityStatusSeal status={taskPlanned('exam') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Explore objects, sounds and movement with a caregiver' : 'Prepare for an assessment or sit a weekly quiz'}</small><b>{taskPlanned('exam') ? 'REMOVE FROM WEEK' : 'ADD ASSESSMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
     </div>
     <div class="education-footnote">Each task uses stamina. Attendance is handled automatically as part of your education programme.</div>
   </section>
@@ -73,7 +74,7 @@
   <section class="education-intro domain-panel">
     <div class="education-independent-study">
       <div><strong>Independent study</strong><p>Build intelligence, focus and discipline without enrolling in a programme.</p><small>{getActivityStaminaCost('study')} stamina · {character.age >= 16 ? formatCharacterMoney(character, getActivityCost(character, 'study')) : 'No direct fee'}</small></div>
-      <button class:planned={!!independentStudy} onclick={toggleIndependentStudy}>{independentStudy ? 'Remove from this week' : 'Add study'}</button>
+      <button onclick={toggleIndependentStudy}>{independentStudy ? 'Remove from this week' : 'Add study'} <ActivityStatusSeal status={independentStudy ? 'planned' : 'available'} /></button>
     </div>
     <h2>Available programmes</h2>
     {#if programs.length}
