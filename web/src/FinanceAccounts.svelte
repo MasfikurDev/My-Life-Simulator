@@ -77,18 +77,14 @@
     <dialog open class="account-dialog" aria-label={selected.name + ' account'}>
       <div class="account-dialog-heading"><div><small>ACCOUNT DETAILS</small><h3>{selected.name}</h3><strong>{formatCharacterMoney(character, selected.balance)}</strong></div><button class="quiet" onclick={() => accountDialogOpen = false}>Close</button></div>
       <p class="hint">{selected.type === 'fixed-deposit' ? 'Fixed deposits are locked until maturity. Withdrawals and outgoing payments are unavailable before maturity.' : selected.type === 'savings' ? 'Savings account · 2% annual interest. Transfers and withdrawals are available.' : 'Everyday account · instant access for transfers, withdrawals and recurring payments.'}</p>
-      {#if selected.type !== 'fixed-deposit'}
-        <label>Amount<input type="number" min="1" step="1" bind:value={amount} inputmode="numeric" /></label>
-        <div class="action-row"><button onclick={deposit}>Deposit cash</button><button onclick={withdraw}>Withdraw cash</button></div>
+      <label>Amount<input type="number" min="1" step="1" bind:value={amount} inputmode="numeric" /></label>
+      <button class="primary" onclick={deposit}>Deposit cash</button>
+      {#if selected.type !== 'fixed-deposit' || character.year >= (selected.maturesAtYear ?? Number.MAX_SAFE_INTEGER)}
+        <button onclick={withdraw}>Withdraw cash</button>
         {#if accounts.length > 1}
           <div class="choice-field"><span>Transfer to</span><GameChoice label="Transfer destination" value={transferTarget} options={accounts.filter((account) => account.id !== selected.id).map((account) => ({value:account.id,label:account.name,detail:formatCharacterMoney(character,account.balance)}))} onSelect={(value) => transferTarget = value} columns={2}/></div>
           <button class="primary" onclick={transfer}>Transfer money</button>
         {/if}
-        <div class="account-tools">
-          <h4>Automatic deposit</h4>
-          <div class="form-grid"><div class="choice-field"><span>Method</span><GameChoice label="Automatic deposit method" value={depositMethod} options={[{value:'percentage',label:'Percentage'},{value:'fixed',label:'Fixed amount'}]} onSelect={(value) => depositMethod = value as 'fixed'|'percentage'} columns={2}/></div><label>{depositMethod === 'percentage' ? 'Income percentage' : 'Amount per year'}<input type="number" min="1" max={depositMethod === 'percentage' ? 90 : 100000000} bind:value={depositValue}/></label></div>
-          <button onclick={configureAutoDeposit}>Set automatic deposit</button>
-        </div>
         <div class="account-tools">
           <h4>Automatic payments</h4>
           <div class="form-grid"><label>Payment name<input bind:value={autopayName} placeholder="Rent, utility or subscription"/></label><label>Annual amount<input type="number" min="1" bind:value={autopayAmount}/></label></div>
@@ -96,8 +92,14 @@
           <button onclick={configureAutopay}>Set up automatic payment</button>
         </div>
       {:else}
-        <small class="hint">Maturity year: {selected.maturesAtYear}. This account cannot be selected for automatic payments or outgoing transfers before maturity.</small>
+        <small class="hint">Maturity year: {selected.maturesAtYear}. Outgoing transfers, withdrawals and autopay unlock at maturity.</small>
       {/if}
+      <div class="account-tools">
+        <h4>Automatic deposit</h4>
+        <div class="form-grid"><div class="choice-field"><span>Method</span><GameChoice label="Automatic deposit method" value={depositMethod} options={[{value:'percentage',label:'Percentage'},{value:'fixed',label:'Fixed amount'}]} onSelect={(value) => depositMethod = value as 'fixed'|'percentage'} columns={2}/></div><label>{depositMethod === 'percentage' ? 'Income percentage' : 'Amount per year'}<input type="number" min="1" max={depositMethod === 'percentage' ? 90 : 100000000} bind:value={depositValue}/></label></div>
+        <button onclick={configureAutoDeposit}>Set automatic deposit</button>
+      </div>
+
     </dialog>
   {/if}
   {#if notice}<p class="notice" role="status">{notice}</p>{/if}
