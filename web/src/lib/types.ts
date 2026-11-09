@@ -22,7 +22,7 @@ export type LoanType = 'personal' | 'mortgage' | 'business';
 export type PropertyType = 'house' | 'apartment';
 export type InvestmentType = 'stock-index' | 'gold';
 export type BusinessType = 'retail' | 'online' | 'cafe';
-export interface PropertyAsset { id: string; name: string; type: PropertyType; marketValue: number; purchasePrice: number; annualMaintenance: number; mortgageLoanId?: string; rentedOut: boolean; annualRentalIncome: number; }
+export interface PropertyAsset { id: string; name: string; type: PropertyType; marketValue: number; purchasePrice: number; annualMaintenance: number; mortgageLoanId?: string; rentedOut: boolean; annualRentalIncome: number; expectedGrowthRate?: number; marketVolatility?: number; }
 export interface RentalHome { type: PropertyType; annualRent: number; }
 export interface InvestmentHolding { type: InvestmentType; units: number; averageCost: number; }
 export interface MarketPrices { stocks: number; gold: number; lastUpdatedYear: number; }
