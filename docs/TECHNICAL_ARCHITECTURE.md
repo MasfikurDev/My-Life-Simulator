@@ -94,8 +94,8 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 
 
 ## Banking and financial ledger
-- `bankAccounts` and `financialTransactions` are present when the character uses those products; cash-only characters keep empty or absent product collections.
-- Cash and account balances are distinct integer currency units. `getNetWorth` currently sums cash and bank balances only; expand it when liabilities and other assets are implemented.
+- `bankAccounts`, cards, loans, investments, properties, businesses, tax balances, and `financialTransactions` are represented in the current Character model when applicable.
+- Cash and account balances are distinct integer currency units. `getNetWorth` includes cash, bank accounts, vault cash, prepaid-card balances, property, investments, and business valuations, less active loans, credit-card balances, and unpaid tax liabilities.
 - Account operations are pure simulation functions. Each successful operation returns a new Character and records a transaction. Reject overdrafts, invalid values, missing accounts, same-account transfers, and accounts beyond the configured limit.
 - The transaction ledger is bounded to the latest 300 records. Annual income, household expense settlement, and savings interest also append ledger entries.
 - Current products: checking (0% annual interest) and savings (2% annual interest). Rates are provisional game values.
@@ -103,7 +103,7 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 
 ## Financial products
 - Cards, loans, recurring payments, automatic deposits, and personal vault balances are represented only when those products are owned or configured.
-- Debit card purchases debit a linked account; credit card purchases increase a liability up to the configured limit. Credit card debt is included in net worth and accrues a simplified annual rate.
+- Debit card purchases debit a linked account; credit card purchases increase a liability up to the configured limit; prepaid purchases reduce a funded prepaid asset. Credit-card debt is included in net worth and accrues a simplified annual rate.
 - Loan issuance adds cash and an equal liability. Interest and repayments are posted to the common ledger during year settlement. Extra repayments reduce both cash/account holdings and principal liability.
 - Recurring payments are annual game-time charges with explicit funding source. Failed cash/account payments do not create debt. Card-funded charges require available credit.
 - Auto-deposit rules transfer cash to an account after household costs. Vault operations transfer cash into/out of a separate holding. All these movements must preserve net worth except for actual spending, interest, and loan interest.
@@ -114,7 +114,7 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 - Property, rental-home, investment-holding, market-price, and business state is represented in the current character schema when applicable.
 - Mortgage-financed property acquisition issues an equal loan liability and asset value; the down payment is cash outflow. Property sale pays off the linked mortgage before proceeds return to cash.
 - Rental income and business operating results are posted to the financial ledger. Property maintenance is included in the annual housing budget. Property appreciation and market movements update asset values during year advancement.
-- Market holdings use whole units and current simulated prices for a broad index, technology shares, energy shares, government bonds, and gold. Trading moves cash to/from asset value, records brokerage and realized-gain tax, and government bonds post a 4% annual coupon. Market price updates are deterministic per simulated year to keep saves and tests reproducible while still allowing gains and losses.
+- Market holdings use whole units and current simulated prices for a broad index, technology shares, energy shares, government bonds, and gold. Trading moves cash to/from asset value, records brokerage and realized-gain tax, and government bonds post a 4% annual coupon. Market price updates are deterministic per simulated year to keep saves and tests reproducible while still allowing gains and losses. The current coupon implementation bases the payment on the current bond market price; fixed-coupon accounting against face value remains a known correctness follow-up.
 - Business startup moves cash into business valuation; operating profit/loss changes cash, and management consumes an action plus a cash cost.
 - Net worth includes all modeled asset classes and subtracts loan and credit-card liabilities.
 
@@ -140,8 +140,8 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 
 
 ## Creditworthiness
-- Credit score is derived from the capped financial ledger, active credit-card utilization, active loan balance relative to annual income, and outstanding tax liability. It is deterministic and does not require a separate persisted migration field.
-- Loan issuance enforces age, active-loan count, minimum credit score, and a score-based minimum interest rate per loan type. The score does not yet calculate a full affordability ratio or a country-specific bureau report.
+- Credit score is derived from the capped financial ledger, active credit-card utilization, active loan and card debt relative to annual income, and outstanding tax liability. It is deterministic, bounded to 300–850, and does not require a separate persisted score field.
+- Loan issuance enforces age 18+, a minimum score of 520, no more than five active loans, annual income, principal limits (3× income for personal/mortgage and 4× for business), total debt no greater than 4× annual income, a score-based minimum interest rate, a 1–30 year term, and a valid non-fixed-deposit repayment account when selected. Rejections are recorded with a specific reason and a 25-point penalty, capped at 100 points. This remains a fictional game metric, not a country-specific bureau report.
 
 
 ## Trading and property transaction costs
@@ -154,18 +154,18 @@ Household arrangement, savings-goal duration, annual income, paid expenses, and 
 Keep the simulation domain model independent from Svelte components. Organize UI and simulation capabilities around bounded life-system modules; shared types and persistence are contracts, not a reason to combine screens.
 
 Current Finance UI boundary:
-- FinanceWorkspace.svelte is the Finance parent shell and owns finance-only sub-navigation.
-- FinanceAccounts.svelte owns Banking: account opening, balances, cash/account movement, and transaction activity.
-- FinanceProducts.svelte owns reusable focused product views for cards, loans, recurring bills/subscriptions, and automatic savings/vault. A view selects one module at a time.
-- FinanceTaxes.svelte owns tax estimates, annual assessments, and outstanding tax liabilities; tax information does not appear in Banking.
-- FinanceAssets.svelte owns focused Property, Investments, and Business views, selected independently.
-- FinanceLivingCosts.svelte owns household arrangements, estimated living costs, and emergency savings targets.
+- `FinanceWorkspace.svelte` owns the Finance parent shell and the ordered destinations Banking, Business, Property, Investments, and Taxes.
+- `FinanceAccounts.svelte` is the Banking workspace. It owns the internal Accounts, Cards, Loans, and Savings & vault navigation; the expandable credit-score breakdown appears only in Loans. Account ordering is checking, savings, then fixed deposits; card ordering is credit, debit, then prepaid.
+- `FinanceProducts.svelte` supplies the focused card, loan, and savings/vault views used inside Banking. Active loans are presented as a compact list; loan applications enforce age, credit-score, income, debt, principal, term, rate-floor, and repayment-account rules. Rejected applications are recorded in the ledger and history and apply a bounded score penalty.
+- `FinanceTaxes.svelte` owns tax estimates, annual assessments, and outstanding tax liabilities. Tax is not managed in Banking.
+- `FinanceAssets.svelte` owns focused Property, Investments, and Business views, selected independently.
+- `FinanceLivingCosts.svelte` is composed by Life → Lifestyle → Home for household arrangement and estimated living costs. Emergency savings targets remain in Banking → Savings & vault.
 - App.svelte owns global navigation, character lifecycle, persistence, and time progression. It should not assemble all finance modules inline.
 
-Future Education and Work modules must follow the same boundary pattern:
-- Education owns school enrollment, classes, attendance, grades, fees, study sessions, and education history.
-- Work owns job discovery, applications, interviews, offers, employment, workplace actions/performance, payroll and career history.
-- Do not implement Education/Work as status panels inside Finance. Their simulation logic should be callable through domain functions and their UI should be independent components/destinations.
+Education and Work are independent top-level destinations with implemented simulation-backed foundations:
+- Education owns programme discovery, enrollment, weekly study/assignment/exam actions, automatic attendance/progression, grades, tuition, pause/resume, and qualification history.
+- Work owns job discovery, applications, interviews, expiring offers, employment changes, resignation, extra earnings, career development, and promotion offers. Persistent employer operations, broad workplace decisions, benefits, bonuses, and monthly payroll remain planned.
+- Do not implement either domain as a status panel inside Finance. Their simulation logic remains callable independently from their UI.
 
 Shared cross-domain effects are communicated through explicit simulation transactions, history events, or narrowly scoped state changes. A bank account may receive salary, but the bank screen does not become a work screen. Keep each domain independently testable and progressively unlockable by age/eligibility.
 
@@ -181,7 +181,7 @@ The top-level Life destination is a modular UI workspace, not a new simulation s
 - `LifeWorkspace.svelte` owns the Lifestyle destination and composes `LifestyleWorkspace.svelte`.
 - `LifestyleWorkspace.svelte` provides Discover, My services, and Home. Discover uses existing recurring-payment actions for provider subscriptions and simulation purchase actions for supermarket checkouts. My services reads the existing `recurringPayments`, `cards`, and `financialTransactions` state; it does not maintain duplicate records. Home reuses `FinanceLivingCosts.svelte` for household arrangement and budget settings. Emergency savings goals are owned by the Banking savings section in `FinanceProducts.svelte`.
 - `makeCashPurchase` and `makeAccountPurchase` debit their selected source and write a financial transaction plus life-history event. Card purchases continue through `makeCardPurchase`, which enforces the card's own available balance or credit limit.
-- The current Character schema remains the source of truth for `recurringPayments`, card, bank-account, and household fields. Incompatible shape changes require a schema update, not a migration.
+- The current Character schema remains the source of truth for `recurringPayments`, cards, bank accounts, loans, investments, property, business, household, and family fields. Incompatible shape changes require a schema update, not a migration.
 
 
 ## Annual progression and event architecture
