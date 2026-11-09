@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { addRecurringPayment, cancelRecurringPayment, depositToVault, formatCharacterMoney, getCreditScore, getNetWorth, getMinimumLoanRate, getHouseholdBudget, setSavingsGoalMonths, issueBankCard, loadPrepaidCard, makeCardPurchase, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './lib/simulation';
+  import { addRecurringPayment, cancelRecurringPayment, depositToVault, formatCharacterMoney, getCreditScore, getNetWorth, getMinimumLoanRate, getHouseholdBudget, setSavingsGoalMonths, issueBankCard, loadPrepaidCard, makeCardPurchase, redeemCardRewards, payCreditCard, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './lib/simulation';
   import type { Character, LoanType, PaymentSourceType, SavingsGoalMonths } from './lib/types';
   import GameChoice from './GameChoice.svelte';
   let { character, onChange, view = 'all' }: { character: Character; onChange: (next: Character) => void; view?: 'all' | 'cards' | 'loans' | 'bills' | 'savings' } = $props();
@@ -28,6 +28,7 @@
   function withdrawVault(){run(()=>withdrawFromVault(character,n(vaultAmount)),'Cash withdrawn from your personal safe.');}
   function buy(){run(()=>makeCardPurchase(character,selectedCard,n(purchaseAmount),purchaseDescription||'Card purchase'),'Purchase recorded.');}
   function loadPrepaid(){const card=prepaidCards.find((item)=>item.id===prepaidCardId);if(!card)return;run(()=>loadPrepaidCard(character,card.id,n(prepaidLoadAmount)),'Prepaid card loaded.');}
+  function redeemRewards(cardId:string){run(()=>redeemCardRewards(character,cardId),'Card rewards credited to cash.');}
   function payCard(){const card=creditCards.find((item)=>item.id===selectedCard);if(!card)return;run(()=>payCreditCard(character,card.id,n(cardPayAmount),card.linkedAccountId?'account':'cash',card.linkedAccountId),'Card payment completed.');}
   function payLoan(){const loan=loans.find((item)=>item.id===selectedLoan);if(!loan)return;run(()=>repayLoan(character,loan.id,n(loanPayAmount),loan.paymentAccountId?'account':'cash',loan.paymentAccountId),'Loan payment completed.');}
 </script>
@@ -36,7 +37,8 @@
   {#if view === 'all' || view === 'loans'}<div class="credit-score"><div><small>CREDIT SCORE</small><strong>{creditScore}</strong><span>{creditTier}</span></div><p>Payment history, credit-card use, debt and unpaid tax influence your score. Better scores qualify for lower starting loan rates.</p></div>{/if}
   {#if view === 'all' || view === 'cards'}
   <details open={view !== 'all'}><summary>Payment cards <span>{cards.length}/6</span></summary>
-    {#each cards as card}<div class="product-row"><div><strong>{card.name}</strong><small>{card.type==='credit'?'Credit · '+formatCharacterMoney(character,card.balance)+' owed / '+formatCharacterMoney(character,card.creditLimit)+' limit':card.type==='prepaid'?'Prepaid · '+formatCharacterMoney(character,card.balance)+' available':'Debit · linked to '+(accounts.find((a)=>a.id===card.linkedAccountId)?.name??'unavailable account')}</small></div><b>{card.type==='credit'?formatCharacterMoney(character,Math.max(0,card.creditLimit-card.balance))+' available':card.type==='prepaid'?formatCharacterMoney(character,card.balance)+' stored':'Active'}</b></div>{/each}
+    {#each cards as card}<div class="product-row"><div><strong>{card.name}</strong><small>{card.type==='credit'?'Credit · '+formatCharacterMoney(character,card.balance)+' owed / '+formatCharacterMoney(character,card.creditLimit)+' limit':card.type==='prepaid'?'Prepaid · '+formatCharacterMoney(character,card.balance)+' available':'Debit · linked to '+(accounts.find((a)=>a.id===card.linkedAccountId)?.name??'unavailable account')} · rewards {formatCharacterMoney(character,card.rewardBalance??0)}</small></div><b>{card.type==='credit'?formatCharacterMoney(character,Math.max(0,card.creditLimit-card.balance))+' available':card.type==='prepaid'?formatCharacterMoney(character,card.balance)+' stored':'Active'}</b></div>{/each}
+    {#each cards.filter((card) => card.active && (card.rewardBalance ?? 0) > 0) as card}<div class="product-row"><div><strong>{card.name} rewards</strong><small>{formatCharacterMoney(character,card.rewardBalance??0)} available to redeem</small></div><button onclick={()=>redeemRewards(card.id)}>Redeem</button></div>{/each}
     <div class="choice-field"><span>Debit account</span><GameChoice label="Debit card account" value={cardAccount} options={[{value:'',label:'Choose account'},...accounts.filter((a)=>a.type!=='fixed-deposit').map((a) => ({value:a.id,label:a.name,detail:formatCharacterMoney(character,a.balance)}))]} onSelect={(value) => cardAccount = value} columns={2}/></div>
     <div class="card-catalogue">
       {#each cardProducts as product (product.id)}
