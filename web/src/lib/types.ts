@@ -253,7 +253,8 @@ export interface Character {
   financialTransactions?: FinancialTransaction[];
   cards?: BankCard[];
   loans?: Loan[];
-  recurringPayments?: RecurringPayment[];\n  ownedLifestyleItems?: OwnedLifestyleItem[];
+  recurringPayments?: RecurringPayment[];
+  ownedLifestyleItems?: OwnedLifestyleItem[];
   autoDepositRules?: AutoDepositRule[];
   vaultBalance?: number;
   properties?: PropertyAsset[];
