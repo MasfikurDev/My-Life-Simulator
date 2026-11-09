@@ -76,7 +76,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Add benefits and taxes after household budgets and financial flows are balanced.
 
 - [x] Organize Finance around Banking, Business, Property, Investments, and Taxes; group accounts, cards, loans, savings, and vault inside Banking.
-- [x] Add Life → Lifestyle with a provider marketplace, supermarket checkout, owned subscriptions/services, payment-method references, and household costs.
+- [x] Rework the top-level Life destination label to Lifestyle and replace the former Discover / My services / Home subviews with Market / Subscriptions / Owned. Food is paid for immediately and scheduled as a BOUGHT weekly activity whose effects resolve during week advancement; reusable/permanent goods enter the owned inventory after checkout; provider plans reuse the shared recurring-payment system.
 - [x] Separate School and Work into age-gated, domain-native destinations using existing simulation actions and save fields.
 - [x] Consolidate wellbeing, Lifestyle, Family, Family tree, and Life story under the modular Life workspace; the decision-based Life tree remains a distinct planned/implemented view only where backed by `LifeTreeWorkspace.svelte`.
 - [x] Expand Education with enrollment, automatic attendance and course progression, grades, weekly tasks, programme completion and education history.
