@@ -352,12 +352,14 @@ function accountExists(character: Character, id?: string): boolean { return !!id
 function updateAccountBalance(character: Character, id: string, delta: number): BankAccount[] {
   return (character.bankAccounts ?? []).map((account) => account.id === id ? { ...account, balance: account.balance + delta } : account);
 }
-export function issueBankCard(character: Character, type: CardType, name: string, linkedAccountId?: string, creditLimit = 0): Character {
+export function issueBankCard(character: Character, type: CardType, name: string, linkedAccountId?: string, creditLimit = 0, product?: { id: string; minimumCreditScore?: number; minimumAssets?: number; annualInterestRate?: number; rewardsRate?: number }): Character {
   if (character.age < (type === 'credit' ? 18 : 16) || (character.cards ?? []).length >= 6) return character;
   if (type === 'debit' && !accountExists(character, linkedAccountId)) return character;
   if (type === 'credit' && (!validAmount(creditLimit) || creditLimit > 100000000 || (linkedAccountId && !accountExists(character, linkedAccountId)))) return character;
+  if (product?.minimumCreditScore && getCreditScore(character) < product.minimumCreditScore) return character;
+  if (product?.minimumAssets && getNetWorth(character) < product.minimumAssets) return character;
   const label = name.trim().slice(0, 28) || (type === 'credit' ? 'Credit card' : type === 'prepaid' ? 'Prepaid card' : 'Debit card');
-  const card: BankCard = { id: 'card-' + character.year + '-' + character.age + '-' + ((character.cards ?? []).length + 1), name: label, type, linkedAccountId, creditLimit: type === 'credit' ? creditLimit : 0, balance: 0, annualInterestRate: type === 'credit' ? 0.18 : 0, active: true };
+  const card: BankCard = { id: 'card-' + character.year + '-' + character.age + '-' + ((character.cards ?? []).length + 1), name: label, type, linkedAccountId, creditLimit: type === 'credit' ? creditLimit : 0, balance: 0, annualInterestRate: type === 'credit' ? (product?.annualInterestRate ?? 0.18) : 0, active: true, productId: product?.id, rewardsRate: product?.rewardsRate ?? 0 };
   const next = { ...character, cards: [...(character.cards ?? []), card], history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'card-issued', 0, 'Issued ' + label + '.', 'Bank', label);
   next.history.unshift(event(next, 'Payment card issued', 'You added a ' + type + ' card named ' + label + '.', 'milestone'));
