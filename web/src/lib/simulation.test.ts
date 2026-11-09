@@ -19,12 +19,13 @@ describe('life simulation', () => {
     expect(canAffordActivity({ ...adult, money: 3499 }, 'study')).toBe(false);
   });
   it('uses semantic threshold colors for normal and inverse progress values', () => {
-    expect(getValueColor(15)).toBe('var(--coral)');
-    expect(getValueColor(35)).toBe('var(--amber)');
-    expect(getValueColor(55)).toBe('var(--accent)');
-    expect(getValueColor(85)).toBe('var(--green)');
+    expect(getValueColor(10)).toBe('var(--danger)');
+    expect(getValueColor(20)).toBe('var(--coral)');
+    expect(getValueColor(40)).toBe('var(--warning)');
+    expect(getValueColor(60)).toBe('var(--info)');
+    expect(getValueColor(85)).toBe('var(--success)');
     expect(getValueColor(85, true)).toBe('var(--coral)');
-    expect(getValueColor(20, true)).toBe('var(--green)');
+    expect(getValueColor(20, true)).toBe('var(--success)');
     expect(getActivityStaminaCost('exercise')).toBe(10);
   });
   it('defines stamina costs without timetable metadata', () => {
