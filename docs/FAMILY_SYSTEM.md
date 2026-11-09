@@ -85,7 +85,7 @@ Record important family milestones and decisions with year/date, involved person
 
 Interactions are targeted at a specific person and should communicate expected time, cost, prerequisites, and likely effects. Initial interaction types may include spending meaningful time together, reaching out/maintaining contact, working through a conflict, and providing financial support (adult-only, affordable, and posted through Finance's ledger).
 
-Interaction outcomes update the relevant bond and record a history entry. Do not allow repeated actions to max relationships instantly; future weekly scheduling should use actual time capacity and cooldown/context rules rather than a new arbitrary weekly quota.
+Interaction outcomes update the relevant bond and record a history entry. Do not allow repeated actions to max relationships instantly; interactions are selected in the Family workspace as stamina-backed weekly activities. Use context and cooldown rules where needed, not an arbitrary action quota or player-managed calendar.
 
 Family actions must be validated in the simulation. UI disabling is convenience only. Failed actions leave all state unchanged.
 
@@ -112,7 +112,7 @@ Adding a child, partner, guardian, or adoptive relationship must be an atomic gr
 - A generated family may be single-parent or two-parent and may include a small number of siblings. Do not assume every relative lives in the player's household.
 - Names must be consistent with the character's existing country/name context; do not infer traits or ability from family background.
 - For older starting ages, any already-deceased relatives are historical background facts, not evidence of an implemented future mortality simulation.
-- Existing saves without a family graph remain valid. Do not silently invent a detailed family for an established character during load. Provide a deliberate, versioned initialization path or a clearly explained one-time in-game family-background setup.
+- A current-schema character may require an explicit family-background initialization when no graph is present. Do not silently invent a detailed family for an established character during load. Unsupported older save schemas are rejected without migration; any persisted shape change requires a deliberate schema update.
 
 ## Persistence and invariants
 

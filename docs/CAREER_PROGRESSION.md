@@ -1,10 +1,10 @@
 # Career Progression Design
 
-**Status: first playable recruitment and career slice implemented · 2026-11-07**
+**Status: recruitment and first-pass career progression implemented · Reviewed 2026-11-09**
 
 This document defines the intended player experience and records the current implementation boundary. The first playable Jobs & Career slice is now implemented; the deeper workplace, compensation, and labor-market systems remain staged rather than implied to be complete.
 
-## Current implementation · 2026-11-07
+## Current implementation · 2026-11-09
 
 The Work workspace now has a functional first recruitment and career loop:
 
@@ -94,7 +94,7 @@ Keep compensation transparent and consistent with Finance:
 - Promotion, job change, offer acceptance, resignation, bonus payment, and payroll events must be recorded in history and use the shared financial transaction path where money changes.
 - Do not double-count bonuses in salary previews or payroll.
 
-The existing weekly gameplay direction remains authoritative: the week is the playable unit, months own recurring finance/reporting cadence, and years own long-term life progression. Employment type contributes to automatic background workload without assigning shifts or periods. Education enrollment records a programme and progresses automatically each week without class timetable reservations; country-specific term calendars and attendance exceptions remain future work.
+The existing weekly gameplay direction remains authoritative: the week is the playable unit, monthly recurring finance/reporting cadence remains planned; current settlement is annual, and years own long-term life progression. Employment type contributes to automatic background workload without assigning shifts or periods. Education enrollment records a programme and progresses automatically each week without class timetable reservations; country-specific term calendars and attendance exceptions remain future work.
 
 ## Domain boundaries
 
@@ -134,5 +134,5 @@ This is deliberately staged. Do not present later-stage mechanics as live until 
 - Previewing a role never mutates the save or financial ledger.
 - No promotion, vacancy, qualification, bonus, or benefit is implied unless represented by actual game state/rules.
 - Career decisions remain in Work; money movement remains in Finance's shared ledger.
-- Existing saves remain readable; new fields are optional or migrated safely.
+- The current schema remains strict and versioned. Do not add backward migrations or compatibility defaults; incompatible persisted shape changes require a schema update and explicit validation.
 - The feature creates useful choices and anticipation rather than a timer-based grind.

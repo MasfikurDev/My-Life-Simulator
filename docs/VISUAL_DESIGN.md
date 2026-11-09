@@ -11,7 +11,7 @@ A modern, polished, mobile-first life simulation interface. It should feel like 
 - Use restrained emerald as the primary action and selection accent. Reserve muted blue, amber, and coral for distinct stat/event categories.
 - Maintain readable contrast, clear borders, and visible keyboard/touch focus.
 - Use system font stacks; do not fetch remote fonts at runtime.
-- No automatic light/dark switching until the user explicitly requests a theme setting.
+- AMOLED remains the default. Players can explicitly select AMOLED, Midnight, Graphite, or Paper in Settings → Appearance; the preference is local, applies immediately, and does not alter character saves.
 
 ## Visual language
 - 2D cards, buttons, clear sections, concise labels, readable summaries.
@@ -83,11 +83,11 @@ Do not render multiple controls or components for the same action or destination
 
 ## Domain-native interface language
 - A system must look and behave like the real-world environment it represents, simplified for play. Do not reuse one generic dashboard layout for every domain.
-- Finance has focused destinations for Banking, Taxes, Property, Investments, and Business. Banking has its own compact internal navigation for Accounts, Cards, Loans, and Savings & vault. Do not expose Cards, Loans, Bills & subscriptions, Savings & vault, or Living costs as Finance menu destinations.
+- Finance has focused destinations in this order: Banking, Business, Property, Investments, and Taxes. Banking has its own compact internal navigation for Accounts, Cards, Loans, and Savings & vault. Do not expose Cards, Loans, Bills & subscriptions, Savings & vault, or Living costs as Finance menu destinations.
 - Banking uses account cards, available balances, account details, transfers, deposits/withdrawals, and a transaction activity list. Cards, loan balances/repayments, automatic savings deposits, and the personal vault are managed inside Banking. Household budgets and living-arrangement choices are not shown on the Banking screen. Tax assessments and liabilities belong in the separate Taxes view.
 - Life → Lifestyle has focused internal sections: Discover, My services, and Home. Discover feels like a real marketplace with provider plan listings, clear annual prices, payment selection, and a supermarket basket/checkout. My services is the player's personal service register: active subscriptions, annual commitments, recurring charges, and a read-only reference to payment cards in use. Card controls must link back to Banking rather than being duplicated. Home contains household arrangement and estimated living costs. Do not put a generic recurring-payment creation form in Finance or duplicate subscriptions across screens.
 - Cards should use payment-card terminology and card controls within Banking; Loans should emphasize principal, rate, term, repayment and credit standing within Banking; Investments should present a portfolio/market context; Property should feel like housing/property management; Business should focus on operations and business performance.
-- School owns the current learning/study experience; enrollment, attendance, classes, grades, and fees remain planned until their full simulation loop exists. Work owns the implemented recruitment/job-search and employment/career flows. These systems must not be represented as generic status cards inside Finance.
+- Education owns programme discovery, enrollment, weekly study/assignment/exam tasks, automatic attendance/progression, grades, tuition, pause/resume, and qualification history. Work owns job discovery, applications, interviews, offers, employment changes, extra earnings, career development, and promotion offers. Persistent employer operations, broader workplace decisions, benefits, bonuses, and monthly payroll remain planned. Neither domain belongs inside Finance.
 - Keep the shared AMOLED theme, typography, spacing, accessibility and navigation shell consistent. Domain identity comes from relevant information architecture, terminology, actions and contextual layouts—not arbitrary unrelated colors or decorative imitation.
 - Use progressive disclosure within each domain. Do not show controls from unrelated domains or repeat the same summary and action on multiple screens.
 
