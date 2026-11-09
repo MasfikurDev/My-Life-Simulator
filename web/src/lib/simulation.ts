@@ -1228,11 +1228,15 @@ export function performActivity(character: Character, activity: ActivityId, rand
     case 'work':
       if (next.age < 16) return character;
       const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
-      next.money += Math.round(180 * scale * workEfficiency);
+      const roleFactor = next.employment ? 0.75 + next.employment.performance / 200 : 1;
+      const baseShiftPay = next.employment ? Math.max(180 * scale, next.employment.annualSalary / 52 * 0.5) : 180 * scale;
+      const extraShiftPay = Math.max(1, Math.round(baseShiftPay * roleFactor * workEfficiency));
+      next.money += extraShiftPay;
+      next.financialTransactions = financeRecord(next, 'income', extraShiftPay, 'Extra earnings from an additional work shift.', next.employment?.employer ?? 'Casual employer', 'Cash');
       next.happiness = clamp(next.happiness - 2);
       next.confidence = clamp((next.confidence ?? 50) + 1);
       next.stress = Math.min(100, (next.stress ?? 30) + 3);
-      next.history.unshift(event(next, 'Picked up extra work', 'You earned some money, although it took time and energy.'));
+      next.history.unshift(event(next, 'Picked up extra work', 'You earned ' + formatCharacterMoney(next, extraShiftPay) + ' from an additional shift. Pay reflected your role, performance and workload.'));
       break;
     case 'apply-job': {
       const offeredJob = createEmployment(next);
