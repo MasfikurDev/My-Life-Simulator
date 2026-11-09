@@ -231,6 +231,13 @@
   }
   function openAdvanceReview() { if (!character) return; activeTab = 'home'; advanceReviewOpen = true; }
   function closeAdvanceReview() { advanceReviewOpen = false; }
+  function removeReviewedActivity(activityId: string) {
+    if (!character) return;
+    const planned = character.weeklyPlan?.activities.find((item) => item.id === activityId);
+    if (!planned) return;
+    persist(removePlannedActivity(character, activityId));
+    notify('Activity removed from this week. Forecast updated.');
+  }
   function advanceWeekNow() {
     if (!character) return;
     const result = advanceWeek(character);
@@ -517,20 +524,26 @@
                 <p class="game-event-description">{weeklyReview.weekStart} – {weeklyReview.weekEnd}. Review the effort, expected rewards and combined effects before resolving the week.</p>
 
                 <section class="review-section">
-                  <div class="review-section-heading"><h3>Planned activities</h3><span>{weeklyReview.activities.length} total</span></div>
-                  {#if weeklyReview.activities.length}
-                    <div class="review-activity-list">
-                      {#each weeklyReview.activities as activity}
-                        <article class="review-activity-row">
-                          <div><strong>{activity.title}</strong><small>{activity.reward}</small></div>
-                          <div class="review-activity-cost"><b>{activity.staminaCost ? '−' + activity.staminaCost + ' stamina' : 'No stamina cost'}</b>{#if activity.moneyCost > 0}<small>{formatCharacterMoney(character, activity.moneyCost)}</small>{/if}</div>
-                        </article>
-                      {/each}
-                    </div>
-                  {:else}
-                    <p class="review-empty">No optional activities are planned. Education and employment responsibilities still progress automatically.</p>
-                  {/if}
-                  <div class="review-cash-row"><span>Total direct activity costs</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong></div>
+                  <details class="review-planned-details">
+                    <summary class="review-planned-summary">
+                      <span class="review-planned-heading"><strong>Planned activities</strong><small>{weeklyReview.activities.length} {weeklyReview.activities.length === 1 ? 'activity' : 'activities'} selected</small></span>
+                      <span class="review-planned-totals"><span>{weeklyReview.staminaCost} stamina</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong><i aria-hidden="true"></i></span>
+                    </summary>
+                    {#if weeklyReview.activities.length}
+                      <div class="review-activity-list">
+                        {#each weeklyReview.activities as activity (activity.id)}
+                          <article class="review-activity-row">
+                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.reward}</small></div>
+                            <div class="review-activity-cost"><b>{activity.staminaCost ? '−' + activity.staminaCost + ' stamina' : 'No stamina cost'} </b>{#if activity.moneyCost > 0}<small>{formatCharacterMoney(character, activity.moneyCost)}</small>{/if}</div>
+                            <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => removeReviewedActivity(activity.id)}>Remove</button>
+                          </article>
+                        {/each}
+                      </div>
+                    {:else}
+                      <p class="review-empty">No optional activities are planned. Education and employment responsibilities still progress automatically.</p>
+                    {/if}
+                    <div class="review-cash-row"><span>Total direct activity costs</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong></div>
+                  </details>
                 </section>
 
                 <section class="review-section">
@@ -631,15 +644,31 @@
   .week-review-dialog h2{margin:0;font-size:clamp(22px,4vw,28px);letter-spacing:-.6px}
   .week-review-dialog .game-event-description{margin:0}
   .review-section{display:grid;gap:9px;padding-top:12px;border-top:1px solid var(--line)}
+  .review-planned-details{min-width:0}
+  .review-planned-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;cursor:pointer;list-style:none}
+  .review-planned-summary::-webkit-details-marker{display:none}
+  .review-planned-heading{display:grid;gap:3px;min-width:0}
+  .review-planned-heading strong{font-size:13px;color:var(--text)}
+  .review-planned-heading small{font-size:9px;color:var(--muted)}
+  .review-planned-totals{display:flex;align-items:center;gap:10px;flex:none}
+  .review-planned-totals>span{font-size:9px;color:var(--muted);white-space:nowrap}
+  .review-planned-totals>strong{font-size:11px;color:var(--text);white-space:nowrap}
+  .review-planned-totals i{width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .18s;flex:none;margin:0 3px 4px}
+  .review-planned-details[open] .review-planned-totals i{transform:rotate(225deg);margin-top:6px}
+  .review-planned-details[open] .review-planned-summary{margin-bottom:8px}
   .review-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
   .review-section-heading h3{margin:0;font-size:13px;color:var(--text)}
   .review-section-heading>span{font-size:9px;color:var(--muted);text-align:right}
   .review-activity-list{display:grid;gap:7px}
   .review-activity-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
   .review-activity-row>div:first-child{display:grid;gap:4px;min-width:0}
+  .review-activity-copy{flex:1}
   .review-activity-row strong{font-size:11px;color:var(--text)}
   .review-activity-row small{font-size:9px;line-height:1.4;color:var(--muted)}
   .review-activity-cost{flex:none;display:grid;gap:4px;text-align:right}
+  .review-remove-button{flex:none;align-self:center;border:1px solid color-mix(in srgb,var(--coral) 38%,var(--line));border-radius:7px;background:transparent;color:var(--coral);padding:6px 8px;font-size:9px;font-weight:750;cursor:pointer}
+  .review-remove-button:hover{background:color-mix(in srgb,var(--coral) 10%,transparent);border-color:var(--coral)}
+  .review-remove-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .review-activity-cost b{font-size:10px;color:var(--text)}
   .review-resource-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
   .review-resource-grid>div{display:grid;gap:4px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
