@@ -523,7 +523,7 @@ export function rejectLoanApplication(character: Character, reason: string): Cha
   const detail = reason.trim().slice(0, 180) || 'The application did not meet lender criteria.';
   const next = { ...character, history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'expense', 0, 'Loan application rejected: ' + detail, 'Applicant', 'Lender');
-  next.history.unshift(event(next, 'Loan application rejected', detail + ' Credit score decreased by 25 points.', 'warning'));
+  next.history.unshift(event(next, 'Loan application rejected', detail + ' Credit score decreased by 25 points.', 'event'));
   return next;
 }
 
