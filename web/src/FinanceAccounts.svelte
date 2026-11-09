@@ -19,7 +19,7 @@
   let autopayAmount = $state('100');
   let autopayCategory = $state<'subscription'|'bill'>('bill');
   let activeBankingView = $state<'accounts'|'cards'|'loans'|'savings'>('accounts');
-  const accounts = $derived(character.bankAccounts ?? []);
+  const accounts = $derived([...(character.bankAccounts ?? [])].sort((left, right) => ({ checking: 0, savings: 1, 'fixed-deposit': 2 }[left.type] - ({ checking: 0, savings: 1, 'fixed-deposit': 2 }[right.type]))));
   const accountProducts = [{ type: 'checking' as const, name: 'Everyday account', detail: 'Instant access · no interest' }, { type: 'savings' as const, name: 'Savings account', detail: '2% annual interest' }, { type: 'fixed-deposit' as const, name: 'Fixed deposit', detail: '4.5% annual interest · 1-year term' }];
   const creditProfile = $derived(getCreditProfile(character));
   const transactions = $derived([...(character.financialTransactions ?? [])].reverse().slice(0, 8));
@@ -41,12 +41,12 @@
     <button class:active={activeBankingView==='loans'} onclick={() => activeBankingView='loans'} disabled={character.age<18}>Loans</button>
     <button class:active={activeBankingView==='savings'} onclick={() => activeBankingView='savings'}>Savings & vault</button>
   </nav>
-  {#if character.age >= 18}
-    <section class="credit-profile" aria-label="Credit score">
-      <div class="credit-profile-heading">
-        <div><small>CREDIT HEALTH</small><h3>Credit score</h3><span class="credit-rating">{creditProfile.rating} credit</span></div>
-        <div class="credit-score"><strong>{creditProfile.score}</strong><small>out of 850</small></div>
-      </div>
+  {#if activeBankingView === 'loans' && character.age >= 18}
+    <details class="credit-profile">
+      <summary class="credit-summary">
+        <span><small>CREDIT HEALTH</small><strong>Credit score · {creditProfile.score} / 850</strong><em>{creditProfile.rating}</em></span>
+        <span class="credit-summary-hint">View breakdown</span>
+      </summary>
       <div class="credit-score-track" role="meter" aria-label="Credit score" aria-valuemin="300" aria-valuemax="850" aria-valuenow={creditProfile.score}><span style={'width:' + ((creditProfile.score - 300) / 550 * 100) + '%'}></span></div>
       <div class="credit-score-scale"><span>300 · Poor</span><span>850 · Excellent</span></div>
       <div class="credit-factors">
@@ -54,10 +54,11 @@
         <div><small>Credit use</small><strong>{creditProfile.utilization}%</strong></div>
         <div><small>Total debt</small><strong>{formatCharacterMoney(character, creditProfile.totalDebt)}</strong></div>
         <div><small>Debt / annual income</small><strong>{creditProfile.debtToIncome === null ? 'No income record' : creditProfile.debtToIncome + '%'}</strong></div>
+        <div><small>Rejected applications</small><strong>{creditProfile.rejectedApplications}</strong></div>
       </div>
-      <p class="credit-guidance">{creditProfile.missedPayments > 0 ? 'Missed repayments are lowering your score. Keep future installments funded and pay outstanding balances.' : creditProfile.utilization > 30 ? 'Your credit usage is high. Paying down card balances can improve your score.' : creditProfile.hasCreditHistory ? 'Your payment record is building. Keep balances manageable and repayments on time.' : 'Your file is new. Responsible borrowing and on-time repayments will establish your credit history.'}</p>
+      <p class="credit-guidance">{creditProfile.missedPayments > 0 ? 'Missed repayments are lowering your score.' : creditProfile.rejectedApplications > 0 ? 'Recent rejected applications lowered your score. Improve eligibility before applying again.' : creditProfile.utilization > 30 ? 'Your credit usage is high. Paying down card balances can improve your score.' : creditProfile.hasCreditHistory ? 'Keep balances manageable and repayments on time to build your record.' : 'Your file is new. Responsible borrowing and on-time repayments will establish your credit history.'}</p>
       <small class="credit-rate-hint">Minimum loan rates · Personal {Math.round(getMinimumLoanRate(character, 'personal') * 1000) / 10}% · Mortgage {Math.round(getMinimumLoanRate(character, 'mortgage') * 1000) / 10}% · Business {Math.round(getMinimumLoanRate(character, 'business') * 1000) / 10}%</small>
-    </section>
+    </details>
   {/if}
   {#if activeBankingView === 'accounts'}
   <div class="balances"><div><small>Cash</small><strong>{formatCharacterMoney(character)}</strong></div><div><small>In accounts</small><strong>{formatCharacterMoney(character, accounts.reduce((sum, account) => sum + account.balance, 0))}</strong></div></div>
@@ -122,14 +123,8 @@
 <style>
 .banking-nav{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:thin}.banking-nav button{flex:none;min-height:40px;padding:0 12px;border:1px solid color-mix(in srgb,var(--line-strong) 12%, transparent);border-radius:9px;background:color-mix(in srgb,var(--surface-raised) 4%, transparent);color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap}.banking-nav button.active{border-color:color-mix(in srgb,var(--accent) 45%, transparent);background:color-mix(in srgb,var(--accent-strong) 10%, transparent);color:var(--accent)}.banking-nav button:disabled{opacity:.35}.bank-panel{background:color-mix(in srgb,var(--surface-raised) 2.5%, transparent);border:1px solid color-mix(in srgb,var(--line-strong) 9%, transparent);border-radius:18px;padding:18px;margin:18px 0;color:var(--text)}.panel-heading,.balances,.account,.transaction{display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-heading small,.balances small,.account-info small,.hint,.transaction small,.net-worth small{display:block;color:var(--muted);font-size:11px}h2{font-size:22px;margin:4px 0 0}.net-worth{text-align:right}.net-worth strong{display:block;font-size:17px;color:var(--accent);margin-top:4px}.balances{margin:16px 0;padding:12px;background:color-mix(in srgb,var(--surface-raised) 3.5%, transparent);border-radius:12px}.balances strong{display:block;margin-top:4px;font-size:15px}.account-list{display:grid;gap:8px}.account{padding:12px;border:1px solid color-mix(in srgb,var(--line-strong) 8%, transparent);border-radius:12px}.account-icon{width:34px;height:34px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent-strong) 12%, transparent);color:var(--accent);border-radius:10px}.account-info{flex:1;min-width:0}.account-info strong{display:block;font-size:14px}.account-balance{font-size:14px;white-space:nowrap}.account-select{width:100%;text-align:left;color:var(--text);cursor:pointer;background:var(--surface)}.account-availability{font-size:10px;color:var(--muted);white-space:nowrap}.account-dialog{position:static;display:grid;gap:10px;width:100%;max-width:none;max-height:none;margin:12px 0 0;padding:14px;border:1px solid var(--accent);border-radius:13px;background:var(--surface-raised);color:var(--text)}.account-dialog-heading{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.account-dialog-heading small{color:var(--muted);font-size:9px;letter-spacing:.08em}.account-dialog-heading h3{margin:3px 0;font-size:16px}.account-dialog-heading strong{font-size:20px}.account-tools{display:grid;gap:8px;padding-top:10px;border-top:1px solid var(--line)}.account-tools h4{margin:0;font-size:12px}.account-available{border-style:dashed}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice-field{display:grid;gap:5px;margin:8px 0;color:var(--muted);font-size:12px}.choice-field :global(label){margin:0}label{display:grid;gap:6px;font-size:12px;color:var(--muted);margin:8px 0}input{width:100%;min-width:0;padding:11px;border-radius:9px;border:1px solid color-mix(in srgb,var(--line-strong) 12%, transparent);background:var(--surface);color:var(--text);font:inherit}button{border:1px solid color-mix(in srgb,var(--line-strong) 12%, transparent);background:color-mix(in srgb,var(--surface-raised) 6%, transparent);color:var(--text);padding:10px 12px;border-radius:9px;font:inherit;font-size:12px;font-weight:650;cursor:pointer}.primary{background:var(--accent,var(--accent-strong));color:var(--on-accent);border:0}.hint{margin-top:8px;line-height:1.5}.notice{font-size:12px;color:var(--accent);margin:10px 0 0}.transactions{border-top:1px solid color-mix(in srgb,var(--line-strong) 8%, transparent);margin-top:16px;padding-top:12px}.transactions h3{font-size:14px;margin:0 0 8px}.transaction{padding:9px 0;border-bottom:1px solid color-mix(in srgb,var(--line-strong) 5%, transparent)}.transaction div{min-width:0}.transaction strong{display:block;font-size:12px;line-height:1.4}.transaction small{margin-top:3px;overflow-wrap:anywhere}.transaction b{font-size:12px;white-space:nowrap}@media(max-width:480px){.bank-panel{padding:13px}.form-grid{grid-template-columns:1fr}.panel-heading{align-items:flex-start}}
 
-.credit-profile{display:grid;gap:10px;padding:15px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
-.credit-profile-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.credit-profile-heading>div:first-child{display:grid;gap:3px}
-.credit-profile-heading small,.credit-factors small,.credit-rate-hint{font-size:10px;color:var(--muted)}
-.credit-profile-heading h3{font-size:16px;margin:0}
-.credit-rating{font-size:11px;color:var(--success);font-weight:700}
-.credit-score{text-align:right;display:grid;gap:0}
-.credit-score strong{font-size:28px;line-height:1;font-variant-numeric:tabular-nums}
+.credit-profile{display:grid;gap:10px;padding:13px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.credit-profile summary{list-style:none;cursor:pointer}.credit-profile summary::-webkit-details-marker{display:none}.credit-summary{display:flex;align-items:center;justify-content:space-between;gap:10px}.credit-summary>span:first-child{display:grid;gap:3px}.credit-summary strong{font-size:14px}.credit-summary em{font-size:10px;font-style:normal;color:var(--success)}.credit-summary-hint{font-size:10px;color:var(--muted)}
 .credit-score-track{height:8px;border-radius:99px;background:var(--surface-raised);overflow:hidden}
 .credit-score-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--danger),var(--warning),var(--success));transition:width .2s ease}
 .credit-score-scale{display:flex;justify-content:space-between;color:var(--muted);font-size:9px}

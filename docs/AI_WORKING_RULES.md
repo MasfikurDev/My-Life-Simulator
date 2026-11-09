@@ -91,7 +91,7 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 
 45. Tax settlement must be deterministic, auditable, and never create negative cash. Pay from cash and eligible liquid accounts only; fixed deposits remain locked until maturity. Any unpaid tax must remain a visible liability included in net worth. Keep rates clearly labeled as fictional game rules, not jurisdiction-specific advice.
 
-46. Credit score must be derived consistently from auditable financial state, bounded to 300–850, and treated as a simplified fictional metric. Loan products must enforce the score-based minimum rate and never silently approve a rate below the floor. Do not claim the score matches any real credit bureau.
+46. Credit score must be derived consistently from auditable financial state, bounded to 300–850, and treated as a simplified fictional metric. Rejected loan applications must be recorded in the financial ledger with a specific reason and apply a bounded negative score impact; never reject silently. Loan products must enforce the score-based minimum rate and never silently approve a rate below the floor. Do not claim the score matches any real credit bureau.
 
 47. Trading and property sale fees and realized capital-gains taxes must be reflected in cash proceeds and the shared ledger. Include purchase fees in investment cost basis, deduct sale fees/tax from proceeds, and reject property sales that cannot settle linked debt and transaction costs. Never create money through a sale.
 

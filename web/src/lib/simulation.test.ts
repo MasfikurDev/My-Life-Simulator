@@ -3,7 +3,7 @@ import { enrollInEducation, resolveEducationWeek } from './education';
 import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditProfile, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getActivityDefinition, getActivityStaminaCost, getAvailableActivityIds, getLifeStage, getValueColor } from './progression';
 import { loadPrepaidCard } from './simulation';
-import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, redeemCardRewards, repayLoan, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
+import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, redeemCardRewards, repayLoan, rejectLoanApplication, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
 import { getCareerRole, getJobListings, isEligibleForRole, resolveJobApplication, resolveJobInterview } from './work';
 import { prepareGameEvent, resolveGameEvent } from './events';
@@ -1011,6 +1011,14 @@ describe('life simulation', () => {
     expect(profile.hasCreditHistory).toBe(true);
     const missed = { ...used, financialTransactions: [...(used.financialTransactions ?? []), { id: 'missed-1', year: 1, age: 30, type: 'expense' as const, amount: 0, description: 'Missed minimum payment for Everyday credit.', from: 'Cash', to: 'Bank' }] };
     expect(getCreditProfile(missed).missedPayments).toBe(1);
+  });
+
+  it('records rejected loan applications and reduces credit standing', () => {
+    const base = createCharacter('Applicant', 30);
+    const rejected = rejectLoanApplication(base, 'Income is too low.');
+    expect(getCreditScore(rejected)).toBe(getCreditScore(base) - 25);
+    expect(getCreditProfile(rejected).rejectedApplications).toBe(1);
+    expect(rejected.history[0].title).toBe('Loan application rejected');
   });
 
   it('sets score-based minimum loan rates and rejects unaffordable credit pricing', () => {
