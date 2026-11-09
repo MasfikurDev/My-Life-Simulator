@@ -1081,6 +1081,7 @@ describe('life simulation', () => {
   it('calculates extra-shift earnings from employment, performance and workload and records the income', () => {
     const worker = {
       ...createCharacter('Worker', 30),
+      currencyScale: 1,
       money: 1000,
       stress: 30,
       employment: { title: 'Analyst', type: 'full-time' as const, annualSalary: 52000, experienceYears: 1, performance: 100, promotions: 0, startedAtAge: 30 }
