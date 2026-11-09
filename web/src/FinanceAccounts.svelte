@@ -12,6 +12,12 @@
   let transferTarget = $state('');
   let amount = $state('100');
   let notice = $state('');
+  let accountDialogOpen = $state(false);
+  let depositMethod = $state<'fixed'|'percentage'>('percentage');
+  let depositValue = $state('10');
+  let autopayName = $state('');
+  let autopayAmount = $state('100');
+  let autopayCategory = $state<'subscription'|'bill'>('bill');
   let activeBankingView = $state<'accounts'|'cards'|'loans'|'savings'>('accounts');
   const accounts = $derived(character.bankAccounts ?? []);
   const accountProducts = [{ type: 'checking' as const, name: 'Everyday account', detail: 'Instant access · no interest' }, { type: 'savings' as const, name: 'Savings account', detail: '2% annual interest' }, { type: 'fixed-deposit' as const, name: 'Fixed deposit', detail: '4.5% annual interest · 1-year term' }];
