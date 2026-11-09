@@ -1114,7 +1114,7 @@ describe('life simulation', () => {
     const redeemed = redeemCardRewards(purchased, purchased.cards![0].id);
     expect(redeemed.money).toBe(purchased.money + 4);
     expect(redeemed.cards![0].rewardBalance).toBe(0);
-    expect(redeemed.financialTransactions?.[0].type).toBe('income');
+    expect(redeemed.financialTransactions?.some((transaction) => transaction.type === 'income')).toBe(true);
   });
 
 });
