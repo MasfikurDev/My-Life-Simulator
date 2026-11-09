@@ -1008,10 +1008,11 @@ export function planCareActionInNextFreeTime(character: Character, careType: Car
 }
 
 export function addOwnedLifestyleItem(character: Character, item: Omit<OwnedLifestyleItem, 'id' | 'purchasedAtYear'>): Character {
-  if (!item.productId || !item.name.trim() || !Number.isInteger(item.quantity) || item.quantity < 1) return character;
+  if (!item.productId || !item.name.trim() || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20) return character;
   const items = [...(character.ownedLifestyleItems ?? [])];
   const existing = items.find((entry) => entry.productId === item.productId);
   if (existing) {
+    if (existing.quantity + item.quantity > 999) return character;
     return { ...character, ownedLifestyleItems: items.map((entry) => entry.id === existing.id ? { ...entry, quantity: entry.quantity + item.quantity } : entry) };
   }
   const owned: OwnedLifestyleItem = { ...item, id: 'owned-' + character.year + '-' + character.age + '-' + (items.length + 1), purchasedAtYear: character.year };
