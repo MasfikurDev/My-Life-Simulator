@@ -231,27 +231,28 @@ export function createPromotionOffer(character: Character, issuedAt: string): Pr
 
 function getApplicationRejectionReason(character: Character, role: CareerRole): string {
   const experience = getCareerExperience(character);
-  const performance = character.employment?.performance ?? 55;
   const stress = character.stress ?? 30;
   const weakSkills = [
     { value: character.intelligence - role.minIntelligence, reason: 'The employer selected candidates with stronger role-related knowledge.' },
-    { value: (character.socialSkills ?? 50) - (role.minSocialSkills ?? 0), reason: 'The employer prioritized stronger communication and customer-facing skills.' },
-    { value: (character.focus ?? 50) - (role.minFocus ?? 0), reason: 'The employer prioritized candidates with stronger focus and attention to detail.' },
-    { value: (character.confidence ?? 50) - (role.minConfidence ?? 0), reason: 'The employer wanted stronger confidence for the responsibilities of this role.' },
-    { value: (character.discipline ?? 50) - (role.minDiscipline ?? 0), reason: 'The employer prioritized stronger consistency and discipline.' },
-    { value: (character.creativity ?? 50) - (role.minCreativity ?? 0), reason: 'The employer prioritized stronger creative problem-solving.' }
+    ...(role.minSocialSkills ? [{ value: (character.socialSkills ?? 50) - role.minSocialSkills, reason: 'The employer prioritized stronger communication and customer-facing skills.' }] : []),
+    ...(role.minFocus ? [{ value: (character.focus ?? 50) - role.minFocus, reason: 'The employer prioritized candidates with stronger focus and attention to detail.' }] : []),
+    ...(role.minConfidence ? [{ value: (character.confidence ?? 50) - role.minConfidence, reason: 'The employer wanted stronger confidence for the responsibilities of this role.' }] : []),
+    ...(role.minDiscipline ? [{ value: (character.discipline ?? 50) - role.minDiscipline, reason: 'The employer prioritized stronger consistency and discipline.' }] : []),
+    ...(role.minCreativity ? [{ value: (character.creativity ?? 50) - role.minCreativity, reason: 'The employer prioritized stronger creative problem-solving.' }] : [])
   ].filter((item) => item.value >= 0).sort((a, b) => a.value - b.value);
   if (experience < role.minExperienceYears + 2) return 'Your experience met the minimum, but other applicants had more directly relevant experience.';
-  if (performance < 65) return 'Your employment performance record was not as competitive as the shortlisted candidates.';
+  if (character.employment && character.employment.performance < 65) return 'Your recent workplace performance record was not as competitive as the shortlisted candidates.';
   if (stress >= 75) return 'Your current workload and stress may have affected the strength of your application.';
   return weakSkills[0]?.reason ?? 'The employer selected another candidate whose recent experience was a closer match.';
 }
 
 function getInterviewRejectionReason(character: Character, role: CareerRole): string {
   const factors = [
-    { score: character.socialSkills ?? 50, reason: 'The interview feedback identified communication and relationship-building as areas to strengthen.' },
-    { score: character.confidence ?? 50, reason: 'The interview feedback indicated that your examples and answers lacked confidence.' },
-    { score: character.focus ?? 50, reason: 'The interview feedback suggested that your answers needed clearer structure and attention to detail.' },
+    ...(role.minSocialSkills ? [{ score: character.socialSkills ?? 50, reason: 'The interview feedback identified communication and relationship-building as areas to strengthen.' }] : []),
+    ...(role.minConfidence ? [{ score: character.confidence ?? 50, reason: 'The interview feedback indicated that your examples and answers lacked confidence.' }] : []),
+    ...(role.minFocus ? [{ score: character.focus ?? 50, reason: 'The interview feedback suggested that your answers needed clearer structure and attention to detail.' }] : []),
+    ...(role.minDiscipline ? [{ score: character.discipline ?? 50, reason: 'The interview feedback suggested stronger consistency and preparation were needed.' }] : []),
+    ...(role.minCreativity ? [{ score: character.creativity ?? 50, reason: 'The panel wanted stronger examples of creative problem-solving.' }] : []),
     { score: character.intelligence, reason: 'The interview panel wanted stronger role-specific problem-solving examples.' },
     { score: 100 - (character.stress ?? 30), reason: 'The interview panel felt that pressure affected the clarity of your responses.' }
   ].sort((a, b) => a.score - b.score);
