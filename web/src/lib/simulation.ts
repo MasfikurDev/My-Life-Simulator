@@ -1019,7 +1019,7 @@ export function addOwnedLifestyleItem(character: Character, item: Omit<OwnedLife
 }
 
 export function planBoughtFoodInNextFreeTime(character: Character, food: { productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number }): ActivityPlanningResult {
-  if (!food.productId || !food.name.trim() || !Number.isInteger(food.quantity) || food.quantity < 1 || ![food.staminaRecovery, food.health, food.happiness, food.stress].every((value) => Number.isFinite(value) && value >= 0)) {
+  if (!food.productId || !food.name.trim() || !Number.isInteger(food.quantity) || food.quantity < 1 || food.quantity > 20 || !Number.isFinite(food.staminaRecovery) || food.staminaRecovery < 0 || food.staminaRecovery > 30 || !Number.isFinite(food.health) || food.health < 0 || food.health > 12 || !Number.isFinite(food.happiness) || food.happiness < 0 || food.happiness > 10 || !Number.isFinite(food.stress) || food.stress < 0 || food.stress > 8) {
     return { character, issue: 'unavailable', message: 'This food order is invalid.' };
   }
   return planForCurrentWeek(character, (date) => addWeeklyAction(character, 'food', date, { kind: 'food', ...food }, 0));
