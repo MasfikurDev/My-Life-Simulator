@@ -1,7 +1,7 @@
 # Project Status & Development Priorities
 
 **Repository:** [MasfikurDev/My-Life-Simulator](https://github.com/MasfikurDev/My-Life-Simulator)  
-**Reviewed:** 2026-11-09  
+**Reviewed:** 2026-11-09 (after Banking and credit-score PR #97)  
 **Purpose:** A concise, evidence-based snapshot of what is implemented, what is only a foundation, and what remains planned. This document summarizes the canonical specifications; it does not replace them.
 
 ## Product direction
@@ -15,13 +15,13 @@ The playable time model is:
 
 Do not reintroduce a universal three-actions-per-week quota. Personal activities are toggled in their owning workspaces and use a shared stamina budget. Education and employment are automatic background responsibilities; there are no player-managed timetables, period reservations, or Schedule workspace.
 
-## Weekly action plan and current save baseline (implemented in this PR)
+## Weekly action plan and current save baseline
 
 - Personal activities are selected with direct add/remove toggles in their owning workspaces and consume activity-specific stamina.
 - Education and employment progress automatically as background responsibilities; they no longer create calendar commitments.
 - Schema 6 stores a strict `weeklyPlan` of domain-specific actions with no dates, periods, durations, or commitment grid. Old schema versions are rejected without mutation; reset requires explicit confirmation.
 - The Advance dialog previews every selected activity's stamina/money cost, reward categories, deterministic projected stat changes, and wellbeing warnings using the same weekly resolver as actual advancement.
-- CI verified: Svelte check 0 errors (19 existing warnings), 155 tests passed, and Vite production build succeeded.
+- Current save baseline: schema 6, three independent device-local slots, strict validation, no backward migrations, and explicit reset for unsupported formats. The latest focused Banking/credit-score PR #97 validation passed: Svelte check 0 errors/0 warnings, 159 tests across 11 files, and Vite production build.
 
 ## Implementation snapshot
 
@@ -31,7 +31,7 @@ Do not reintroduce a universal three-actions-per-week quota. Personal activities
 | Weekly simulation | Core implemented | Calendar, date/week calendar, automatic education/work obligations, stamina-based personal activities, deterministic resolution, history and recap | Date-based deadlines, richer delayed consequences, multi-week advancement |
 | Education | Playable foundation | Enrollment, programmes, classes, weekly tasks, grades, tuition, history, qualifications | Localization, scholarships, retakes, licensing, apprenticeships |
 | Work | Playable foundation | Job board, applications, interviews, offers, employment, job changes, resignation, career previews and promotion offers | Persistent employers/vacancies, workplace decisions, layoffs, benefits, bonuses, monthly payroll |
-| Finance | Broad foundation | Accounts, cards, savings, loans, recurring payments, property, investments, business, taxes, credit score and economic indicators | Monthly payroll/bills/business cash flow, settlement safety, reporting, deeper affordability and variable-rate debt |
+| Finance | Broad foundation | Accounts, cards, savings, loans, recurring payments, property, multi-asset investments, business, taxes, credit score, loan eligibility/rejection scoring, and economic indicators | Monthly payroll/bills/business cash flow, richer statements/reporting, deeper product variety, and variable-rate debt |
 | Family | Foundation + initial interactions | Persistent people and relationship graph, bonds, history, targeted interactions, ledger-backed adult support | Partnership, separation, parenthood, adoption, dependants, caregiving, family events, mortality and legacy |
 | Health/wellbeing | Basic playable foundation | Stress, workload, stamina, recovery, checkups, counselling and basic treatment | Broader conditions, chronic care, insurance, localized healthcare, aging and later-life support |
 | Events and life history | Initial system | Contextual events, choices, persisted pending events, consequences and history | Date-based deadlines, richer cooldown/content, milestone arcs and cross-domain follow-through |
@@ -52,13 +52,12 @@ A workspace or UI control is not proof that its entire domain is complete. The s
 
 ## Verified engineering baseline
 
-Latest inspected successful GitHub Pages workflow on 2026-11-08:
-- Svelte check: 0 errors and 19 warnings across 7 files.
-- Vitest: 150 tests passed across 10 test files.
+Latest focused validation inspected for Banking/credit-score PR #97 on 2026-11-09:
+- Svelte check: 0 errors and 0 warnings.
+- Vitest: 159 tests passed across 11 test files.
 - Vite production build: passed.
-- Pages artifact upload and deployment: passed.
 
-The same run included Node.js/dependency deprecation notices. These are maintenance warnings, separate from application test failures. This snapshot must be refreshed after later code changes; never imply a current green build without checking the latest workflow.
+This is a dated validation baseline, not a guarantee about later commits or deployment. Re-run the repository workflow before claiming current CI is green.
 
 ## Priority order
 
