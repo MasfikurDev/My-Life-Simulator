@@ -6,7 +6,7 @@
   import { getActivityStaminaCost } from './lib/progression';
 
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
-  type WorkView = 'jobs' | 'career' | 'history';
+  type WorkView = 'jobs' | 'extra' | 'career' | 'history';
   let activeView = $state<WorkView>('jobs');
   let selectedPath = $state<CareerPathId>('operations');
   let confirmResignation = $state(false);
@@ -64,15 +64,9 @@
 </script>
 
 <section class="work-workspace">
-  {#if character.age >= 16}
-    <section class="work-panel extra-work-panel">
-      <div><div class="eyebrow">EXTRA EARNINGS</div><h3>{character.employment ? 'Additional shift' : 'Casual work'}</h3><p>Earn extra cash and build confidence. Heavy work increases stress and reduces happiness.</p></div>
-      <button class="work-secondary" class:planned={!!extraWorkPlan} onclick={planExtraWork}>{extraWorkPlan ? 'Remove from this week' : (character.employment ? 'Add extra shift' : 'Find casual work') + ' · ' + getActivityStaminaCost('work') + ' stamina'}</button>
-    </section>
-  {/if}
-
   <nav class="work-nav" aria-label="Work sections">
-    <button class:active={activeView === 'jobs'} aria-current={activeView === 'jobs' ? 'page' : undefined} onclick={() => activeView='jobs'}>Jobs & applications</button>
+    <button class:active={activeView === 'jobs'} aria-current={activeView === 'jobs' ? 'page' : undefined} onclick={() => activeView='jobs'}>Jobs</button>
+    <button class:active={activeView === 'extra'} aria-current={activeView === 'extra' ? 'page' : undefined} onclick={() => activeView='extra'}>Extra earnings</button>
     <button class:active={activeView === 'career'} aria-current={activeView === 'career' ? 'page' : undefined} onclick={() => activeView='career'}>Career path</button>
     <button class:active={activeView === 'history'} aria-current={activeView === 'history' ? 'page' : undefined} onclick={() => activeView='history'}>Career history</button>
   </nav>
@@ -156,6 +150,13 @@
         {/each}
       </section>
     {/if}
+  {:else if activeView === 'extra'}
+    <section class="work-panel extra-work-panel">
+      <div class="eyebrow">EXTRA EARNINGS</div><h2>{character.employment ? 'Additional shift' : 'Casual work'}</h2>
+      <p>Take on optional work for extra income. It uses stamina and can increase stress, so balance it against study, health and personal activities.</p>
+      <div class="work-metrics"><div><span>Weekly stamina cost</span><strong>{getActivityStaminaCost('work')}</strong></div><div><span>Employment</span><strong>{character.employment ? 'Employed' : 'Not employed'}</strong></div></div>
+      <button class="work-secondary" class:planned={!!extraWorkPlan} onclick={planExtraWork}>{extraWorkPlan ? 'Remove from this week' : (character.employment ? 'Add extra shift' : 'Find casual work') + ' · ' + getActivityStaminaCost('work') + ' stamina'}</button>
+    </section>
   {:else if activeView === 'career'}
     <section class="work-panel">
       <div class="work-panel-heading"><div><div class="eyebrow">CAREER PROGRESSION</div><h2>{currentRole?.pathName ?? 'Career paths'}</h2></div></div>
