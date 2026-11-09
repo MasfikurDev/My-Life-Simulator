@@ -137,7 +137,7 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 77. Bulk advancement must resolve each intervening week in order and stop at meaningful decisions, deadlines, events, birthdays, and payment failures. Never skip simulation by applying a coarse multi-week approximation.
 
 
-78. Personal Technology is a planned Life domain for smartphones, laptops, and desktop PCs. Do not expose device management as implemented until device ownership, condition, capabilities, and actions are represented in persisted state and UI. When implemented, retail discovery/purchase should belong in Lifestyle → Discover; payments and ledger entries should use Finance.
+78. Personal Technology is a planned Life domain for smartphones, laptops, and desktop PCs. Do not expose device management as implemented until device ownership, condition, capabilities, and actions are represented in persisted state and UI. When implemented, retail discovery/purchase should belong in Lifestyle → Market; payments and ledger entries should use Finance.
 79. Devices are optional assets and capability enablers, not mandatory paywalls. Provide shared, school/work-provided, public, or non-digital alternatives for core progression where reasonable. Do not grant broad stat bonuses for owning expensive hardware.
 80. Distinguish ownership from borrowed/shared/provided access. Never count non-owned access as a personal asset or invent devices. Age and guardian rules apply to purchases and contracts.
 81. Device purchases, repairs, and resale must use the existing Finance transaction path and be atomic with device-state changes. Do not create a separate technology wallet or duplicate device controls in School, Work, or Finance.
