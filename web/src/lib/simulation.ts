@@ -201,7 +201,7 @@ export function tradeInvestment(character: Character, type: InvestmentType, acti
   if (capitalGainsTax > 0) next.financialTransactions = financeRecord(next, 'tax', capitalGainsTax, 'Capital-gains tax on sale of ' + type + '.', 'Cash', 'Tax authority');
   return next;
 }
-export function buyProperty(character: Character, type: PropertyType, name: string, price: number, downPayment: number, annualRate = 0.07, termYears = 20, primaryResidence = false): Character {
+export function buyProperty(character: Character, type: PropertyType, name: string, price: number, downPayment: number, annualRate = 0.07, termYears = 20, primaryResidence = false, marketProfile?: { expectedGrowthRate: number; marketVolatility: number }): Character {
   const value = Math.floor(price), down = Math.floor(downPayment);
   const purchaseFee = Math.ceil(value * 0.01);
   if (character.age < 18 || (character.properties ?? []).length >= 5 || !validAmount(value) || !Number.isSafeInteger(down) || down < Math.ceil(value * 0.2) || down > value || character.money < down + purchaseFee || !Number.isFinite(annualRate) || annualRate < 0 || annualRate > 0.5 || !Number.isInteger(termYears) || termYears < 1 || termYears > 30) return character;
@@ -213,7 +213,7 @@ export function buyProperty(character: Character, type: PropertyType, name: stri
   }
   const mortgage = financed > 0 ? (next.loans ?? [])[Math.max(0, (next.loans ?? []).length - 1)] : undefined;
   const label = name.trim().slice(0, 36) || (type === 'house' ? 'House' : 'Apartment');
-  const property: PropertyAsset = { id: 'property-' + character.year + '-' + character.age + '-' + ((character.properties ?? []).length + 1), name: label, type, marketValue: value, purchasePrice: value, annualMaintenance: Math.max(1, Math.round(value * 0.01)), mortgageLoanId: mortgage?.id, rentedOut: false, annualRentalIncome: 0 };
+  const property: PropertyAsset = { id: 'property-' + character.year + '-' + character.age + '-' + ((character.properties ?? []).length + 1), name: label, type, marketValue: value, purchasePrice: value, annualMaintenance: Math.max(1, Math.round(value * 0.01)), mortgageLoanId: mortgage?.id, rentedOut: false, annualRentalIncome: 0, expectedGrowthRate: marketProfile?.expectedGrowthRate, marketVolatility: marketProfile?.marketVolatility };
   next = { ...next, money: next.money - value - purchaseFee, properties: [...(next.properties ?? []), property], primaryResidenceId: primaryResidence ? property.id : next.primaryResidenceId, rentalHome: primaryResidence ? null : next.rentalHome, history: [...next.history] };
   next.financialTransactions = financeRecord(next, 'property-purchase', value, 'Purchased ' + label + '.', 'Cash and mortgage', label);
   next.financialTransactions = financeRecord(next, 'fee', purchaseFee, 'Property purchase and transfer fees for ' + label + '.', 'Cash', 'Property services');
@@ -321,8 +321,8 @@ function settleAnnualAssets(character: Character): Character {
   next = { ...next, marketPrices: { stocks: Math.max(1, Math.round(oldPrices.stocks * (1 + stockMovement))), gold: Math.max(1, Math.round(oldPrices.gold * (1 + goldMovement))), lastUpdatedYear: next.year } };
   if ((next.properties ?? []).length) {
     next = { ...next, properties: (next.properties ?? []).map((property) => {
-      const typeGrowth = property.type === 'house' ? 0.008 : 0.004;
-      const volatility = property.type === 'house' ? 0.018 : 0.012;
+      const typeGrowth = property.expectedGrowthRate ?? (property.type === 'house' ? 0.008 : 0.004);
+      const volatility = property.marketVolatility ?? (property.type === 'house' ? 0.018 : 0.012);
       const marketShock = Math.sin(next.year * 1.37 + property.name.length * 0.21) * volatility;
       const propertyGrowth = Math.max(-0.08, Math.min(0.12, economy.inflationRate * 0.25 + economy.growthRate * 0.45 + typeGrowth + marketShock));
       return { ...property, marketValue: Math.max(1, Math.round(property.marketValue * (1 + propertyGrowth))) };
