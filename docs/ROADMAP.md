@@ -111,7 +111,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 **Goal:** add smartphones, laptops, and desktop PCs as useful optional assets connected to everyday life.
 
-- [ ] Add Life → Personal Technology and a separate Lifestyle Discover technology retailer.
+- [ ] Add Life → Personal Technology and integrate its products into the existing Lifestyle Market.
 - [ ] Add a small fictional catalogue with category-aware capability tiers and new/used options.
 - [ ] Implement individual device ownership/access records and current-schema save/load validation.
 - [ ] Route purchases, repairs, and resale through the existing Finance transaction/ledger path.
