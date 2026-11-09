@@ -147,10 +147,9 @@ export function isEligibleForRole(character: Character, role: CareerRole): boole
 export function getJobListings(character: Character): JobListing[] {
   const week = character.calendar?.currentDate ?? character.year + '-01-01';
   const eligibleAge = CAREER_ROLES.filter((role) => character.age >= role.minAge && character.age <= role.maxAge);
-  const candidates = eligibleAge.filter((role) => {
-    const currentRole = getCareerRole(character.employment?.roleId, character.employment?.title);
-    return (!currentRole || role.id !== currentRole.id) && (!character.careerPathId || role.pathId === character.careerPathId);
-  });
+  const currentRole = getCareerRole(character.employment?.roleId, character.employment?.title);
+  const selectedPath = character.careerPathId ?? currentRole?.pathId;
+  const candidates = eligibleAge.filter((role) => (!currentRole || role.id !== currentRole.id) && (!selectedPath || role.pathId === selectedPath));
   if (!candidates.length) return [];
   const random = seeded(character.name + '|' + character.age + '|' + week + '|' + character.country);
   const shuffled = [...candidates];
