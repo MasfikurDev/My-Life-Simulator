@@ -1,6 +1,6 @@
 <script lang="ts">
   import { buyProperty, closeBusiness, formatCharacterMoney, getEconomicConditions, getMarketPrice, planBusinessManagementInNextFreeTime, removePlannedActivity, moveIntoOwnedProperty, rentHome, sellProperty, setPropertyRental, startBusiness, tradeInvestment } from './lib/simulation';
-  import type { BusinessType, Character, PropertyType } from './lib/types';
+  import type { Character, PropertyType } from './lib/types';
   import GameChoice from './GameChoice.svelte';
   let { character, onChange, view = 'all' }: { character: Character; onChange: (next: Character) => void; view?: 'all' | 'property' | 'investments' | 'business' } = $props();
   const scale = $derived(character.currencyScale ?? 1);
