@@ -15,7 +15,7 @@
   const currentRole = $derived(getCareerRole(character.employment?.roleId, character.employment?.title));
   const promotion = $derived(getPromotionReadiness(character));
   const careerRoles = $derived(getCareerPath(selectedPath));
-  $effect(() => { if (currentRole) selectedPath = currentRole.pathId; else if (character.careerPathId) selectedPath = character.careerPathId; });
+  $effect(() => { if (character.careerPathId) selectedPath = character.careerPathId; else if (currentRole) selectedPath = currentRole.pathId; });
   const careerEvents = $derived(character.history.filter((item) => /job|work|career|promotion|interview|employment/i.test(item.title + ' ' + item.description)));
   const plannedActivities = $derived(character.weeklyPlan?.activities ?? []);
   function plannedWorkAction(workAction: 'apply' | 'interview', jobId: string) { return plannedActivities.find((item) => item.action?.kind === 'work' && item.action.workAction === workAction && item.action.jobId === jobId); }
@@ -154,7 +154,7 @@
     <section class="work-panel extra-work-panel">
       <div class="eyebrow">EXTRA EARNINGS</div><h2>{character.employment ? 'Additional shift' : 'Casual work'}</h2>
       <p>Take an additional shift or casual assignment for extra income. Pay reflects your employment, role level, performance and current workload. High stress reduces earnings.</p>
-      <div class="work-metrics"><div><span>Weekly stamina cost</span><strong>{getActivityStaminaCost('work')}</strong></div><div><span>Estimated shift pay</span><strong>{formatCharacterMoney(character, Math.round(Math.max(180, (character.employment?.annualSalary ?? 0) / 52 * 0.5) * (character.employment ? 0.75 + character.employment.performance / 200 : 1) * ((character.stress ?? 30) >= 85 ? 0.6 : (character.stress ?? 30) >= 70 ? 0.8 : 1)))}</strong></div></div>
+      <div class="work-metrics"><div><span>Weekly stamina cost</span><strong>{getActivityStaminaCost('work')}</strong></div><div><span>Estimated shift pay</span><strong>{formatCharacterMoney(character, Math.round(Math.max(180 * (character.currencyScale ?? 1), (character.employment?.annualSalary ?? 0) / 52 * 0.5) * (character.employment ? 0.75 + character.employment.performance / 200 : 1) * ((character.stress ?? 30) >= 85 ? 0.6 : (character.stress ?? 30) >= 70 ? 0.8 : 1)))}</strong></div></div>
       <button class="work-secondary" class:planned={!!extraWorkPlan} onclick={planExtraWork}>{extraWorkPlan ? 'Remove from this week' : (character.employment ? 'Add extra shift' : 'Find casual work') + ' · ' + getActivityStaminaCost('work') + ' stamina'}</button>
     </section>
   {:else if activeView === 'career'}
