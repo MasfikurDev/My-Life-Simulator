@@ -320,8 +320,13 @@ function settleAnnualAssets(character: Character): Character {
   const oldPrices = next.marketPrices ?? { stocks: 100 * scale, gold: 150 * scale, lastUpdatedYear: next.year - 1 };
   next = { ...next, marketPrices: { stocks: Math.max(1, Math.round(oldPrices.stocks * (1 + stockMovement))), gold: Math.max(1, Math.round(oldPrices.gold * (1 + goldMovement))), lastUpdatedYear: next.year } };
   if ((next.properties ?? []).length) {
-    const propertyGrowth = Math.max(-0.08, Math.min(0.12, economy.inflationRate * 0.35 + economy.growthRate * 0.45 + 0.005));
-    next = { ...next, properties: (next.properties ?? []).map((property) => ({ ...property, marketValue: Math.max(1, Math.round(property.marketValue * (1 + propertyGrowth))) })) };
+    next = { ...next, properties: (next.properties ?? []).map((property) => {
+      const typeGrowth = property.type === 'house' ? 0.008 : 0.004;
+      const volatility = property.type === 'house' ? 0.018 : 0.012;
+      const marketShock = Math.sin(next.year * 1.37 + property.name.length * 0.21) * volatility;
+      const propertyGrowth = Math.max(-0.08, Math.min(0.12, economy.inflationRate * 0.25 + economy.growthRate * 0.45 + typeGrowth + marketShock));
+      return { ...property, marketValue: Math.max(1, Math.round(property.marketValue * (1 + propertyGrowth))) };
+    }) };
     for (const property of next.properties ?? []) {
       if (property.rentedOut && property.annualRentalIncome > 0) {
         next = { ...next, money: next.money + property.annualRentalIncome };
@@ -330,8 +335,12 @@ function settleAnnualAssets(character: Character): Character {
     }
   }
   for (const business of next.businesses ?? []) {
-    const profitRate = ((business.performance - 50) / 100) * 0.1 + economy.growthRate * 0.35;
+    const profile = business.type === 'retail' ? { base: 0.045, cashCost: 0.018, volatility: 0.035 } : business.type === 'online' ? { base: 0.065, cashCost: 0.008, volatility: 0.075 } : { base: 0.035, cashCost: 0.025, volatility: 0.065 };
+    const marketShock = Math.sin(next.year * 1.83 + business.name.length * 0.17) * profile.volatility;
+    const performanceEffect = ((business.performance - 60) / 100) * 0.08;
+    const profitRate = profile.base - profile.cashCost + performanceEffect + economy.growthRate * 0.35 + marketShock;
     const profit = Math.round(business.investedCapital * profitRate);
+    next = { ...next, businesses: (next.businesses ?? []).map((item) => item.id === business.id ? { ...item, valuation: Math.max(1, Math.round(item.valuation * (1 + profitRate * 0.65))) } : item) };
     if (profit > 0) {
       next = { ...next, money: next.money + profit };
       next.financialTransactions = financeRecord(next, 'business-income', profit, 'Annual operating profit from ' + business.name + '.', business.name, 'Cash');
@@ -399,24 +408,35 @@ export function makeCardPurchase(character: Character, cardId: string, amount: n
   const value = Math.floor(amount);
   const card = (character.cards ?? []).find((item) => item.id === cardId && item.active);
   if (!card || !validAmount(value)) return character;
+  const reward = Math.floor(value * (card.rewardsRate ?? 0));
   if (card.type === 'prepaid') {
     if (card.balance < value) return character;
-    const next = { ...character, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance - value } : item), history: [...character.history] };
+    const next = { ...character, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance - value, rewardBalance: (item.rewardBalance ?? 0) + reward } : item), history: [...character.history] };
     next.financialTransactions = financeRecord(next, 'card-purchase', value, description + ' using ' + card.name + '.', card.name, 'Merchant');
     return next;
   }
   if (card.type === 'debit') {
     const account = (character.bankAccounts ?? []).find((item) => item.id === card.linkedAccountId);
     if (!account || account.balance < value) return character;
-    const next = { ...character, bankAccounts: updateAccountBalance(character, account.id, -value), history: [...character.history] };
+    const next = { ...character, bankAccounts: updateAccountBalance(character, account.id, -value), cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, rewardBalance: (item.rewardBalance ?? 0) + reward } : item), history: [...character.history] };
     next.financialTransactions = financeRecord(next, 'card-purchase', value, description + ' using ' + card.name + '.', account.name, 'Merchant');
     return next;
   }
   if (card.balance + value > card.creditLimit) return character;
-  const next = { ...character, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance + value } : item), history: [...character.history] };
+  const next = { ...character, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, balance: item.balance + value, rewardBalance: (item.rewardBalance ?? 0) + reward } : item), history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'card-purchase', value, description + ' using ' + card.name + '.', card.name, 'Merchant');
   return next;
 }
+export function redeemCardRewards(character: Character, cardId: string): Character {
+  const card = (character.cards ?? []).find((item) => item.id === cardId && item.active);
+  const reward = Math.floor(card?.rewardBalance ?? 0);
+  if (!card || reward <= 0) return character;
+  const next = { ...character, money: character.money + reward, cards: (character.cards ?? []).map((item) => item.id === cardId ? { ...item, rewardBalance: 0 } : item), history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'income', reward, 'Redeemed rewards from ' + card.name + '.', card.name, 'Cash');
+  next.history.unshift(event(next, 'Card rewards redeemed', formatCharacterMoney(next, reward) + ' in rewards was credited to cash.'));
+  return next;
+}
+
 export function payCreditCard(character: Character, cardId: string, amount: number, source: 'cash' | 'account' = 'cash', sourceId?: string): Character {
   const value = Math.floor(amount);
   const card = (character.cards ?? []).find((item) => item.id === cardId && item.type === 'credit' && item.active);
