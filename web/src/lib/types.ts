@@ -222,7 +222,8 @@ export type PlannedAction =
   | { kind: 'event'; eventId: string; choiceId: string; staminaCost: number }
   | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string }
   | { kind: 'education'; taskType: EducationTaskType }
-  | { kind: 'care'; careType: CareActionType }\n  | { kind: 'food'; productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number };
+  | { kind: 'care'; careType: CareActionType }
+  | { kind: 'food'; productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number };
 
 export interface PlannedActivity {
   id: string;
