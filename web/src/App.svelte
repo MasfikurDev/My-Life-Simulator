@@ -587,11 +587,7 @@
                     {#each weeklyReview.warnings as warning}<p>{warning}</p>{/each}
                   </section>
                 {/if}
-                {#if character.pendingGameEvent}
-                  <p class="year-review-warning">Unresolved situation: {character.pendingGameEvent.title}. It remains available for now but may expire at the year boundary if left unanswered.</p>
-                {/if}
-                <p class="year-review-note">This preview is calculated without changing your save. Resolving applies the same weekly simulation once; annual financial settlements remain on their yearly boundary.</p>
-                <div class="year-review-actions">
+                                <div class="year-review-actions">
                   <button class="secondary-button" onclick={closeAdvanceReview}>Back to this week</button>
                   <button class="primary-button" disabled={weeklyReview.issue !== null} onclick={advanceWeekNow}>Resolve reviewed week</button>
                 </div>
