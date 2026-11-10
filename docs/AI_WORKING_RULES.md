@@ -57,7 +57,7 @@ For any change touching two or more gameplay domains, also read `docs/SYSTEM_INT
 
 These checks are implemented in GitHub Actions and the repository PR template; do not bypass them casually:
 
-- Every PR runs `.github/workflows/pr-guardrails.yml`. Tracked file deletions require the explicit `allow-file-deletions` label after the complete deletion and replacement behavior has been reviewed. A file deletion is not automatically wrong, but it must be deliberate.
+- Every PR runs `.github/workflows/pr-guardrails.yml`. Tracked file deletions require the `Intentional file deletions reviewed` PR checklist item to be checked after the complete deletion and replacement behavior has been reviewed. A file deletion is not automatically wrong, but it must be deliberate.
 - Inspect the complete base-to-head diff, including deletions, renames, generated files, and changes outside the stated scope. The deletion guard cannot detect behavior removed inside a file that remains.
 - Use the repository PR template. Explicitly list intended behavior removals, save-format changes, and risks; write "None" when there are none.
 - Web code changes must pass Svelte checking, the full Vitest suite, and the production build. Add a focused regression test for the reported failure; do not rely on a broad suite alone.
