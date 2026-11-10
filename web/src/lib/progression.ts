@@ -8,12 +8,12 @@ export interface ActivityDefinition {
 }
 
 export const ACTIVITY_DEFINITIONS: Record<ActivityId, ActivityDefinition> = {
-  study: { id: 'study', title: 'Study & learning', staminaCost: 8, detail: 'Focused learning that builds intelligence, focus and discipline.' },
-  exercise: { id: 'exercise', title: 'Exercise', staminaCost: 10, detail: 'Physical activity that builds fitness and supports health.' },
-  socialize: { id: 'socialize', title: 'Social time', staminaCost: 6, detail: 'Time with friends that improves social skills and happiness.' },
-  work: { id: 'work', title: 'Extra work', staminaCost: 16, detail: 'A demanding work session that earns additional income.' },
+  study: { id: 'study', title: 'Study & learning', staminaCost: 8, detail: 'Build knowledge in your current field, strengthen learning ability and improve academic progress.' },
+  exercise: { id: 'exercise', title: 'Exercise', staminaCost: 10, detail: 'Develop physical fitness and endurance while supporting health, energy and stress recovery.' },
+  socialize: { id: 'socialize', title: 'Social time', staminaCost: 6, detail: 'Strengthen communication, relationships and social opportunities.' },
+  work: { id: 'work', title: 'Extra work', staminaCost: 16, detail: 'Earn additional income while gaining practical experience in your current career path.' },
   'apply-job': { id: 'apply-job', title: 'Apply for a job', staminaCost: 8, detail: 'Prepare and submit an application.' },
-  career: { id: 'career', title: 'Career development', staminaCost: 8, detail: 'Focused professional development that improves work performance.' }
+  career: { id: 'career', title: 'Career development', staminaCost: 8, detail: 'Develop role-specific professional capability, improve performance and build promotion readiness.' }
 };
 
 export interface LifeStage { id: string; label: string; ageRange: string; description: string; nextAge: number | null; }
