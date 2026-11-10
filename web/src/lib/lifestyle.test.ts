@@ -3,7 +3,6 @@ import { addOwnedLifestyleItem, advanceWeek, createCharacter, planSocialInteract
 import {
   addSocialConnection,
   applyWeeklyClothingWear,
-  interactWithSocialConnection,
   getClothingPresentationScore,
   getPassiveLifestyleActivities,
   removeSocialConnection,
@@ -19,6 +18,7 @@ describe('passive lifestyle simulation', () => {
     const supported = {
       ...child,
       familyCulture: 'structured' as const,
+      familyBackground: 'Working-class',
       family: { ...family, householdMemberIds: [family.playerPersonId, ...householdIds] }
     };
     const meals = getPassiveLifestyleActivities(supported).find((item) => item.id === 'passive-family-meals');
