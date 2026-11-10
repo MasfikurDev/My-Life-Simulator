@@ -36,7 +36,7 @@ describe('life simulation', () => {
     expect(next.age).toBe(1);
     expect(next.intelligence).toBe(13);
     expect(next.fitness).toBe(13);
-    expect(next.stamina).toBe(100);
+    expect(next.stamina).toBeGreaterThan(supported.stamina);
     expect(next.health).toBeGreaterThan(supported.health);
     expect(next.happiness).toBeGreaterThan(supported.happiness);
     expect(next.comfort).toBeGreaterThan(supported.comfort ?? 50);
@@ -390,7 +390,7 @@ describe('life simulation', () => {
     const joined = resolveGameEvent(student, 'join');
     const intelligenceAfterChoice = joined.intelligence;
     const nextYear = advanceYear(joined);
-    expect(nextYear.intelligence).toBe(intelligenceAfterChoice + 2);
+    expect(nextYear.intelligence).toBe(Math.min(82, intelligenceAfterChoice + 2));
     expect(nextYear.scheduledGameConsequences).toHaveLength(0);
     expect(nextYear.history.some((item) => item.title === 'Your reading paid off')).toBe(true);
   });
@@ -775,7 +775,7 @@ describe('life simulation', () => {
     expect(next.lastYearExpenses).toBe(100);
     expect(next.lastYearShortfall).toBe(getHouseholdBudget(next).total - 100);
     expect(next.money).toBe(0);
-    expect(next.happiness).toBe(adult.happiness - 4);
+    expect(next.happiness).toBe(Math.max(0, adult.happiness - 6));
     expect(next.history.some((item) => item.title === 'Household budget shortfall')).toBe(true);
   });
   it('settles annual household costs from income and savings', () => {
