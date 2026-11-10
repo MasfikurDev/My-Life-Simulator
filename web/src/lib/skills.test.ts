@@ -54,6 +54,7 @@ describe('pursuit-based activity rewards', () => {
       intelligence: 80, focus: 80, education: 'Higher education',
       careerExperienceYears: 3,
       educationRecords: [{ id: 'degree', level: 'bachelor' as const, institution: 'University', field: 'Computer science', startedAtAge: 18, completedAtAge: 22, status: 'completed' as const }],
+      qualifications: [{ id: 'degree-qualification', name: \"Bachelor's degree\", category: 'degree' as const, issuer: 'University', field: 'Computer science', awardedAtAge: 22 }],
       skills: { technology: 49 }
     };
     expect(getCareerRequirements(character, role).find((item) => item.label === 'Relevant skill')?.met).toBe(false);
