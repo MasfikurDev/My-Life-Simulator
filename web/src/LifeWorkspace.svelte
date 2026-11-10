@@ -13,7 +13,7 @@
     { id: 'market', label: 'Market' },
     { id: 'subscriptions', label: 'Subscriptions' },
     { id: 'owned', label: 'Owned' },
-    { id: 'family', label: 'Family' },
+    { id: 'family', label: 'Relationships' },
     { id: 'tree', label: 'Family tree' },
     { id: 'history', label: 'Life story' }
   ];
