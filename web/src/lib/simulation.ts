@@ -1,5 +1,6 @@
 import type { ActivityId, PlannedAction, PlannedActivity, OwnedLifestyleItem, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
 import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
+import { awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabel } from './skills';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
 import { addCalendarDays, createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
@@ -856,7 +857,7 @@ function getPlannedActivityTitle(character: Character, item: PlannedActivity): s
 
 function getPlannedActivityReward(item: PlannedActivity): string {
   if (item.action?.kind === 'food') return 'Bought meal' + (item.action.staminaRecovery ? ' · stamina +' + item.action.staminaRecovery : '') + (item.action.health ? ' · health +' + item.action.health : '') + (item.action.happiness ? ' · happiness +' + item.action.happiness : '') + (item.action.comfort ? ' · comfort +' + item.action.comfort : '') + (item.action.stress ? ' · stress −' + item.action.stress : '');
-  if (item.action?.kind === 'education') return 'Knowledge, focus, discipline and course progress';
+  if (item.action?.kind === 'education') return 'Field knowledge, applied capability, grades and qualifications';
   if (item.action?.kind === 'care') return ({ rest: 'Stamina, health, happiness and lower stress', mindfulness: 'Focus and lower stress', counselling: 'Mental wellbeing and stress recovery', 'medical-checkup': 'Health assessment and treatment planning' }[item.action.careType]);
   if (item.action?.kind === 'work') return 'Career opportunity and employment progression';
   if (item.action?.kind === 'family') return 'Family closeness, trust and relationship history';
@@ -864,12 +865,12 @@ function getPlannedActivityReward(item: PlannedActivity): string {
   if (item.action?.kind === 'business') return 'Business performance and financial outcomes';
   if (item.action?.kind === 'event') return 'The chosen event outcome and its consequences';
   return ({
-    study: 'Intelligence, focus, discipline and learning progress',
-    exercise: 'Fitness, health, happiness and lower stress',
-    socialize: 'Happiness, social skills and lower stress',
-    work: 'Cash income and confidence; stress and happiness may worsen',
+    study: 'Subject knowledge, intelligence, focus and learning progress',
+    exercise: 'Physical fitness, health, stamina and lower stress',
+    socialize: 'Communication skill, relationship quality and happiness',
+    work: 'Income, role-relevant experience and professional capability',
     'apply-job': 'Employment opportunity',
-    career: 'Work performance, focus and confidence'
+    career: 'Role-specific professional skill, work performance and promotion readiness'
   } as Record<ActivityId, string>)[item.activityId as ActivityId] ?? 'Character progression';
 }
 
@@ -1133,6 +1134,8 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     } else if (item.action?.kind === 'education') {
       result = performActivity(next, 'study', weekRandom);
       if (result !== next) {
+        const fieldSkill = getEducationSkillId(next.educationEnrollment?.field);
+        result = awardSkillProgress(result, fieldSkill, item.action.taskType === 'assignment' ? 4 : item.action.taskType === 'exam' ? 3 : 1);
         educationTasks.push(item.action.taskType);
         recap.push(item.action.taskType === 'assignment' ? 'Completed an education assignment.' : item.action.taskType === 'exam' ? 'Completed an academic exam.' : 'Completed a focused study session.');
       }
@@ -1155,7 +1158,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     } else if (item.action?.kind === 'social') {
       const connectionId = item.action.connectionId;
       result = interactWithSocialConnection(next, connectionId);
-      if (result !== next) recap.push('Social connection: spent time with ' + ((next.socialConnections ?? []).find((entry) => entry.id === connectionId)?.name ?? 'a friend') + '.');
+      if (result !== next) { result = awardSkillProgress(result, 'communication', 2); recap.push('Social connection: spent time with ' + ((next.socialConnections ?? []).find((entry) => entry.id === connectionId)?.name ?? 'a friend') + '.'); }
     } else if (item.action?.kind === 'business') {
       result = manageBusiness(next, item.action.businessId);
       if (result !== next) recap.push('Business management session completed.');
@@ -1342,6 +1345,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       const energy = next.stamina ?? 50;
       const studyGain = pressure >= 85 || energy < 20 ? 1 : pressure >= 70 || energy < 35 ? 3 : 5;
       next.intelligence = clamp(next.intelligence + studyGain);
+      next = awardSkillProgress(next, getEducationSkillId(next.educationEnrollment?.field), 2);
       next.happiness = clamp(next.happiness - 1);
       next.focus = clamp((next.focus ?? 50) + 3);
       next.discipline = clamp((next.discipline ?? 50) + 1);
@@ -1356,6 +1360,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       break;
     }
     case 'exercise':
+      next = awardSkillProgress(next, 'physical-fitness', 3);
       next.fitness = clamp(next.fitness + 6);
       next.health = clamp(next.health + 2);
       next.happiness = clamp(next.happiness + 2);
@@ -1364,6 +1369,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       next.history.unshift(event(next, 'Focused on fitness', 'A good session improved your fitness and lifted your mood.'));
       break;
     case 'socialize':
+      next = awardSkillProgress(next, 'communication', 2);
       next.happiness = clamp(next.happiness + 7);
       next.socialSkills = clamp((next.socialSkills ?? 50) + 2);
       next.stress = Math.max(0, (next.stress ?? 30) - 2);
@@ -1372,6 +1378,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       break;
     case 'work':
       if (next.age < 16) return character;
+      next = awardSkillProgress(next, getCareerSkillId(next.employment?.careerPathId ?? next.careerPathId), 1);
       const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
       const roleFactor = next.employment ? 0.75 + next.employment.performance / 200 : 1;
       const baseShiftPay = next.employment ? Math.max(180 * scale, next.employment.annualSalary / 52 * 0.5) : 180 * scale;
@@ -1402,6 +1409,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
     }
     case 'career':
       if (!next.employment) return character;
+      next = awardSkillProgress(next, getCareerSkillId(next.employment.careerPathId ?? next.careerPathId), 4);
       const careerGain = (next.stress ?? 30) >= 85 ? 3 : (next.stress ?? 30) >= 70 ? 7 : 12;
       next.employment = { ...next.employment, performance: clamp(next.employment.performance + careerGain) };
       next.happiness = clamp(next.happiness + 1);
