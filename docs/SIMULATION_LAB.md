@@ -79,3 +79,14 @@ Do not invent goal success by directly editing character state during a run. Str
 ## Current limitations
 
 The first slice tests education and fitness goals for young adults. It does not yet simulate the full player interface, monthly financial cadence, a complete birth-to-death life, or all career/business/relationship goals. The weekly simulation still has incomplete long-term systems; scenarios must not imply those systems are finished.
+
+
+## Running the simulation suite
+
+The long-running scenarios are intentionally kept outside `src/**` so the normal `npm test` suite stays fast and runs on every web change.
+
+- **Local:** from `web/`, run `npm run test:simulation`.
+- **Pull request:** add the `run-simulation-audit` label to run the separate **Long simulation audit** workflow against that PR's exact head commit.
+- **Manual:** run **Long simulation audit** from Actions and provide the branch or commit in the `ref` input.
+
+The dedicated workflow installs the locked dependencies once, runs only `simulation-tests/**/*.test.ts`, and uses at most two workers. It does not run the production build or deploy Pages. The regular web workflow continues to run the fast unit suite, static checks, and production build independently.
