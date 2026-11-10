@@ -14,7 +14,7 @@
     { id: 'supermarket', label: 'Supermarket' },
     { id: 'subscriptions', label: 'Subscriptions' },
     { id: 'family', label: 'Relationships' },
-    { id: 'tree', label: 'Family tree' },
+    { id: 'tree', label: 'Life Tree' },
     { id: 'history', label: 'Life story' }
   ];
   function financialFlow(type: string): 'income' | 'expense' | null {
