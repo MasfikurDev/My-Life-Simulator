@@ -29,13 +29,13 @@ Do not reintroduce a universal three-actions-per-week quota. Personal activities
 
 | Area | Status | Implemented foundation | Main remaining work |
 |---|---|---|---|
-| Character creation and saves | Implemented foundation | Randomized character profiles, age-aware creation, three save slots, strict current-schema validation | Broader scenario validation and deeper life-stage content |
-| Weekly simulation | Core implemented | Calendar, date/week calendar, automatic education/work obligations, stamina-based personal activities, deterministic resolution, history and recap | Date-based deadlines, richer delayed consequences, multi-week advancement |
+| Character creation and saves | Implemented foundation | Randomized character profiles, age-scaled child attributes, age-aware natural development, three save slots, strict current-schema validation | Broader scenario validation and deeper life-stage content |
+| Weekly simulation | Core implemented | Calendar, date/week calendar, automatic education/work obligations, stamina-based personal activities, deterministic resolution, passive household/lifestyle effects, history and recap; direct year advancement resolves passive background weeks | Date-based deadlines, richer delayed consequences, multi-week advancement |
 | Education | Playable foundation | Enrollment, programmes, classes, weekly tasks, grades, tuition, history, qualifications | Localization, scholarships, retakes, licensing, apprenticeships |
 | Work | Playable foundation | Job board, applications, interviews, offers, employment, job changes, resignation, career previews and promotion offers | Persistent employers/vacancies, workplace decisions, layoffs, benefits, bonuses, monthly payroll |
 | Finance | Broad foundation | Accounts, cards, savings, loans, recurring payments, property, multi-asset investments, business, taxes, credit score, loan eligibility/rejection scoring, and economic indicators | Monthly payroll/bills/business cash flow, richer statements/reporting, deeper product variety, and variable-rate debt |
 | Family | Foundation + initial interactions | Persistent people and relationship graph, bonds, history, targeted interactions, ledger-backed adult support | Partnership, separation, parenthood, adoption, dependants, caregiving, family events, mortality and legacy |
-| Health/wellbeing | Basic playable foundation | Stress, workload, stamina, recovery, checkups, counselling and basic treatment | Broader conditions, chronic care, insurance, localized healthcare, aging and later-life support |
+| Health/wellbeing | Basic playable foundation | Stress, workload, stamina, recovery, checkups, counselling and basic treatment; separate Life Overview and Health workspaces | Broader conditions, chronic care, insurance, localized healthcare, aging and later-life support |
 | Events and life history | Initial system | Contextual events, choices, persisted pending events, consequences and history | Date-based deadlines, richer cooldown/content, milestone arcs and cross-domain follow-through |
 | Personal technology | Planned | Design specification exists | Device ownership, access, capability checks, repairs and purchase loop |
 | Retirement and mortality | Planned | High-level direction and acceptance criteria | Pension/retirement, terminal state, final summary, estate and legacy |
