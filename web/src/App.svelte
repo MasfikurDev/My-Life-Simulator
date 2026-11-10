@@ -339,7 +339,7 @@
           <CustomCharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='menu'} />
         {:else if activeTab==='achievements'}
           <div class="page-heading"><div><div class="eyebrow">MILESTONES & PROGRESS</div><h1>Achievements</h1><p>Milestones earned across the lives saved on this device.</p></div></div>
-          {@const allLives = slots.flatMap((slot) => slot.character ? [slot.character] : [])}
+          {@const allLives = slots.flatMap((slot) => slot.character?.achievementEligible === true ? [slot.character] : [])}
           <div class="achievement-grid">
             {#each [{title:'First Chapter',detail:'Start your first life.',done:allLives.length>0,mark:'✦'},{title:'Growing Up',detail:'Reach adulthood.',done:allLives.some((life)=>life.age>=18),mark:'⌁'},{title:'A Long Journey',detail:'Reach age 65.',done:allLives.some((life)=>life.age>=65),mark:'◇'},{title:'A Life Well Lived',detail:'Reach age 90.',done:allLives.some((life)=>life.age>=90),mark:'★'}] as achievement}
               <article class:achievement-unlocked={achievement.done} class="achievement-card"><div class="achievement-mark">{achievement.mark}</div><div><strong>{achievement.title}</strong><p>{achievement.detail}</p><small>{achievement.done ? 'UNLOCKED' : 'LOCKED'}</small></div></article>
@@ -398,7 +398,7 @@
           </section>
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">{character ? '05' : '03'}</span><div><h3>Save slots</h3><p>Keep up to three separate lives on this device.</p></div></div>
-            <div class="save-slot-list">{#each slots as slot, index}<div class="save-slot-row"><div class="save-slot-meta"><strong>Slot {index + 1}</strong>{#if slot.character}<span>{slot.character.name} · Age {slot.character.age} · {formatCharacterMoney(slot.character)}</span><small>{slot.id === activeSlotId ? 'CURRENT SLOT' : 'SAVED LIFE'}</small>{:else}<span class="empty-slot-label">Empty slot</span>{/if}</div><div class="save-slot-actions">{#if slot.character}<button class="secondary-button" onclick={() => loadSlot(slot)} disabled={slot.id===activeSlotId}>Load</button><button class="danger-button" onclick={() => slotToDelete=slot.id}>Delete</button>{:else}<button class="secondary-button" onclick={() => openCreation(slot.id)}>New life</button>{/if}</div></div>{/each}</div>
+            <div class="save-slot-list">{#each slots as slot, index}<div class="save-slot-row"><div class="save-slot-meta"><strong>Slot {index + 1}</strong>{#if slot.character}<span>{slot.character.name} · Age {slot.character.age} · {formatCharacterMoney(slot.character)}</span><small>{slot.id === activeSlotId ? 'CURRENT SLOT' : 'SAVED LIFE'}</small>{:else}<span class="empty-slot-label">Empty slot</span>{/if}</div><div class="save-slot-actions">{#if slot.character}<button class="secondary-button" onclick={() => loadSlot(slot)} disabled={slot.id===activeSlotId}>Load</button><button class="danger-button" onclick={() => slotToDelete=slot.id}>Delete</button>{:else}<button class="secondary-button" onclick={() => openCreation(slot.id, false)}>New life</button>{/if}</div></div>{/each}</div>
             <div class="setting-note">Saves stay in this browser or app on this device. Clearing app data or browser storage can remove them. Cloud backup is not available yet.</div>
           </section>
           <section class="settings-section">
