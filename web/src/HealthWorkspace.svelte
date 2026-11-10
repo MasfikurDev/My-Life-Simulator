@@ -2,16 +2,11 @@
   import type { CareActionType, Character } from './lib/types';
   import EmptyState from './components/EmptyState.svelte';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
-  import { formatCharacterMoney, getPlannedActivityStaminaCost, planActivityInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
-  import { getWellbeingLoadLabel } from './lib/wellbeing';
+  import { formatCharacterMoney, planActivityInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getActivityStaminaCost, getValueColor } from './lib/progression';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   const medical = $derived(character.medicalState ?? { conditions: [], medications: [], highStressWeeks: 0 });
   const schedule = $derived(character.weeklyPlan);
-  const activityEffort = $derived(Math.ceil(schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaCost(item), 0) / 6));
-  const backgroundObligations = $derived((character.educationEnrollment?.status === 'enrolled' ? 4 : 0) + (character.employment ? (character.employment.type === 'full-time' ? 6 : 3) : 0));
-  const workload = $derived(Math.min(21, backgroundObligations + activityEffort));
-  const load = $derived(getWellbeingLoadLabel(workload));
   const plannedCare = $derived(schedule.activities.filter((item) => item.action?.kind === 'care'));
   function plan(type: CareActionType) {
     const existing = plannedCare.find((item) => item.action?.kind === 'care' && item.action.careType === type);
@@ -40,16 +35,16 @@
   ]);
 </script>
 
-<div class="page-heading"><div><div class="eyebrow">BODY · MIND · RECOVERY</div><h1>Health & <em>wellbeing</em></h1><p>Manage your health, energy and pressure. Recovery is part of the weekly plan, not wasted time.</p></div></div>
+<div class="page-heading"><div><div class="eyebrow">LIFE AT A GLANCE</div><h1>Life <em>Overview</em></h1><p>A snapshot of your circumstances, wellbeing and the stage of life you are in.</p></div></div>
 <section class="health-overview domain-panel">
-  <div class="health-overview-head"><div><div class="eyebrow">CURRENT CONDITION</div><h2>{load} weekly load</h2><p>Estimated workload: {workload}/21 units, including automatic education/work responsibilities and selected personal activities.</p></div><span class="domain-status">{(character.stress ?? 30) >= 82 ? 'HIGH PRESSURE' : (character.stress ?? 30) >= 60 ? 'ELEVATED' : 'MANAGEABLE'}</span></div>
+  <div class="health-overview-head"><div><div class="eyebrow">YOUR CURRENT CHAPTER</div><h2>{character.age < 3 ? 'Early childhood' : character.age < 6 ? 'Preschool years' : character.age < 13 ? 'Childhood' : character.age < 18 ? 'Teenage years' : character.age < 25 ? 'Young adulthood' : character.age < 45 ? 'Adulthood' : character.age < 65 ? 'Midlife' : 'Later life'}</h2><p>Age {character.age} · {character.country} · {character.householdArrangement === 'family-supported' ? 'Family home' : character.householdArrangement === 'shared' ? 'Shared home' : character.householdArrangement === 'independent' ? 'Independent living' : 'Living arrangement not set'}.</p></div><span class="domain-status">{character.employment ? 'EMPLOYED' : character.age >= 18 ? 'BETWEEN JOBS' : character.educationEnrollment?.status === 'enrolled' ? 'IN EDUCATION' : 'GROWING UP'}</span></div>
   <div class="health-stat-grid">
     {#each stats as stat}
       <div class="health-stat"><div><span>{stat.label}</span><strong>{Math.round(stat.value)}%</strong></div><div class="meter"><span class:blue={stat.tone !== 'stress'} class:stress-meter={stat.tone === 'stress'} style="width:{stat.value}%;background:{getValueColor(stat.value, stat.inverse)}"></span></div><small>{stat.inverse ? stat.value >= 80 ? 'Critical pressure' : stat.value >= 60 ? 'Elevated pressure' : 'Manageable' : stat.value < 25 ? 'Critical' : stat.value < 45 ? 'Low' : stat.value < 70 ? 'Fair' : 'Strong'}</small></div>
     {/each}
   </div>
-  {#if (character.stress ?? 30) >= 70 || workload >= 14}
-    <div class="health-warning"><strong>Your current load is affecting recovery.</strong><span>Reduce commitments, take a break, exercise gently or seek professional support. Pushing harder can make every task less effective.</span></div>
+  {#if (character.stress ?? 30) >= 70 || character.health < 30}
+    <div class="health-warning"><strong>Your wellbeing needs attention.</strong><span>Consider rest, lighter activities or professional support when stress is high or health is low.</span></div>
   {/if}
 </section>
 
