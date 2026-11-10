@@ -3,6 +3,8 @@
   import { advanceWeek, formatCharacterMoney, getWeeklyActivityReview, planEventChoiceInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { addCalendarDays, getWeekStart } from './lib/calendar';
   import { getEducationStage, getLifeStage } from './lib/progression';
+  import { getStatCeiling } from './lib/stat-development';
+  import type { DevelopmentStat } from './lib/stat-development';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
@@ -360,8 +362,8 @@
             <section class="settings-section profile-attributes-section">
               <div class="settings-section-heading"><span class="section-index">02</span><div><h3>Attributes</h3></div></div>
               <div class="character-stats-grid">
-                {#each [{label:'Health',value:character.health},{label:'Happiness',value:character.happiness},{label:'Fitness',value:character.fitness},{label:'Intelligence',value:character.intelligence},{label:'Stamina',value:character.stamina ?? 50},{label:'Focus',value:character.focus ?? 50},{label:'Discipline',value:character.discipline ?? 50},{label:'Confidence',value:character.confidence ?? 50},{label:'Creativity',value:character.creativity ?? 50},{label:'Social skills',value:character.socialSkills ?? 50},{label:'Stress',value:character.stress ?? 0}] as stat}
-                  <div class="character-stat"><div class="character-stat-ring" class:stress-stat={stat.label === 'Stress'} style={`--stat-value: ${Math.max(0, Math.min(100, stat.value))}%`}><strong>{Math.round(stat.value)}</strong></div><span>{stat.label}</span>{#if stat.label === 'Stress'}<small>Higher is worse</small>{/if}</div>
+                {#each [{label:'Health',key:'health',value:character.health},{label:'Happiness',key:'happiness',value:character.happiness},{label:'Fitness',key:'fitness',value:character.fitness},{label:'Intelligence',key:'intelligence',value:character.intelligence},{label:'Stamina',key:'stamina',value:character.stamina ?? 50},{label:'Focus',key:'focus',value:character.focus ?? 50},{label:'Discipline',key:'discipline',value:character.discipline ?? 50},{label:'Confidence',key:'confidence',value:character.confidence ?? 50},{label:'Creativity',key:'creativity',value:character.creativity ?? 50},{label:'Social skills',key:'socialSkills',value:character.socialSkills ?? 50},{label:'Comfort',key:'comfort',value:character.comfort ?? 50},{label:'Stress',key:null,value:character.stress ?? 0}] as stat}
+                  <div class="character-stat"><div class="character-stat-ring" class:stress-stat={stat.label === 'Stress'} style={`--stat-value: ${Math.max(0, Math.min(100, stat.value))}%`}><strong>{Math.round(stat.value)}</strong></div><span>{stat.label}</span>{#if stat.key}<small>MAX {Math.round(getStatCeiling(character, stat.key as DevelopmentStat))}</small>{:else}<small>Higher is worse</small>{/if}</div>
                 {/each}
               </div>
             </section>
