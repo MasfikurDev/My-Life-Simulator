@@ -105,6 +105,6 @@ describe('long-running gameplay simulation audit', () => {
     expect(result.issue).toBeNull();
     expect(result.character.weeklyPlan.activities).toHaveLength(0);
     expect(result.character.calendar?.currentDate).toBe('2026-01-12');
-    expect(result.character.money).toBeLessThan(start.money);
+    expect(result.character.fitness).toBeGreaterThan(start.fitness);
   });
 });
