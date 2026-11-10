@@ -192,12 +192,12 @@ function fitnessPursuit(seed: number): Scenario {
     weeks: 52,
     initial,
     goal: {
-      id: 'fitness-70',
-      description: 'Reach 70 fitness while keeping health above 40',
-      reached: (character) => character.fitness >= 70 && character.health >= 40
+      id: 'fitness-85',
+      description: 'Reach 85 fitness and recover health to at least 40',
+      reached: (character) => character.fitness >= 85 && character.health >= 40
     },
     strategy: (character) => {
-      if (character.fitness >= 70) return character;
+      if (character.fitness >= 85) return character;
       if (character.stamina < 28 || character.stress > 75) {
         return mustPlan(character, planCareActionInNextFreeTime(character, 'rest'));
       }
