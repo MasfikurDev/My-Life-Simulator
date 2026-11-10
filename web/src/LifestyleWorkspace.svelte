@@ -145,10 +145,10 @@
 
 <section class="lifestyle-workspace">
   <header class="lifestyle-heading">
-    <div><div class="eyebrow">LIFESTYLE · EVERYDAY NEEDS</div><h2>{activeView === 'supermarket' ? 'Market' : activeView === 'subscriptions' ? 'Subscriptions' : 'Owned'}</h2><p>{activeView === 'market' ? 'Buy food and useful things for everyday life.' : activeView === 'subscriptions' ? 'Manage services and recurring memberships.' : 'Your purchased items and personal inventory.'}</p></div>
+    <div><div class="eyebrow">LIFESTYLE · EVERYDAY NEEDS</div><h2>{activeView === 'supermarket' ? 'Supermarket' : activeView === 'subscriptions' ? 'Subscriptions' : 'Owned'}</h2><p>{activeView === 'supermarket' ? 'Buy food and useful things for everyday life.' : activeView === 'subscriptions' ? 'Manage services and recurring memberships.' : 'Your purchased items and personal inventory.'}</p></div>
     {#if activeView === 'subscriptions'}<span class="service-count">{activeSubscriptions.length} ACTIVE</span>{:else if activeView === 'owned'}<span class="service-count">{ownedItems.reduce((sum, item) => sum + item.quantity, 0)} ITEMS</span>{/if}
   </header>
-  {#if activeView === 'market'}
+  {#if activeView === 'supermarket'}
     <nav class="market-categories" aria-label="Supermarket categories">
       {#each categories as item}<button class:active={category === item} onclick={() => category = item}>{item}</button>{/each}
     </nav>
