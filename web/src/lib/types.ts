@@ -34,7 +34,8 @@ export type PaymentSourceType = 'cash' | 'account' | 'card';
 export interface BankCard { id: string; name: string; type: CardType; linkedAccountId?: string; creditLimit: number; balance: number; annualInterestRate: number; active: boolean; productId?: string; rewardsRate?: number; rewardBalance?: number; }
 export interface Loan { id: string; name: string; type: LoanType; principal: number; balance: number; annualInterestRate: number; termYears: number; paymentAccountId?: string; active: boolean; }
 export interface RecurringPayment { id: string; name: string; amount: number; category: 'subscription' | 'bill'; sourceType: PaymentSourceType; sourceId?: string; active: boolean; startedAtYear: number; }
-export interface OwnedLifestyleItem { id: string; productId: string; name: string; category: string; description: string; quantity: number; purchasedAtYear: number; kind: 'usable' | 'permanent'; styleScore?: number; formality?: number; condition?: number; equipped?: boolean; }
+export interface FoodEffects { staminaRecovery: number; health: number; happiness: number; stress: number; comfort: number; }
+export interface OwnedLifestyleItem { id: string; productId: string; name: string; category: string; description: string; quantity: number; purchasedAtYear: number; kind: 'usable' | 'permanent'; styleScore?: number; formality?: number; condition?: number; equipped?: boolean; foodEffects?: FoodEffects; }
 export type SocialConnectionType = 'friend' | 'partner' | 'child' | 'extended-family';
 export interface SocialConnection { id: string; name: string; type: SocialConnectionType; closeness: number; active: boolean; livesWithPlayer: boolean; supportLevel: 'occasional' | 'regular' | 'strong'; }
 export interface AutoDepositRule { id: string; targetAccountId: string; method: 'fixed' | 'percentage'; value: number; active: boolean; }
@@ -225,7 +226,7 @@ export type PlannedAction =
   | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string }
   | { kind: 'education'; taskType: EducationTaskType }
   | { kind: 'care'; careType: CareActionType }
-  | { kind: 'food'; productId: string; name: string; quantity: number; purchaseCost: number; staminaRecovery: number; health: number; happiness: number; stress: number; comfort?: number }
+  | { kind: 'food'; productId: string; name: string; quantity: number; purchaseCost: number; staminaRecovery: number; health: number; happiness: number; stress: number; comfort?: number; ownedItemId?: string }
   | { kind: 'social'; connectionId: string; interaction: 'spend-time' };
 
 export interface PlannedActivity {
