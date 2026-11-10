@@ -11,7 +11,7 @@
     <div class="section-heading"><div><span class="section-index">01</span><h3>Living arrangement</h3></div></div>
     <p class="finance-footnote">Choose how you live. The estimate is settled when you advance the year.</p>
     <div class="household-choice-grid">
-      <button class:finance-choice-active={character.householdArrangement==='family-supported'} class="finance-choice" onclick={() => changeArrangement('family-supported')}><strong>Family-supported</strong><small>Shared family support; lowest personal costs.</small></button>
+      <button class:finance-choice-active={character.householdArrangement==='family-supported'} class="finance-choice" onclick={() => changeArrangement('family-supported')}><strong>With family</strong><small>Stay with relatives and share everyday costs.</small></button>
       <button class:finance-choice-active={character.householdArrangement==='shared'} class="finance-choice" onclick={() => changeArrangement('shared')}><strong>Shared household</strong><small>Split housing and household bills.</small></button>
       <button class:finance-choice-active={character.householdArrangement==='independent'} class="finance-choice" onclick={() => changeArrangement('independent')}><strong>Independent</strong><small>Cover your own housing and living costs.</small></button>
     </div>

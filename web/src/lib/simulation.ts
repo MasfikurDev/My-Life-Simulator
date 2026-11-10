@@ -100,7 +100,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), history: []
   };
   character.family = createFamilyState(character, random);
-  character.history.push(event(character, 'A new chapter begins', name + ' begins life at age ' + age + ' in ' + character.birthplace + ', ' + profile.country + '. Their ' + background.toLowerCase() + ' family background shapes their starting circumstances, but not their future.', 'milestone'));
+  character.history.push(event(character, 'A new chapter begins', name + ' begins life at age ' + age + ' in ' + character.birthplace + ', ' + profile.country + '. A ' + background.toLowerCase() + ' upbringing shapes the starting point, but the choices ahead are yours.', 'milestone'));
   return prepareGameEvent(character);
 }
 
@@ -753,8 +753,8 @@ export function getHouseholdBudget(character: Character) {
 export function setHouseholdArrangement(character: Character, arrangement: HouseholdArrangement): Character {
   if (character.age < 18 || character.householdArrangement === arrangement) return character;
   const next = { ...character, householdArrangement: arrangement, history: [...character.history] };
-  const label = arrangement === 'family-supported' ? 'Family-supported' : arrangement === 'shared' ? 'Shared household' : 'Independent living';
-  next.history.unshift(event(next, 'Changed living arrangement', 'You moved to a ' + label.toLowerCase() + ' arrangement. Your annual household budget will change next year.', 'milestone'));
+  const label = arrangement === 'family-supported' ? 'With family' : arrangement === 'shared' ? 'Shared household' : 'Independent living';
+  next.history.unshift(event(next, 'Changed living arrangement', 'Your living arrangement is now: ' + label + '. The annual household budget will change next year.', 'milestone'));
   return next;
 }
 

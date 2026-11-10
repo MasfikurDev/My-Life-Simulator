@@ -19,7 +19,7 @@ export interface EducationProgram {
 
 
 export const EDUCATION_PROGRAMS: EducationProgram[] = [
-  { id: 'early-development', title: 'Early development & guided play', institutionType: 'Family-led early development', level: 'early-learning', minAge: 0, maxAge: 2, durationWeeks: 104, tuition: 0, weeklyStudyTarget: 1, fieldOptions: ['Play & discovery', 'Language & stories', 'Movement & coordination'] },
+  { id: 'early-development', title: 'Play & discovery', institutionType: 'Early childhood care', level: 'early-learning', minAge: 0, maxAge: 2, durationWeeks: 104, tuition: 0, weeklyStudyTarget: 1, fieldOptions: ['Play & discovery', 'Language & stories', 'Movement & coordination'] },
   { id: 'early-learning', title: 'Early learning & preschool', institutionType: 'Preschool', level: 'early-learning', minAge: 3, maxAge: 5, durationWeeks: 32, tuition: 0, weeklyStudyTarget: 1, fieldOptions: ['Foundations'] },
   { id: 'primary-school', title: 'Primary school', institutionType: 'Public school', level: 'primary', minAge: 6, maxAge: 11, durationWeeks: 240, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies'] },
   { id: 'lower-secondary', title: 'Lower secondary school', institutionType: 'Secondary school', level: 'lower-secondary', minAge: 12, maxAge: 14, durationWeeks: 120, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies', 'Science', 'Humanities', 'Business studies'], prerequisite: 'primary' },
