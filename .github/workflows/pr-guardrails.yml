@@ -25,5 +25,5 @@ jobs:
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_BASE_REF: ${{ github.event.pull_request.base.ref }}
-          ALLOW_FILE_DELETIONS: ${{ contains(github.event.pull_request.labels.*.name, 'allow-file-deletions') }}
+          DELETIONS_REVIEWED: ${{ contains(github.event.pull_request.body, '[x] Intentional file deletions reviewed') }}
         run: bash .github/scripts/check-pr-deletions.sh
