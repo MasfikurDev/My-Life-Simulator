@@ -25,6 +25,8 @@ describe('passive lifestyle simulation', () => {
     };
     const meals = getPassiveLifestyleActivities(supported).find((item) => item.id === 'passive-family-meals');
     expect(meals).toMatchObject({ title: 'Meals provided by family', staminaRecovery: 5, discipline: 2 });
+    const strained = getPassiveLifestyleActivities({ ...supported, familyCulture: 'strained' }).find((item) => item.id === 'passive-family-meals');
+    expect(strained).toMatchObject({ staminaRecovery: 3, happiness: 0, stress: -1 });
     const neglectful = getPassiveLifestyleActivities({ ...supported, familyCulture: 'neglectful' });
     expect(neglectful.some((item) => item.id === 'passive-family-meals')).toBe(false);
   });
@@ -53,6 +55,7 @@ describe('passive lifestyle simulation', () => {
     expect(activities.map((item) => item.id)).toEqual(expect.arrayContaining([
       'passive-partner-support', 'passive-friend-support', 'passive-parenting', 'passive-extended-family'
     ]));
+    expect(activities.find((item) => item.id === 'passive-parenting')?.stress).toBe(-1);
     const partner = character.socialConnections!.find((item) => item.type === 'partner')!;
     expect(setSocialConnectionHousehold(character, partner.id, false).socialConnections!.find((item) => item.id === partner.id)?.livesWithPlayer).toBe(false);
     expect(removeSocialConnection(character, partner.id).socialConnections).toHaveLength(3);
