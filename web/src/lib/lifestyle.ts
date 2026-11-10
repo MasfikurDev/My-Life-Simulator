@@ -166,20 +166,33 @@ export function resolvePassiveLifestyleActivities(character: Character, activiti
   };
 }
 
-export function getClothingPresentationScore(character: Character): number {
+export function equipLifestyleItem(character: Character, id: string): Character {
+  const items = character.ownedLifestyleItems ?? [];
+  const selected = items.find((item) => item.id === id && item.category === 'Fashion' && typeof item.styleScore === 'number');
+  if (!selected || selected.equipped) return character;
+  return {
+    ...character,
+    ownedLifestyleItems: items.map((item) => item.category === 'Fashion'
+      ? { ...item, equipped: item.id === id }
+      : item)
+  };
+}
+
+export function getClothingPresentationScore(character: Character, requiredFormality = 50): number {
   const clothing = (character.ownedLifestyleItems ?? []).filter((item) =>
-    item.category === 'Fashion' && typeof item.styleScore === 'number'
+    item.category === 'Fashion' && item.equipped === true && typeof item.styleScore === 'number'
   );
   if (!clothing.length) return 35;
-  return Math.max(...clothing.map((item) =>
-    Math.round((item.styleScore ?? 0) * ((item.condition ?? 100) / 100))
-  ));
+  return Math.max(...clothing.map((item) => {
+    const formalityFit = 1 - Math.min(0.8, Math.abs((item.formality ?? 50) - requiredFormality) / 125);
+    return Math.round((item.styleScore ?? 0) * formalityFit * ((item.condition ?? 100) / 100));
+  }));
 }
 
 export function applyWeeklyClothingWear(character: Character): Character {
   let changed = false;
   const items = (character.ownedLifestyleItems ?? []).map((item) => {
-    if (item.category !== 'Fashion' || typeof item.styleScore !== 'number') return item;
+    if (item.category !== 'Fashion' || item.equipped !== true || typeof item.styleScore !== 'number') return item;
     const condition = Math.max(0, (item.condition ?? 100) - 1);
     if (condition === item.condition) return item;
     changed = true;
