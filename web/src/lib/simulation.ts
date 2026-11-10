@@ -753,7 +753,7 @@ export function getHouseholdBudget(character: Character) {
 export function setHouseholdArrangement(character: Character, arrangement: HouseholdArrangement): Character {
   if (character.age < 18 || character.householdArrangement === arrangement) return character;
   const next = { ...character, householdArrangement: arrangement, history: [...character.history] };
-  const label = arrangement === 'family-supported' ? 'Family-supported' : arrangement === 'shared' ? 'Shared household' : 'Independent living';
+  const label = arrangement === 'family-supported' ? 'With family' : arrangement === 'shared' ? 'Shared household' : 'Independent living';
   next.history.unshift(event(next, 'Changed living arrangement', 'You moved to a ' + label.toLowerCase() + ' arrangement. Your annual household budget will change next year.', 'milestone'));
   return next;
 }
