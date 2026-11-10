@@ -1,14 +1,16 @@
 # Gameplay Loop Redesign
 
-**Canonical game-design implementation plan · Weekly-cycle direction · Reviewed 2026-11-09**
+**Canonical game-design implementation plan · Weekly-cycle direction · Reviewed 2026-11-10**
 
 This document turns the gameplay audit into a staged, implementation-ready direction. It distinguishes the implemented first slice from planned mechanics.
 
-## Current implementation status · 2026-11-09
+## Current implementation status · 2026-11-10
 The weekly gameplay foundation and the annual-action-to-weekly-turn transition are implemented in the web simulation:
 - Contextual events are selected using character/year context and age/health eligibility.
 - Pending events and choices persist in the character save; the simulation validates choice requirements and costs.
-- Personal activities, family interactions, business management, job applications, interviews, and time-consuming event choices are selected as weekly actions, consume stamina and resolve in deterministic order.
+- Personal activities, family interactions, social-circle interactions, business management, job applications, interviews, and time-consuming event choices are selected as weekly actions, consume stamina where appropriate, and resolve in deterministic order.
+- Passive lifestyle activities are derived from household/family culture, explicitly recorded social connections, and the current residence. They are shown separately from removable planned activities, do not consume planned stamina effort, and apply bounded health, happiness, comfort, discipline, stress, and stamina effects during deterministic weekly resolution.
+- Lifestyle includes groceries/prepared meals, restaurant/delivery meals, clothing purchases, subscriptions, and owned goods. Clothing condition wears gradually and presentation modestly affects interview first impressions; housing comfort derives from existing rental/owned property and household circumstances.
 - Weekly resolution applies effects and costs, records Life History, clears resolved actions, and advances the calendar by seven days. A stale planned action blocks the turn and remains available for repair instead of being silently discarded.
 - Age and life-stage eligibility change on the character's birthday. Annual financial settlement and annual event expiry remain at the year boundary.
 - The current save format stores three independent slots and validates every current character before use.
@@ -55,7 +57,7 @@ The player should feel that a life is unfolding, not that they are spending abst
 - The current calendar year remains the world year. Advancing one week must never accidentally age the character by one year.
 - The player advances exactly one week at a time through an explicit **Start next week** action. No screen visit, save/load, or background process advances time.
 - Provide a compact calendar/week view, not a real-time clock or hour-by-hour simulation.
-- Do not simulate 168 individual hours, every NPC, travel minute, or every day autonomously. The game uses meaningful automatic background responsibilities, stamina-based activity choices and summarized routines.
+- Do not simulate 168 individual hours, every NPC, travel minute, or every day autonomously. The game combines player-planned stamina-backed choices with meaningful automatic household, social, education, and employment routines.
 
 ### 3.1.1 Calendar foundation (implemented first slice)
 
@@ -74,8 +76,13 @@ The week is shaped by the character's automatic responsibilities and the player'
 - Education and employment continue as background responsibilities while the character is enrolled or employed. Attendance, participation, and progression resolve automatically; they do not create calendar blocks or require manual scheduling.
 - Optional personal activities are toggled from their owning workspaces. The same weekly plan is summarized in the Advance review.
 - Selecting an activity reserves its stamina cost in the plan; it does not immediately deduct the character's stamina.
-- Recovery activities such as rest contribute to the same weekly stamina budget. Recovery is credited before activity costs, so the result is independent of the order in which the player toggles activities.
-- A plan is valid only when `min(100, current stamina + planned recovery) - planned activity costs >= 0`. The Advance review blocks an over-budget plan and must never show negative projected stamina.
+- Recovery activities such as rest and bought meals contribute to the weekly stamina budget. Passive household/social recovery is also credited before planned activity costs, but it is not a player-selected activity and cannot be removed.
+- A plan is valid only when `min(100, current stamina + planned recovery + passive recovery) - planned activity costs >= 0`. The Advance review blocks an over-budget plan and must never show negative projected stamina.
+- Passive activities are derived from actual state: family meals depend on co-resident family and family culture; partners, friends, children, and extended relatives contribute only when explicitly recorded; housing comfort depends on the actual residence and household arrangement. Passive entries are greyed out and unremovable in Weekly Review, and never increase planned activity workload.
+- Passive effects can improve stamina, health, happiness, comfort, and discipline, or add realistic pressure/responsibility. Children can add responsibility, strained/neglectful family cultures provide less support, and independent living removes family-provided meals.
+- Food is a deliberate purchase: everyday meals, eating out, and delivery are paid for and scheduled into the current week. Food is consumed on resolution and never stored in Owned. Effects include bounded stamina, health, happiness, comfort, and stress changes.
+- Housing remains an active adult responsibility through the existing rental and property-purchase flows. Housing quality feeds passive comfort; rent and property costs remain financial obligations.
+- Fashion is a durable purchase in Owned. Clothing has style, formality, and condition; condition wears gradually. Presentation has a modest effect on interview first impressions and must never override qualifications, skills, or interview readiness.
 - Natural weekly fatigue/recovery is applied separately from the reserved activity budget and appears in the final forecast.
 - Stamina is not the only limit. Background education/work responsibilities and demanding activities contribute to workload. Excessive workload increases stress and can reduce health, focus, learning efficiency, work performance, and recovery.
 - Rest can restore stamina and reduce pressure, but it does not erase the workload that caused stress. Recovery choices should be meaningful trade-offs, not a free reset button.
@@ -86,7 +93,7 @@ The week is shaped by the character's automatic responsibilities and the player'
 
 ### 3.2.1 Current weekly action record
 
-- Schema 6 stores a versioned `weeklyPlan` containing contextual actions only. Each action has a stable ID, owning domain, and explicit action payload.
+- Schema 7 stores a versioned `weeklyPlan` containing contextual actions only, including planned social time and bought food comfort effects. Each action has a stable ID, owning domain, and explicit action payload.
 - Planned actions do not contain dates, weekdays, periods, durations, or recurring commitments. The game calendar tracks week progression; it is not a timetable.
 - Enrollment, resuming education, hiring, changing jobs, and resignation update domain state only. Education and employment are automatic background responsibilities and never create time-slot reservations.
 - The old Schedule workspace and its seven-day/21-period grid are removed. The Advance review is the single consolidated plan and outcome surface.
@@ -111,7 +118,7 @@ The player visits the relevant domain and chooses what to do:
 - **Work:** attend shifts, perform work activities, develop skills, pursue opportunities, and respond to workplace situations when implemented.
 - **Life:** wellbeing, personal growth, relationships, family, recreation, and personal commitments.
 - **Finance:** banking, spending, saving, debt, assets, household planning, and business decisions.
-- **Lifestyle:** services, purchases, and home arrangements.
+- **Lifestyle:** food and fashion purchases, subscriptions, Owned inventory, family/social connections, and everyday living conditions; housing purchase/rental remains in Finance → Property.
 
 Every activity must state its stamina cost, monetary cost/income where relevant, prerequisites, and meaningful stat/skill effects before confirmation. Only charge resources after the simulation validates and accepts the activity. Activities that fail validation must leave the save unchanged.
 
