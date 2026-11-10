@@ -1261,6 +1261,8 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   };
   addChange('education-grade', 'Education grade', character.educationEnrollment?.grade, projected.educationEnrollment?.grade);
   addChange('work-performance', 'Work performance', character.employment?.performance, projected.employment?.performance);
+  const skillIds = new Set([...Object.keys(character.skills ?? {}), ...Object.keys(projected.skills ?? {})]);
+  for (const skillId of skillIds) addChange('skill-' + skillId, getSkillLabel(skillId), character.skills?.[skillId] ?? 0, projected.skills?.[skillId] ?? 0);
   const averageBond = (value: Character) => {
     const bonds = value.family?.bonds ?? [];
     return bonds.length ? bonds.reduce((total, bond) => total + bond.closeness, 0) / bonds.length : undefined;
