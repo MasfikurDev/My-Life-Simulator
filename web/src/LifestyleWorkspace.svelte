@@ -102,7 +102,7 @@
     let base = character;
     if (dialogKind === 'food') {
       const planned = planBoughtFoodInNextFreeTime(character, {
-        productId: selectedProduct.id, name: selectedProduct.name, quantity: orderQuantity,
+        productId: selectedProduct.id, name: selectedProduct.name, quantity: orderQuantity, purchaseCost: orderTotal,
         staminaRecovery: Math.min(30, (selectedProduct.staminaRecovery ?? 0) * orderQuantity),
         health: Math.min(12, (selectedProduct.health ?? 0) * orderQuantity),
         happiness: Math.min(10, (selectedProduct.happiness ?? 0) * orderQuantity),

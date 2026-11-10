@@ -128,7 +128,7 @@ describe('life simulation', () => {
   it('plans bought food with no stamina cost and applies its effects only when the week resolves', () => {
     const base = { ...createCharacter('Food buyer', 30), stamina: 35, health: 50, happiness: 50, stress: 40, money: 100, currencyScale: 1 };
     const planned = planBoughtFoodInNextFreeTime(base, {
-      productId: 'balanced-meal', name: 'Balanced meal', quantity: 1,
+      productId: 'balanced-meal', name: 'Balanced meal', quantity: 1, purchaseCost: 12,
       staminaRecovery: 8, health: 2, happiness: 3, stress: 2
     });
     expect(planned.issue).toBeNull();
@@ -138,14 +138,16 @@ describe('life simulation', () => {
     expect(planned.character.health).toBe(base.health);
     expect(planned.character.happiness).toBe(base.happiness);
     const review = getWeeklyActivityReview(planned.character);
-    expect(review.activities[0]).toMatchObject({ seal: 'BOUGHT', staminaCost: 0, moneyCost: 0 });
+    expect(review.activities[0]).toMatchObject({ seal: 'BOUGHT', staminaCost: 0, moneyCost: 12 });
     expect(review.staminaRecovery).toBe(8);
+    expect(planned.character.money).toBe(base.money);
     const resolved = advanceWeek(planned.character);
     expect(resolved.issue).toBeNull();
     expect(resolved.character.health).toBeGreaterThan(base.health);
     expect(resolved.character.happiness).toBeGreaterThan(base.happiness);
     expect(resolved.character.stress).toBeLessThan(base.stress);
     expect(resolved.character.stamina).toBeGreaterThan(base.stamina);
+    expect(resolved.character.money).toBe(base.money);
     expect(resolved.character.ownedLifestyleItems).toBeUndefined();
     expect(resolved.character.weeklyPlan.activities).toHaveLength(0);
   });
