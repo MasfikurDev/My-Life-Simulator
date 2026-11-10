@@ -16,7 +16,40 @@ export interface PassiveLifestyleActivity {
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 
 function livingSocialConnections(character: Character): SocialConnection[] {
-  return (character.socialConnections ?? []).filter((item) => item.active);
+  const manual = (character.socialConnections ?? []).filter((item) => item.active);
+  const family = character.family;
+  if (!family) return manual;
+  const people = new Map(family.people.map((person) => [person.id, person]));
+  const bonds = new Map(family.bonds.map((bond) => [bond.personId, bond]));
+  const household = new Set(family.householdMemberIds);
+  const derived: SocialConnection[] = family.relationships.flatMap((relationship) => {
+    let personId: string | null = null;
+    let type: SocialConnection['type'] | null = null;
+    if (relationship.type === 'partner') {
+      personId = relationship.fromPersonId === family.playerPersonId ? relationship.toPersonId
+        : relationship.toPersonId === family.playerPersonId ? relationship.fromPersonId : null;
+      type = personId ? 'partner' : null;
+    } else if (relationship.fromPersonId === family.playerPersonId &&
+      ['parent', 'adoptive-parent', 'step-parent'].includes(relationship.type)) {
+      personId = relationship.toPersonId;
+      type = 'child';
+    }
+    if (!personId || !type || relationship.endedAtYear !== undefined) return [];
+    const person = people.get(personId);
+    if (!person || (person.deathYear !== undefined && person.deathYear <= character.year)) return [];
+    if (manual.some((item) => item.name.trim().toLocaleLowerCase() === person.name.trim().toLocaleLowerCase() && item.type === type)) return [];
+    const closeness = bonds.get(personId)?.closeness ?? 0;
+    return [{
+      id: 'family-' + personId,
+      name: person.name,
+      type,
+      closeness,
+      active: true,
+      livesWithPlayer: household.has(personId),
+      supportLevel: closeness >= 75 ? 'strong' : closeness >= 45 ? 'regular' : 'occasional'
+    }];
+  });
+  return [...manual, ...derived];
 }
 
 export function getPassiveLifestyleActivities(character: Character): PassiveLifestyleActivity[] {
