@@ -225,7 +225,8 @@ export type PlannedAction =
   | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string }
   | { kind: 'education'; taskType: EducationTaskType }
   | { kind: 'care'; careType: CareActionType }
-  | { kind: 'food'; productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number };
+  | { kind: 'food'; productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number }
+  | { kind: 'social'; connectionId: string; interaction: 'spend-time' };
 
 export interface PlannedActivity {
   id: string;
