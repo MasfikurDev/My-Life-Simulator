@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "test": "vitest run",
+    "test": "vitest run --exclude src/lib/simulation-stress.test.ts",
     "build": "npm run check && npm test && vite build",
     "build:app": "vite build",
     "test:simulation": "vitest run src/lib/simulation-stress.test.ts"
