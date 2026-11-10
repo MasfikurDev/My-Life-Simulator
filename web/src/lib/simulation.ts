@@ -12,6 +12,11 @@ import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPr
 
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
 
+function applySkillProgress(character: Character, skillId: string, amount: number): void {
+  const updated = awardSkillProgress(character, skillId, amount);
+  if (updated.skills) character.skills = updated.skills;
+}
+
 type CountryProfile = {
   nationality: string;
   country: string;
@@ -1347,7 +1352,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       const energy = next.stamina ?? 50;
       const studyGain = pressure >= 85 || energy < 20 ? 1 : pressure >= 70 || energy < 35 ? 3 : 5;
       next.intelligence = clamp(next.intelligence + studyGain);
-      next = awardSkillProgress(next, getEducationSkillId(next.educationEnrollment?.field), 2);
+      applySkillProgress(next, getEducationSkillId(next.educationEnrollment?.field), 2);
       next.happiness = clamp(next.happiness - 1);
       next.focus = clamp((next.focus ?? 50) + 3);
       next.discipline = clamp((next.discipline ?? 50) + 1);
@@ -1362,7 +1367,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       break;
     }
     case 'exercise':
-      next = awardSkillProgress(next, 'physical-fitness', 3);
+      applySkillProgress(next, 'physical-fitness', 3);
       next.fitness = clamp(next.fitness + 6);
       next.health = clamp(next.health + 2);
       next.happiness = clamp(next.happiness + 2);
@@ -1371,7 +1376,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       next.history.unshift(event(next, 'Focused on fitness', 'A good session improved your fitness and lifted your mood.'));
       break;
     case 'socialize':
-      next = awardSkillProgress(next, 'communication', 2);
+      applySkillProgress(next, 'communication', 2);
       next.happiness = clamp(next.happiness + 7);
       next.socialSkills = clamp((next.socialSkills ?? 50) + 2);
       next.stress = Math.max(0, (next.stress ?? 30) - 2);
@@ -1380,7 +1385,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       break;
     case 'work':
       if (next.age < 16) return character;
-      next = awardSkillProgress(next, getCareerSkillId(next.employment?.careerPathId ?? next.careerPathId), 1);
+      applySkillProgress(next, getCareerSkillId(next.employment?.careerPathId ?? next.careerPathId), 1);
       const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
       const roleFactor = next.employment ? 0.75 + next.employment.performance / 200 : 1;
       const baseShiftPay = next.employment ? Math.max(180 * scale, next.employment.annualSalary / 52 * 0.5) : 180 * scale;
@@ -1411,7 +1416,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
     }
     case 'career':
       if (!next.employment) return character;
-      next = awardSkillProgress(next, getCareerSkillId(next.employment.careerPathId ?? next.careerPathId), 4);
+      applySkillProgress(next, getCareerSkillId(next.employment.careerPathId ?? next.careerPathId), 4);
       const careerGain = (next.stress ?? 30) >= 85 ? 3 : (next.stress ?? 30) >= 70 ? 7 : 12;
       next.employment = { ...next.employment, performance: clamp(next.employment.performance + careerGain) };
       next.happiness = clamp(next.happiness + 1);
