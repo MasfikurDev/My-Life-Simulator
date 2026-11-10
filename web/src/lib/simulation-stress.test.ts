@@ -22,7 +22,7 @@ function createAuditCharacter(age: number, employed = false): Character {
     calendar: { currentDate: '2026-01-05', birthDate: birthYear + '-01-05' },
     weeklyPlan: { version: 1, activities: [] },
     pendingGameEvent: undefined,
-    scheduledConsequences: [],
+    scheduledGameConsequences: [],
     familyCulture: 'neglectful',
     money: 50_000,
     currencyScale: 1,
