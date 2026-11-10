@@ -45,6 +45,11 @@ These are not a single composite score. Do not apply arbitrary annual decay. Cha
 
 Keep family membership distinct from living arrangements. The family graph records kinship/partnership/guardianship; household membership records who currently lives together; dependency records who relies on whom and why. A household arrangement in Finance is not proof of family support or co-residence. Moving out does not end a family relationship. Separation does not automatically end parenthood or guardianship.
 
+
+### Passive household support boundary
+
+Weekly household support is a derived projection, not a new family relationship graph. Co-resident family members can provide passive meals when the household/family-culture state supports it. A separate lightweight social-circle record can represent friends, partners, children, and extended relatives for passive support and planned social time. These records do not establish legal kinship, custody, parenthood, adoption, or a complete partnership lifecycle. Do not infer family membership, co-residence, or financial support from closeness alone.
+
 ### Family history
 
 Record important family milestones and decisions with year/date, involved person IDs, event type, and a concise factual description. Examples include a relationship beginning/ending, a birth/adoption, a move, a reconciliation, support, a caregiving responsibility, or a bereavement. History is append-only from the player's perspective; corrections must be explicit and auditable.
