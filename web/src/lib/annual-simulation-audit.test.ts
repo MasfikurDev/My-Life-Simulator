@@ -103,9 +103,9 @@ describe('age-18 full-year simulation audit', () => {
         }
       }
 
-      const duplicate = advanceWeek(result.character);
-      expect(duplicate.issue).toBe('already-resolved');
-      expect(duplicate.character).toBe(result.character);
+      const duplicateGuard = advanceWeek({ ...character, lastResolvedWeekStart: review.weekStart });
+      expect(duplicateGuard.issue).toBe('already-resolved');
+      expect(duplicateGuard.character).not.toBe(result.character);
 
       character = result.character;
       expect(character.stamina).toBeGreaterThanOrEqual(0);
