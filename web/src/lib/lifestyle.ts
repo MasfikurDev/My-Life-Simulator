@@ -165,7 +165,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
     activities.push({ id: 'service-streaming', title: 'Streaming service', source: 'ViewFlix', detail: 'Entertainment access adds a small leisure benefit', staminaRecovery: 0, health: 0, happiness: 1, comfort: 1, discipline: 0, stress: 0 });
   }
   if (activeServices.some((payment) => payment.name === 'Music premium')) {
-    activities.push({ id: 'service-music', title: 'Music subscription', source: 'SoundWave', detail: 'Music access provides a small mood and stress benefit', staminaRecovery: 0, health: 0, happiness: 1, comfort: 0, discipline: 0, stress: -1 });
+    activities.push({ id: 'service-music', title: 'Music subscription', source: 'SoundWave', detail: 'Music access provides a small mood and stress benefit', staminaRecovery: 0, health: 0, happiness: 1, comfort: 0, discipline: 0, stress: 1 });
   }
   if (activeServices.some((payment) => payment.name === 'Gym membership')) {
     activities.push({ id: 'service-fitness', title: 'Gym membership', source: 'Active Club', detail: 'Access to fitness facilities supports regular training', staminaRecovery: 0, health: 1, happiness: 0, comfort: 0, discipline: 1, stress: 0, fitness: 1 });
