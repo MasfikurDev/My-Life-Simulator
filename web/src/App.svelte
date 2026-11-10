@@ -328,7 +328,7 @@
     <main class="main-layout" class:main-layout-no-sidebar={!character && activeTab === 'create'}>
       {#if character || activeTab !== 'create'}
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
-        {#each (character ? [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},...(character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'},{id:'finances',label:'Finance',icon:'◈'}] : []),{id:'life',label:'Lifestyle',icon:'✳'},{id:'profile',label:'Profile',icon:'◉'}] : [{id:'settings',label:'Settings',icon:'⚙'}]) as item}
+        {#each (character ? [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},...(character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'},{id:'finances',label:'Finance',icon:'◈'}] : []),{id:'life',label:'Life',icon:'✳'},{id:'profile',label:'Profile',icon:'◉'}] : [{id:'settings',label:'Settings',icon:'⚙'}]) as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => navigateTab(item.id)}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>Active save</strong><small>Slot {activeSlotId.slice(-1)}</small></div></div>{/if}
