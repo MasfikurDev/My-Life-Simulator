@@ -40,7 +40,7 @@ Workflow: `.github/workflows/simulation-audit.yml`
 - The suite covers 52-week runs, deterministic replay, annual settlement, birthday/life-stage transition, age-diverse stat and cash bounds, and a planned action through the normal weekly resolver.
 - It is intentionally separate from the fast default PR validation to keep ordinary feedback lean.
 - Run it manually for the relevant branch/commit. It also runs automatically on PRs that change `web/src/lib/**`, the web package scripts/lockfile, or the audit workflow itself.
-- The workflow checks out the PR head commit when label-triggered. Its default manual ref is `main`.
+- The workflow checks out the exact PR head commit for pull-request runs. Its default manual ref is `main`.
 - A green long-simulation result is evidence for these scenarios only; it does not replace focused tests for the changed mechanic or broader integration review.
 
 ## Android workflow
