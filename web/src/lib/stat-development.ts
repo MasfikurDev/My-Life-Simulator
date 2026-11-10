@@ -38,9 +38,16 @@ export function initializeAgeAppropriateStats<T extends Character>(character:T,r
  }
  next.statPotential=potential; return next;
 }
-function weeklyRate(age:number,stat:DevelopmentStat):number{
+function weeklyRate(character:Pick<Character,'age'|'familyCulture'|'health'|'stress'|'stamina'>,stat:DevelopmentStat):number{
+ const age=character.age;
  const base=age<3?0.075:age<6?0.065:age<13?0.055:age<18?0.04:age<25?0.025:age<45?0.012:age<65?0.006:0.002;
- return base*(['health','stamina','fitness'].includes(stat)?0.85:['happiness','comfort'].includes(stat)?0.45:1);
+ const statFactor=(['health','stamina','fitness'].includes(stat)?0.85:['happiness','comfort'].includes(stat)?0.45:1);
+ const familyFactor=character.familyCulture==='supportive'?1.1:character.familyCulture==='structured'?1.05:character.familyCulture==='strained'?0.9:character.familyCulture==='neglectful'?0.75:1;
+ const health=character.health??50,stress=character.stress??30,stamina=character.stamina??50;
+ const healthFactor=health<30?0.5:health<45?0.75:1;
+ const stressFactor=stress>=85?0.5:stress>=70?0.75:1;
+ const staminaFactor=(stat==='health'||stat==='stamina'||stat==='fitness')&&stamina<20?0.75:1;
+ return base*statFactor*familyFactor*healthFactor*stressFactor*staminaFactor;
 }
 export function applyNaturalStatDevelopment<T extends Character>(character:T):{character:T;changes:DevelopmentStat[]}{
  let next=character; const changes:DevelopmentStat[]=[];
@@ -49,7 +56,7 @@ export function applyNaturalStatDevelopment<T extends Character>(character:T):{c
   const before=stat==='comfort' && next.comfort===undefined ? 50 : Number(next[stat]??0);
   const ceiling=getStatCeiling(next,stat);
   if(before>=ceiling){progress[stat]=0;continue;}
-  const accumulated=(progress[stat]??0)+weeklyRate(next.age,stat);
+  const accumulated=(progress[stat]??0)+weeklyRate(next,stat);
   const wholePoints=Math.floor(accumulated);
   const after=Math.min(ceiling,before+wholePoints);
   progress[stat]=after>=ceiling?0:accumulated-wholePoints;

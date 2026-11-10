@@ -18,6 +18,15 @@ describe('age-aware stat development',()=>{
   expect(getAgeStatCap(13,'intelligence')).toBeLessThan(getAgeStatCap(18,'intelligence'));
   expect(getAgeStatCap(18,'fitness')).toBeLessThan(getAgeStatCap(30,'fitness'));
  });
+ it('makes natural development respond to family support and wellbeing',()=>{
+  const base=generateRandomCharacter(8,()=>0.5);
+  const supported=applyNaturalStatDevelopment({...base,familyCulture:'supportive',health:90,stress:20,stamina:80}).character;
+  const neglected=applyNaturalStatDevelopment({...base,familyCulture:'neglectful',health:90,stress:20,stamina:80}).character;
+  expect(supported.statDevelopmentProgress?.intelligence).toBeGreaterThan(neglected.statDevelopmentProgress?.intelligence ?? 0);
+  const rested=applyNaturalStatDevelopment({...base,familyCulture:'supportive',health:90,stress:20,stamina:80}).character;
+  const strained=applyNaturalStatDevelopment({...base,familyCulture:'supportive',health:35,stress:90,stamina:10}).character;
+  expect(rested.statDevelopmentProgress?.intelligence).toBeGreaterThan(strained.statDevelopmentProgress?.intelligence ?? 0);
+ });
  it('combines age ceiling and personal potential',()=>{
   expect(getStatCeiling({age:18,statPotential:{intelligence:80}},'intelligence')).toBeLessThan(getStatCeiling({age:18,statPotential:{intelligence:100}},'intelligence'));
  });
