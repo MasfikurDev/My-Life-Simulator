@@ -155,7 +155,7 @@ describe('passive lifestyle simulation', () => {
     expect(result.character.stamina).toBeGreaterThan(character.stamina);
     expect(result.character.comfort ?? 50).toBeGreaterThan(character.comfort ?? 50);
     expect(result.character.weeklyPlan.activities).toHaveLength(0);
-    expect(result.recap.some((line) => line.includes('Shared household support'))).toBe(true);
+    expect(result.recap.some((line) => line.includes('Sharing the load'))).toBe(true);
   });
 
   it('shows passive entries as a separate derived review list and includes their recovery in the forecast', () => {
