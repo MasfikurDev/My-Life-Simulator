@@ -10,9 +10,9 @@
   let activeView = $state<LifeView>(initialView);
   const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
+    { id: 'owned', label: 'Inventory' },
     { id: 'supermarket', label: 'Supermarket' },
     { id: 'subscriptions', label: 'Subscriptions' },
-    { id: 'owned', label: 'Owned' },
     { id: 'family', label: 'Relationships' },
     { id: 'tree', label: 'Family tree' },
     { id: 'history', label: 'Life story' }
