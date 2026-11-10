@@ -63,15 +63,15 @@
 <section class="family-workspace">
   {#if !family}
     <section class="family-panel">
-      <div class="eyebrow">FAMILY RECORDS</div>
-      <h2>Family background not established</h2>
-      <p>This save does not contain family records yet. You can create a modest family-of-origin background now. It will not assume a partner or children, and it will not change your character's stats or finances.</p>
-      <button class="primary-action" onclick={() => onChange(establishFamilyBackground(character))}>Establish family background</button>
+      <div class="eyebrow">LIFE RECORDS</div>
+      <h2>Background unavailable</h2>
+      <p>This save has no relative records yet. Start a basic record to keep track of the people in your life.</p>
+      <button class="primary-action" onclick={() => onChange(establishFamilyBackground(character))}>Start records</button>
     </section>
   {:else if errors.length > 0}
     <section class="family-panel warning">
-      <div class="eyebrow">FAMILY DATA NEEDS ATTENTION</div>
-      <h2>Family records could not be validated</h2>
+      <div class="eyebrow">RECORD CHECK</div>
+      <h2>Some relationship records need attention</h2>
       {#each errors as error}<p>{error}</p>{/each}
       <p>Your existing save has not been changed. Export a gameplay snapshot before attempting recovery.</p>
     </section>
@@ -79,21 +79,21 @@
     {#if feedback}<p class="family-footnote" role="status">{feedback}</p>{/if}
     <section class="family-panel">
       <div class="family-panel-head">
-        <div><div class="eyebrow">YOUR FAMILY</div><h2>Family connections</h2><p>People and relationships recorded in this life. Toggle an interaction to include or remove it from this week. Family interactions use stamina, not calendar slots.</p></div>
+        <div><div class="eyebrow">YOUR FAMILY</div><h2>Family connections</h2><p>Choose how to spend time with relatives. Planned interactions use stamina and take effect when the week ends.</p></div>
         <span class="family-count">{livingCount} living</span>
       </div>
       <div class="family-summary">
-        <div><strong>{connections.length}</strong><span>Recorded relatives</span></div>
+        <div><strong>{connections.length}</strong><span>Relatives</span></div>
         <div><strong>{family.householdMemberIds.length}</strong><span>In your household</span></div>
         <div><strong>{family.dependentPersonIds.length}</strong><span>Dependants</span></div>
       </div>
       {#if character.age < 18 && family.primaryGuardianId}
-        <div class="guardian-note">Primary guardian: {family.people.find((person) => person.id === family.primaryGuardianId)?.name ?? 'Recorded guardian'}. Your care and household context are represented separately from your financial status.</div>
+        <div class="guardian-note">Primary guardian: {family.people.find((person) => person.id === family.primaryGuardianId)?.name ?? 'Recorded guardian'}. Your guardian handles day-to-day care.</div>
       {/if}
     </section>
 
     {#if connections.length === 0}
-      <section class="family-panel"><h3>No relatives recorded</h3><p>This is a valid family structure. Future family relationships can be added through explicit gameplay decisions.</p></section>
+      <section class="family-panel"><h3>No relatives recorded</h3><p>No relatives are listed yet. New connections can appear as your life unfolds.</p></section>
     {:else}
       <div class="family-list">
         {#each connections as connection (connection.person.id)}
@@ -109,9 +109,9 @@
                 <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><div class="bond-meter tension"><i style="width:{connection.bond.tension}%;background:{getValueColor(connection.bond.tension, true)}"></i></div></div>
               </div>
               {#if connection.bond.lastInteractionYear !== null}
-                <p class="last-contact">Last meaningful interaction: {connection.bond.lastInteractionYear}</p>
+                <p class="last-contact">Last time together: {connection.bond.lastInteractionYear}</p>
               {:else}
-                <p class="last-contact">No meaningful interaction recorded yet.</p>
+                <p class="last-contact">You have not spent time together yet.</p>
               {/if}
               {#if connection.living}
                 <div class="relative-actions">
@@ -136,10 +136,10 @@
     {/if}
 
     <section class="family-panel social-panel">
-      <div class="eyebrow">HOUSEHOLD & SOCIAL CIRCLE</div>
-      <h3>People who are part of everyday life</h3>
-      <p>Record friends, partners, children and extended relatives. Their household presence and closeness influence automatic weekly support and responsibilities.</p>
-      <div class="family-culture-note"><strong>Family environment · {(character.familyCulture ?? 'supportive').replace('-', ' ')}</strong><span>{character.familyCulture === 'structured' ? 'Regular meals and routines reinforce discipline.' : character.familyCulture === 'strained' ? 'Basic household support is available, but tension limits its benefits.' : character.familyCulture === 'neglectful' ? 'Dependable household support is limited; no automatic family meals are assumed.' : 'Shared meals, encouragement and practical help provide a steady baseline.'}</span></div>
+      <div class="eyebrow">PEOPLE IN YOUR LIFE</div>
+      <h3>Friends, partners & family</h3>
+      <p>Add the people around you and set who shares your home.</p>
+      <div class="family-culture-note"><strong>Home life · {(character.familyCulture ?? 'supportive').replace('-', ' ')}</strong><span>{character.familyCulture === 'structured' ? 'Regular meals and routines keep life organised.' : character.familyCulture === 'strained' ? 'There is some support at home, but tension gets in the way.' : character.familyCulture === 'neglectful' ? 'Meals and day-to-day support are less reliable.' : 'Shared meals and encouragement make everyday life easier.'}</span></div>
       <div class="social-add-row">
         <input aria-label="Person name" placeholder="Person's name" bind:value={socialName} maxlength="40" />
         <select aria-label="Relationship type" bind:value={socialType}>
@@ -160,14 +160,14 @@
           {/each}
         </div>
       {:else}
-        <p class="family-footnote">No friends, partner, children or extended relatives have been recorded yet. No relationships are assumed.</p>
+        <p class="family-footnote">No connections added yet.</p>
       {/if}
     </section>
 
     <section class="family-panel">
-      <div class="eyebrow">FAMILY HISTORY</div>
-      <h3>Recorded milestones and interactions</h3>
-      {#if family.history.length === 0}<p>No family events have been recorded yet.</p>{:else}
+      <div class="eyebrow">RELATIONSHIP HISTORY</div>
+      <h3>Milestones & moments</h3>
+      {#if family.history.length === 0}<p>No moments recorded yet.</p>{:else}
         <div class="family-timeline">
           {#each [...family.history].reverse() as item (item.id)}
             <article><strong>{item.title}</strong><p>{item.description}</p><small>{item.year} · {item.type.replace('-', ' ')}</small></article>
@@ -175,7 +175,7 @@
         </div>
       {/if}
     </section>
-    <p class="family-footnote">Relationship measures are separate, bounded indicators—not a single score. They change through recorded interactions. Family support is not guaranteed, and no future partnership, parenthood, caregiving, or inheritance is assumed.</p>
+    <p class="family-footnote">Closeness, trust and tension change through the choices you make and the time you spend together.</p>
   {/if}
 </section>
 
