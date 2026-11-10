@@ -101,7 +101,8 @@
     if (!cartEntries.length || !Number.isSafeInteger(cartTotal) || cartTotal <= 0) return;
     for (const entry of cartEntries) {
       if (isUnavailable(entry.product) && uniqueProducts.has(entry.product.id)) { onNotify(entry.product.name + ' is no longer available.'); return; }
-      if (entry.quantity < 1 || entry.quantity > 20 || (uniqueProducts.has(entry.product.id) && entry.quantity !== 1)) return;
+      const existingQuantity = ownedItems.find((item) => item.productId === entry.product.id)?.quantity ?? 0;
+      if (entry.quantity < 1 || entry.quantity > 20 || existingQuantity + entry.quantity > 999 || (uniqueProducts.has(entry.product.id) && entry.quantity !== 1)) { onNotify('This order exceeds the available inventory limit for ' + entry.product.name + '.'); return; }
     }
     const cashBefore = character.money;
     const description = 'Supermarket order · ' + cartEntries.map((entry) => entry.product.name + ' ×' + entry.quantity).join(', ');
@@ -238,7 +239,7 @@
       {#if ownedItems.length}
         <div class="owned-grid">
           {#each ownedItems as item (item.id)}
-            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small>{#if deviceService(item)}<small class="device-service">{deviceService(item)}</small>{/if}{#if item.foodEffects}<small class="inventory-boost">{[['Stamina', item.foodEffects.staminaRecovery], ['Health', item.foodEffects.health], ['Happiness', item.foodEffects.happiness], ['Stress', item.foodEffects.stress], ['Comfort', item.foodEffects.comfort]].filter((entry) => entry[1] > 0).map((entry) => entry[0] + ' +' + entry[1]).join(' · ')}</small><button class="wear-outfit-button" onclick={() => planFood(item.id)} disabled={item.quantity <= (character.weeklyPlan?.activities ?? []).filter((activity) => activity.action?.kind === 'food' && activity.action.ownedItemId === item.id).reduce((sum, activity) => sum + (activity.action?.kind === 'food' ? activity.action.quantity : 0), 0)}>Plan for This Week</button>{/if}{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small><button class="wear-outfit-button" class:equipped={item.equipped === true} onclick={() => wearFashionItem(item.id)} disabled={item.equipped === true}>{item.equipped ? 'Currently wearing' : 'Wear this outfit'}</button>{/if}</article>
+            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small>{#if deviceService(item)}<small class="device-service">{deviceService(item)}</small>{/if}{#if item.foodEffects}<small class="inventory-boost">{[['Stamina', item.foodEffects.staminaRecovery], ['Health', item.foodEffects.health], ['Happiness', item.foodEffects.happiness], ['Stress', item.foodEffects.stress], ['Comfort', item.foodEffects.comfort]].filter((entry) => entry[1] > 0).map((entry) => entry[0] + ' +' + entry[1]).join(' · ')}</small><button class="plan-food-button" onclick={() => planFood(item.id)} disabled={item.quantity <= (character.weeklyPlan?.activities ?? []).filter((activity) => activity.action?.kind === 'food' && activity.action.ownedItemId === item.id).reduce((sum, activity) => sum + (activity.action?.kind === 'food' ? activity.action.quantity : 0), 0)}>Plan for This Week</button>{/if}{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small><button class="wear-outfit-button" class:equipped={item.equipped === true} onclick={() => wearFashionItem(item.id)} disabled={item.equipped === true}>{item.equipped ? 'Currently wearing' : 'Wear this outfit'}</button>{/if}</article>
           {/each}
         </div>
       {:else}
@@ -299,6 +300,7 @@
   .receipt-wrap{display:grid;justify-items:center;gap:12px}.receipt-paper{width:min(340px,100%);padding:22px 19px;background:#f5f1e8;color:#25231f;box-shadow:0 8px 24px rgba(0,0,0,.18);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;display:grid;gap:9px;clip-path:polygon(0 0,100% 0,100% 98%,96% 100%,92% 98%,88% 100%,84% 98%,80% 100%,76% 98%,72% 100%,68% 98%,64% 100%,60% 98%,56% 100%,52% 98%,48% 100%,44% 98%,40% 100%,36% 98%,32% 100%,28% 98%,24% 100%,20% 98%,16% 100%,12% 98%,8% 100%,4% 98%,0 100%)}
   .receipt-brand,.receipt-thanks{text-align:center;font-weight:900;letter-spacing:1.4px;font-size:15px}.receipt-paper>small{text-align:center;font-size:8px;color:#625d52}.receipt-rule{height:1px;background:#b8b1a4}.receipt-rule.dashed{background:repeating-linear-gradient(90deg,#999184 0 4px,transparent 4px 7px)}.receipt-meta,.receipt-cash{display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:8px}.receipt-line{display:flex;justify-content:space-between;gap:8px;font-size:9px}.receipt-line small{display:block;font-size:8px;color:#625d52;margin-top:3px}.receipt-total{display:flex;justify-content:space-between;align-items:center;font-size:10px}.receipt-total strong{font-size:15px}.receipt-cash span{color:#625d52}.receipt-thanks{font-size:12px}
   .wear-outfit-button{justify-self:start;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--surface);color:var(--text);font-size:10px;font-weight:700}
+  .plan-food-button{justify-self:start;min-height:34px;padding:0 10px;border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:10px;font-weight:800}
   .wear-outfit-button.equipped{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
   .product-mark{font-size:7px;letter-spacing:.7px;color:var(--accent);font-weight:850}
   .product-info{min-width:0}
@@ -319,7 +321,7 @@
   .owned-item-top{display:flex;justify-content:space-between;align-items:flex-start;gap:7px}
   .owned-item-top strong{font-size:11px}
   .owned-item-top span,.owned-item>small{font-size:8px;color:var(--muted)}
-  .owned-item>small{line-height:1.4}
+  .owned-item>small{line-height:1.4}.inventory-boost{font-size:9px;line-height:1.45;color:var(--accent);font-weight:700}
   .lifestyle-note,.dialog-note{font-size:9px;line-height:1.5;color:var(--muted);margin:0}
   .quiet{background:transparent!important}
   .purchase-dialog-backdrop{position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(0,0,0,.72);overflow-y:auto}
