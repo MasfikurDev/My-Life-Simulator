@@ -10,7 +10,7 @@
   let activeView = $state<LifeView>(initialView);
   const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
-    { id: 'market', label: 'Supermarket' },
+    { id: 'supermarket', label: 'Supermarket' },
     { id: 'subscriptions', label: 'Subscriptions' },
     { id: 'owned', label: 'Owned' },
     { id: 'family', label: 'Relationships' },
@@ -57,7 +57,7 @@
     <FamilyWorkspace {character} {onChange} />
   {:else if activeView === 'tree'}
     <LifeTreeWorkspace {character} />
-  {:else if activeView === 'market' || activeView === 'subscriptions' || activeView === 'owned'}
+  {:else if activeView === 'supermarket' || activeView === 'subscriptions' || activeView === 'owned'}
     <LifestyleWorkspace {character} {onChange} {onNotify} initialView={activeView} />
   {:else if activeView === 'history'}
     {@const milestoneGroups = groupLifeMilestones()}
