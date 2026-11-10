@@ -1164,8 +1164,9 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     next = { ...next, stamina: clamp((next.stamina ?? 50) - getPlannedActivityStaminaCost(item)) };
     let result: Character;
     if (item.action?.kind === 'food') {
-      result = { ...next, health: clamp(next.health + item.action.health), happiness: clamp(next.happiness + item.action.happiness), comfort: clamp((next.comfort ?? 50) + (item.action.comfort ?? 0)), stress: clamp((next.stress ?? 30) - item.action.stress), ...(item.action.ownedItemId ? { ownedLifestyleItems: (next.ownedLifestyleItems ?? []).map((owned) => owned.id === item.action!.ownedItemId ? { ...owned, quantity: Math.max(0, owned.quantity - item.action!.quantity) } : owned).filter((owned) => owned.quantity > 0) } : {}) };
-      recap.push('Food: ate ' + item.action.name + (item.action.quantity > 1 ? ' × ' + item.action.quantity : '') + '.');
+      const foodAction = item.action;
+      result = { ...next, health: clamp(next.health + foodAction.health), happiness: clamp(next.happiness + foodAction.happiness), comfort: clamp((next.comfort ?? 50) + (foodAction.comfort ?? 0)), stress: clamp((next.stress ?? 30) - foodAction.stress), ...(foodAction.ownedItemId ? { ownedLifestyleItems: (next.ownedLifestyleItems ?? []).map((owned) => owned.id === foodAction.ownedItemId ? { ...owned, quantity: Math.max(0, owned.quantity - foodAction.quantity) } : owned).filter((owned) => owned.quantity > 0) } : {}) };
+      recap.push('Food: ate ' + foodAction.name + (foodAction.quantity > 1 ? ' × ' + foodAction.quantity : '') + '.');
     } else if (item.action?.kind === 'education') {
       result = performActivity(next, 'study', weekRandom);
       if (result !== next) {
