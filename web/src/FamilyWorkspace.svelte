@@ -138,7 +138,7 @@
     <section class="family-panel social-panel">
       <div class="eyebrow">HOUSEHOLD & SOCIAL CIRCLE</div>
       <h3>People who are part of everyday life</h3>
-      <p>Record friends, partners, children and extended relatives. Their household presence and relationship strength influence automatic weekly support and responsibilities.</p>
+      <p>Record friends, partners, children and extended relatives. Their household presence and closeness influence automatic weekly support and responsibilities.</p>
       <div class="social-add-row">
         <input aria-label="Person name" placeholder="Person's name" bind:value={socialName} maxlength="40" />
         <select aria-label="Relationship type" bind:value={socialType}>
@@ -153,7 +153,7 @@
             <article>
               <div><strong>{person.name}</strong><small>{person.type.replace('-', ' ')} · {person.closeness}/100 closeness</small></div>
               <label><input type="checkbox" checked={person.livesWithPlayer} onchange={(event) => toggleSocialHousehold(person.id, event.currentTarget.checked)} /> Lives here</label>
-              <button onclick={() => interactSocial(person.id)}>{socialInteractionPlanned(person.id) ? 'Remove plan' : 'Spend time · 6 stamina'}</button>
+              <button disabled={person.closeness >= 100 && !socialInteractionPlanned(person.id)} onclick={() => interactSocial(person.id)}>{socialInteractionPlanned(person.id) ? 'Remove plan' : person.closeness >= 100 ? 'Strong bond' : 'Spend time · 6 stamina'}</button>
               <button onclick={() => removeSocialPerson(person.id)} aria-label={'Remove ' + person.name}>Remove</button>
             </article>
           {/each}
