@@ -86,8 +86,8 @@ describe('passive lifestyle simulation', () => {
     const passive = getPassiveLifestyleActivities(independent);
     expect(passive.map((item) => item.id)).toEqual(expect.arrayContaining(['passive-no-meals', 'passive-housing-insecurity']));
     const planned = planBoughtFoodInNextFreeTime(independent, {
-      productId: 'meal-balanced', name: 'Balanced meal', quantity: 1,
-      staminaRecovery: 9, health: 3, happiness: 2, stress: 1, comfort: 0
+      productId: 'meal-groceries', name: 'Weekly grocery basket', quantity: 1,
+      staminaRecovery: 24, health: 4, happiness: 2, stress: 0, comfort: 1
     });
     expect(planned.issue).toBeNull();
     expect(getPassiveLifestyleActivities(planned.character).some((item) => item.id === 'passive-no-meals')).toBe(false);
