@@ -6,7 +6,8 @@
   "scripts": {
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run",
-    "build": "npm run check && npm test && vite build"
+    "build": "npm run check && npm test && vite build",
+    "build:app": "vite build"
   },
   "dependencies": {
     "svelte": "5.25.6"
