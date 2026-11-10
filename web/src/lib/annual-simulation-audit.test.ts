@@ -125,7 +125,13 @@ describe('age-18 full-year simulation audit', () => {
     expect(minimumStamina).toBeGreaterThanOrEqual(0);
     expect(maximumStamina).toBeLessThanOrEqual(100);
     expect(minimumCash).toBeGreaterThanOrEqual(0);
-    expect(character.age).toBe(19);
+    // 52 weekly turns are 364 days; the generated birthday falls one day later.
+    expect(character.age).toBe(18);
     expect(character.year).toBe(2027);
+
+    const birthdayWeek = advanceWeek(character);
+    expect(birthdayWeek.issue).toBeNull();
+    expect(birthdayWeek.character.age).toBe(19);
+    expect(birthdayWeek.character.year).toBe(2027);
   });
 });
