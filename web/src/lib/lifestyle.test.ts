@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { addOwnedLifestyleItem, advanceWeek, createCharacter, planSocialInteractionInNextFreeTime } from './simulation';
+import { isValidWeeklyPlan } from './weekly-plan';
+import { addOwnedLifestyleItem, advanceWeek, createCharacter, getWeeklyActivityReview, planSocialInteractionInNextFreeTime, planBoughtFoodInNextFreeTime } from './simulation';
 import {
   addSocialConnection,
   applyWeeklyClothingWear,
@@ -77,6 +78,38 @@ describe('passive lifestyle simulation', () => {
     expect(result.character.comfort).toBeGreaterThan(character.comfort);
     expect(result.character.weeklyPlan.activities).toHaveLength(0);
     expect(result.recap.some((line) => line.includes('Shared household support'))).toBe(true);
+  });
+
+  it('shows passive entries as a separate derived review list and includes their recovery in the forecast', () => {
+    let character = createCharacter('Review adult', 30);
+    character = addSocialConnection(character, 'Partner', 'partner', true);
+    const review = getWeeklyActivityReview(character);
+    expect(review.passiveActivities.some((item) => item.id === 'passive-partner-support')).toBe(true);
+    expect(review.passiveStaminaRecovery).toBeGreaterThan(0);
+    expect(review.staminaRecovery).toBeGreaterThanOrEqual(review.passiveStaminaRecovery);
+    expect(review.activities).toHaveLength(0);
+  });
+
+  it('applies bought restaurant/delivery comfort only during weekly resolution and validates it', () => {
+    const character = { ...createCharacter('Food order', 30), money: 500, currencyScale: 1, comfort: 40 };
+    const planned = planBoughtFoodInNextFreeTime(character, {
+      productId: 'meal-delivery', name: 'Food delivery', quantity: 1,
+      staminaRecovery: 5, health: 0, happiness: 4, stress: 1, comfort: 3
+    });
+    expect(planned.issue).toBeNull();
+    expect(planned.character.comfort).toBe(40);
+    expect(isValidWeeklyPlan(planned.character.weeklyPlan)).toBe(true);
+    const invalid = {
+      version: 1 as const,
+      activities: [{ id: 'food-bad', activityId: 'food' as const, action: {
+        kind: 'food' as const, productId: 'meal', name: 'Meal', quantity: 1,
+        staminaRecovery: 0, health: 0, happiness: 0, stress: 0, comfort: 13
+      }}]
+    };
+    expect(isValidWeeklyPlan(invalid)).toBe(false);
+    const resolved = advanceWeek(planned.character);
+    expect(resolved.issue).toBeNull();
+    expect(resolved.character.comfort).toBe(43);
   });
 
   it('uses owned clothing for presentation and gradually wears it down', () => {
