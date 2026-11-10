@@ -4,7 +4,7 @@ const FIELD_SKILLS: Record<string, string> = {
   'computer science': 'technology', computing: 'technology', programming: 'technology', 'digital skills': 'technology',
   engineering: 'engineering', 'electrical trades': 'engineering', construction: 'practical-trades', automotive: 'practical-trades',
   business: 'business', 'business studies': 'business', accounting: 'business', 'small business': 'business',
-  'health sciences': 'healthcare', medicine: 'healthcare', 'public health': 'healthcare', 'first aid': 'healthcare',
+  'health sciences': 'healthcare', medicine: 'healthcare', 'medicine & health sciences': 'healthcare', 'public health': 'healthcare', 'first aid': 'healthcare',
   law: 'law', education: 'education', teaching: 'education', 'natural sciences': 'science', 'research sciences': 'science',
   'social sciences': 'social-science', arts: 'creative-arts', creativity: 'creative-arts', hospitality: 'hospitality',
   communication: 'communication', 'project management': 'operations', 'workplace safety': 'practical-trades'
@@ -46,7 +46,7 @@ export function getSkillLevel(character: Character, skillId: string): number {
     'physical-fitness': character.fitness,
     'general-learning': Math.round((character.intelligence + (character.focus ?? 50)) / 2)
   };
-  return Math.max(0, Math.min(100, fallback[skillId] ?? 20));
+  return Math.max(0, Math.min(100, fallback[skillId] ?? fallback['general-learning']));
 }
 
 export function awardSkillProgress(character: Character, skillId: string, amount: number): Character {
