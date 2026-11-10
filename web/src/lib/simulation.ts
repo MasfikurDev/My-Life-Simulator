@@ -855,22 +855,22 @@ function getPlannedActivityTitle(character: Character, item: PlannedActivity): s
 }
 
 
-function getPlannedActivityReward(item: PlannedActivity): string {
+function getPlannedActivityReward(character: Character, item: PlannedActivity): string {
   if (item.action?.kind === 'food') return 'Bought meal' + (item.action.staminaRecovery ? ' · stamina +' + item.action.staminaRecovery : '') + (item.action.health ? ' · health +' + item.action.health : '') + (item.action.happiness ? ' · happiness +' + item.action.happiness : '') + (item.action.comfort ? ' · comfort +' + item.action.comfort : '') + (item.action.stress ? ' · stress −' + item.action.stress : '');
-  if (item.action?.kind === 'education') return 'Field knowledge, applied capability, grades and qualifications';
+  if (item.action?.kind === 'education') return 'Field skill (' + getSkillLabel(getEducationSkillId(character.educationEnrollment?.field)) + '), grades and qualifications';
   if (item.action?.kind === 'care') return ({ rest: 'Stamina, health, happiness and lower stress', mindfulness: 'Focus and lower stress', counselling: 'Mental wellbeing and stress recovery', 'medical-checkup': 'Health assessment and treatment planning' }[item.action.careType]);
-  if (item.action?.kind === 'work') return 'Career opportunity and employment progression';
+  if (item.action?.kind === 'work') return 'Career opportunity, employment progression and role-relevant skill';
   if (item.action?.kind === 'family') return 'Family closeness, trust and relationship history';
-  if (item.action?.kind === 'social') return 'Relationship closeness and stronger everyday social support';
+  if (item.action?.kind === 'social') return 'Relationship closeness, communication skill and stronger social support';
   if (item.action?.kind === 'business') return 'Business performance and financial outcomes';
   if (item.action?.kind === 'event') return 'The chosen event outcome and its consequences';
   return ({
-    study: 'Subject knowledge, intelligence, focus and learning progress',
-    exercise: 'Physical fitness, health, stamina and lower stress',
+    study: 'Subject-specific knowledge, intelligence, focus and learning progress',
+    exercise: 'Physical fitness skill, health, stamina and lower stress',
     socialize: 'Communication skill, relationship quality and happiness',
-    work: 'Income, role-relevant experience and professional capability',
+    work: 'Income, role-relevant skill and work experience',
     'apply-job': 'Employment opportunity',
-    career: 'Role-specific professional skill, work performance and promotion readiness'
+    career: getSkillLabel(getCareerSkillId(character.employment?.careerPathId ?? character.careerPathId)) + ' skill, work performance and promotion readiness'
   } as Record<ActivityId, string>)[item.activityId as ActivityId] ?? 'Character progression';
 }
 
@@ -1299,7 +1299,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     seal: item.action?.kind === 'food' ? 'BOUGHT' as const : undefined,
     staminaCost: getPlannedActivityStaminaCost(item),
     moneyCost: getPlannedActivityCost(character, item),
-    reward: getPlannedActivityReward(item)
+    reward: getPlannedActivityReward(character, item)
   }));
   const warnings: string[] = [];
   const currentStamina = character.stamina ?? 50;
