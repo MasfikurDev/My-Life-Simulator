@@ -239,7 +239,7 @@
       {#if ownedItems.length}
         <div class="owned-grid">
           {#each ownedItems as item (item.id)}
-            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small>{#if deviceService(item)}<small class="device-service">{deviceService(item)}</small>{/if}{#if item.foodEffects}<small class="inventory-boost">{[['Stamina', item.foodEffects.staminaRecovery], ['Health', item.foodEffects.health], ['Happiness', item.foodEffects.happiness], ['Stress', item.foodEffects.stress], ['Comfort', item.foodEffects.comfort]].filter((entry) => entry[1] > 0).map((entry) => entry[0] + ' +' + entry[1]).join(' · ')}</small><button class="plan-food-button" onclick={() => planFood(item.id)} disabled={item.quantity <= (character.weeklyPlan?.activities ?? []).filter((activity) => activity.action?.kind === 'food' && activity.action.ownedItemId === item.id).reduce((sum, activity) => sum + (activity.action?.kind === 'food' ? activity.action.quantity : 0), 0)}>Plan for This Week</button>{/if}{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small><button class="wear-outfit-button" class:equipped={item.equipped === true} onclick={() => wearFashionItem(item.id)} disabled={item.equipped === true}>{item.equipped ? 'Currently wearing' : 'Wear this outfit'}</button>{/if}</article>
+            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small>{#if deviceService(item)}<small class="device-service">{deviceService(item)}</small>{/if}{#if item.foodEffects}<small class="inventory-boost">{[item.foodEffects.staminaRecovery > 0 ? 'Stamina +' + item.foodEffects.staminaRecovery : '', item.foodEffects.health > 0 ? 'Health +' + item.foodEffects.health : '', item.foodEffects.happiness > 0 ? 'Happiness +' + item.foodEffects.happiness : '', item.foodEffects.stress > 0 ? 'Stress +' + item.foodEffects.stress : '', item.foodEffects.comfort > 0 ? 'Comfort +' + item.foodEffects.comfort : ''].filter(Boolean).join(' · ')}</small><button class="plan-food-button" onclick={() => planFood(item.id)} disabled={item.quantity <= (character.weeklyPlan?.activities ?? []).filter((activity) => activity.action?.kind === 'food' && activity.action.ownedItemId === item.id).reduce((sum, activity) => sum + (activity.action?.kind === 'food' ? activity.action.quantity : 0), 0)}>Plan for This Week</button>{/if}{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small><button class="wear-outfit-button" class:equipped={item.equipped === true} onclick={() => wearFashionItem(item.id)} disabled={item.equipped === true}>{item.equipped ? 'Currently wearing' : 'Wear this outfit'}</button>{/if}</article>
           {/each}
         </div>
       {:else}
@@ -304,9 +304,6 @@
   .wear-outfit-button.equipped{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
   .product-mark{font-size:7px;letter-spacing:.7px;color:var(--accent);font-weight:850}
   .product-info{min-width:0}
-  .product-info strong,.product-info b{display:block;font-size:11px}
-  .product-info p,.owned-item p{font-size:9px;line-height:1.4;color:var(--muted);margin:4px 0}
-  .product-info b{font-size:10px;margin-top:5px}
   .provider-card button,.owned-service button{min-height:34px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font-size:10px;font-weight:750}
   .provider-grid{display:grid;gap:7px}
   .provider-card,.owned-service{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -322,18 +319,13 @@
   .owned-item-top strong{font-size:11px}
   .owned-item-top span,.owned-item>small{font-size:8px;color:var(--muted)}
   .owned-item>small{line-height:1.4}.inventory-boost{font-size:9px;line-height:1.45;color:var(--accent);font-weight:700}
-  .lifestyle-note,.dialog-note{font-size:9px;line-height:1.5;color:var(--muted);margin:0}
+  .lifestyle-note{font-size:9px;line-height:1.5;color:var(--muted);margin:0}
   .quiet{background:transparent!important}
   .purchase-dialog-backdrop{position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(0,0,0,.72);overflow-y:auto}
   .purchase-dialog{position:relative;inset:auto;margin:auto;width:min(480px,100%);max-width:none;max-height:90dvh;overflow:auto;display:grid;gap:12px;padding:20px;border:1px solid var(--line-strong);border-radius:15px;background:var(--surface);color:var(--text);box-shadow:0 24px 80px rgba(0,0,0,.35)}
   .purchase-dialog h3{font-size:20px;line-height:1.2;margin:0}
   .purchase-dialog>p{font-size:10px;line-height:1.5;color:var(--muted);margin:0}
   .dialog-close{position:absolute;top:10px;right:10px;width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:var(--surface-raised);color:var(--text);font-size:18px}
-  .quantity-field{display:grid;gap:5px;font-size:10px;color:var(--muted)}
-  .quantity-stepper{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;gap:7px}
-  .quantity-stepper button{min-height:40px;border:1px solid var(--line);border-radius:8px;background:var(--surface-raised);color:var(--text);font-size:20px;font-weight:700}
-  .quantity-stepper button:disabled{opacity:.35}
-  .quantity-stepper input{width:100%;min-height:40px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--surface-raised);color:var(--text);text-align:center}
   .device-service{color:var(--accent)!important;font-weight:700}
   .dialog-total{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
   .dialog-total span{font-size:10px;color:var(--muted)}
