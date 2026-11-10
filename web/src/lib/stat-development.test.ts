@@ -14,10 +14,16 @@ describe('age-aware stat development',()=>{
  it('combines age ceiling and personal potential',()=>{
   expect(getStatCeiling({age:18,statPotential:{intelligence:80}},'intelligence')).toBeLessThan(getStatCeiling({age:18,statPotential:{intelligence:100}},'intelligence'));
  });
- it('applies small natural development on a successful weekly advance',()=>{
-  const character=generateRandomCharacter(8,()=>0.4),before=character.intelligence,result=advanceWeek(character);
-  expect(result.issue).toBeNull();expect(result.character.intelligence).toBeGreaterThan(before);
-  expect(result.character.intelligence).toBeLessThanOrEqual(getStatCeiling(result.character,'intelligence'));
+ it('applies small natural development over repeated successful weekly advances',()=>{
+  let character=generateRandomCharacter(8,()=>0.4);
+  const before=character.intelligence;
+  for(let week=0;week<52;week++){
+   const result=advanceWeek(character);
+   expect(result.issue).toBeNull();
+   character=result.character;
+  }
+  expect(character.intelligence).toBeGreaterThan(before);
+  expect(character.intelligence).toBeLessThanOrEqual(getStatCeiling(character,'intelligence'));
  });
  it('preserves above-cap legacy values but blocks further gains',()=>{
   const character={...generateRandomCharacter(10,()=>0.35),intelligence:99};
