@@ -125,6 +125,23 @@ describe('passive lifestyle simulation', () => {
     expect(getPassiveLifestyleActivities(planned.character).some((item) => item.id === 'passive-housing-insecurity')).toBe(true);
   });
 
+  it('gives active lifestyle subscriptions modest service-specific weekly benefits', () => {
+    const character = createCharacter('Subscribed player', 30);
+    const subscribed = {
+      ...character,
+      recurringPayments: [
+        { id: 'stream', name: 'Standard streaming', amount: 120, category: 'subscription' as const, sourceType: 'cash' as const, active: true, startedAtYear: character.year },
+        { id: 'music', name: 'Music premium', amount: 72, category: 'subscription' as const, sourceType: 'cash' as const, active: true, startedAtYear: character.year },
+        { id: 'gym', name: 'Gym membership', amount: 240, category: 'subscription' as const, sourceType: 'cash' as const, active: true, startedAtYear: character.year }
+      ]
+    };
+    const activities = getPassiveLifestyleActivities(subscribed);
+    expect(activities.map((item) => item.id)).toEqual(expect.arrayContaining(['service-streaming', 'service-music', 'service-fitness']));
+    const resolved = resolvePassiveLifestyleActivities(subscribed, activities);
+    expect(resolved.fitness).toBe(character.fitness + 1);
+    expect(resolved.happiness).toBeGreaterThan(character.happiness);
+  });
+
   it('uses owned food from inventory, caps weekly food bonuses by stat, and consumes portions on resolution', () => {
     const generated = createCharacter('Food inventory', 30);
     const stocked = addOwnedLifestyleItem(generated, {
