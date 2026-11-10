@@ -252,7 +252,7 @@ export interface Character {
   gender?: Gender; nationality?: string; country?: string; birthplace?: string; language?: string; currency?: string;
   currencyScale?: number; familyBackground?: string; personality?: string[]; education?: string;
   educationProgress?: number; educationLevel?: EducationLevel; educationRecords?: EducationRecord[]; qualifications?: Qualification[]; educationEnrollment?: EducationEnrollment | null; academicHistory?: AcademicResult[]; medicalState?: MedicalState; employment?: Employment | null;
-  careerExperienceYears?: number; careerPathId?: CareerPathId; jobApplications?: JobApplication[]; jobOffers?: JobOffer[]; promotionOffer?: PromotionOffer | null;
+  careerExperienceYears?: number; careerPathId?: CareerPathId; skills?: Record<string, number>; jobApplications?: JobApplication[]; jobOffers?: JobOffer[]; promotionOffer?: PromotionOffer | null;
   lastYearIncome?: number; lastYearExpenses?: number; lastYearShortfall?: number; lastYearTax?: number; taxBalance?: number;
   householdArrangement?: HouseholdArrangement; savingsGoalMonths?: SavingsGoalMonths | null;
   bankAccounts?: BankAccount[];
