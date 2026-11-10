@@ -74,6 +74,7 @@ The player should feel that a life is unfolding, not that they are spending abst
 The week is shaped by the character's automatic responsibilities and the player's optional activity choices. There is no player-facing timetable or day/period allocation.
 
 - Education and employment continue as background responsibilities while the character is enrolled or employed. Attendance, participation, and progression resolve automatically; they do not create calendar blocks or require manual scheduling.
+- Optional activity rewards combine immediate effects with pursuit-specific capability progress and, where modeled, future eligibility or opportunities. See section 3.2.2.
 - Optional personal activities are toggled from their owning workspaces. The same weekly plan is summarized in the Advance review.
 - Selecting an activity reserves its stamina cost in the plan; it does not immediately deduct the character's stamina.
 - Recovery activities such as rest and bought meals contribute to the weekly stamina budget. Passive household/social recovery is also credited before planned activity costs, but it is not a player-selected activity and cannot be removed.
@@ -97,6 +98,36 @@ The week is shaped by the character's automatic responsibilities and the player'
 - Planned actions do not contain dates, weekdays, periods, durations, or recurring commitments. The game calendar tracks week progression; it is not a timetable.
 - Enrollment, resuming education, hiring, changing jobs, and resignation update domain state only. Education and employment are automatic background responsibilities and never create time-slot reservations.
 - The old Schedule workspace and its seven-day/21-period grid are removed. The Advance review is the single consolidated plan and outcome surface.
+
+### 3.2.2 Pursuit-based activity rewards
+
+**Reward design:** activities must advance the life direction they represent, not simply exchange stamina for broad attribute increases. Evaluate an activity across three layers:
+
+1. **Immediate effects:** short-term wellbeing, stamina, money, relationship changes, or performance.
+2. **Pursuit capability:** durable, domain-relevant skill or knowledge that accumulates through repeated meaningful choices.
+3. **Future consequences:** eligibility, opportunities, specializations, and advantages that become available when capability and other requirements are met.
+
+Not every activity needs all three layers. Do not award unrelated skills or inflate every stat for every action. Routine school, work, household, and care responsibilities continue to resolve automatically.
+
+**Implemented first slice:**
+- Study builds knowledge associated with the current education field; independent study builds a general-learning capability when no field is active.
+- Education study, assignments, and assessments add different amounts of field capability. Programme grades and qualifications continue to resolve through the education system.
+- Exercise develops physical-fitness capability alongside its immediate fitness, health, happiness, stamina, and stress effects.
+- Social time develops communication capability as well as relationship quality and wellbeing.
+- Extra work adds a small amount of capability in the current career path; career development adds a larger amount and continues to improve work performance.
+- Mid- and senior-level career roles now include a relevant career-skill threshold in addition to their existing age, education, attribute, qualification, and experience requirements.
+- The weekly review forecast includes durable skill changes so the player can see progress before advancing.
+- Older saves without stored skill values use existing related attributes as a starting estimate. Once a skill is developed, its saved value becomes the progression track.
+
+**Design guardrails:**
+- Capabilities should be specific enough to make a chosen direction matter, but not so granular that players manage dozens of nearly identical skills.
+- A skill threshold is one part of eligibility, not a substitute for qualifications, experience, health, relationships, money, or other relevant requirements.
+- Skill growth should be affected by fatigue and stress; repeating an action under poor conditions should be less efficient.
+- Activities must explain the capability they develop and why that capability matters. Weekly review must show the actual forecast, not a generic reward promise.
+- Unlocks should create new choices and viable paths, not mandatory chores. A player who ignores one pursuit must still have other ways to build a satisfying life.
+- Keep immediate stat changes modest where a durable capability is the meaningful reward. Do not make one activity the best answer for every outcome.
+
+Future expansion should add capabilities only when a real system consumes them. Specializations and opportunity chains should be introduced with the relevant education, career, business, health, or social systems rather than as disconnected skill meters.
 
 ### 3.3 The week in play
 
