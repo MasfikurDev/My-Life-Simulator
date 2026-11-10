@@ -90,7 +90,7 @@ describe('passive lifestyle simulation', () => {
     const result = advanceWeek(character);
     expect(result.issue).toBeNull();
     expect(result.character.stamina).toBeGreaterThan(character.stamina);
-    expect(result.character.comfort).toBeGreaterThan(character.comfort);
+    expect(result.character.comfort ?? 50).toBeGreaterThan(character.comfort ?? 50);
     expect(result.character.weeklyPlan.activities).toHaveLength(0);
     expect(result.recap.some((line) => line.includes('Shared household support'))).toBe(true);
   });
