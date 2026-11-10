@@ -128,7 +128,7 @@ export function getCareerRequirements(character: Character, role: CareerRole): C
     ...(role.minConfidence ? [{ label: 'Confidence', met: (character.confidence ?? 50) >= role.minConfidence, detail: 'Confidence ' + role.minConfidence + '+' }] : []),
     ...(role.minDiscipline ? [{ label: 'Discipline', met: (character.discipline ?? 50) >= role.minDiscipline, detail: 'Discipline ' + role.minDiscipline + '+' }] : []),
     ...(role.minCreativity ? [{ label: 'Creativity', met: (character.creativity ?? 50) >= role.minCreativity, detail: 'Creativity ' + role.minCreativity + '+' }] : []),
-    ...(role.minSkill ? [{ label: 'Relevant skill', met: getSkillLevel(character, getCareerSkillId(role.pathId)) >= role.minSkill, detail: getCareerSkillId(role.pathId).replace(/-/g, ' ') + ' ' + role.minSkill + '+' }] : []),
+    ...(role.minSkill ? [{ label: 'Relevant skill', met: getSkillLevel(character, getCareerSkillId(role.pathId)) >= role.minSkill, detail: getCareerSkillId(role.pathId).replace(/-/g, ' ') + ' ' + role.minSkill + '+ (current ' + getSkillLevel(character, getCareerSkillId(role.pathId)) + ')' }] : []),
     ...(role.requiredQualificationIds ?? []).map((id) => {
       const qualification = (character.qualifications ?? []).find((item) => (item.id === id || item.programId === id) && (item.expiresAtAge === undefined || character.age <= item.expiresAtAge));
       return { label: 'Qualification', met: Boolean(qualification), detail: qualification?.name ?? id };
