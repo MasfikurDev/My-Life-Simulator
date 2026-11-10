@@ -4,6 +4,7 @@ import { addOwnedLifestyleItem, advanceWeek, createCharacter, getWeeklyActivityR
 import {
   addSocialConnection,
   applyWeeklyClothingWear,
+  equipLifestyleItem,
   getClothingPresentationScore,
   getPassiveLifestyleActivities,
   removeSocialConnection,
@@ -91,7 +92,9 @@ describe('passive lifestyle simulation', () => {
   });
 
   it('applies bought restaurant/delivery comfort only during weekly resolution and validates it', () => {
-    const character = { ...createCharacter('Food order', 30), money: 500, currencyScale: 1, comfort: 40 };
+    const generated = createCharacter('Food order', 30);
+    const character = { ...generated, money: 500, currencyScale: 1, comfort: 40, householdArrangement: 'independent' as const,
+      family: generated.family ? { ...generated.family, householdMemberIds: [generated.family.playerPersonId] } : undefined };
     const planned = planBoughtFoodInNextFreeTime(character, {
       productId: 'meal-delivery', name: 'Food delivery', quantity: 1,
       staminaRecovery: 5, health: 0, happiness: 4, stress: 1, comfort: 3
@@ -119,10 +122,25 @@ describe('passive lifestyle simulation', () => {
       description: 'Formal clothing', quantity: 1, kind: 'permanent',
       styleScore: 82, formality: 95
     });
-    expect(getClothingPresentationScore(owned)).toBe(82);
-    const worn = applyWeeklyClothingWear(owned);
+    expect(getClothingPresentationScore(owned, 95)).toBe(35);
+    const equipped = equipLifestyleItem(owned, owned.ownedLifestyleItems![0].id);
+    expect(getClothingPresentationScore(equipped, 95)).toBe(82);
+    const worn = applyWeeklyClothingWear(equipped);
     expect(worn.ownedLifestyleItems![0].condition).toBe(99);
-    expect(getClothingPresentationScore(worn)).toBe(81);
+    expect(getClothingPresentationScore(worn, 95)).toBe(81);
+    expect(applyWeeklyClothingWear(owned)).toBe(owned);
+  });
+
+  it('equips only one outfit and wears only the outfit currently in use', () => {
+    const character = createCharacter('Wardrobe', 30);
+    const first = addOwnedLifestyleItem(character, { productId: 'casual', name: 'Casual outfit', category: 'Fashion', description: 'Casual', quantity: 1, kind: 'permanent', styleScore: 55, formality: 25 });
+    const second = addOwnedLifestyleItem(first, { productId: 'formal', name: 'Formal suit', category: 'Fashion', description: 'Formal', quantity: 1, kind: 'permanent', styleScore: 82, formality: 95 });
+    const wearingFirst = equipLifestyleItem(second, second.ownedLifestyleItems![0].id);
+    const wearingSecond = equipLifestyleItem(wearingFirst, second.ownedLifestyleItems![1].id);
+    expect(wearingSecond.ownedLifestyleItems!.filter((item) => item.equipped)).toHaveLength(1);
+    expect(wearingSecond.ownedLifestyleItems!.find((item) => item.productId === 'formal')?.equipped).toBe(true);
+    expect(wearingSecond.ownedLifestyleItems!.find((item) => item.productId === 'casual')?.condition).toBeUndefined();
+    expect(applyWeeklyClothingWear(wearingSecond).ownedLifestyleItems!.find((item) => item.productId === 'casual')?.condition).toBeUndefined();
   });
 
   it('does not assume social relationships or household support', () => {
