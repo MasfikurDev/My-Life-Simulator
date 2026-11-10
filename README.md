@@ -22,6 +22,7 @@ The canonical gameplay clock is:
 - [Visual design](docs/VISUAL_DESIGN.md)
 - [Technical architecture](docs/TECHNICAL_ARCHITECTURE.md)
 - [CI and delivery](docs/CI_CD.md)
+- [Development lessons and reliability guardrails](docs/DEVELOPMENT_LESSONS.md)
 - [Roadmap](docs/ROADMAP.md)
 - [AI working rules](docs/AI_WORKING_RULES.md)
 
