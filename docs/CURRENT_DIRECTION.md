@@ -21,6 +21,7 @@ This document records the latest decisions that supersede older wording elsewher
 - Personal activities are selected in their owning domains and appear together in the Advance/Weekly Review surface.
 - Stamina is one constraint, not the whole game. Affordability, prerequisites, age, health, stress, workload, relationships, and context also matter.
 - Weekly resolution must be deterministic and simulation-owned. The UI displays returned outcomes; it must not invent or silently omit effects.
+- Direct year advancement must account for the 52 weeks of passive background life without replaying player-selected actions or duplicating annual financial settlement. Natural development occurs on age transitions, begins from age-scaled child attributes, and is bounded by age-appropriate ceilings.
 
 ## One unified weekly activity list
 
