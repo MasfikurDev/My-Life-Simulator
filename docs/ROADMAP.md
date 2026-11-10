@@ -50,7 +50,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [x] Add the initial age-derived education labels and study-progress foundation.
 - [x] Add optional structured education-history and qualification records to the character model, plus generated stamina, focus, confidence, discipline, creativity, social skills and stress attributes.
 - [x] Add a playable education catalogue from early learning and primary/secondary school through vocational, college, bachelor's, master's, doctoral and professional certificate/specialist routes.
-- [x] Build the Education workspace with enrollment, automatic attendance and progression, subjects, grades, weekly study/assignment/assessment tasks, tuition, pause/resume and academic history.
+- [x] Build the Education workspace with enrollment, automatic attendance and progression, subjects, grades, weekly study/assignment/assessment tasks, tuition and a separate Educational Records subpage.
 - [x] Add professional certificate courses and programme-linked qualifications; connect completed degrees and programme IDs to career eligibility.
 - [ ] Expand localized course catalogs, regulated licensing, qualification expiry/renewal, scholarships, retakes and apprenticeship placements.
 - [x] Add role/course-specific ability prerequisites and weekly stress/stamina effects on learning and work efficiency.
@@ -76,10 +76,10 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Add benefits and taxes after household budgets and financial flows are balanced.
 
 - [x] Organize Finance around Banking, Business, Property, Investments, and Taxes; group accounts, cards, loans, savings, and vault inside Banking.
-- [x] Rework the top-level Life destination label to Lifestyle and replace the former Discover / My services / Home subviews with Market / Subscriptions / Owned. Food is paid for immediately and scheduled as a BOUGHT weekly activity whose effects resolve during week advancement; restaurant and delivery meals are explicit purchase options; reusable/permanent goods and clothing enter Owned after checkout; provider plans reuse the shared recurring-payment system.
+- [x] Rework the top-level Life destination label to Lifestyle and replace the former Discover / My services / Home subviews with Supermarket / Subscriptions / Owned. Supermarket food is bought into Owned inventory and can be reserved from there for the weekly review; reserved portions are consumed at week resolution and food benefits are capped by stat. Reusable/permanent goods and clothing enter Owned after checkout; subscriptions reuse recurring payments and provide modest service-specific benefits; smartphone and laptop connectivity depends on active mobile/broadband subscriptions.
 - [x] Add derived, unremovable passive weekly activities for household meals, family culture, co-resident partners, friends, children, extended family, and stable housing. Current direction: combine passive and player-planned entries in one unified Weekly Review activity list; visually distinguish passive entries as unremovable and count them in the combined activity/outcome summary. Resolve effects deterministically.
 - [x] Add an explicit social-circle register for friends, partners, children, and extended relatives, plus planned social time that strengthens connections and changes ongoing passive support.
-- [x] Add fashion to the Lifestyle Market and Owned inventory with style/formality scores, gradual condition wear, and a modest first-impression effect in job interviews. Housing comfort derives from existing rental/owned property and household state; no duplicate Home destination is added.
+- [x] Add fashion to the Lifestyle Supermarket and Owned inventory with style/formality scores, gradual condition wear, and a modest first-impression effect in job interviews. Housing comfort derives from existing rental/owned property and household state; no duplicate Home destination is added.
 - [x] Separate School and Work into age-gated, domain-native destinations using existing simulation actions and save fields.
 - [x] Consolidate wellbeing, Lifestyle, Family, Family tree, and Life story under the modular Life workspace; the decision-based Life tree remains a distinct planned/implemented view only where backed by `LifeTreeWorkspace.svelte`.
 - [x] Expand Education with enrollment, automatic attendance and course progression, grades, weekly tasks, programme completion and education history.
@@ -114,7 +114,7 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 **Goal:** add smartphones, laptops, and desktop PCs as useful optional assets connected to everyday life.
 
-- [ ] Add Life → Personal Technology and integrate its products into the existing Lifestyle Market.
+- [ ] Add Life → Personal Technology and integrate its products into the existing Lifestyle Supermarket.
 - [ ] Add a small fictional catalogue with category-aware capability tiers and new/used options.
 - [ ] Implement individual device ownership/access records and current-schema save/load validation.
 - [ ] Route purchases, repairs, and resale through the existing Finance transaction/ledger path.

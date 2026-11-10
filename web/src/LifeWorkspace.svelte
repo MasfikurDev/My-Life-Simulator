@@ -5,12 +5,12 @@
   import FamilyWorkspace from './FamilyWorkspace.svelte';
   import LifeTreeWorkspace from './LifeTreeWorkspace.svelte';
   import HealthWorkspace from './HealthWorkspace.svelte';
-  type LifeView = 'overview' | 'market' | 'subscriptions' | 'owned' | 'family' | 'tree' | 'history';
+  type LifeView = 'overview' | 'supermarket' | 'subscriptions' | 'owned' | 'family' | 'tree' | 'history';
   let { character, onChange, onNotify, initialView = 'overview' }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifeView } = $props();
   let activeView = $state<LifeView>(initialView);
   const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
-    { id: 'market', label: 'Market' },
+    { id: 'supermarket', label: 'Supermarket' },
     { id: 'subscriptions', label: 'Subscriptions' },
     { id: 'owned', label: 'Owned' },
     { id: 'family', label: 'Relationships' },
@@ -57,7 +57,7 @@
     <FamilyWorkspace {character} {onChange} />
   {:else if activeView === 'tree'}
     <LifeTreeWorkspace {character} />
-  {:else if activeView === 'market' || activeView === 'subscriptions' || activeView === 'owned'}
+  {:else if activeView === 'supermarket' || activeView === 'subscriptions' || activeView === 'owned'}
     <LifestyleWorkspace {character} {onChange} {onNotify} initialView={activeView} />
   {:else if activeView === 'history'}
     {@const milestoneGroups = groupLifeMilestones()}

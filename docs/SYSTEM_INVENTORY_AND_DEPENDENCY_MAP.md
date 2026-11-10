@@ -118,7 +118,7 @@ Status labels:
 
 **Current behavior**
 - Programme discovery and enrollment.
-- Education records, active enrollment, subjects, attendance, weekly study targets, assignments/exams, grades, tuition, pause/resume, academic history, and qualification awards.
+- Education enrollment, subjects, attendance, weekly study targets, assignments/exams, grades, tuition, academic history, and qualification awards. Education and Educational Records are separate subpages; no Pause Program control is exposed.
 - Attendance and progression are automatic background responsibilities.
 - Player-selected study/assignment/exam tasks enter the weekly plan and consume stamina.
 - Qualifications are persisted and can be consumed by Work eligibility rules.
@@ -183,9 +183,9 @@ Status labels:
 
 **Current behavior**
 - Lifestyle is a modular Life workspace, not a separate duplicate economy.
-- Discover supports market/supermarket purchases, food, clothing, and subscription/provider setup.
-- Purchased food is planned into the weekly system with quantity, purchase cost, stamina recovery, and wellbeing effects; food is consumed through the weekly action flow rather than retained as permanent inventory.
-- Permanent/usable goods are added to owned lifestyle items.
+- Supermarket supports food, clothing, durable goods and device purchases; Subscriptions owns provider setup and recurring service management.
+- Supermarket food is purchased into Owned inventory. The player reserves portions from Owned for the weekly review; reserved portions are consumed at week resolution. Food bonuses are independently capped by stat, and unplanned stock grants no effects.
+- Permanent/usable goods and food stock are added to Owned inventory. Active subscriptions provide small service-specific weekly effects; mobile service is required for connected smartphone use and broadband for connected laptop/PC use.
 - Clothing has condition/wear and can be equipped; presentation can influence interview outcomes.
 - My services reads existing recurring-payment/card/transaction data; it must not create a second subscription ledger.
 - Home owns household arrangement and living-cost projections/settings, while actual payment execution remains Finance-owned.
@@ -416,7 +416,7 @@ Status labels:
 | Kinship, guardianship, bonds, household/dependency references | Family | Lifestyle may derive support; Finance may record support payments |
 | Health conditions, stamina, stress, workload | Health / wellbeing | Other domains submit workload/effects through coordinator |
 | Cash, accounts, cards, loans, assets/liabilities, ledger, tax | Finance | Other domains request transactions |
-| Market purchases, owned lifestyle goods, clothing condition, service choices | Lifestyle | Finance executes payment; Work reads presentation |
+| Supermarket purchases, owned lifestyle goods, clothing condition, service choices | Lifestyle | Finance executes payment; Work reads presentation |
 | Residence/property ownership and rental state | Property / Finance assets | Lifestyle derives housing comfort |
 | Pending events and scheduled consequences | Events | Domain commands perform actual effects |
 | Narrative history and weekly recap | Shared history pipeline / Character history | Domains emit truthful records |

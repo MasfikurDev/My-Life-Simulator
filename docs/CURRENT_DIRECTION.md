@@ -35,17 +35,19 @@ The weekly review must present **one unified activity list**, not separate plann
 - Automatic passive recovery must be represented in the same activity/outcome accounting. Any automatic stamina adjustment (including a fixed +5 effect) must be recorded as an explicit effect/history entry and reflected in the review/recap; a state change that is invisible to the player is not acceptable.
 - Recovery and passive effects must be applied exactly once in the deterministic resolution. Do not double-credit them in both budget calculation and final state mutation.
 
-## Lifestyle market, purchases, and food
+## Lifestyle supermarket, purchases, and food
 
-Top-level Life contains the modular Lifestyle experience: **Market, Subscriptions, and Owned**. Do not restore the retired Discover / My services / Home navigation or add a separate generic living-cost destination.
+Top-level Life contains the modular Lifestyle experience: **Supermarket, Subscriptions, and Owned**. Do not restore the retired Discover / My services / Home navigation or add a separate generic living-cost destination.
 
-- Market purchases use the existing Finance payment and transaction path. Validate affordability in simulation code; a failed purchase must not create an item, planned activity, reward, or ledger charge.
-- Single-use food is not added to Owned. A purchased food/meal is scheduled into the current week's unified activity list as a bought activity and consumed when that week resolves.
-- Reusable or permanent goods enter Owned after successful checkout. Subscriptions remain recurring commitments using the shared recurring-payment model.
-- Planned/bought market activities must display their monetary cost before confirmation and retain that cost in the weekly review. The player must be able to understand both stamina/effort implications and cash cost.
-- Food rewards are not limited to stamina. A meal may affect stamina/energy, health, happiness, comfort, stress, or other explicitly modeled nutrition/wellbeing outcomes according to its item definition. Do not award every stat indiscriminately; effects must be item-specific, bounded, and visible before purchase.
-- Food effects resolve through the weekly simulation and are included in the same activity list and combined review summary. Do not create a duplicate food summary or a separate total activity-cost section.
-- The activity trigger/selection control already provides the activity summary. Avoid repeating that information in a redundant summary panel. The weekly review should summarize the complete combined plan, including passive activities, rather than add a second per-domain cost breakdown.
+- Supermarket checkout buys items into Owned inventory; it does not create a weekly plan. Payment is immediate and failed payment must not create an item, activity, reward, or ledger charge.
+- Food and edible items remain in Owned until the player selects portions for the weekly plan. Only reserved portions are consumed when the week resolves; excess stock remains available for later weeks.
+- Owned food may be mixed across types. Each food's effects are item-specific and modest. Weekly food bonuses are capped independently by stat (including stamina, health, happiness, comfort, and stress), so food that cannot improve an already-capped stat may still contribute another benefit.
+- Cash checkout is purchase-only. Automatic replenishment is a future option that requires an eligible credit card and explicit player-selected items/settings; never imply cash purchases can be automatically planned or replenished.
+- Food rewards are not magical stat boosts. Prices should reflect distinct, believable differences in nutrition, convenience, quality, and enjoyment; do not reward stockpiling.
+- Subscriptions use the shared recurring-payment model and provide modest service-specific benefits: entertainment/music may support happiness or stress relief; fitness memberships may support fitness and health. Avoid large passive bonuses.
+- Connectivity services are requirements, not universal stat buffs: smartphones require an active mobile connection plan; laptops and PCs require active broadband to use connected features.
+- Physical devices are durable Owned inventory. Model-specific specifications and a device upgrade menu are a later update; do not add speculative device tiers in this change.
+- Food effects resolve through the weekly simulation and appear in the unified activity list and review. Avoid duplicate food summaries or separate activity-cost panels.
 - Housing remains represented through existing Finance property and household state; housing comfort may contribute passive effects but must not create a duplicate Home destination.
 
 ## Family and passive life

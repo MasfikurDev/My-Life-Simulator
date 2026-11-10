@@ -1,6 +1,6 @@
 # Lifestyle Economy — Quality of Life Through Money
 
-**Status:** Design specification; implementation planned  
+**Status:** Partially implemented; current supermarket inventory, food planning, subscription benefits, and connectivity rules are live. Nutrition quality over time, automatic replenishment, and device upgrades remain planned.  
 **Purpose:** Make money a practical lever that changes how a character lives, not just a number that grows in Finance.
 
 ## Core design
@@ -22,7 +22,7 @@ Food is the clearest everyday example because price and quality have understanda
 
 Do not make a single gourmet meal cure poor health or grant large permanent stat boosts. Nutrition should accumulate over time, be affected by consistency, and be balanced against other health factors. Cheap food is not automatically harmful; the penalty should come from poor nutritional quality and repeated reliance, not from price alone.
 
-Food access and responsibility must fit the character's age and household. Children should not be expected to manage adult grocery budgets independently. Household food spending should eventually integrate with the existing Lifestyle marketplace and Finance ledger.
+Food access and responsibility must fit the character's age and household. Children should not be expected to manage adult grocery budgets independently. Supermarket purchases are charged immediately through Finance and food remains in Owned inventory until the player reserves it for a week. A reserved portion is consumed when that week resolves. Excess purchases remain in inventory and do not generate bonuses by themselves.
 
 ## Everyday goods and services
 
@@ -54,7 +54,7 @@ A character's true lifestyle capacity should consider disposable income, liquid 
 - Every purchase checks affordability at the simulation boundary and records through the existing Finance transaction/ledger path.
 - No free stat rewards when a purchase fails.
 - Benefits should be specific to the purchase: nutrition improves health maintenance; reliable tools reduce failure; safer housing reduces exposure; convenience may reduce workload or stress.
-- Apply diminishing returns. Moving from poor nutrition to balanced meals should matter more than moving from already excellent meals to gourmet.
+- Apply diminishing returns. Moving from poor nutrition to balanced meals should matter more than moving from already excellent meals to gourmet. Current weekly food bonuses are capped independently by stat (stamina recovery, health, happiness, stress and comfort); a food that cannot add to a capped stat may still contribute a different uncapped benefit.
 - Repeated habits and consistency matter more than one-off purchases.
 - Keep player agency: a wealthy character can still choose to save, buy budget goods, or spend on experiences.
 - Do not punish low-income characters with unavoidable severe stat loss. Provide viable baseline options and make the biggest trade-offs understandable.
@@ -63,11 +63,20 @@ A character's true lifestyle capacity should consider disposable income, liquid 
 
 ## Implementation sequence
 
-1. Food/nutrition as a complete, ledger-backed system with recurring household costs and quality effects.
-2. Everyday essentials and durable goods, connected to existing Lifestyle marketplace and future Personal Technology.
+1. Improve food quality and nutritional consistency over time without treating individual meals as magical stat boosts.
+2. Add optional automatic replenishment of player-selected foods, enabled only with an eligible credit card and explicit player settings.
+3. Expand durable goods into a Personal Technology system with distinct device models, specifications, condition, connectivity requirements, and upgrade paths.
 3. Housing quality, safety, maintenance, and transport trade-offs.
 4. Preventative services and optional experiences.
 5. Scenario balancing across low-income, stable, and affluent lives.
+
+## Current food and service rules
+
+- Supermarket checkout only buys and stocks items; it does not schedule meals. Cash purchases cannot be configured as automatic plans.
+- Food and edible products are inventory items. The player chooses portions from Owned for the weekly review; only planned portions are consumed at week resolution.
+- Different food types may be planned together. Each food bonus has its own weekly ceiling, so extra portions do not stack unlimited stamina or wellbeing gains.
+- Subscriptions provide small, recurring gameplay benefits appropriate to their service (entertainment and music improve leisure/mood; fitness membership supports fitness and health). Connectivity plans are access requirements, not generic stat boosts.
+- A smartphone requires an active mobile service plan for connected use; a laptop/PC requires active broadband. Device models, specifications and upgrade mechanics are a separate future update.
 
 ## Acceptance
 

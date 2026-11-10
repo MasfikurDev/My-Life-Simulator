@@ -6,7 +6,7 @@ A modern, Android-first, single-player life simulation. The game is built as a T
 
 The game is built around a connected life story: meaningful choices, evolving relationships, education, work, personal wellbeing, finances, opportunities, and consequences. It prioritizes enjoyable play, player agency, coherent simulation, replayability, and a polished mobile experience over feature count or unnecessary realism.
 
-**Current authoritative direction:** [Current Product and Gameplay Direction](docs/CURRENT_DIRECTION.md) records the latest decisions, including the unified weekly activity list, passive activity accounting, Lifestyle Market purchase rules, and current UI constraints. Where older wording conflicts, follow that document and update the older section when next editing it.
+**Current authoritative direction:** [Current Product and Gameplay Direction](docs/CURRENT_DIRECTION.md) records the latest decisions, including the unified weekly activity list, passive activity accounting, Lifestyle Supermarket inventory and food-planning rules, and current UI constraints. Where older wording conflicts, follow that document and update the older section when next editing it.
 
 The canonical gameplay clock is:
 - **Week:** the playable turn. Players toggle personal activities in their own domain; stamina is their effort budget. Education and employment remain automatic background responsibilities; there is no player-managed timetable. The weekly review previews costs, rewards and wellbeing outcomes before resolution.
