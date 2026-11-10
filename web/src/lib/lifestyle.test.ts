@@ -24,7 +24,7 @@ describe('passive lifestyle simulation', () => {
       family: { ...family, householdMemberIds: [family.playerPersonId, ...householdIds] }
     };
     const meals = getPassiveLifestyleActivities(supported).find((item) => item.id === 'passive-family-meals');
-    expect(meals).toMatchObject({ title: 'Meals provided by family', staminaRecovery: 5, discipline: 2 });
+    expect(meals).toMatchObject({ title: 'Meals at home', staminaRecovery: 5, discipline: 2 });
     const strained = getPassiveLifestyleActivities({ ...supported, familyCulture: 'strained' }).find((item) => item.id === 'passive-family-meals');
     expect(strained).toMatchObject({ staminaRecovery: 3, happiness: 0, stress: -1 });
     const neglectful = getPassiveLifestyleActivities({ ...supported, familyCulture: 'neglectful' });
@@ -49,7 +49,7 @@ describe('passive lifestyle simulation', () => {
 
     const resolved = advanceWeek(supported);
     expect(resolved.issue).toBeNull();
-    expect(resolved.recap.some((entry) => entry.startsWith('Meals provided by family:'))).toBe(true);
+    expect(resolved.recap.some((entry) => entry.startsWith('Meals at home:'))).toBe(true);
     expect(resolved.recap.some((entry) => entry.includes('Stamina +5'))).toBe(true);
     expect(resolved.character.stamina).toBeGreaterThan(40);
   });
