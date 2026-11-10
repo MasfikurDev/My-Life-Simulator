@@ -57,6 +57,17 @@ function stat(random: () => number): number {
   // Triangular distribution: ordinary values are more common than extremes.
   return Math.round((random() + random()) * 25 + 25);
 }
+function ageStatCeiling(age: number): number {
+  if (age < 3) return 30 + age * 4;
+  if (age < 6) return 42 + (age - 3) * 4;
+  if (age < 13) return 54 + (age - 6) * 4;
+  if (age < 18) return 82 + (age - 13) * 3.6;
+  return 100;
+}
+function statForAge(random: () => number, age: number): number {
+  const factor = age < 3 ? 0.55 : age < 6 ? 0.65 : age < 13 ? 0.78 : age < 18 ? 0.9 : 1;
+  return Math.min(ageStatCeiling(age), Math.round(stat(random) * factor));
+}
 function event(character: Character, title: string, description: string, kind: LifeEvent['kind'] = 'activity'): LifeEvent {
   return { id: String(character.year) + '-' + String(character.history.length + 1), year: character.year, age: character.age, date: character.calendar?.currentDate ?? String(character.year) + '-01-01', title, description, kind };
 }
@@ -93,9 +104,9 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     birthplace: pick(profile.cities, random), language, currency: profile.currency, currencyScale: profile.scale,
     familyBackground: background, familyCulture: pick(['supportive', 'structured', 'strained', 'neglectful'] as const, random), personality: traits, appearance, comfort: stat(random),
     education: getEducationStage(age), educationProgress: 0, employment: null, lastYearIncome: 0, lastYearExpenses: 0, lastYearShortfall: 0,
-    householdArrangement: age >= 18 ? 'family-supported' : undefined, savingsGoalMonths: null,
-    health: stat(random), happiness: stat(random), intelligence: stat(random), fitness: stat(random),
-    stamina: stat(random), focus: stat(random), confidence: stat(random), discipline: stat(random), creativity: stat(random), socialSkills: stat(random), stress: Math.round((random() + random()) * 20 + 10),
+    householdArrangement: 'family-supported', savingsGoalMonths: null,
+    health: statForAge(random, age), happiness: statForAge(random, age), intelligence: statForAge(random, age), fitness: statForAge(random, age),
+    stamina: statForAge(random, age), focus: statForAge(random, age), confidence: statForAge(random, age), discipline: statForAge(random, age), creativity: statForAge(random, age), socialSkills: statForAge(random, age), stress: Math.round((random() + random()) * 20 + 10),
     medicalState: { conditions: [], medications: [], highStressWeeks: 0 },
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), history: []
   };
@@ -1544,6 +1555,12 @@ export function getAnnualReview(character: Character): AnnualReview {
 function applyAgeTransition(character: Character, previousAge: number, targetAge: number): Character {
   if (targetAge <= previousAge) return { ...character, age: targetAge };
   let next: Character = { ...character, age: targetAge, history: [...character.history] };
+  const developmentGain = targetAge <= 5 ? 3 : targetAge <= 12 ? 2 : targetAge < 18 ? 1 : 0;
+  if (developmentGain > 0) {
+    const ceiling = ageStatCeiling(targetAge);
+    const developed = ['health', 'happiness', 'intelligence', 'fitness', 'stamina', 'focus', 'confidence', 'discipline', 'creativity', 'socialSkills'] as const;
+    for (const key of developed) next[key] = Math.min(ceiling, next[key] + developmentGain);
+  }
   const educationStage = getEducationStage(next.age);
   if ([3, 6, 13, 18].includes(next.age) && next.education !== 'Higher education' && next.education !== educationStage) {
     next.education = educationStage;
@@ -1560,12 +1577,22 @@ function applyAgeTransition(character: Character, previousAge: number, targetAge
   return next;
 }
 
-function settleCalendarYear(character: Character, targetYear: number, targetAge: number, previousAge: number): Character {
+function settleCalendarYear(character: Character, targetYear: number, targetAge: number, previousAge: number, simulateBackgroundWeeks = false): Character {
   const previousHistoryLength = character.history.length;
   const current = expirePendingGameEvent(character);
   let next: Character = { ...current, age: targetAge, year: targetYear, health: clamp(current.health - (previousAge >= 45 ? 2 : 1)), history: [...current.history] };
   next = advanceFamilyYear(next);
   next = advanceEconomicConditions(next);
+  if (simulateBackgroundWeeks) {
+    // Direct year advancement represents 52 quiet weekly cycles. Resolve background life effects
+    // without replaying player-selected actions or duplicating annual financial settlement.
+    for (let week = 0; week < 52; week += 1) {
+      const passive = getPassiveLifestyleActivities(next);
+      next = resolvePassiveLifestyleActivities(next, passive);
+      const recovery = passive.reduce((total, item) => total + item.staminaRecovery, 0);
+      next.stamina = clamp((next.stamina ?? 50) + recovery + 3);
+    }
+  }
 
   // Existing saves without banking fields remain valid; new accounts earn simple annual interest.
   const accounts = next.bankAccounts ?? [];
@@ -1640,5 +1667,5 @@ function settleCalendarYear(character: Character, targetYear: number, targetAge:
 }
 
 export function advanceYear(character: Character): Character {
-  return settleCalendarYear(character, character.year + 1, character.age + 1, character.age);
+  return settleCalendarYear(character, character.year + 1, character.age + 1, character.age, true);
 }
