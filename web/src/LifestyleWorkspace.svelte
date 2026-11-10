@@ -70,7 +70,7 @@
   ];
   const categories = ['All', 'Food', 'Eating out', 'Delivery', 'Fashion', 'Electronics', 'Transport', 'Books', 'Fitness', 'Accessories', 'Home'];
   const selectedProvider = $derived(providers.find((item) => item.id === selectedProviderId));
-  const uniqueProducts = new Set(['phone-basic', 'laptop-basic', 'desktop-basic', 'fitness-kit']);
+  const uniqueProducts = new Set(['phone-basic', 'laptop-basic', 'desktop-basic', 'headphones', 'bicycle', 'textbook', 'fitness-kit', 'backpack', 'desk-lamp']);
   const cartEntries = $derived(products.filter((product) => (cart[product.id] ?? 0) > 0).map((product) => ({ product, quantity: cart[product.id], total: Math.round(product.price * scale) * cart[product.id] })));
   const cartCount = $derived(cartEntries.reduce((sum, entry) => sum + entry.quantity, 0));
   const cartTotal = $derived(cartEntries.reduce((sum, entry) => sum + entry.total, 0));
