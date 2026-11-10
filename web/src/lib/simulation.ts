@@ -1116,7 +1116,10 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   next = wellbeing.character;
   recap.push(...wellbeing.recap);
   next = resolvePassiveLifestyleActivities(next, passiveActivities);
-  for (const activity of passiveActivities) recap.push(activity.title + ': ' + activity.detail + '.');
+  for (const activity of passiveActivities) {
+    const staminaNote = activity.staminaRecovery > 0 ? ' Stamina +' + activity.staminaRecovery + '.' : '';
+    recap.push(activity.title + ': ' + activity.detail + '.' + staminaNote);
+  }
   next = { ...next, stamina: Math.min(100, (next.stamina ?? 50) + staminaRecovery) };
   const educationTasks: EducationTaskType[] = [];
   const ordered = [...schedule.activities];
@@ -1276,6 +1279,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     id: item.id, title: item.title, source: item.source, detail: item.detail,
     staminaRecovery: item.staminaRecovery,
     reward: [
+      item.staminaRecovery ? 'Stamina +' + item.staminaRecovery : '',
       item.health ? 'Health ' + (item.health > 0 ? '+' : '−') + Math.abs(item.health) : '',
       item.happiness ? 'Happiness ' + (item.happiness > 0 ? '+' : '−') + Math.abs(item.happiness) : '',
       item.comfort ? 'Comfort ' + (item.comfort > 0 ? '+' : '−') + Math.abs(item.comfort) : '',
