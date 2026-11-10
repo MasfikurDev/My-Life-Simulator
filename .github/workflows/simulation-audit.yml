@@ -1,0 +1,41 @@
+name: Long simulation audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch or commit containing the simulation scenarios
+        required: true
+        default: test/age-18-52-week-simulation-audit
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: simulation-audit-${{ github.event.pull_request.number || inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulation:
+    if: github.event_name != 'pull_request' || github.event.label.name == 'run-simulation-audit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Check out simulation scenarios
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || inputs.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund --no-progress
+      - name: Run long simulation suite
+        run: npm run test:simulation -- --reporter=dot
