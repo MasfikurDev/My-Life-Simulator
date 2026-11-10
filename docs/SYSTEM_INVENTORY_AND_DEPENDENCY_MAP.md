@@ -183,7 +183,7 @@ Status labels:
 
 **Current behavior**
 - Lifestyle is a modular Life workspace, not a separate duplicate economy.
-- Discover supports market/supermarket purchases, food, clothing, and subscription/provider setup.
+- Supermarket supports food, clothing, durable goods and device purchases; Subscriptions owns provider setup and recurring service management.
 - Supermarket food is purchased into Owned inventory. The player reserves portions from Owned for the weekly review; reserved portions are consumed at week resolution. Food bonuses are independently capped by stat, and unplanned stock grants no effects.
 - Permanent/usable goods and food stock are added to Owned inventory. Active subscriptions provide small service-specific weekly effects; mobile service is required for connected smartphone use and broadband for connected laptop/PC use.
 - Clothing has condition/wear and can be equipped; presentation can influence interview outcomes.
