@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { isValidWeeklyPlan } from './weekly-plan';
-import { addOwnedLifestyleItem, advanceWeek, createCharacter, getWeeklyActivityReview, planSocialInteractionInNextFreeTime, planBoughtFoodInNextFreeTime } from './simulation';
+import { addOwnedLifestyleItem, advanceWeek, createCharacter, getWeeklyActivityReview, planSocialInteractionInNextFreeTime, planBoughtFoodInNextFreeTime, planOwnedFoodInNextFreeTime } from './simulation';
 import {
   addSocialConnection,
   applyWeeklyClothingWear,
@@ -123,6 +123,31 @@ describe('passive lifestyle simulation', () => {
     expect(planned.issue).toBeNull();
     expect(getPassiveLifestyleActivities(planned.character).some((item) => item.id === 'passive-no-meals')).toBe(false);
     expect(getPassiveLifestyleActivities(planned.character).some((item) => item.id === 'passive-housing-insecurity')).toBe(true);
+  });
+
+  it('uses owned food from inventory, caps weekly food bonuses by stat, and consumes portions on resolution', () => {
+    const generated = createCharacter('Food inventory', 30);
+    const stocked = addOwnedLifestyleItem(generated, {
+      productId: 'meal-eggs', name: 'Eggs & toast', category: 'Food', description: 'Protein and carbohydrates',
+      quantity: 3, kind: 'usable', foodEffects: { staminaRecovery: 12, health: 3, happiness: 0, stress: 0, comfort: 0 }
+    });
+    const secondStock = addOwnedLifestyleItem(stocked, {
+      productId: 'meal-fruit', name: 'Fresh fruit', category: 'Food', description: 'Fruit snack',
+      quantity: 2, kind: 'usable', foodEffects: { staminaRecovery: 6, health: 1, happiness: 3, stress: 2, comfort: 1 }
+    });
+    const eggs = secondStock.ownedLifestyleItems!.find((item) => item.productId === 'meal-eggs')!;
+    const fruit = secondStock.ownedLifestyleItems!.find((item) => item.productId === 'meal-fruit')!;
+    const first = planOwnedFoodInNextFreeTime(secondStock, eggs.id);
+    expect(first.issue).toBeNull();
+    expect(first.character.weeklyPlan!.activities[0].action).toMatchObject({ kind: 'food', staminaRecovery: 8, health: 2, happiness: 0 });
+    const second = planOwnedFoodInNextFreeTime(first.character, fruit.id);
+    expect(second.issue).toBeNull();
+    const fruitAction = second.character.weeklyPlan!.activities.find((item) => item.action?.kind === 'food' && item.action.ownedItemId === fruit.id)!.action;
+    expect(fruitAction).toMatchObject({ staminaRecovery: 0, health: 0, happiness: 2, stress: 2, comfort: 1 });
+    const resolved = advanceWeek(second.character);
+    expect(resolved.issue).toBeNull();
+    expect(resolved.character.ownedLifestyleItems!.find((item) => item.productId === 'meal-eggs')?.quantity).toBe(2);
+    expect(resolved.character.ownedLifestyleItems!.find((item) => item.productId === 'meal-fruit')?.quantity).toBe(1);
   });
 
   it('allows a non-cohabiting partner to provide emotional support without replacing meals or housing', () => {
