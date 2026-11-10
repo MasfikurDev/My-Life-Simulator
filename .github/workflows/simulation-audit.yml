@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: Branch or commit containing the simulation scenarios
+        description: Branch or commit to run the long simulation audit against
         required: true
-        default: test/age-18-52-week-simulation-audit
+        default: main
   pull_request:
     types: [labeled]
 
