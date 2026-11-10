@@ -11,6 +11,8 @@
 
   let { character, onChange, onNotify, initialView = 'supermarket' }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifestyleView } = $props();
   type LifestyleView = 'supermarket' | 'subscriptions' | 'owned';
+  type ShopStage = 'browse' | 'cart' | 'payment' | 'receipt';
+  type Receipt = { items: { name: string; quantity: number; total: number }[]; total: number; year: number; age: number; cashBefore: number; cashAfter: number };
   type MarketProduct = {
     id: string; name: string; category: string; description: string; price: number;
     kind: 'food' | 'usable' | 'permanent';
@@ -19,10 +21,11 @@
   type Provider = { id: string; name: string; plan: string; category: string; price: number; detail: string };
   const activeView = $derived(initialView);
   let category = $state('All');
-  let dialogKind = $state<'product' | 'subscription' | null>(null);
-  let selectedProductId = $state('');
+  let dialogKind = $state<'subscription' | null>(null);
+  let shopStage = $state<ShopStage>('browse');
+  let cart = $state<Record<string, number>>({});
+  let receipt = $state<Receipt | null>(null);
   let selectedProviderId = $state('');
-  let quantity = $state('1');
   let paymentSource = $state<PaymentSourceType>('cash');
   let paymentSourceId = $state('');
 
@@ -67,19 +70,62 @@
     { id: 'cloud-storage', name: 'CloudBox', category: 'Digital services', plan: 'Cloud storage', price: 48, detail: 'Personal file storage' }
   ];
   const categories = ['All', 'Food', 'Eating out', 'Delivery', 'Fashion', 'Electronics', 'Transport', 'Books', 'Fitness', 'Accessories', 'Home'];
-  const selectedProduct = $derived(products.find((item) => item.id === selectedProductId));
-  const selectedOwnedQuantity = $derived(selectedProduct ? (ownedItems.find((item) => item.productId === selectedProduct.id)?.quantity ?? 0) : 0);
   const selectedProvider = $derived(providers.find((item) => item.id === selectedProviderId));
-  const orderQuantity = $derived(Math.max(1, Math.min(20, Math.floor(Number(quantity) || 1))));
-  const orderTotal = $derived(selectedProduct ? Math.round(selectedProduct.price * scale) * orderQuantity : 0);
+  const uniqueProducts = new Set(['phone-basic', 'laptop-basic', 'desktop-basic', 'fitness-kit']);
+  const cartEntries = $derived(products.filter((product) => (cart[product.id] ?? 0) > 0).map((product) => ({ product, quantity: cart[product.id], total: Math.round(product.price * scale) * cart[product.id] })));
+  const cartCount = $derived(cartEntries.reduce((sum, entry) => sum + entry.quantity, 0));
+  const cartTotal = $derived(cartEntries.reduce((sum, entry) => sum + entry.total, 0));
   const filteredProducts = $derived(category === 'All' ? products : products.filter((item) => item.category === category));
   const subscriptionCost = $derived(selectedProvider ? Math.round(selectedProvider.price * scale) : 0);
-  function openProduct(product: MarketProduct) {
-    selectedProductId = product.id;
-    quantity = '1';
-    paymentSource = 'cash';
-    paymentSourceId = '';
-    dialogKind = 'product';
+  function isUnavailable(product: MarketProduct) {
+    return uniqueProducts.has(product.id) && (ownedItems.some((item) => item.productId === product.id && item.quantity > 0) || (cart[product.id] ?? 0) > 0);
+  }
+  function addToCart(product: MarketProduct) {
+    if (isUnavailable(product)) { onNotify(product.name + ' is limited to one and is already owned or in your cart.'); return; }
+    const current = cart[product.id] ?? 0;
+    if (current >= 20) { onNotify('Cart quantity limit reached for this item.'); return; }
+    cart = { ...cart, [product.id]: current + 1 };
+    onNotify(product.name + ' added to cart.');
+  }
+  function changeCartQuantity(productId: string, delta: number) {
+    const product = products.find((item) => item.id === productId);
+    if (!product) return;
+    const nextQuantity = Math.max(0, Math.min(uniqueProducts.has(productId) ? 1 : 20, (cart[productId] ?? 0) + delta));
+    cart = { ...cart, [productId]: nextQuantity };
+  }
+  function beginCheckout() {
+    if (!cartEntries.length) return;
+    shopStage = 'payment';
+  }
+  function completeCartPurchase() {
+    if (!cartEntries.length || !Number.isSafeInteger(cartTotal) || cartTotal <= 0) return;
+    for (const entry of cartEntries) {
+      if (isUnavailable(entry.product) && uniqueProducts.has(entry.product.id)) { onNotify(entry.product.name + ' is no longer available.'); return; }
+      if (entry.quantity < 1 || entry.quantity > 20 || (uniqueProducts.has(entry.product.id) && entry.quantity !== 1)) return;
+    }
+    const cashBefore = character.money;
+    const description = 'Supermarket order · ' + cartEntries.map((entry) => entry.product.name + ' ×' + entry.quantity).join(', ');
+    const paid = makeCashPurchase(character, cartTotal, description);
+    if (paid === character) { onNotify('Payment declined. You do not have enough cash for this order.'); return; }
+    let next = paid;
+    for (const entry of cartEntries) {
+      const product = entry.product;
+      next = addOwnedLifestyleItem(next, {
+        productId: product.id, name: product.name, category: product.category,
+        description: product.description, quantity: entry.quantity,
+        kind: product.kind === 'permanent' ? 'permanent' : 'usable',
+        ...(product.kind === 'food' ? { foodEffects: { staminaRecovery: product.staminaRecovery ?? 0, health: product.health ?? 0, happiness: product.happiness ?? 0, stress: product.stress ?? 0, comfort: product.comfort ?? 0 } } : {}),
+        ...(product.styleScore !== undefined ? { styleScore: product.styleScore, formality: product.formality ?? 0 } : {})
+      });
+    }
+    receipt = { items: cartEntries.map((entry) => ({ name: entry.product.name, quantity: entry.quantity, total: entry.total })), total: cartTotal, year: character.year, age: character.age, cashBefore, cashAfter: next.money };
+    onChange(next);
+    cart = {};
+    shopStage = 'receipt';
+  }
+  function productBoosts(product: MarketProduct) {
+    const boosts = [product.staminaRecovery ? 'Stamina +' + product.staminaRecovery : '', product.health ? 'Health +' + product.health : '', product.happiness ? 'Happiness +' + product.happiness : '', product.stress ? 'Stress +' + product.stress : '', product.comfort ? 'Comfort +' + product.comfort : ''].filter(Boolean);
+    return boosts.join(' · ');
   }
   function openSubscription(provider: Provider) {
     if (character.age < 16) { onNotify('Subscriptions unlock at age 16.'); return; }
@@ -112,7 +158,7 @@
   function planFood(itemId: string) {
     const result = planOwnedFoodInNextFreeTime(character, itemId);
     if (result.issue) { onNotify(result.message ?? 'This food cannot be added to the weekly plan.'); return; }
-    onChange(result.character); onNotify('Food reserved from your inventory for this week. It will be consumed when the week is resolved.');
+    onChange(result.character); onNotify('Added to this week’s plan. The reserved portion will be consumed when the week is resolved.');
   }
   function deviceService(item: { productId: string; category: string }) {
     if (item.productId === 'phone-basic') return activeSubscriptions.some((payment) => payment.name === 'Mobile data plan') ? 'Mobile service active' : 'Requires mobile service';
@@ -146,10 +192,12 @@
 
 <section class="lifestyle-workspace">
   <header class="lifestyle-heading">
-    <div><div class="eyebrow">LIFESTYLE · EVERYDAY NEEDS</div><h2>{activeView === 'supermarket' ? 'Supermarket' : activeView === 'subscriptions' ? 'Subscriptions' : 'Owned'}</h2><p>{activeView === 'supermarket' ? 'Buy food and useful things for everyday life.' : activeView === 'subscriptions' ? 'Manage services and recurring memberships.' : 'Your purchased items and personal inventory.'}</p></div>
+    <div><div class="eyebrow">LIFESTYLE · EVERYDAY NEEDS</div><h2>{activeView === 'supermarket' ? 'Supermarket' : activeView === 'subscriptions' ? 'Subscriptions' : 'Inventory'}</h2><p>{activeView === 'supermarket' ? 'Browse everyday goods and build an order.' : activeView === 'subscriptions' ? 'Manage services and recurring memberships.' : 'Your purchased items and supplies.'}</p></div>
     {#if activeView === 'subscriptions'}<span class="service-count">{activeSubscriptions.length} ACTIVE</span>{:else if activeView === 'owned'}<span class="service-count">{ownedItems.reduce((sum, item) => sum + item.quantity, 0)} ITEMS</span>{/if}
   </header>
   {#if activeView === 'supermarket'}
+    {#if shopStage === 'browse'}
+    <div class="shop-toolbar"><span>{cartCount} {cartCount === 1 ? 'item' : 'items'} in cart</span><button class="cart-button" onclick={() => shopStage = 'cart'} disabled={cartCount === 0}>Cart · {formatCharacterMoney(character, cartTotal)}</button></div>
     <nav class="market-categories" aria-label="Supermarket categories">
       {#each categories as item}<button class:active={category === item} onclick={() => category = item}>{item}</button>{/each}
     </nav>
@@ -157,14 +205,34 @@
       <div class="market-section-heading"><div><small>SHOPPING</small><h3>{category === 'All' ? 'Available Products' : category}</h3></div><span>{filteredProducts.length} ITEMS</span></div>
       <div class="product-grid">
         {#each filteredProducts as product (product.id)}
-          <article class="market-product">
+          <article class="market-product" class:unavailable={isUnavailable(product)}>
             <div class="product-mark">{product.kind === 'food' ? 'FOOD' : product.category.toUpperCase()}</div>
-            <div class="product-info"><strong>{product.name}</strong><p>{product.description}</p><b>{formatCharacterMoney(character, Math.round(product.price * scale))}</b></div>
-            <button class="buy-button" onclick={() => openProduct(product)}>{'Buy'}</button>
+            <strong>{product.name}</strong>
+            {#if product.kind === 'food'}<small class="product-boost">{productBoosts(product)}</small>{/if}
+            <b>{formatCharacterMoney(character, Math.round(product.price * scale))}</b>
+            {#if isUnavailable(product)}<span class="stock-state">Out of Stock</span>{:else if cart[product.id]}<button class="add-cart-button added" onclick={() => changeCartQuantity(product.id, 1)}>{cart[product.id]} in Cart · +</button>{:else}<button class="add-cart-button" onclick={() => addToCart(product)}>Add to Cart</button>{/if}
           </article>
         {/each}
       </div>
     </section>
+    {:else if shopStage === 'cart'}
+      <section class="service-section shop-page"><div class="market-section-heading"><div><small>YOUR ORDER</small><h3>Shopping Cart</h3></div><span>{cartCount} ITEMS</span></div>
+        {#each cartEntries as entry (entry.product.id)}<article class="cart-line"><div><strong>{entry.product.name}</strong><small>{formatCharacterMoney(character, Math.round(entry.product.price * scale))} each</small></div><div class="cart-quantity"><button onclick={() => changeCartQuantity(entry.product.id, -1)} aria-label="Remove one">−</button><b>{entry.quantity}</b><button onclick={() => changeCartQuantity(entry.product.id, 1)} aria-label="Add one" disabled={uniqueProducts.has(entry.product.id) || entry.quantity >= 20}>+</button></div><strong>{formatCharacterMoney(character, entry.total)}</strong></article>{/each}
+        {#if !cartEntries.length}<EmptyState title="Your cart is empty" description="Add products from the Supermarket to build an order." />{/if}
+        <div class="cart-total"><span>Order Total</span><strong>{formatCharacterMoney(character, cartTotal)}</strong></div>
+        <div class="shop-actions"><button class="secondary" onclick={() => shopStage = 'browse'}>Continue Shopping</button><button class="primary" onclick={beginCheckout} disabled={!cartEntries.length}>Continue to Checkout</button></div>
+      </section>
+    {:else if shopStage === 'payment'}
+      <section class="service-section shop-page"><div class="market-section-heading"><div><small>CHECKOUT</small><h3>Payment</h3></div><span>CASH</span></div>
+        {#each cartEntries as entry (entry.product.id)}<div class="payment-line"><span>{entry.product.name} × {entry.quantity}</span><strong>{formatCharacterMoney(character, entry.total)}</strong></div>{/each}
+        <div class="cart-total"><span>Total Due</span><strong>{formatCharacterMoney(character, cartTotal)}</strong></div>
+        <div class="cash-payment"><span>Payment Method</span><strong>Cash</strong><small>Available Cash: {formatCharacterMoney(character, character.money)}</small><small>Cash After Purchase: {formatCharacterMoney(character, Math.max(0, character.money - cartTotal))}</small></div>
+        <div class="shop-actions"><button class="secondary" onclick={() => shopStage = 'cart'}>Back to Cart</button><button class="primary" onclick={completeCartPurchase} disabled={character.money < cartTotal}>Pay {formatCharacterMoney(character, cartTotal)}</button></div>
+        {#if character.money < cartTotal}<small class="payment-error">Not enough cash to complete this order.</small>{/if}
+      </section>
+    {:else if shopStage === 'receipt' && receipt}
+      <section class="receipt-wrap"><div class="receipt-paper"><div class="receipt-brand">SUPERMARKET</div><small>SALES RECEIPT</small><div class="receipt-rule"></div><div class="receipt-meta"><span>Year {receipt.year} · Age {receipt.age}</span><span>Paid: Cash</span></div><div class="receipt-rule dashed"></div>{#each receipt.items as item}<div class="receipt-line"><span>{item.name}<small>{item.quantity} × {formatCharacterMoney(character, item.total / item.quantity)}</small></span><b>{formatCharacterMoney(character, item.total)}</b></div>{/each}<div class="receipt-rule"></div><div class="receipt-total"><span>TOTAL PAID</span><strong>{formatCharacterMoney(character, receipt.total)}</strong></div><div class="receipt-cash"><span>Cash Before</span><b>{formatCharacterMoney(character, receipt.cashBefore)}</b><span>Cash After</span><b>{formatCharacterMoney(character, receipt.cashAfter)}</b></div><div class="receipt-rule dashed"></div><div class="receipt-thanks">THANK YOU</div><small>Items have been added to your Inventory.</small></div><div class="shop-actions"><button class="secondary" onclick={() => shopStage = 'browse'}>Back to Shop</button><button class="primary" onclick={() => { shopStage = 'browse'; activeView = 'owned'; }}>View Inventory</button></div></section>
+    {/if}
   {:else if activeView === 'subscriptions'}
     <section class="service-section">
       <div class="market-section-heading"><div><small>YOUR SERVICES</small><h3>Active subscriptions</h3></div><span>{activeSubscriptions.length} ACTIVE</span></div>
@@ -191,7 +259,7 @@
       {#if ownedItems.length}
         <div class="owned-grid">
           {#each ownedItems as item (item.id)}
-            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small>{#if deviceService(item)}<small class="device-service">{deviceService(item)}</small>{/if}<p>{item.description}</p>{#if item.foodEffects}<button class="wear-outfit-button" onclick={() => planFood(item.id)} disabled={item.quantity <= (character.weeklyPlan?.activities ?? []).filter((activity) => activity.action?.kind === 'food' && activity.action.ownedItemId === item.id).reduce((sum, activity) => sum + (activity.action?.kind === 'food' ? activity.action.quantity : 0), 0)}>Use this week</button>{/if}{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small><button class="wear-outfit-button" class:equipped={item.equipped === true} onclick={() => wearFashionItem(item.id)} disabled={item.equipped === true}>{item.equipped ? 'Currently wearing' : 'Wear this outfit'}</button>{/if}</article>
+            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small>{#if deviceService(item)}<small class="device-service">{deviceService(item)}</small>{/if}{#if item.foodEffects}<small class="inventory-boost">{[['Stamina', item.foodEffects.staminaRecovery], ['Health', item.foodEffects.health], ['Happiness', item.foodEffects.happiness], ['Stress', item.foodEffects.stress], ['Comfort', item.foodEffects.comfort]].filter((entry) => entry[1] > 0).map((entry) => entry[0] + ' +' + entry[1]).join(' · ')}</small><button class="wear-outfit-button" onclick={() => planFood(item.id)} disabled={item.quantity <= (character.weeklyPlan?.activities ?? []).filter((activity) => activity.action?.kind === 'food' && activity.action.ownedItemId === item.id).reduce((sum, activity) => sum + (activity.action?.kind === 'food' ? activity.action.quantity : 0), 0)}>Plan for This Week</button>{/if}{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small><button class="wear-outfit-button" class:equipped={item.equipped === true} onclick={() => wearFashionItem(item.id)} disabled={item.equipped === true}>{item.equipped ? 'Currently wearing' : 'Wear this outfit'}</button>{/if}</article>
           {/each}
         </div>
       {:else}
@@ -211,15 +279,6 @@
           <div class="dialog-total"><span>Annual charge</span><strong>{formatCharacterMoney(character, subscriptionCost)}</strong></div>
           <div class="choice-field"><span>Payment source</span><GameChoice label="Subscription payment source" value={paymentSource === 'cash' ? 'cash' : paymentSourceId} options={[{value:'cash',label:'Cash',detail:'Wallet balance'},...accounts.map((account) => ({value:account.id,label:account.name,detail:formatCharacterMoney(character, account.balance)})),...activeCards.map((card) => ({value:card.id,label:card.name,detail:card.type + ' card'}))]} onSelect={(value) => { if (value === 'cash') { paymentSource = 'cash'; paymentSourceId = ''; } else if (accounts.some((account) => account.id === value)) { paymentSource = 'account'; paymentSourceId = value; } else { paymentSource = 'card'; paymentSourceId = value; } }} columns={2}/></div>
           <div class="dialog-actions"><button class="secondary" onclick={() => dialogKind = null}>Cancel</button><button class="primary" onclick={startSubscription} disabled={paymentSource !== 'cash' && !paymentSourceId}>Confirm subscription</button></div>
-        {:else if selectedProduct}
-          <div class="eyebrow">SUPERMARKET CHECKOUT</div>
-          <h3 id="purchase-dialog-title">{selectedProduct.name}</h3>
-          <p>{selectedProduct.description}</p>
-          <div class="quantity-field"><span>Quantity</span><div class="quantity-stepper"><button type="button" aria-label="Decrease quantity" onclick={() => quantity = String(Math.max(1, orderQuantity - 1))} disabled={orderQuantity <= 1}>−</button><input type="number" min="1" max="20" bind:value={quantity} /><button type="button" aria-label="Increase quantity" onclick={() => quantity = String(Math.min(20, orderQuantity + 1))} disabled={orderQuantity >= 20}>+</button></div></div>
-          <p class="dialog-note">Checkout adds the item to Owned inventory. Choose food from Owned when you want to include it in this week's review.</p>
-          <div class="choice-field"><span>Payment source</span><GameChoice label="Purchase payment source" value={paymentSource === 'cash' ? 'cash' : paymentSourceId} options={[{value:'cash',label:'Cash',detail:formatCharacterMoney(character, character.money)},...accounts.map((account) => ({value:account.id,label:account.name,detail:formatCharacterMoney(character, account.balance)})),...activeCards.map((card) => ({value:card.id,label:card.name,detail:card.type + ' card'}))]} onSelect={(value) => { if (value === 'cash') { paymentSource = 'cash'; paymentSourceId = ''; } else if (accounts.some((account) => account.id === value)) { paymentSource = 'account'; paymentSourceId = value; } else { paymentSource = 'card'; paymentSourceId = value; } }} columns={2}/></div>
-          <div class="dialog-total"><span>Total · {orderQuantity} {orderQuantity === 1 ? 'item' : 'items'}</span><strong>{formatCharacterMoney(character, orderTotal)}</strong></div>
-          <div class="dialog-actions"><button class="secondary" onclick={() => dialogKind = null}>Cancel</button><button class="primary" onclick={completePurchase} disabled={dialogKind === 'product' && selectedOwnedQuantity + orderQuantity > 999}>Confirm purchase</button></div>
         {/if}
       </dialog>
     </div>
