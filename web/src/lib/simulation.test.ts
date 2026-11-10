@@ -43,6 +43,19 @@ describe('life simulation', () => {
     expect(next.lastYearRecap?.some((entry) => entry.includes('Everyday life continued'))).toBe(true);
   });
 
+  it('applies annual passive penalties once rather than replaying 52 weekly turns', () => {
+    const generated = createCharacter('Independent adult', 30);
+    const adult = {
+      ...generated,
+      money: 100000,
+      householdArrangement: 'independent' as const,
+      family: generated.family ? { ...generated.family, householdMemberIds: [generated.family.playerPersonId] } : undefined
+    };
+    const next = advanceYear(adult);
+    expect(next.happiness).toBe(adult.happiness - 2);
+    expect(next.history.some((entry) => entry.title === 'Everyday life continued')).toBe(true);
+  });
+
   it('calculates age- and currency-scaled activity costs', () => {
     const adult = { ...createCharacter('Adult', 18), currencyScale: 100, money: 3500 };
     const child = { ...createCharacter('Child', 12), currencyScale: 100, money: 0 };
