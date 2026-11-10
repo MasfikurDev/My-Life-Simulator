@@ -85,6 +85,12 @@ describe('passive lifestyle simulation', () => {
     };
     const passive = getPassiveLifestyleActivities(independent);
     expect(passive.map((item) => item.id)).toEqual(expect.arrayContaining(['passive-no-meals', 'passive-housing-insecurity']));
+    const singleMeal = planBoughtFoodInNextFreeTime(independent, {
+      productId: 'meal-delivery', name: 'One delivered meal', quantity: 1,
+      staminaRecovery: 5, health: 0, happiness: 1, stress: 0, comfort: 0
+    });
+    expect(singleMeal.issue).toBeNull();
+    expect(getPassiveLifestyleActivities(singleMeal.character).some((item) => item.id === 'passive-no-meals')).toBe(true);
     const planned = planBoughtFoodInNextFreeTime(independent, {
       productId: 'meal-groceries', name: 'Weekly grocery basket', quantity: 1,
       staminaRecovery: 24, health: 4, happiness: 2, stress: 0, comfort: 1
@@ -137,7 +143,7 @@ describe('passive lifestyle simulation', () => {
 
   it('applies bought restaurant/delivery comfort only during weekly resolution and validates it', () => {
     const generated = createCharacter('Food order', 30);
-    const character = { ...generated, money: 500, currencyScale: 1, comfort: 40, householdArrangement: 'independent' as const,
+    const character = { ...generated, money: 500, currencyScale: 1, comfort: 40, householdArrangement: 'shared' as const,
       family: generated.family ? { ...generated.family, householdMemberIds: [generated.family.playerPersonId] } : undefined };
     const planned = planBoughtFoodInNextFreeTime(character, {
       productId: 'meal-delivery', name: 'Food delivery', quantity: 1,
