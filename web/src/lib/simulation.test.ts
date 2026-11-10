@@ -40,6 +40,7 @@ describe('life simulation', () => {
     expect(next.health).toBeGreaterThan(supported.health);
     expect(next.happiness).toBeGreaterThan(supported.happiness);
     expect(next.comfort).toBeGreaterThan(supported.comfort ?? 50);
+    expect(next.lastYearRecap?.some((entry) => entry.includes('Everyday life continued'))).toBe(true);
   });
 
   it('calculates age- and currency-scaled activity costs', () => {
