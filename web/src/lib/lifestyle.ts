@@ -11,6 +11,7 @@ export interface PassiveLifestyleActivity {
   comfort: number;
   discipline: number;
   stress: number;
+  fitness?: number;
 }
 
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
@@ -159,6 +160,17 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
     });
   }
 
+  const activeServices = (character.recurringPayments ?? []).filter((payment) => payment.active && payment.category === 'subscription');
+  if (activeServices.some((payment) => payment.name === 'Standard streaming')) {
+    activities.push({ id: 'service-streaming', title: 'Streaming service', source: 'ViewFlix', detail: 'Entertainment access adds a small leisure benefit', staminaRecovery: 0, health: 0, happiness: 1, comfort: 1, discipline: 0, stress: 0 });
+  }
+  if (activeServices.some((payment) => payment.name === 'Music premium')) {
+    activities.push({ id: 'service-music', title: 'Music subscription', source: 'SoundWave', detail: 'Music access provides a small mood and stress benefit', staminaRecovery: 0, health: 0, happiness: 1, comfort: 0, discipline: 0, stress: -1 });
+  }
+  if (activeServices.some((payment) => payment.name === 'Gym membership')) {
+    activities.push({ id: 'service-fitness', title: 'Gym membership', source: 'Active Club', detail: 'Access to fitness facilities supports regular training', staminaRecovery: 0, health: 1, happiness: 0, comfort: 0, discipline: 1, stress: 0, fitness: 1 });
+  }
+
   const hasFamilyMeals = activities.some((item) => item.id === 'passive-family-meals');
   const hasSharedPartnerMeals = activities.some((item) => item.id === 'passive-partner-support' && item.staminaRecovery > 0);
   const boughtMeals = (character.weeklyPlan?.activities ?? []).filter((item) => item.action?.kind === 'food');
@@ -225,14 +237,16 @@ export function resolvePassiveLifestyleActivities(character: Character, activiti
     happiness: sum.happiness + item.happiness,
     comfort: sum.comfort + item.comfort,
     discipline: sum.discipline + item.discipline,
-    stress: sum.stress + item.stress
-  }), { health: 0, happiness: 0, comfort: 0, discipline: 0, stress: 0 });
+    stress: sum.stress + item.stress,
+    fitness: sum.fitness + (item.fitness ?? 0)
+  }), { health: 0, happiness: 0, comfort: 0, discipline: 0, stress: 0, fitness: 0 });
   return {
     ...character,
     health: clamp(character.health + Math.max(-2, Math.min(3, total.health))),
     happiness: clamp(character.happiness + Math.max(-3, Math.min(4, total.happiness))),
     comfort: clamp((character.comfort ?? 50) + Math.max(-3, Math.min(4, total.comfort))),
     discipline: clamp(character.discipline + Math.max(-2, Math.min(3, total.discipline))),
+    fitness: clamp(character.fitness + Math.max(-1, Math.min(2, total.fitness))),
     stress: clamp((character.stress ?? 30) - Math.max(-4, Math.min(4, total.stress)))
   };
 }
