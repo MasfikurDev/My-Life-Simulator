@@ -16,7 +16,7 @@ Workflow: `.github/workflows/web.yml`
 
 - Triggers on pull requests and pushes to `main` when `web/**` or the workflow itself changes; also supports manual dispatch.
 - Uses Node.js 22 and locked dependencies via `npm ci`.
-- Runs Svelte checks and the complete Vitest suite concurrently, then builds the production site. The complete Vitest suite is the required fast regression gate for web changes.
+- Runs Svelte checks and the regular Vitest regression suite concurrently, then builds the production site. The longer multi-week simulation stress suite is excluded from this fast path and runs in its dedicated audit workflow.
 - Uploads the Pages artifact outside pull-request runs.
 - Deploys to GitHub Pages only from `main`, after validation succeeds.
 - Uses read-only repository contents permission, scoped Pages deployment permissions, path filters, and concurrency cancellation.
