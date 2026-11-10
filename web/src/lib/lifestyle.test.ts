@@ -106,6 +106,7 @@ describe('passive lifestyle simulation', () => {
     let character = createCharacter('Partner support', 30);
     character = { ...character, householdArrangement: 'independent', family: character.family ? { ...character.family, householdMemberIds: [character.family.playerPersonId] } : undefined };
     character = addSocialConnection(character, 'Partner', 'partner', false);
+    character = { ...character, socialConnections: character.socialConnections!.map((item) => ({ ...item, closeness: 60, supportLevel: 'regular' as const })) };
     const passive = getPassiveLifestyleActivities(character);
     expect(passive.find((item) => item.id === 'passive-partner-support')).toMatchObject({ title: 'Partner checks in', staminaRecovery: 0, happiness: 1 });
     expect(passive.some((item) => item.id === 'passive-no-meals')).toBe(true);
