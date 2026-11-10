@@ -163,7 +163,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
         events.push({
           id,
           title: 'A chance to reconnect',
-          description: relative.person.name + ' is part of your family story. You have an opportunity to make time for this relationship.',
+          description: relative.person.name + ' is someone you have not spent much time with lately. Make room to reconnect.',
           category: 'personal',
           choices: [
             {
