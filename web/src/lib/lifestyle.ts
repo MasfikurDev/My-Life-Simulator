@@ -51,7 +51,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
   }
 
   const social = livingSocialConnections(character);
-  const partner = social.find((item) => item.type === 'partner' && item.closeness >= 30);
+  const partner = social.find((item) => item.type === 'partner' && item.closeness >= 45);
   if (partner) {
     activities.push(partner.livesWithPlayer ? {
       id: 'passive-partner-support',
@@ -119,7 +119,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       detail: 'Family connection brings enjoyment alongside ongoing responsibilities',
       staminaRecovery: 0,
       health: 0,
-      happiness: Math.min(2, children.length),
+      happiness: Math.min(2, children.filter((item) => item.closeness >= 45).length),
       comfort: 1,
       discipline: 0,
       stress: -Math.min(3, children.length)
@@ -131,7 +131,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
   const boughtMeals = (character.weeklyPlan?.activities ?? []).filter((item) => item.action?.kind === 'food');
   const hasBoughtFood = boughtMeals.some((item) => item.action?.kind === 'food' && item.action.productId === 'meal-groceries') ||
     boughtMeals.reduce((total, item) => total + (item.action?.kind === 'food' ? item.action.quantity : 0), 0) >= 7;
-  if (character.age >= 18 && ['independent', 'shared'].includes(character.householdArrangement ?? '') && !hasFamilyMeals && !hasSharedPartnerMeals && !hasBoughtFood) {
+  if (character.age >= 18 && !hasFamilyMeals && !hasSharedPartnerMeals && !hasBoughtFood) {
     activities.push({
       id: 'passive-no-meals',
       title: 'No regular meals arranged',
@@ -168,7 +168,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       discipline: 0,
       stress: housingQuality >= 3 ? 1 : 0
     });
-  } else if (character.age >= 18 && character.householdArrangement === 'independent') {
+  } else if (character.age >= 18) {
     activities.push({
       id: 'passive-housing-insecurity',
       title: 'No stable home arranged',
@@ -196,11 +196,11 @@ export function resolvePassiveLifestyleActivities(character: Character, activiti
   }), { health: 0, happiness: 0, comfort: 0, discipline: 0, stress: 0 });
   return {
     ...character,
-    health: clamp(character.health + total.health),
-    happiness: clamp(character.happiness + total.happiness),
-    comfort: clamp((character.comfort ?? 50) + total.comfort),
-    discipline: clamp(character.discipline + total.discipline),
-    stress: clamp((character.stress ?? 30) - total.stress)
+    health: clamp(character.health + Math.max(-2, Math.min(3, total.health))),
+    happiness: clamp(character.happiness + Math.max(-3, Math.min(4, total.happiness))),
+    comfort: clamp((character.comfort ?? 50) + Math.max(-3, Math.min(4, total.comfort))),
+    discipline: clamp(character.discipline + Math.max(-2, Math.min(3, total.discipline))),
+    stress: clamp((character.stress ?? 30) - Math.max(-4, Math.min(4, total.stress)))
   };
 }
 
@@ -253,10 +253,10 @@ export function addSocialConnection(
     id: 'social-' + character.year + '-' + character.age + '-' + (character.history.length + 1),
     name: label,
     type,
-    closeness: 60,
+    closeness: 25,
     active: true,
     livesWithPlayer,
-    supportLevel: 'regular'
+    supportLevel: 'occasional'
   };
   const entry = { id: 'social-added-' + item.id, year: character.year, age: character.age, date: character.calendar?.currentDate, title: 'Added ' + label + ' to your social circle', description: 'Recorded a ' + type.replace('-', ' ') + ' connection for everyday life.', kind: 'activity' as const };
   return { ...character, socialConnections: [...(character.socialConnections ?? []), item], history: [entry, ...character.history] };
