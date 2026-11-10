@@ -1274,7 +1274,13 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   const passiveActivities = getPassiveLifestyleActivities(character).map((item) => ({
     id: item.id, title: item.title, source: item.source, detail: item.detail,
     staminaRecovery: item.staminaRecovery,
-    reward: [item.health ? 'Health +' + item.health : '', item.happiness ? 'Happiness +' + item.happiness : '', item.comfort ? 'Comfort +' + item.comfort : '', item.discipline ? 'Discipline +' + item.discipline : '', item.stress ? 'Stress −' + item.stress : ''].filter(Boolean).join(' · ') || 'Background support'
+    reward: [
+      item.health ? 'Health ' + (item.health > 0 ? '+' : '−') + Math.abs(item.health) : '',
+      item.happiness ? 'Happiness ' + (item.happiness > 0 ? '+' : '−') + Math.abs(item.happiness) : '',
+      item.comfort ? 'Comfort ' + (item.comfort > 0 ? '+' : '−') + Math.abs(item.comfort) : '',
+      item.discipline ? 'Discipline ' + (item.discipline > 0 ? '+' : '−') + Math.abs(item.discipline) : '',
+      item.stress ? 'Stress ' + (item.stress > 0 ? '−' : '+') + Math.abs(item.stress) : ''
+    ].filter(Boolean).join(' · ') || 'Background support'
   }));
   const passiveStaminaRecovery = passiveActivities.reduce((total, item) => total + item.staminaRecovery, 0);
   const activities = schedule.activities.map((item) => ({
