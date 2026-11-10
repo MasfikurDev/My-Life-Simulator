@@ -491,10 +491,16 @@ describe('life simulation', () => {
   it('records a declined job offer in the application history', () => {
     const candidate = {
       ...createCharacter('Candidate', 30),
-      intelligence: 90,
+      intelligence: 100,
+      socialSkills: 100,
+      confidence: 100,
+      discipline: 100,
+      focus: 100,
+      creativity: 100,
       education: 'Higher education',
       careerExperienceYears: 5,
-      careerPathId: undefined,
+      careerPathId: 'operations' as const,
+      skills: { operations: 100 },
       currencyScale: 1
     };
     const listing = getJobListings(candidate).find((item) => {

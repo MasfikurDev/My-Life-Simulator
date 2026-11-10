@@ -4,11 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: Branch or commit containing the simulation scenarios
+        description: Branch or commit to run the long simulation audit against
         required: true
-        default: test/age-18-52-week-simulation-audit
+        default: main
   pull_request:
-    types: [labeled]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "web/src/lib/**"
+      - "web/package.json"
+      - "web/package-lock.json"
+      - ".github/workflows/simulation-audit.yml"
 
 permissions:
   contents: read
@@ -19,7 +24,6 @@ concurrency:
 
 jobs:
   simulation:
-    if: github.event_name != 'pull_request' || github.event.label.name == 'run-simulation-audit'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
