@@ -29,6 +29,20 @@ describe('passive lifestyle simulation', () => {
     expect(neglectful.some((item) => item.id === 'passive-family-meals')).toBe(false);
   });
 
+  it('stops family meals and family housing support when an adult moves out', () => {
+    const generated = createCharacter('Moved out', 30);
+    const family = generated.family!;
+    const supported = {
+      ...generated,
+      householdArrangement: 'family-supported' as const,
+      family: { ...family, householdMemberIds: family.people.filter((person) => person.id !== family.playerPersonId).map((person) => person.id) }
+    };
+    expect(getPassiveLifestyleActivities(supported).some((item) => item.id === 'passive-family-meals')).toBe(true);
+    const independent = { ...supported, householdArrangement: 'independent' as const };
+    expect(getPassiveLifestyleActivities(independent).some((item) => item.id === 'passive-family-meals')).toBe(false);
+    expect(getPassiveLifestyleActivities(independent).some((item) => item.id === 'passive-stable-home')).toBe(false);
+  });
+
   it('models partner, friend, child and extended-family support as separate automatic activities', () => {
     let character = createCharacter('Adult', 30);
     character = addSocialConnection(character, 'Partner', 'partner', true);
