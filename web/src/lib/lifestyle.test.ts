@@ -88,13 +88,13 @@ describe('passive lifestyle simulation', () => {
     const passive = getPassiveLifestyleActivities(independent);
     expect(passive.map((item) => item.id)).toEqual(expect.arrayContaining(['passive-no-meals', 'passive-housing-insecurity']));
     const singleMeal = planBoughtFoodInNextFreeTime(independent, {
-      productId: 'meal-delivery', name: 'One delivered meal', quantity: 1,
+      productId: 'meal-delivery', name: 'One delivered meal', quantity: 1, purchaseCost: 8,
       staminaRecovery: 5, health: 0, happiness: 1, stress: 0, comfort: 0
     });
     expect(singleMeal.issue).toBeNull();
     expect(getPassiveLifestyleActivities(singleMeal.character).some((item) => item.id === 'passive-no-meals')).toBe(true);
     const planned = planBoughtFoodInNextFreeTime(independent, {
-      productId: 'meal-groceries', name: 'Weekly grocery basket', quantity: 1,
+      productId: 'meal-groceries', name: 'Weekly grocery basket', quantity: 1, purchaseCost: 24,
       staminaRecovery: 24, health: 4, happiness: 2, stress: 0, comfort: 1
     });
     expect(planned.issue).toBeNull();
@@ -151,7 +151,7 @@ describe('passive lifestyle simulation', () => {
     const character = { ...generated, money: 500, currencyScale: 1, comfort: 40, householdArrangement: 'shared' as const,
       family: generated.family ? { ...generated.family, householdMemberIds: [generated.family.playerPersonId] } : undefined };
     const planned = planBoughtFoodInNextFreeTime(character, {
-      productId: 'meal-delivery', name: 'Food delivery', quantity: 1,
+      productId: 'meal-delivery', name: 'Food delivery', quantity: 1, purchaseCost: 10,
       staminaRecovery: 5, health: 0, happiness: 4, stress: 1, comfort: 3
     });
     expect(planned.issue).toBeNull();
@@ -160,7 +160,7 @@ describe('passive lifestyle simulation', () => {
     const invalid = {
       version: 1 as const,
       activities: [{ id: 'food-bad', activityId: 'food' as const, action: {
-        kind: 'food' as const, productId: 'meal', name: 'Meal', quantity: 1,
+        kind: 'food' as const, productId: 'meal', name: 'Meal', quantity: 1, purchaseCost: 0,
         staminaRecovery: 0, health: 0, happiness: 0, stress: 0, comfort: 13
       }}]
     };
