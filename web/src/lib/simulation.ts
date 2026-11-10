@@ -790,7 +790,7 @@ export interface ActivityPlanningResult {
  * Stamina effort is calculated separately and charged during weekly resolution.
  */
 export function getPlannedActivityCost(character: Character, item: PlannedActivity): number {
-  if (item.action?.kind === 'food' || item.action?.kind === 'work') return 0;
+  if (item.action?.kind === 'food' || item.action?.kind === 'work' || item.action?.kind === 'social') return 0;
   if (item.action?.kind === 'education') return getActivityCost(character, 'study');
   if (item.action?.kind === 'care') return character.age < 18 ? 0 : Math.round((item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (character.currencyScale ?? 1));
   if (item.action?.kind === 'family' && item.action.interaction === 'provide-support') return item.action.supportAmount ?? 0;
@@ -835,7 +835,10 @@ function getPlannedActivityTitle(character: Character, item: PlannedActivity): s
   if (item.action?.kind === 'care') return ({ rest: 'Rest & recovery', mindfulness: 'Mindfulness', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up' }[item.action.careType]);
   if (item.action?.kind === 'work') return (item.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + item.action.title;
   if (item.action?.kind === 'family') return ({ 'spend-time': 'Spend time with family', 'reach-out': 'Reach out to family', reconcile: 'Resolve family conflict', 'provide-support': 'Provide family support' }[item.action.interaction]);
-  if (item.action?.kind === 'social') return 'Spend time with ' + ((character.socialConnections ?? []).find((entry) => entry.id === item.action.connectionId)?.name ?? 'a social connection');
+  if (item.action?.kind === 'social') {
+    const connectionId = item.action.connectionId;
+    return 'Spend time with ' + ((character.socialConnections ?? []).find((entry) => entry.id === connectionId)?.name ?? 'a social connection');
+  }
   if (item.action?.kind === 'business') {
     const businessId = item.action.businessId;
     const businessName = (character.businesses ?? []).find((business) => business.id === businessId)?.name;
@@ -1146,8 +1149,9 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
       result = interactWithFamily(next, item.action.personId, item.action.interaction, item.action.supportAmount ?? 0);
       if (result !== next) recap.push('Family: ' + item.action.interaction.replace('-', ' ') + '.');
     } else if (item.action?.kind === 'social') {
-      result = interactWithSocialConnection(next, item.action.connectionId);
-      if (result !== next) recap.push('Social connection: spent time with ' + ((next.socialConnections ?? []).find((entry) => entry.id === item.action.connectionId)?.name ?? 'a friend') + '.');
+      const connectionId = item.action.connectionId;
+      result = interactWithSocialConnection(next, connectionId);
+      if (result !== next) recap.push('Social connection: spent time with ' + ((next.socialConnections ?? []).find((entry) => entry.id === connectionId)?.name ?? 'a friend') + '.');
     } else if (item.action?.kind === 'business') {
       result = manageBusiness(next, item.action.businessId);
       if (result !== next) recap.push('Business management session completed.');
