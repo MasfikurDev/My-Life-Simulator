@@ -41,6 +41,21 @@ describe('age-aware stat development',()=>{
   expect(character.intelligence).toBeGreaterThan(before);
   expect(character.intelligence).toBeLessThanOrEqual(getStatCeiling(character,'intelligence'));
  });
+ it('lets multiple capabilities develop over a full year without exceeding their age ceilings',()=>{
+  let character=generateRandomCharacter(8,()=>0.4);
+  const tracked=['intelligence','fitness','stamina','focus','discipline','confidence','creativity','socialSkills'] as const;
+  const starting=Object.fromEntries(tracked.map(stat=>[stat,character[stat]]));
+  for(let week=0;week<52;week++){
+   const result=advanceWeek(character);
+   expect(result.issue).toBeNull();
+   character=result.character;
+  }
+  for(const stat of tracked){
+   expect(character[stat]).toBeGreaterThan(starting[stat]);
+   expect(character[stat]).toBeLessThanOrEqual(getStatCeiling(character,stat));
+  }
+ });
+
  it('preserves above-cap legacy values but blocks further gains',()=>{
   const character={...generateRandomCharacter(10,()=>0.35),intelligence:99};
   expect(applyNaturalStatDevelopment(character).character.intelligence).toBe(99);
