@@ -4,7 +4,7 @@ import { awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabe
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
 import { addCalendarDays, createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
-import { getWeeklyPlan } from './weekly-plan';
+import { getWeeklyPlan } from './weekly-plan';\nimport { applyNaturalStatDevelopment, enforceWeeklyStatCaps, initializeAgeAppropriateStats } from './stat-development';
 import { resolveEducationWeek } from './education';
 import { resolveCareAction, resolveWeeklyWellbeing } from './wellbeing';
 import { applyWeeklyClothingWear, getClothingPresentationScore, getPassiveLifestyleActivities, interactWithSocialConnection, resolvePassiveLifestyleActivities } from './lifestyle';
@@ -99,7 +99,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     medicalState: { conditions: [], medications: [], highStressWeeks: 0 },
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), history: []
   };
-  character.family = createFamilyState(character, random);
+  Object.assign(character, initializeAgeAppropriateStats(character, random));\n  character.family = createFamilyState(character, random);
   character.history.push(event(character, 'A new chapter begins', name + ' begins life at age ' + age + ' in ' + character.birthplace + ', ' + profile.country + '. Their ' + background.toLowerCase() + ' family background shapes their starting circumstances, but not their future.', 'milestone'));
   return prepareGameEvent(character);
 }
@@ -1188,7 +1188,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   next = academic.character;
   recap.push(...academic.recap);
   next.lastWeekRecap = recap;
-  const nextDate = getNextWeekDate(currentDate);
+  const naturalDevelopment = applyNaturalStatDevelopment(next);\n  next = naturalDevelopment.character;\n  if (naturalDevelopment.changes.length) recap.push('Natural development: ' + naturalDevelopment.changes.map((stat) => stat === 'socialSkills' ? 'social skills' : stat).join(', ') + '.');\n  next = enforceWeeklyStatCaps(character, next);\n  next.lastWeekRecap = recap;\n  const nextDate = getNextWeekDate(currentDate);
   const nextYear = Number(nextDate.slice(0, 4));
   const birthDate = next.calendar?.birthDate ?? createGameCalendar(next.age, next.year).birthDate;
   const nextAge = getAgeAtDate(birthDate, nextDate);

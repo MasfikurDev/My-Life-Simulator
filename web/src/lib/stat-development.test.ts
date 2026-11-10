@@ -1,0 +1,26 @@
+import { describe, expect, it } from 'vitest';
+import { advanceWeek, generateRandomCharacter } from './simulation';
+import { applyNaturalStatDevelopment, getAgeStatCap, getStatCeiling } from './stat-development';
+describe('age-aware stat development',()=>{
+ it('generates lower starting capabilities for children than adults',()=>{
+  const child=generateRandomCharacter(5,()=>0.5),adult=generateRandomCharacter(25,()=>0.5);
+  for(const stat of ['health','intelligence','stamina','focus'] as const)expect(child[stat]).toBeLessThan(adult[stat]);
+ });
+ it('raises age ceilings across childhood and young adulthood',()=>{
+  expect(getAgeStatCap(5,'stamina')).toBeLessThan(getAgeStatCap(13,'stamina'));
+  expect(getAgeStatCap(13,'intelligence')).toBeLessThan(getAgeStatCap(18,'intelligence'));
+  expect(getAgeStatCap(18,'fitness')).toBeLessThan(getAgeStatCap(30,'fitness'));
+ });
+ it('combines age ceiling and personal potential',()=>{
+  expect(getStatCeiling({age:18,statPotential:{intelligence:80}},'intelligence')).toBeLessThan(getStatCeiling({age:18,statPotential:{intelligence:100}},'intelligence'));
+ });
+ it('applies small natural development on a successful weekly advance',()=>{
+  const character=generateRandomCharacter(8,()=>0.4),before=character.intelligence,result=advanceWeek(character);
+  expect(result.issue).toBeNull();expect(result.character.intelligence).toBeGreaterThan(before);
+  expect(result.character.intelligence).toBeLessThanOrEqual(getStatCeiling(result.character,'intelligence'));
+ });
+ it('does not force an above-cap legacy value downward',()=>{
+  const character={...generateRandomCharacter(10,()=>0.35),intelligence:99};
+  expect(applyNaturalStatDevelopment(character).character.intelligence).toBe(99);
+ });
+});
