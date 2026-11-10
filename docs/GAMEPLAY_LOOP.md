@@ -44,6 +44,78 @@ Use proven genre patterns as inspiration, not as templates to copy:
 
 Our differentiator is a connected, age-aware life simulation with domain-native systems, an understandable financial life, persistent relationships, and consequences that carry across years.
 
+## 2.1 Pursuit-driven gameplay and layered mastery
+
+**Design direction / proposal:** The weekly system should give the player control over the direction of the character's life without turning ordinary life into a list of chores. The player chooses what they want to pursue; the simulation handles routine responsibilities and determines how those choices interact with the character's circumstances and the wider world.
+
+The game is a simplified, choice-based life simulation, not a literal reproduction of daily human routines. Model the meaningful decisions and consequences of real life, not every underlying task. A small number of well-designed weekly choices can represent many real-world activities and produce complex outcomes through their interactions.
+
+### Player agency
+
+Weekly choices should let players shape:
+
+- **The character:** knowledge, skills, capabilities, health, habits, interests, and personal development.
+- **The environment:** home, lifestyle, possessions, household, social circle, and living conditions.
+- **Opportunities:** education paths, career prospects, business possibilities, relationships, experiences, and access to new choices.
+- **Future circumstances:** financial security, reputation, family situation, career trajectory, and the options available later.
+
+The player controls decisions and priorities, not guaranteed outcomes. The simulation resolves those decisions according to established rules, character attributes, resources, relationships, environment, and circumstances.
+
+### Pursuits, not chores
+
+Activities should represent meaningful pursuits rather than atomized maintenance tasks. For example:
+
+| Real-life complexity | Appropriate game abstraction |
+|---|---|
+| Classes, revision, memorization, assignments, and exam preparation | Choose a subject or academic focus; automatic attendance and academic responsibilities contribute to weekly results |
+| Repeated practice and professional development | Develop a chosen skill or career-relevant capability |
+| Daily work tasks and workplace coordination | Automatic employment responsibilities, with optional career-development or opportunity choices |
+| Meals, grocery shopping, and cooking routines | Choose food and meal arrangements through Lifestyle; weekly consumption and effects resolve automatically |
+| Maintaining friendships and family bonds | Choose meaningful social or family interactions; relationship changes and passive support resolve through the simulation |
+
+Do not add a separate player action for every real-world subtask unless it creates a genuinely distinct decision. Routine responsibilities should normally resolve automatically. Player actions should represent deliberate investment, change, exploration, or response to an opportunity.
+
+### Three levels of player mastery
+
+The same systems should support different levels of understanding without separate difficulty modes:
+
+1. **Casual / go-with-the-flow:** A player can choose activities that sound interesting, follow opportunities, study subjects they like, buy things they want, and spend time with people. They should still experience a coherent life and meaningful progression without understanding every mechanic.
+2. **Experienced / intentional:** A player learns how subjects, skills, qualifications, finances, relationships, and career paths connect. They can pursue a direction deliberately and make informed trade-offs.
+3. **Expert / optimization:** A player who understands system interactions can plan efficient weekly combinations, exploit synergies, manage constraints, and optimize long-term outcomes. This depth should emerge from consistent rules and interactions, not from hidden chores or arbitrary complexity.
+
+Casual play must remain viable. Optimization can improve efficiency or unlock stronger outcomes, but the game should not require expert knowledge merely to avoid a bad or broken playthrough.
+
+### Design requirements
+
+- **Simple interaction, sophisticated simulation:** Keep the number of player-facing decisions manageable while allowing underlying systems to interact meaningfully.
+- **Clear and learnable rules:** Explain an action's purpose, relevant costs, requirements, likely benefits, and important risks. Avoid promising certainty where outcomes are conditional.
+- **Predictable progression:** Players should be able to understand why grades, skills, work performance, relationships, health, or finances improve or deteriorate. Variation may come from modeled circumstances, not opaque randomness.
+- **Distinct domain progression:** Education develops knowledge and qualifications; careers develop skills, experience, performance, and opportunities; relationships develop through trust, closeness, commitment, and shared experience. Do not reduce every system to stamina or a generic progress meter.
+- **Multi-dimensional outcomes:** A meaningful choice can affect several relevant systems. For example, developing a professional skill may improve work performance and unlock roles while consuming time or energy that could have gone elsewhere.
+- **Opportunities emerge from the life already built:** Age, qualifications, skills, finances, relationships, location/living circumstances, and previous decisions should influence what becomes available.
+- **Multiple viable life directions:** Academic, professional, entrepreneurial, social, family-oriented, creative, athletic, comfortable, and balanced lives should be possible without forcing a fixed class or single optimal path.
+- **Consequences accumulate:** Weekly choices should change future capabilities, circumstances, relationships, resources, and opportunities—not merely produce temporary stat changes.
+- **No chore inflation:** Do not add routine actions solely to make the simulation appear realistic. Add a mechanic only when it creates a meaningful choice, a useful automatic consequence, or an important cross-system interaction.
+
+### Reusable review questions for every system
+
+Before expanding or implementing a system, answer:
+
+1. What meaningful real-life decisions does this system represent?
+2. What does the player choose, and what happens automatically?
+3. What does the system track internally to produce believable results?
+4. How does weekly progression work, and why is it predictable?
+5. What affects the effectiveness or outcome of a choice?
+6. What happens when the player ignores or deprioritizes it?
+7. Which other systems can it influence, and which can influence it?
+8. How does it create or change future opportunities?
+9. Can a casual player enjoy it without understanding its optimization?
+10. Does each player-facing action add a meaningful choice rather than another chore?
+
+**Guiding principle:** Easy to play, difficult to master. The player shapes a life through deliberate weekly pursuits; the simulation handles routine life and resolves the consequences.
+
+This is a project-wide design direction. It does not authorize adding new systems or changing implemented mechanics by itself. Any implementation should be specified, tested, and integrated through the owning domain.
+
 ## 3. The weekly gameplay loop
 
 **Decision: the week is the fundamental playable time unit.** Months organize recurring finances and reports; years organize birthdays, life-stage transitions, annual milestones, and long-term reviews. The old three-actions-per-year budget is retired. Do not replace it with a weekly action quota: the loop uses a stamina-backed weekly activity plan and automatic education/work responsibilities.
