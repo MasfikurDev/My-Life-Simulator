@@ -3,7 +3,7 @@ export const DEVELOPMENT_STATS = ['health','happiness','intelligence','fitness',
 export type DevelopmentStat = typeof DEVELOPMENT_STATS[number];
 type Point = { age:number; cap:number };
 const CURVES: Record<DevelopmentStat,Point[]> = {
-health:[{age:0,cap:22},{age:3,cap:32},{age:6,cap:44},{age:13,cap:61},{age:16,cap:72},{age:18,cap:80},{age:25,cap:90},{age:40,cap:96},{age:60,cap:94},{age:75,cap:88},{age:90,cap:80}],
+health:[{age:0,cap:65},{age:3,cap:72},{age:6,cap:80},{age:13,cap:88},{age:16,cap:90},{age:18,cap:92},{age:25,cap:96},{age:40,cap:98},{age:60,cap:94},{age:75,cap:86},{age:90,cap:74}],
 happiness:[{age:0,cap:25},{age:3,cap:35},{age:6,cap:48},{age:13,cap:65},{age:16,cap:75},{age:18,cap:82},{age:25,cap:92},{age:40,cap:96},{age:60,cap:94},{age:75,cap:90},{age:90,cap:84}],
 intelligence:[{age:0,cap:16},{age:3,cap:29},{age:6,cap:43},{age:13,cap:63},{age:16,cap:73},{age:18,cap:80},{age:25,cap:91},{age:40,cap:97},{age:60,cap:97},{age:75,cap:94},{age:90,cap:90}],
 fitness:[{age:0,cap:12},{age:3,cap:25},{age:6,cap:40},{age:13,cap:62},{age:16,cap:76},{age:18,cap:84},{age:25,cap:94},{age:40,cap:98},{age:60,cap:91},{age:75,cap:80},{age:90,cap:65}],
@@ -44,10 +44,19 @@ function weeklyRate(age:number,stat:DevelopmentStat):number{
 }
 export function applyNaturalStatDevelopment<T extends Character>(character:T):{character:T;changes:DevelopmentStat[]}{
  let next=character; const changes:DevelopmentStat[]=[];
+ const progress={...(character.statDevelopmentProgress??{})};
  for(const stat of DEVELOPMENT_STATS){
-  const before=stat==='comfort' && next.comfort===undefined ? 50 : Number(next[stat]??0), after=Math.min(getStatCeiling(next,stat),before+weeklyRate(next.age,stat));
-  if(after>before){next=Object.assign({},next,{[stat]:Math.round(after*1000)/1000});changes.push(stat);}
+  const before=stat==='comfort' && next.comfort===undefined ? 50 : Number(next[stat]??0);
+  const ceiling=getStatCeiling(next,stat);
+  if(before>=ceiling){progress[stat]=0;continue;}
+  const accumulated=(progress[stat]??0)+weeklyRate(next.age,stat);
+  const wholePoints=Math.floor(accumulated);
+  const after=Math.min(ceiling,before+wholePoints);
+  progress[stat]=after>=ceiling?0:accumulated-wholePoints;
+  if(after>before){next=Object.assign({},next,{[stat]:after});changes.push(stat);}
+  else if(stat==='comfort' && next.comfort===undefined){next=Object.assign({},next,{comfort:50});}
  }
+ next=Object.assign({},next,{statDevelopmentProgress:progress});
  return {character:next,changes};
 }
 export function enforceWeeklyStatCaps<T extends Character>(before:Character,after:T):T{
