@@ -13,7 +13,7 @@
   type MarketProduct = {
     id: string; name: string; category: string; description: string; price: number;
     kind: 'food' | 'usable' | 'permanent';
-    staminaRecovery?: number; health?: number; happiness?: number; stress?: number; styleScore?: number; formality?: number;
+    staminaRecovery?: number; health?: number; happiness?: number; stress?: number; comfort?: number; styleScore?: number; formality?: number;
   };
   type Provider = { id: string; name: string; plan: string; category: string; price: number; detail: string };
   const activeView = $derived(initialView);
@@ -37,6 +37,8 @@
     { id: 'meal-fruit', name: 'Fresh fruit', category: 'Food', description: 'A fresh snack with a small wellbeing boost', price: 12, kind: 'food', staminaRecovery: 3, health: 2, happiness: 1, stress: 1 },
     { id: 'meal-balanced', name: 'Balanced meal', category: 'Food', description: 'A complete meal for recovery and wellbeing', price: 28, kind: 'food', staminaRecovery: 9, health: 3, happiness: 2, stress: 1 },
     { id: 'meal-chicken', name: 'Chicken meal', category: 'Food', description: 'A substantial protein-rich meal', price: 34, kind: 'food', staminaRecovery: 10, health: 2, happiness: 2 },
+    { id: 'meal-restaurant', name: 'Restaurant dinner', category: 'Eating out', description: 'A sit-down meal with better ambience and a social break', price: 85, kind: 'food', staminaRecovery: 5, health: 1, happiness: 5, comfort: 3, stress: 2 },
+    { id: 'meal-delivery', name: 'Food delivery', category: 'Delivery', description: 'A convenient prepared meal delivered to your home', price: 65, kind: 'food', staminaRecovery: 5, happiness: 4, comfort: 3, stress: 1 },
     { id: 'phone-basic', name: 'Everyday smartphone', category: 'Electronics', description: 'A practical smartphone for daily use', price: 420, kind: 'permanent' },
     { id: 'laptop-basic', name: 'Personal laptop', category: 'Electronics', description: 'A general-purpose laptop for study and work', price: 850, kind: 'permanent' },
     { id: 'headphones', name: 'Wireless headphones', category: 'Electronics', description: 'Portable audio for everyday listening', price: 95, kind: 'permanent' },
@@ -61,7 +63,7 @@
     { id: 'fitness-club', name: 'Active Club', category: 'Health & fitness', plan: 'Gym membership', price: 240, detail: 'Access to fitness facilities' },
     { id: 'cloud-storage', name: 'CloudBox', category: 'Digital services', plan: 'Cloud storage', price: 48, detail: 'Personal file storage' }
   ];
-  const categories = ['All', 'Food', 'Fashion', 'Electronics', 'Transport', 'Books', 'Fitness', 'Accessories', 'Home'];
+  const categories = ['All', 'Food', 'Eating out', 'Delivery', 'Fashion', 'Electronics', 'Transport', 'Books', 'Fitness', 'Accessories', 'Home'];
   const selectedProduct = $derived(products.find((item) => item.id === selectedProductId));
   const selectedOwnedQuantity = $derived(selectedProduct ? (ownedItems.find((item) => item.productId === selectedProduct.id)?.quantity ?? 0) : 0);
   const selectedProvider = $derived(providers.find((item) => item.id === selectedProviderId));
@@ -102,7 +104,8 @@
         staminaRecovery: Math.min(30, (selectedProduct.staminaRecovery ?? 0) * orderQuantity),
         health: Math.min(12, (selectedProduct.health ?? 0) * orderQuantity),
         happiness: Math.min(10, (selectedProduct.happiness ?? 0) * orderQuantity),
-        stress: Math.min(8, (selectedProduct.stress ?? 0) * orderQuantity)
+        stress: Math.min(8, (selectedProduct.stress ?? 0) * orderQuantity),
+        comfort: Math.min(12, (selectedProduct.comfort ?? 0) * orderQuantity)
       });
       if (planned.issue) { onNotify(planned.message ?? 'The food could not be added to this week.'); return; }
       base = planned.character;
@@ -216,7 +219,7 @@
           <p>{selectedProduct.description}</p>
           <label class="quantity-field">Quantity<input type="number" min="1" max="20" bind:value={quantity} /></label>
           {#if dialogKind === 'food'}
-            <div class="food-benefits"><strong>Weekly plan effects</strong><span>Stamina +{Math.min(30, (selectedProduct.staminaRecovery ?? 0) * orderQuantity)}</span>{#if selectedProduct.health}<span>Health +{Math.min(12, selectedProduct.health * orderQuantity)}</span>{/if}{#if selectedProduct.happiness}<span>Happiness +{Math.min(10, selectedProduct.happiness * orderQuantity)}</span>{/if}{#if selectedProduct.stress}<span>Stress −{Math.min(8, selectedProduct.stress * orderQuantity)}</span>{/if}</div>
+            <div class="food-benefits"><strong>Weekly plan effects</strong><span>Stamina +{Math.min(30, (selectedProduct.staminaRecovery ?? 0) * orderQuantity)}</span>{#if selectedProduct.health}<span>Health +{Math.min(12, selectedProduct.health * orderQuantity)}</span>{/if}{#if selectedProduct.happiness}<span>Happiness +{Math.min(10, selectedProduct.happiness * orderQuantity)}</span>{/if}{#if selectedProduct.comfort}<span>Comfort +{Math.min(12, selectedProduct.comfort * orderQuantity)}</span>{/if}{#if selectedProduct.stress}<span>Stress −{Math.min(8, selectedProduct.stress * orderQuantity)}</span>{/if}</div>
             <p class="dialog-note">Payment is taken now. The meal is marked BOUGHT in your planned activities and its effects apply when the week is resolved.</p>
           {:else}
             <p class="dialog-note">After successful checkout, this item will be added to your Owned inventory.</p>
