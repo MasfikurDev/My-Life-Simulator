@@ -754,7 +754,7 @@ export function setHouseholdArrangement(character: Character, arrangement: House
   if (character.age < 18 || character.householdArrangement === arrangement) return character;
   const next = { ...character, householdArrangement: arrangement, history: [...character.history] };
   const label = arrangement === 'family-supported' ? 'With family' : arrangement === 'shared' ? 'Shared household' : 'Independent living';
-  next.history.unshift(event(next, 'Changed living arrangement', 'You moved to a ' + label.toLowerCase() + ' arrangement. Your annual household budget will change next year.', 'milestone'));
+  next.history.unshift(event(next, 'Changed living arrangement', 'Your living arrangement is now: ' + label + '. Your annual household budget will change next year.', 'milestone'));
   return next;
 }
 
