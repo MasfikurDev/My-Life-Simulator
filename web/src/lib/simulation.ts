@@ -851,7 +851,7 @@ function getPlannedActivityTitle(character: Character, item: PlannedActivity): s
 
 
 function getPlannedActivityReward(item: PlannedActivity): string {
-  if (item.action?.kind === 'food') return 'Bought meal · stamina +' + item.action.staminaRecovery + (item.action.health ? ' · health +' + item.action.health : '') + (item.action.happiness ? ' · happiness +' + item.action.happiness : '');
+  if (item.action?.kind === 'food') return 'Bought meal · stamina +' + item.action.staminaRecovery + (item.action.health ? ' · health +' + item.action.health : '') + (item.action.happiness ? ' · happiness +' + item.action.happiness : '') + (item.action.comfort ? ' · comfort +' + item.action.comfort : '');
   if (item.action?.kind === 'education') return 'Knowledge, focus, discipline and course progress';
   if (item.action?.kind === 'care') return ({ rest: 'Stamina, health, happiness and lower stress', mindfulness: 'Focus and lower stress', counselling: 'Mental wellbeing and stress recovery', 'medical-checkup': 'Health assessment and treatment planning' }[item.action.careType]);
   if (item.action?.kind === 'work') return 'Career opportunity and employment progression';
@@ -1037,8 +1037,8 @@ export function addOwnedLifestyleItem(character: Character, item: Omit<OwnedLife
   return { ...character, ownedLifestyleItems: [...items, owned] };
 }
 
-export function planBoughtFoodInNextFreeTime(character: Character, food: { productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number }): ActivityPlanningResult {
-  if (!food.productId || !food.name.trim() || !Number.isInteger(food.quantity) || food.quantity < 1 || food.quantity > 20 || !Number.isFinite(food.staminaRecovery) || food.staminaRecovery < 0 || food.staminaRecovery > 30 || !Number.isFinite(food.health) || food.health < 0 || food.health > 12 || !Number.isFinite(food.happiness) || food.happiness < 0 || food.happiness > 10 || !Number.isFinite(food.stress) || food.stress < 0 || food.stress > 8) {
+export function planBoughtFoodInNextFreeTime(character: Character, food: { productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number; comfort?: number }): ActivityPlanningResult {
+  if (!food.productId || !food.name.trim() || !Number.isInteger(food.quantity) || food.quantity < 1 || food.quantity > 20 || !Number.isFinite(food.staminaRecovery) || food.staminaRecovery < 0 || food.staminaRecovery > 30 || !Number.isFinite(food.health) || food.health < 0 || food.health > 12 || !Number.isFinite(food.happiness) || food.happiness < 0 || food.happiness > 10 || !Number.isFinite(food.stress) || food.stress < 0 || food.stress > 8 || (food.comfort !== undefined && (!Number.isFinite(food.comfort) || food.comfort < 0 || food.comfort > 12))) {
     return { character, issue: 'unavailable', message: 'This food order is invalid.' };
   }
   return planForCurrentWeek(character, (date) => addWeeklyAction(character, 'food', date, { kind: 'food', ...food }, 0));
@@ -1121,7 +1121,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     next = { ...next, stamina: clamp((next.stamina ?? 50) - getPlannedActivityStaminaCost(item)) };
     let result: Character;
     if (item.action?.kind === 'food') {
-      result = { ...next, health: clamp(next.health + item.action.health), happiness: clamp(next.happiness + item.action.happiness), stress: clamp((next.stress ?? 30) - item.action.stress) };
+      result = { ...next, health: clamp(next.health + item.action.health), happiness: clamp(next.happiness + item.action.happiness), comfort: clamp((next.comfort ?? 50) + (item.action.comfort ?? 0)), stress: clamp((next.stress ?? 30) - item.action.stress) };
       recap.push('Food: enjoyed bought ' + item.action.name + (item.action.quantity > 1 ? ' × ' + item.action.quantity : '') + '.');
     } else if (item.action?.kind === 'education') {
       result = performActivity(next, 'study', weekRandom);
