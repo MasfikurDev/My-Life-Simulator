@@ -71,9 +71,9 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
     const strained = familyCulture === 'strained';
     activities.push({
       id: 'passive-family-meals',
-      title: 'Meals provided by family',
+      title: 'Meals at home',
       source: 'Living with relatives',
-      detail: structured ? 'Regular household meals and routines' : strained ? 'Basic meals are available, with limited support' : 'Shared home meals and everyday family support',
+      detail: structured ? 'Regular meals and routines' : strained ? 'Basic meals are available, with limited support' : 'Shared meals and everyday encouragement',
       staminaRecovery: strained ? 3 : 5 + quality,
       health: strained ? 0 : 1 + quality,
       happiness: strained ? 0 : structured ? 1 : 2,
