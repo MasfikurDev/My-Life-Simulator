@@ -3,7 +3,7 @@
   import GameChoice from './GameChoice.svelte';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
   import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation } from './lib/education';
-  import { formatCharacterMoney, getActivityCost, planActivityInNextFreeTime, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import { formatCharacterMoney, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getActivityStaminaCost, getValueColor } from './lib/progression';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   let selectedProgramId = $state('');
@@ -13,7 +13,6 @@
   const enrollment = $derived(character.educationEnrollment ?? null);
   const progress = $derived(enrollment ? Math.min(100, Math.round(enrollment.weeksCompleted / enrollment.totalWeeks * 100)) : 0);
   const plannedTasks = $derived(character.weeklyPlan?.activities.filter((item) => item.action?.kind === 'education') ?? []);
-  const independentStudy = $derived(character.weeklyPlan?.activities.find((item) => item.activityId === 'study' && item.action?.kind === 'activity'));
   function enroll() {
     if (!selectedProgram) return;
     const field = selectedField && selectedProgram.fieldOptions.includes(selectedField) ? selectedField : selectedProgram.fieldOptions[0];
@@ -29,12 +28,6 @@
     onChange(result.character); onNotify('Academic task added to this week.');
   }
   function taskPlanned(task: EducationTaskType) { return plannedTasks.some((item) => item.action?.kind === 'education' && item.action.taskType === task); }
-  function toggleIndependentStudy() {
-    if (independentStudy) { onChange(removePlannedActivity(character, independentStudy.id)); onNotify('Independent study removed from this week.'); return; }
-    const result = planActivityInNextFreeTime(character, 'study');
-    if (result.issue) { onNotify(result.message ?? 'Could not add independent study.'); return; }
-    onChange(result.character); onNotify('Independent study added to this week.');
-  }
   function pause() { onChange(pauseEducation(character)); onNotify('Education paused. Progress has been saved.'); }
   function resume() { const result = resumeEducation(character); if (result.issue) { onNotify(result.issue); return; } onChange(result.character); onNotify('Programme resumed. Classes have been arranged automatically.'); }
   function gradeLabel(value: number) { if (enrollment?.level === 'early-learning') return value >= 75 ? 'Developing well' : value >= 50 ? 'On track' : 'Needs more support'; return value >= 85 ? 'Excellent' : value >= 70 ? 'Good' : value >= 60 ? 'Pass' : value >= 45 ? 'At risk' : 'Critical'; }
@@ -72,10 +65,6 @@
   {/if}
 {:else}
   <section class="education-intro domain-panel">
-    <div class="education-independent-study">
-      <div><strong>Independent study</strong><p>Build intelligence, focus and discipline without enrolling in a programme.</p><small>{getActivityStaminaCost('study')} stamina · {character.age >= 16 ? formatCharacterMoney(character, getActivityCost(character, 'study')) : 'No direct fee'}</small></div>
-      <button class="primary-button" onclick={toggleIndependentStudy}>{independentStudy ? 'Remove from this week' : 'Add study'} <ActivityStatusSeal status={independentStudy ? 'planned' : 'available'} /></button>
-    </div>
     <h2>Available programmes</h2>
     {#if programs.length}
       <div class="education-program-list">
