@@ -6,6 +6,7 @@ import { addCalendarDays, createGameCalendar, getAgeAtDate, getFirstWeekStartOfY
 import { getWeeklyPlan } from './weekly-plan';
 import { resolveEducationWeek } from './education';
 import { resolveCareAction, resolveWeeklyWellbeing } from './wellbeing';
+import { applyWeeklyClothingWear, getClothingPresentationScore, getPassiveLifestyleActivities, resolvePassiveLifestyleActivities } from './lifestyle';
 import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPromotionOfferState, createPromotionOffer, declineJobOffer as declineJobOfferState, declinePromotionOffer as declinePromotionOfferState, expireWorkOffers, getJobListings, getCareerRole, isEligibleForRole, resolveJobApplication, resolveJobInterview, resignFromJob as resignFromJobState } from './work';
 
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
@@ -84,7 +85,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
   const character: Character = {
     name, age, year: 2026, calendar: createGameCalendar(age, 2026), weeklyPlan: { version: 1, activities: [] }, gender, nationality: profile.nationality, country: profile.country,
     birthplace: pick(profile.cities, random), language, currency: profile.currency, currencyScale: profile.scale,
-    familyBackground: background, personality: traits, appearance,
+    familyBackground: background, familyCulture: pick(['supportive', 'structured', 'strained', 'neglectful'] as const, random), personality: traits, appearance, comfort: stat(random),
     education: getEducationStage(age), educationProgress: 0, employment: null, lastYearIncome: 0, lastYearExpenses: 0, lastYearShortfall: 0,
     householdArrangement: age >= 18 ? 'family-supported' : undefined, savingsGoalMonths: null,
     health: stat(random), happiness: stat(random), intelligence: stat(random), fitness: stat(random),
@@ -1015,7 +1016,7 @@ export function addOwnedLifestyleItem(character: Character, item: Omit<OwnedLife
     if (existing.quantity + item.quantity > 999) return character;
     return { ...character, ownedLifestyleItems: items.map((entry) => entry.id === existing.id ? { ...entry, quantity: entry.quantity + item.quantity } : entry) };
   }
-  const owned: OwnedLifestyleItem = { ...item, id: 'owned-' + character.year + '-' + character.age + '-' + (items.length + 1), purchasedAtYear: character.year };
+  const owned: OwnedLifestyleItem = { ...item, ...(item.category === 'Fashion' ? { condition: item.condition ?? 100 } : {}), id: 'owned-' + character.year + '-' + character.age + '-' + (items.length + 1), purchasedAtYear: character.year };
   return { ...character, ownedLifestyleItems: [...items, owned] };
 }
 
@@ -1079,8 +1080,11 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   if (character.lastResolvedWeekStart === weekStart) return { character, issue: 'already-resolved', recap: character.lastWeekRecap ?? [] };
   const schedule = getWeeklyPlan(character.weeklyPlan);
   const weekRandom = random ?? createWeeklyRandom(character, weekStart);
+  const passiveActivities = getPassiveLifestyleActivities(character);
+  const passiveStaminaRecovery = passiveActivities.reduce((total, item) => total + item.staminaRecovery, 0);
   const staminaCost = schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaCost(item), 0);
-  const staminaRecovery = schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0);
+  const plannedStaminaRecovery = schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0);
+  const staminaRecovery = plannedStaminaRecovery + passiveStaminaRecovery;
   if (Math.min(100, (character.stamina ?? 50) + staminaRecovery) < staminaCost) return { character, issue: 'insufficient-stamina', recap: [] };
   let next = { ...character, history: [...character.history] };
   const recap: string[] = [];
@@ -1090,6 +1094,8 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   const wellbeing = resolveWeeklyWellbeing(next, weeklyWorkload, weekStart, false);
   next = wellbeing.character;
   recap.push(...wellbeing.recap);
+  next = resolvePassiveLifestyleActivities(next, passiveActivities);
+  for (const activity of passiveActivities) recap.push(activity.title + ': ' + activity.detail + '.');
   next = { ...next, stamina: Math.min(100, (next.stamina ?? 50) + staminaRecovery) };
   const educationTasks: EducationTaskType[] = [];
   const ordered = [...schedule.activities];
@@ -1137,6 +1143,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     if (result === next) return { character, issue: 'unresolvable-action', recap: [] };
     next = result;
   }
+  next = applyWeeklyClothingWear(next);
   const staminaDrift = weeklyWorkload >= 16 ? -7 : weeklyWorkload >= 12 ? -4 : 3;
   next = { ...next, stamina: clamp((next.stamina ?? 50) + staminaDrift) };
   const nextSchedule = { ...schedule, activities: [] };
@@ -1181,9 +1188,11 @@ export interface WeeklyActivityReview {
   weekStart: string;
   weekEnd: string;
   activities: WeeklyActivityReviewItem[];
+  passiveActivities: Array<{ id: string; title: string; source: string; detail: string; staminaRecovery: number; reward: string }>;
   currentStamina: number;
   staminaCost: number;
   staminaRecovery: number;
+  passiveStaminaRecovery: number;
   totalMoneyCost: number;
   projectedStamina: number;
   currentStress: number;
@@ -1205,7 +1214,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   const projected = preview.issue ? character : preview.character;
   const fields: Array<[keyof Character, string]> = [
     ['health', 'Health'], ['happiness', 'Happiness'], ['intelligence', 'Intelligence'], ['fitness', 'Fitness'],
-    ['stamina', 'Stamina'], ['stress', 'Stress'], ['focus', 'Focus'], ['confidence', 'Confidence'],
+    ['stamina', 'Stamina'], ['stress', 'Stress'], ['focus', 'Focus'], ['confidence', 'Confidence'], ['comfort', 'Comfort'],
     ['discipline', 'Discipline'], ['creativity', 'Creativity'], ['socialSkills', 'Social skills']
   ];
   const changes = fields.map(([key, label]) => {
@@ -1236,6 +1245,13 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     return businesses.length ? businesses.reduce((total, business) => total + business.performance, 0) / businesses.length : undefined;
   };
   addChange('business-performance', 'Average business performance', averageBusiness(character), averageBusiness(projected));
+  addChange('appearance', 'Clothing presentation', getClothingPresentationScore(character), getClothingPresentationScore(projected));
+  const passiveActivities = getPassiveLifestyleActivities(character).map((item) => ({
+    id: item.id, title: item.title, source: item.source, detail: item.detail,
+    staminaRecovery: item.staminaRecovery,
+    reward: [item.health ? 'Health +' + item.health : '', item.happiness ? 'Happiness +' + item.happiness : '', item.comfort ? 'Comfort +' + item.comfort : '', item.discipline ? 'Discipline +' + item.discipline : '', item.stress ? 'Stress −' + item.stress : ''].filter(Boolean).join(' · ') || 'Background support'
+  }));
+  const passiveStaminaRecovery = passiveActivities.reduce((total, item) => total + item.staminaRecovery, 0);
   const activities = schedule.activities.map((item) => ({
     id: item.id,
     title: getPlannedActivityTitle(character, item),
@@ -1249,7 +1265,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   const projectedStamina = projected.stamina ?? 50;
   const currentStress = character.stress ?? 30;
   const projectedStress = projected.stress ?? 30;
-  if (Math.min(100, currentStamina + schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0)) < activities.reduce((total, item) => total + item.staminaCost, 0)) warnings.push('This plan uses more stamina than you have available, even after planned recovery. Add rest or remove demanding activities before resolving.');
+  if (Math.min(100, currentStamina + schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0) + passiveStaminaRecovery) < activities.reduce((total, item) => total + item.staminaCost, 0)) warnings.push('This plan uses more stamina than you have available, even after planned recovery. Add rest or remove demanding activities before resolving.');
   if (projectedStamina < 25) warnings.push('Stamina is projected to fall to a very low level. Recovery may be needed before another demanding week.');
   if (projectedStress >= 80 && projectedStress > currentStress) warnings.push('Stress is projected to enter a critical range, which can reduce future performance and recovery.');
   else if (projectedStress >= 60 && projectedStress > currentStress) warnings.push('Stress is projected to rise into an elevated range.');
@@ -1261,9 +1277,11 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     weekStart,
     weekEnd: addCalendarDays(weekStart, 6),
     activities,
+    passiveActivities,
     currentStamina,
     staminaCost: activities.reduce((total, item) => total + item.staminaCost, 0),
-    staminaRecovery: schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0),
+    staminaRecovery: schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0) + passiveStaminaRecovery,
+    passiveStaminaRecovery,
     totalMoneyCost: activities.reduce((total, item) => total + item.moneyCost, 0),
     projectedStamina,
     currentStress,
