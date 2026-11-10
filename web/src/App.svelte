@@ -2,7 +2,9 @@
   import { onMount } from 'svelte';
   import { advanceWeek, formatCharacterMoney, getWeeklyActivityReview, planEventChoiceInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { addCalendarDays, getWeekStart } from './lib/calendar';
-  import { getEducationStage, getLifeStage } from './lib/progression';\n  import { getStatCeiling } from './lib/stat-development';\n  import type { DevelopmentStat } from './lib/stat-development';
+  import { getEducationStage, getLifeStage } from './lib/progression';
+  import { getStatCeiling } from './lib/stat-development';
+  import type { DevelopmentStat } from './lib/stat-development';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
