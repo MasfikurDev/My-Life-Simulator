@@ -131,7 +131,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
   const boughtMeals = (character.weeklyPlan?.activities ?? []).filter((item) => item.action?.kind === 'food');
   const hasBoughtFood = boughtMeals.some((item) => item.action?.kind === 'food' && item.action.productId === 'meal-groceries') ||
     boughtMeals.reduce((total, item) => total + (item.action?.kind === 'food' ? item.action.quantity : 0), 0) >= 7;
-  if (character.age >= 18 && !hasFamilyMeals && !hasSharedPartnerMeals && !hasBoughtFood) {
+  if (character.age >= 18 && ['independent', 'shared'].includes(character.householdArrangement ?? '') && !hasFamilyMeals && !hasSharedPartnerMeals && !hasBoughtFood) {
     activities.push({
       id: 'passive-no-meals',
       title: 'No regular meals arranged',
