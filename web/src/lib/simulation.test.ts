@@ -494,13 +494,15 @@ describe('life simulation', () => {
       intelligence: 90,
       education: 'Higher education',
       careerExperienceYears: 5,
+      careerPathId: undefined,
       currencyScale: 1
     };
     const listing = getJobListings(candidate).find((item) => {
       const role = getCareerRole(item.roleId);
       return role ? isEligibleForRole(candidate, role) : false;
-    })!;
-    const applied = advanceWeek(planWorkActionInNextFreeTime(candidate, 'apply', listing.id).character, () => 0).character;
+    });
+    expect(listing).toBeDefined();
+    const applied = advanceWeek(planWorkActionInNextFreeTime(candidate, 'apply', listing!.id).character, () => 0).character;
     const interviewed = advanceWeek(planWorkActionInNextFreeTime(applied, 'interview', applied.jobApplications![0].id).character, () => 0).character;
     const offerId = interviewed.jobOffers![0].id;
     const declined = declineJobOffer(interviewed, offerId);

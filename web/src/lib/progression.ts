@@ -19,7 +19,7 @@ export const ACTIVITY_DEFINITIONS: Record<ActivityId, ActivityDefinition> = {
 export interface LifeStage { id: string; label: string; ageRange: string; description: string; nextAge: number | null; }
 
 const STAGES: Array<LifeStage & { min: number; max: number }> = [
-  { id: 'infant', label: 'Early childhood', ageRange: '0–2', min: 0, max: 2, description: 'Daily life centers on care, play, movement and family bonds.', nextAge: 3 },
+  { id: 'infant', label: 'Early childhood', ageRange: '0–2', min: 0, max: 2, description: 'Daily life centers on care, play, movement and close relationships.', nextAge: 3 },
   { id: 'preschool', label: 'Preschool years', ageRange: '3–5', min: 3, max: 5, description: 'Early learning and exploration become part of everyday life.', nextAge: 6 },
   { id: 'childhood', label: 'Childhood', ageRange: '6–12', min: 6, max: 12, description: 'School-age learning, play, health and friendships shape development.', nextAge: 13 },
   { id: 'early-teen', label: 'Early teens', ageRange: '13–15', min: 13, max: 15, description: 'Education, interests and peer relationships begin to take a larger role.', nextAge: 16 },

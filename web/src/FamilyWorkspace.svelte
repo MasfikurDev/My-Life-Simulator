@@ -64,36 +64,36 @@
   {#if !family}
     <section class="family-panel">
       <div class="eyebrow">LIFE RECORDS</div>
-      <h2>No background yet</h2>
-      <p>Your story is missing its starting relationships. Create a background to begin.</p>
-      <button class="primary-action" onclick={() => onChange(establishFamilyBackground(character))}>Begin</button>
+      <h2>No connections recorded</h2>
+      <p>Add the people connected to this life to start tracking relationships and shared history.</p>
+      <button class="primary-action" onclick={() => onChange(establishFamilyBackground(character))}>Create records</button>
     </section>
   {:else if errors.length > 0}
     <section class="family-panel warning">
       <div class="eyebrow">RECORD CHECK</div>
-      <h2>Your relationship history needs attention</h2>
+      <h2>Relationship records need attention</h2>
       {#each errors as error}<p>{error}</p>{/each}
-      <p>Your progress has not been changed. Export a game snapshot before trying to repair these entries.</p>
+      <p>Your progress is unchanged. Export a game snapshot before repairing these records.</p>
     </section>
   {:else}
     {#if feedback}<p class="family-footnote" role="status">{feedback}</p>{/if}
     <section class="family-panel">
       <div class="family-panel-head">
-        <div><div class="eyebrow">YOUR PEOPLE</div><h2>Your relatives</h2><p>Spend time, reach out or make things right. Your choices use stamina and shape these relationships when the week ends.</p></div>
+        <div><div class="eyebrow">YOUR PEOPLE</div><h2>Your connections</h2><p>Spend time, reach out or make things right. Your choices use stamina and shape these relationships when the week ends.</p></div>
         <span class="family-count">{livingCount} living</span>
       </div>
       <div class="family-summary">
-        <div><strong>{connections.length}</strong><span>Relatives</span></div>
+        <div><strong>{connections.length}</strong><span>People</span></div>
         <div><strong>{family.householdMemberIds.length}</strong><span>At home</span></div>
         <div><strong>{family.dependentPersonIds.length}</strong><span>Rely on you</span></div>
       </div>
       {#if character.age < 18 && family.primaryGuardianId}
-        <div class="guardian-note">{family.people.find((person) => person.id === family.primaryGuardianId)?.name ?? 'Your guardian'} looks after you.</div>
+        <div class="guardian-note">{family.people.find((person) => person.id === family.primaryGuardianId)?.name ?? 'Your guardian'} is responsible for your care.</div>
       {/if}
     </section>
 
     {#if connections.length === 0}
-      <section class="family-panel"><h3>No relatives yet</h3><p>You haven't met or recorded any relatives in this story yet.</p></section>
+      <section class="family-panel"><h3>No connections yet</h3><p>No connections have been added to this life yet.</p></section>
     {:else}
       <div class="family-list">
         {#each connections as connection (connection.person.id)}
@@ -143,7 +143,7 @@
       <div class="social-add-row">
         <input aria-label="Person name" placeholder="Person's name" bind:value={socialName} maxlength="40" />
         <select aria-label="Relationship type" bind:value={socialType}>
-          <option value="friend">Friend</option><option value="partner">Partner / spouse</option><option value="child">Child</option><option value="extended-family">Extended family</option>
+          <option value="friend">Friend</option><option value="partner">Partner / spouse</option><option value="child">Child</option><option value="extended-family">Relative</option>
         </select>
         <label><input type="checkbox" bind:checked={socialLivesTogether} /> Shares my home</label>
         <button class="primary-action" onclick={addSocialPerson} disabled={!socialName.trim()}>Add person</button>
@@ -170,7 +170,7 @@
       {#if family.history.length === 0}<p>No moments recorded yet.</p>{:else}
         <div class="family-timeline">
           {#each [...family.history].reverse() as item (item.id)}
-            <article><strong>{item.title}</strong><p>{item.description}</p><small>{item.year} · {item.type.replace('-', ' ')}</small></article>
+            <article><strong>{item.title === 'Family loss' ? 'A loss' : item.title === 'Family connection strengthened' ? 'Bond strengthened' : item.title}</strong><p>{item.description.replace('A meaningful family interaction changed the relationship with ', 'A meaningful interaction changed your bond with ')}</p><small>{item.year} · {item.type.replace('-', ' ')}</small></article>
           {/each}
         </div>
       {/if}

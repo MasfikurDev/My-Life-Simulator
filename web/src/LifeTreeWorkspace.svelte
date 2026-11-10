@@ -5,7 +5,7 @@
     { id: 'life', label: 'Life choices', detail: 'Personal opportunities and turning points' },
     { id: 'education', label: 'Education', detail: 'Learning paths and academic decisions' },
     { id: 'career', label: 'Career', detail: 'Work, ambition and professional direction' },
-    { id: 'relationships', label: 'Relationships', detail: 'Family, friendships and connections' },
+    { id: 'relationships', label: 'Relationships', detail: 'Personal bonds and friendships' },
     { id: 'health', label: 'Health', detail: 'Wellbeing and recovery decisions' },
     { id: 'finance', label: 'Finance', detail: 'Money, saving and financial choices' }
   ];

@@ -5,13 +5,13 @@
   type Props = { slotLabel: string; onStart: (character: Character) => void; onCancel: () => void };
   let { slotLabel, onStart, onCancel }: Props = $props();
   const lifePaths = [
-    { age: 0, label: 'Birth', detail: 'Family and early development' },
-    { age: 6, label: 'Childhood', detail: 'School, family and growth' },
+    { age: 0, label: 'Birth', detail: 'Early development and care' },
+    { age: 6, label: 'Childhood', detail: 'School, learning and growth' },
     { age: 13, label: 'Teen years', detail: 'Identity and friendships' },
     { age: 18, label: 'Young adult', detail: 'Education and independence' },
     { age: 30, label: 'Established adult', detail: 'Career and relationships' },
     { age: 45, label: 'Midlife', detail: 'Responsibilities and new paths' },
-    { age: 65, label: 'Later life', detail: 'Retirement, family and legacy' }
+    { age: 65, label: 'Later life', detail: 'Retirement and legacy' }
   ];
   let selectedAge = $state(18);
   let character = $state<Character>(generateRandomCharacter(18));
@@ -41,7 +41,7 @@
       <div><small>Country</small><strong>{character.country}</strong></div>
       <div><small>Birthplace</small><strong>{character.birthplace}</strong></div>
       <div><small>Primary language</small><strong>{character.language}</strong></div>
-      <div><small>Family background</small><strong>{character.familyBackground}</strong></div>
+      <div><small>Starting circumstances</small><strong>{character.familyBackground}</strong></div>
       <div><small>Education</small><strong>{character.education}</strong></div>
       <div><small>Starting money</small><strong>{formatCharacterMoney(character)}</strong></div>
       <div><small>Height</small><strong>{character.appearance?.height}</strong></div>
