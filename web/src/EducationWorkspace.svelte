@@ -38,7 +38,7 @@
   function gradeLabel(value: number) { if (enrollment?.level === 'early-learning') return value >= 75 ? 'Developing well' : value >= 50 ? 'On track' : 'Needs more support'; return value >= 85 ? 'Excellent' : value >= 70 ? 'Good' : value >= 60 ? 'Pass' : value >= 45 ? 'At risk' : 'Critical'; }
 </script>
 
-<nav class="finance-nav" aria-label="Education sections">
+<nav class="education-nav" aria-label="Education sections">
   <button class:active={subpage === 'education'} aria-current={subpage === 'education' ? 'page' : undefined} onclick={() => subpage = 'education'}>Education</button>
   <button class:active={subpage === 'records'} aria-current={subpage === 'records' ? 'page' : undefined} onclick={() => subpage = 'records'}>Educational Records</button>
 </nav>
@@ -104,3 +104,51 @@
 
 {/if}
 
+<style>
+  .education-nav {
+    display:flex;
+    align-items:center;
+    gap:6px;
+    min-width:0;
+    overflow-x:auto;
+    overscroll-behavior-inline:contain;
+    -webkit-overflow-scrolling:touch;
+    padding:2px 0 8px;
+    scrollbar-width:thin;
+    scrollbar-color:var(--line-strong) transparent;
+  }
+  .education-nav button {
+    flex:0 0 auto;
+    min-height:42px;
+    padding:0 13px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:var(--surface);
+    color:var(--muted);
+    font-size:11px;
+    font-weight:650;
+    white-space:nowrap;
+    transition:color .18s,background .18s,border-color .18s;
+  }
+  .education-nav button:hover {
+    border-color:var(--line-strong);
+    color:var(--text);
+  }
+  .education-nav button.active {
+    border-color:color-mix(in srgb,var(--accent) 50%,transparent);
+    background:var(--accent-soft);
+    color:var(--accent);
+  }
+  .education-nav button:focus-visible {
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+  @media(max-width:620px) {
+    .education-nav { padding-bottom:7px; }
+    .education-nav button {
+      min-height:40px;
+      padding:0 11px;
+      font-size:10px;
+    }
+  }
+</style>
