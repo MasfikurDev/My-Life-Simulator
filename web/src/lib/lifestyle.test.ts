@@ -36,6 +36,7 @@ describe('passive lifestyle simulation', () => {
     const family = generated.family!;
     const supported = {
       ...generated,
+      familyCulture: 'supportive' as const,
       householdArrangement: 'family-supported' as const,
       family: { ...family, householdMemberIds: family.people.filter((person) => person.id !== family.playerPersonId).map((person) => person.id) }
     };
