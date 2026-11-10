@@ -1,4 +1,4 @@
-import type { ActivityId, PlannedAction, PlannedActivity, OwnedLifestyleItem, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
+import type { ActivityId, PlannedAction, PlannedActivity, OwnedLifestyleItem, FoodEffects, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
 import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
 import { awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabel } from './skills';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
@@ -1046,10 +1046,35 @@ export function addOwnedLifestyleItem(character: Character, item: Omit<OwnedLife
   const existing = items.find((entry) => entry.productId === item.productId);
   if (existing) {
     if (existing.quantity + item.quantity > 999) return character;
-    return { ...character, ownedLifestyleItems: items.map((entry) => entry.id === existing.id ? { ...entry, quantity: entry.quantity + item.quantity } : entry) };
+    return { ...character, ownedLifestyleItems: items.map((entry) => entry.id === existing.id ? { ...entry, quantity: entry.quantity + item.quantity, ...(item.foodEffects ? { foodEffects: item.foodEffects } : {}) } : entry) };
   }
   const owned: OwnedLifestyleItem = { ...item, ...(item.category === 'Fashion' ? { condition: item.condition ?? 100 } : {}), id: 'owned-' + character.year + '-' + character.age + '-' + (items.length + 1), purchasedAtYear: character.year };
   return { ...character, ownedLifestyleItems: [...items, owned] };
+}
+
+export function planOwnedFoodInNextFreeTime(character: Character, ownedItemId: string): ActivityPlanningResult {
+  const item = (character.ownedLifestyleItems ?? []).find((entry) => entry.id === ownedItemId && entry.category === 'Food' && entry.foodEffects);
+  if (!item) return { character, issue: 'unavailable', message: 'Choose an edible item from your inventory.' };
+  const schedule = getWeeklyPlan(character.weeklyPlan);
+  const reserved = schedule.activities.reduce((total, activity) => total + (activity.action?.kind === 'food' && activity.action.ownedItemId === ownedItemId ? activity.action.quantity : 0), 0);
+  if (item.quantity - reserved < 1) return { character, issue: 'unavailable', message: 'All of this item is already reserved for this week.' };
+  const planned = schedule.activities.filter((activity) => activity.action?.kind === 'food');
+  const used = (key: 'staminaRecovery' | 'health' | 'happiness' | 'stress' | 'comfort') =>
+    planned.reduce((total, activity) => total + (activity.action?.kind === 'food' ? activity.action[key] ?? 0 : 0), 0);
+  const effects = item.foodEffects!;
+  const capped = {
+    staminaRecovery: Math.min(Math.max(0, effects.staminaRecovery), Math.max(0, 8 - used('staminaRecovery'))),
+    health: Math.min(Math.max(0, effects.health), Math.max(0, 2 - used('health'))),
+    happiness: Math.min(Math.max(0, effects.happiness), Math.max(0, 2 - used('happiness'))),
+    stress: Math.min(Math.max(0, effects.stress), Math.max(0, 2 - used('stress'))),
+    comfort: Math.min(Math.max(0, effects.comfort), Math.max(0, 2 - used('comfort')))
+  };
+  if (!Object.values(capped).some((value) => value > 0)) {
+    return { character, issue: 'unavailable', message: 'Your weekly food bonuses are already covered. This item will not add another benefit this week.' };
+  }
+  return planForCurrentWeek(character, (date) => addWeeklyAction(character, 'food', date, {
+    kind: 'food', ownedItemId, productId: item.productId, name: item.name, quantity: 1, purchaseCost: 0, ...capped
+  }, 0));
 }
 
 export function planBoughtFoodInNextFreeTime(character: Character, food: { productId: string; name: string; quantity: number; purchaseCost: number; staminaRecovery: number; health: number; happiness: number; stress: number; comfort?: number }): ActivityPlanningResult {
@@ -1139,8 +1164,8 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     next = { ...next, stamina: clamp((next.stamina ?? 50) - getPlannedActivityStaminaCost(item)) };
     let result: Character;
     if (item.action?.kind === 'food') {
-      result = { ...next, health: clamp(next.health + item.action.health), happiness: clamp(next.happiness + item.action.happiness), comfort: clamp((next.comfort ?? 50) + (item.action.comfort ?? 0)), stress: clamp((next.stress ?? 30) - item.action.stress) };
-      recap.push('Food: enjoyed bought ' + item.action.name + (item.action.quantity > 1 ? ' × ' + item.action.quantity : '') + '.');
+      result = { ...next, health: clamp(next.health + item.action.health), happiness: clamp(next.happiness + item.action.happiness), comfort: clamp((next.comfort ?? 50) + (item.action.comfort ?? 0)), stress: clamp((next.stress ?? 30) - item.action.stress), ...(item.action.ownedItemId ? { ownedLifestyleItems: (next.ownedLifestyleItems ?? []).map((owned) => owned.id === item.action!.ownedItemId ? { ...owned, quantity: Math.max(0, owned.quantity - item.action!.quantity) } : owned).filter((owned) => owned.quantity > 0) } : {}) };
+      recap.push('Food: ate ' + item.action.name + (item.action.quantity > 1 ? ' × ' + item.action.quantity : '') + '.');
     } else if (item.action?.kind === 'education') {
       result = performActivity(next, 'study', weekRandom);
       if (result !== next) {
