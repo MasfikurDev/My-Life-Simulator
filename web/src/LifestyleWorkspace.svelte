@@ -5,8 +5,7 @@
   import { equipLifestyleItem } from './lib/lifestyle';
   import {
     addOwnedLifestyleItem, addRecurringPayment, cancelRecurringPayment,
-    formatCharacterMoney, makeAccountPurchase, makeCardPurchase, makeCashPurchase,
-    planOwnedFoodInNextFreeTime
+    formatCharacterMoney, makeCashPurchase, planOwnedFoodInNextFreeTime
   } from './lib/simulation';
 
   let { character, onChange, onNotify, initialView = 'supermarket' }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifestyleView } = $props();
@@ -78,11 +77,12 @@
   const filteredProducts = $derived(category === 'All' ? products : products.filter((item) => item.category === category));
   const subscriptionCost = $derived(selectedProvider ? Math.round(selectedProvider.price * scale) : 0);
   function isUnavailable(product: MarketProduct) {
-    return uniqueProducts.has(product.id) && (ownedItems.some((item) => item.productId === product.id && item.quantity > 0) || (cart[product.id] ?? 0) > 0);
+    return uniqueProducts.has(product.id) && ownedItems.some((item) => item.productId === product.id && item.quantity > 0);
   }
   function addToCart(product: MarketProduct) {
-    if (isUnavailable(product)) { onNotify(product.name + ' is limited to one and is already owned or in your cart.'); return; }
+    if (isUnavailable(product)) { onNotify(product.name + ' is already in your Inventory.'); return; }
     const current = cart[product.id] ?? 0;
+    if (uniqueProducts.has(product.id) && current >= 1) return;
     if (current >= 20) { onNotify('Cart quantity limit reached for this item.'); return; }
     cart = { ...cart, [product.id]: current + 1 };
     onNotify(product.name + ' added to cart.');
@@ -133,27 +133,6 @@
     paymentSource = 'cash';
     paymentSourceId = '';
     dialogKind = 'subscription';
-  }
-  function purchaseFrom(source: Character, amount: number, description: string): Character {
-    if (paymentSource === 'cash') return makeCashPurchase(source, amount, description);
-    if (paymentSource === 'account') return paymentSourceId ? makeAccountPurchase(source, paymentSourceId, amount, description) : source;
-    return paymentSourceId ? makeCardPurchase(source, paymentSourceId, amount, description) : source;
-  }
-  function completePurchase() {
-    if (!selectedProduct || !dialogKind || dialogKind === 'subscription') return;
-    if (selectedOwnedQuantity + orderQuantity > 999) { onNotify('Your Owned inventory already has the maximum quantity for this item.'); return; }
-    const description = 'Lifestyle supermarket · ' + selectedProduct.name + (orderQuantity > 1 ? ' × ' + orderQuantity : '');
-    const paid = purchaseFrom(character, orderTotal, description);
-    if (paid === character) { onNotify('Payment declined. Check the selected payment method and available balance or credit.'); return; }
-    const next = addOwnedLifestyleItem(paid, {
-      productId: selectedProduct.id, name: selectedProduct.name, category: selectedProduct.category,
-      description: selectedProduct.description, quantity: orderQuantity,
-      kind: selectedProduct.kind === 'permanent' ? 'permanent' : 'usable',
-      ...(selectedProduct.kind === 'food' ? { foodEffects: { staminaRecovery: selectedProduct.staminaRecovery ?? 0, health: selectedProduct.health ?? 0, happiness: selectedProduct.happiness ?? 0, stress: selectedProduct.stress ?? 0, comfort: selectedProduct.comfort ?? 0 } } : {}),
-      ...(selectedProduct.styleScore !== undefined ? { styleScore: selectedProduct.styleScore, formality: selectedProduct.formality ?? 0 } : {})
-    });
-    if (next === paid) { onNotify('Could not add this purchase to your inventory.'); return; }
-    onChange(next); onNotify(selectedProduct.name + ' bought and added to Owned inventory.'); dialogKind = null;
   }
   function planFood(itemId: string) {
     const result = planOwnedFoodInNextFreeTime(character, itemId);
@@ -210,7 +189,7 @@
             <strong>{product.name}</strong>
             {#if product.kind === 'food'}<small class="product-boost">{productBoosts(product)}</small>{/if}
             <b>{formatCharacterMoney(character, Math.round(product.price * scale))}</b>
-            {#if isUnavailable(product)}<span class="stock-state">Out of Stock</span>{:else if cart[product.id]}<button class="add-cart-button added" onclick={() => changeCartQuantity(product.id, 1)}>{cart[product.id]} in Cart · +</button>{:else}<button class="add-cart-button" onclick={() => addToCart(product)}>Add to Cart</button>{/if}
+            {#if isUnavailable(product)}<span class="stock-state">Out of Stock</span>{:else if cart[product.id]}<span class="stock-state in-cart">In Cart · {cart[product.id]}</span>{:else}<button class="add-cart-button" onclick={() => addToCart(product)}>Add to Cart</button>{/if}
           </article>
         {/each}
       </div>
@@ -231,7 +210,7 @@
         {#if character.money < cartTotal}<small class="payment-error">Not enough cash to complete this order.</small>{/if}
       </section>
     {:else if shopStage === 'receipt' && receipt}
-      <section class="receipt-wrap"><div class="receipt-paper"><div class="receipt-brand">SUPERMARKET</div><small>SALES RECEIPT</small><div class="receipt-rule"></div><div class="receipt-meta"><span>Year {receipt.year} · Age {receipt.age}</span><span>Paid: Cash</span></div><div class="receipt-rule dashed"></div>{#each receipt.items as item}<div class="receipt-line"><span>{item.name}<small>{item.quantity} × {formatCharacterMoney(character, item.total / item.quantity)}</small></span><b>{formatCharacterMoney(character, item.total)}</b></div>{/each}<div class="receipt-rule"></div><div class="receipt-total"><span>TOTAL PAID</span><strong>{formatCharacterMoney(character, receipt.total)}</strong></div><div class="receipt-cash"><span>Cash Before</span><b>{formatCharacterMoney(character, receipt.cashBefore)}</b><span>Cash After</span><b>{formatCharacterMoney(character, receipt.cashAfter)}</b></div><div class="receipt-rule dashed"></div><div class="receipt-thanks">THANK YOU</div><small>Items have been added to your Inventory.</small></div><div class="shop-actions"><button class="secondary" onclick={() => shopStage = 'browse'}>Back to Shop</button><button class="primary" onclick={() => { shopStage = 'browse'; activeView = 'owned'; }}>View Inventory</button></div></section>
+      <section class="receipt-wrap"><div class="receipt-paper"><div class="receipt-brand">SUPERMARKET</div><small>SALES RECEIPT</small><div class="receipt-rule"></div><div class="receipt-meta"><span>Year {receipt.year} · Age {receipt.age}</span><span>Paid: Cash</span></div><div class="receipt-rule dashed"></div>{#each receipt.items as item}<div class="receipt-line"><span>{item.name}<small>{item.quantity} × {formatCharacterMoney(character, item.total / item.quantity)}</small></span><b>{formatCharacterMoney(character, item.total)}</b></div>{/each}<div class="receipt-rule"></div><div class="receipt-total"><span>TOTAL PAID</span><strong>{formatCharacterMoney(character, receipt.total)}</strong></div><div class="receipt-cash"><span>Cash Before</span><b>{formatCharacterMoney(character, receipt.cashBefore)}</b><span>Cash After</span><b>{formatCharacterMoney(character, receipt.cashAfter)}</b></div><div class="receipt-rule dashed"></div><div class="receipt-thanks">THANK YOU</div><small>Items have been added to your Inventory.</small></div><div class="shop-actions"><button class="secondary" onclick={() => shopStage = 'browse'}>Back to Shop</button><button class="primary" onclick={() => shopStage = 'browse'}>Done</button></div></section>
     {/if}
   {:else if activeView === 'subscriptions'}
     <section class="service-section">
@@ -298,8 +277,27 @@
   .market-section-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .market-section-heading small{font-size:8px;letter-spacing:.8px;color:var(--muted);font-weight:800}
   .market-section-heading h3{font-size:15px;margin:3px 0 0}
-  .product-grid,.owned-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  .market-product,.owned-item{display:grid;gap:5px;min-width:0;padding:9px;border:1px solid var(--line);border-radius:10px;background:var(--surface-raised)}
+  .product-grid,.owned-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .market-product,.owned-item{display:grid;align-content:start;gap:6px;min-width:0;padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--surface-raised)}
+  .market-product{aspect-ratio:1/1;min-height:130px}
+  .market-product>strong{font-size:11px;line-height:1.3}
+  .market-product>b{font-size:11px;margin-top:auto}
+  .product-boost{font-size:8px;line-height:1.35;color:var(--muted)}
+  .stock-state{font-size:9px;font-weight:750;color:var(--muted);padding:6px 0}
+  .stock-state.in-cart{color:var(--accent)}
+  .market-product.unavailable{opacity:.62}
+  .add-cart-button,.cart-button{min-height:31px;padding:0 9px;border:1px solid var(--line);border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:9px;font-weight:800}
+  .shop-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:10px}
+  .cart-button:disabled{opacity:.4}
+  .shop-page{gap:12px}
+  .cart-line{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .cart-line>div:first-child{min-width:0}.cart-line strong{font-size:11px}.cart-line small{display:block;color:var(--muted);font-size:9px;margin-top:3px}
+  .cart-quantity{display:flex;align-items:center;gap:7px}.cart-quantity button{width:27px;height:27px;border:1px solid var(--line);border-radius:7px;background:var(--surface-raised);color:var(--text)}.cart-quantity button:disabled{opacity:.35}.cart-quantity b{font-size:10px;min-width:10px;text-align:center}
+  .cart-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--line);font-size:11px}.cart-total strong{font-size:17px;font-variant-numeric:tabular-nums}
+  .shop-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}.shop-actions button{min-height:38px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-raised);color:var(--text);font-size:10px;font-weight:750}.shop-actions .primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}.shop-actions .secondary{background:transparent}
+  .payment-line{display:flex;justify-content:space-between;gap:10px;font-size:10px}.payment-line strong{font-size:10px}.cash-payment{display:grid;gap:5px;padding:11px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised)}.cash-payment span,.cash-payment small{font-size:9px;color:var(--muted)}.cash-payment strong{font-size:13px}.payment-error{color:var(--danger);font-size:9px}
+  .receipt-wrap{display:grid;justify-items:center;gap:12px}.receipt-paper{width:min(340px,100%);padding:22px 19px;background:#f5f1e8;color:#25231f;box-shadow:0 8px 24px rgba(0,0,0,.18);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;display:grid;gap:9px;clip-path:polygon(0 0,100% 0,100% 98%,96% 100%,92% 98%,88% 100%,84% 98%,80% 100%,76% 98%,72% 100%,68% 98%,64% 100%,60% 98%,56% 100%,52% 98%,48% 100%,44% 98%,40% 100%,36% 98%,32% 100%,28% 98%,24% 100%,20% 98%,16% 100%,12% 98%,8% 100%,4% 98%,0 100%)}
+  .receipt-brand,.receipt-thanks{text-align:center;font-weight:900;letter-spacing:1.4px;font-size:15px}.receipt-paper>small{text-align:center;font-size:8px;color:#625d52}.receipt-rule{height:1px;background:#b8b1a4}.receipt-rule.dashed{background:repeating-linear-gradient(90deg,#999184 0 4px,transparent 4px 7px)}.receipt-meta,.receipt-cash{display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:8px}.receipt-line{display:flex;justify-content:space-between;gap:8px;font-size:9px}.receipt-line small{display:block;font-size:8px;color:#625d52;margin-top:3px}.receipt-total{display:flex;justify-content:space-between;align-items:center;font-size:10px}.receipt-total strong{font-size:15px}.receipt-cash span{color:#625d52}.receipt-thanks{font-size:12px}
   .wear-outfit-button{justify-self:start;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--surface);color:var(--text);font-size:10px;font-weight:700}
   .wear-outfit-button.equipped{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
   .product-mark{font-size:7px;letter-spacing:.7px;color:var(--accent);font-weight:850}
@@ -344,5 +342,5 @@
   .dialog-actions .primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
   .dialog-actions .secondary{background:transparent}
   .purchase-dialog :global(.game-choice){min-width:0}
-  @media(max-width:520px){.lifestyle-heading{align-items:flex-start;flex-direction:column}.product-grid,.owned-grid{grid-template-columns:1fr}.purchase-dialog{padding:16px}.provider-card{gap:8px}}
+  @media(max-width:520px){.lifestyle-heading{align-items:flex-start;flex-direction:column}.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.owned-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.market-product{min-height:126px}.purchase-dialog{padding:16px}.provider-card{gap:8px}.cart-line{grid-template-columns:minmax(0,1fr) auto}.cart-line>strong{grid-column:1/-1;text-align:right}}
 </style>
