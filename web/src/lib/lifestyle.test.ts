@@ -168,6 +168,23 @@ describe('passive lifestyle simulation', () => {
     expect(resolved.character.ownedLifestyleItems!.find((item) => item.productId === 'meal-restaurant')?.quantity).toBe(1);
   });
 
+  it('does not reserve extra food once every weekly food bonus cap is already filled', () => {
+    const character = createCharacter('Food cap', 30);
+    const stocked = addOwnedLifestyleItem(character, {
+      productId: 'meal-balanced', name: 'Balanced meal', category: 'Food', description: 'A complete meal',
+      quantity: 2, kind: 'usable',
+      foodEffects: { staminaRecovery: 12, health: 4, happiness: 4, stress: 4, comfort: 4 }
+    });
+    const owned = stocked.ownedLifestyleItems![0];
+    const first = planOwnedFoodInNextFreeTime(stocked, owned.id);
+    expect(first.issue).toBeNull();
+    expect(first.character.weeklyPlan!.activities).toHaveLength(1);
+    const second = planOwnedFoodInNextFreeTime(first.character, owned.id);
+    expect(second.issue).toBe('unavailable');
+    expect(second.character.weeklyPlan!.activities).toHaveLength(1);
+    expect(second.character.ownedLifestyleItems![0].quantity).toBe(2);
+  });
+
   it('allows a non-cohabiting partner to provide emotional support without replacing meals or housing', () => {
     let character = createCharacter('Partner support', 30);
     character = { ...character, householdArrangement: 'independent', family: character.family ? { ...character.family, householdMemberIds: [character.family.playerPersonId] } : undefined };
