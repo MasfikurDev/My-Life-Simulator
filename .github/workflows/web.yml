@@ -27,11 +27,28 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - name: Install locked dependencies
         run: npm ci --prefer-offline --no-audit --no-fund --no-progress
+      - name: Run static checks and tests in parallel
+        shell: bash
+        run: |
+          npm run check &
+          check_pid=$!
+          npm test &
+          test_pid=$!
+
+          check_status=0
+          test_status=0
+          wait "$check_pid" || check_status=$?
+          wait "$test_pid" || test_status=$?
+
+          if [ "$check_status" -ne 0 ] || [ "$test_status" -ne 0 ]; then
+            echo "Validation failed (svelte-check: $check_status, tests: $test_status)."
+            exit 1
+          fi
       # GitHub Pages is hosted below /<repository>/.
-      - name: Check, test, and build
+      - name: Build production site
         env:
           VITE_BASE_PATH: /My-Life-Simulator/
-        run: npm run build
+        run: npm run build:app
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'
         with:
