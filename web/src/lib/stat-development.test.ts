@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { advanceWeek, generateRandomCharacter } from './simulation';
-import { applyNaturalStatDevelopment, enforceWeeklyStatCaps, getAgeStatCap, getStatCeiling } from './stat-development';\nimport { isActivityAvailable } from './progression';
+import { applyNaturalStatDevelopment, enforceWeeklyStatCaps, getAgeStatCap, getStatCeiling } from './stat-development';
+import { isActivityAvailable } from './progression';
 describe('age-aware stat development',()=>{
  it('generates lower starting capabilities for children than adults',()=>{
   const child=generateRandomCharacter(5,()=>0.5),adult=generateRandomCharacter(25,()=>0.5);
   for(const stat of ['health','intelligence','stamina','focus'] as const)expect(child[stat]).toBeLessThan(adult[stat]);
  });
- it('locks formal exercise and social activities until early childhood',()=>{\n  expect(isActivityAvailable(2,'exercise')).toBe(false);\n  expect(isActivityAvailable(2,'socialize')).toBe(false);\n  expect(isActivityAvailable(3,'exercise')).toBe(true);\n  expect(isActivityAvailable(3,'socialize')).toBe(true);\n });\n it('raises age ceilings across childhood and young adulthood',()=>{
+ it('locks formal exercise and social activities until early childhood',()=>{
+  expect(isActivityAvailable(2,'exercise')).toBe(false);
+  expect(isActivityAvailable(2,'socialize')).toBe(false);
+  expect(isActivityAvailable(3,'exercise')).toBe(true);
+  expect(isActivityAvailable(3,'socialize')).toBe(true);
+ });
+ it('raises age ceilings across childhood and young adulthood',()=>{
   expect(getAgeStatCap(5,'stamina')).toBeLessThan(getAgeStatCap(13,'stamina'));
   expect(getAgeStatCap(13,'intelligence')).toBeLessThan(getAgeStatCap(18,'intelligence'));
   expect(getAgeStatCap(18,'fitness')).toBeLessThan(getAgeStatCap(30,'fitness'));
