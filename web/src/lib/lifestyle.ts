@@ -72,7 +72,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
     activities.push({
       id: 'passive-family-meals',
       title: 'Meals provided by family',
-      source: 'Family household',
+      source: 'Living with relatives',
       detail: structured ? 'Regular household meals and routines' : strained ? 'Basic meals are available, with limited support' : 'Shared home meals and everyday family support',
       staminaRecovery: strained ? 3 : 5 + quality,
       health: strained ? 0 : 1 + quality,
@@ -193,7 +193,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       id: 'passive-stable-home',
       title: 'Stable home environment',
       source: residence?.name ?? (character.rentalHome ? 'Rental home' : hasSharedPartnerMeals ? partner?.name ?? 'Shared household' : 'Family household'),
-      detail: 'Your living space provides everyday comfort and stability',
+      detail: 'A steady home makes everyday life more comfortable.',
       staminaRecovery: 0,
       health: housingQuality >= 3 ? 1 : 0,
       happiness: 0,
