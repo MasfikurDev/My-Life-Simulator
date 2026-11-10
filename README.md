@@ -24,6 +24,7 @@ The canonical gameplay clock is:
 - [CI and delivery](docs/CI_CD.md)
 - [Roadmap](docs/ROADMAP.md)
 - [AI working rules](docs/AI_WORKING_RULES.md)
+- [Pull request workflow](docs/PULL_REQUEST_WORKFLOW.md)
 
 System specifications:
 - [Family system](docs/FAMILY_SYSTEM.md)
@@ -50,6 +51,8 @@ System specifications:
 This is a substantial playable foundation, not a completed birth-to-death simulation. Retirement, mortality, terminal life completion, generational play, full School attendance/grades, monthly settlement, and deeper family lifecycle mechanics remain planned.
 
 ## Development and delivery
+
+**Draft-first PR workflow is required.** Keep substantial work in a Draft PR throughout implementation, testing, UI review, and last-minute refinement. Mark it ready only after implementation and validation are complete; merge only after synchronizing with the latest `main`, re-running final CI, and reviewing the complete diff. See [Pull Request Workflow](docs/PULL_REQUEST_WORKFLOW.md).
 
 - Web game: `web/` (Svelte 5, TypeScript, Vite)
 - Android wrapper: `android/` (Kotlin WebView)
