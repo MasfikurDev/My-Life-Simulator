@@ -102,7 +102,7 @@ export function createFamilyState(character: Pick<Character, 'name' | 'age' | 'y
         id: 'family-background-death-' + parent.id,
         year: parent.deathYear,
         type: 'background',
-        title: 'Family loss',
+        title: 'A loss',
         description: parent.name + ' died before the current chapter of this life.',
         personIds: [parent.id, PLAYER_ID]
       });
@@ -386,8 +386,8 @@ export function applyFamilyBondEffect(character: Character, effect: { personId: 
     id: 'family-' + character.year + '-' + (family.history.length + 1),
     year: character.year,
     type: 'interaction',
-    title: 'Family connection strengthened',
-    description: 'A meaningful family interaction changed the relationship with ' + person.name + '.',
+    title: 'Bond strengthened',
+    description: 'A meaningful interaction changed your bond with ' + person.name + '.',
     personIds: [family.playerPersonId, person.id]
   };
   return {
