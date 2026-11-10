@@ -150,7 +150,7 @@ describe('passive lifestyle simulation', () => {
       quantity: 3, kind: 'usable', foodEffects: { staminaRecovery: 12, health: 3, happiness: 0, stress: 0, comfort: 0 }
     });
     const secondStock = addOwnedLifestyleItem(stocked, {
-      productId: 'meal-fruit', name: 'Fresh fruit', category: 'Food', description: 'Fruit snack',
+      productId: 'meal-restaurant', name: 'Restaurant dinner', category: 'Eating out', description: 'A prepared meal with a social break',
       quantity: 2, kind: 'usable', foodEffects: { staminaRecovery: 6, health: 1, happiness: 3, stress: 2, comfort: 1 }
     });
     const eggs = secondStock.ownedLifestyleItems!.find((item) => item.productId === 'meal-eggs')!;
