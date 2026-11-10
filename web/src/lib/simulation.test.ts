@@ -499,7 +499,7 @@ describe('life simulation', () => {
       creativity: 100,
       education: 'Higher education',
       careerExperienceYears: 5,
-      careerPathId: 'operations',
+      careerPathId: 'operations' as const,
       skills: { operations: 100 },
       currencyScale: 1
     };
