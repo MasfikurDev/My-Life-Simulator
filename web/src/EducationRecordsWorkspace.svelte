@@ -13,7 +13,7 @@
       </article>
     {/each}
     {#each [...(character.educationRecords ?? [])].reverse().filter((record) => record.status === 'paused') as record}
-      <article class="education-history-row"><div><strong>{record.level.replaceAll('-', ' ')}</strong><small>{record.institution} · paused at age {record.startedAtAge}</small></div><span>Paused</span></article>
+      <article class="education-history-row"><div><strong>{record.level.replaceAll('-', ' ')}</strong><small>{record.institution} · on hold from age {record.startedAtAge}</small></div><span>On Hold</span></article>
     {/each}
     {#each [...(character.educationRecords ?? [])].reverse().filter((record) => record.status === 'enrolled') as record}
       <article class="education-history-row"><div><strong>{record.level.replaceAll('-', ' ')}</strong><small>{record.institution} · started at age {record.startedAtAge}</small></div><span>In progress</span></article>
