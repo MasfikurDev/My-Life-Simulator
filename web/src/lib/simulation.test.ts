@@ -9,6 +9,38 @@ import { getCareerRole, getJobListings, isEligibleForRole, resolveJobApplication
 import { prepareGameEvent, resolveGameEvent } from './events';
 
 describe('life simulation', () => {
+  it('starts a newborn in a family household with age-scaled attributes and passive support', () => {
+    const newborn = createCharacter('Newborn', 0);
+    expect(newborn.householdArrangement).toBe('family-supported');
+    expect(newborn.health).toBeLessThanOrEqual(30);
+    expect(newborn.intelligence).toBeLessThanOrEqual(30);
+    expect(newborn.family?.householdMemberIds.length).toBeGreaterThan(1);
+    const supported = { ...newborn, familyCulture: 'supportive' as const };
+    const passive = getPassiveLifestyleActivities(supported);
+    expect(passive.map((item) => item.id)).toContain('passive-family-meals');
+    expect(passive.map((item) => item.id)).toContain('passive-stable-home');
+  });
+
+  it('resolves passive background life and natural development during direct year advancement', () => {
+    const newborn = createCharacter('Growing child', 0);
+    const family = newborn.family!;
+    const supported = {
+      ...newborn,
+      familyCulture: 'supportive' as const,
+      health: 10, happiness: 10, intelligence: 10, fitness: 10, stamina: 10,
+      focus: 10, confidence: 10, discipline: 10, creativity: 10, socialSkills: 10,
+      family: { ...family, householdMemberIds: family.people.filter((person) => person.id !== family.playerPersonId).map((person) => person.id).concat(family.playerPersonId) }
+    };
+    const next = advanceYear(supported);
+    expect(next.age).toBe(1);
+    expect(next.intelligence).toBe(13);
+    expect(next.fitness).toBe(13);
+    expect(next.stamina).toBe(100);
+    expect(next.health).toBeGreaterThan(supported.health);
+    expect(next.happiness).toBeGreaterThan(supported.happiness);
+    expect(next.comfort).toBeGreaterThan(supported.comfort ?? 50);
+  });
+
   it('calculates age- and currency-scaled activity costs', () => {
     const adult = { ...createCharacter('Adult', 18), currencyScale: 100, money: 3500 };
     const child = { ...createCharacter('Child', 12), currencyScale: 100, money: 0 };
