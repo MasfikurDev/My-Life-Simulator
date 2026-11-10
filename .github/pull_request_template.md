@@ -12,7 +12,7 @@
 - [ ] Relevant focused tests were added or updated for the reported behavior.
 - [ ] Web validation (Svelte check, Vitest, production build) passes when web code or its workflow changes.
 - [ ] Cross-domain changes include integration/regression coverage.
-- [ ] Long simulation audit was run when changing simulation rules, progression, stamina, finance, age gates, or weekly resolution.
+- [ ] The long simulation audit completed successfully when this PR changes `web/src/lib/**`, the web package scripts/lockfile, or the audit workflow. For relevant changes outside those paths, I dispatched it manually.
 - [ ] UI changes were checked in the actual affected screen and at narrow Android/mobile width.
 - [ ] Documentation was updated where behavior, architecture, or approved direction changed.
 
