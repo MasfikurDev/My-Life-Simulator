@@ -841,10 +841,11 @@ function getPlannedActivityTitle(character: Character, item: PlannedActivity): s
   if (item.action?.kind === 'education') return item.action.taskType === 'assignment' ? 'Education assignment' : item.action.taskType === 'exam' ? 'Academic assessment' : 'Focused study';
   if (item.action?.kind === 'care') return ({ rest: 'Rest & recovery', mindfulness: 'Mindfulness', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up' }[item.action.careType]);
   if (item.action?.kind === 'work') return (item.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + item.action.title;
-  if (item.action?.kind === 'family') {
-    const person = character.family?.people.find((entry) => entry.id === item.action?.personId);
+  const action = item.action;
+  if (action?.kind === 'family') {
+    const person = character.family?.people.find((entry) => entry.id === action.personId);
     const name = person?.name ?? 'this person';
-    return ({ 'spend-time': 'Spend time with ' + name, 'reach-out': 'Reach out to ' + name, reconcile: 'Work through things with ' + name, 'provide-support': 'Send financial support to ' + name }[item.action.interaction]);
+    return ({ 'spend-time': 'Spend time with ' + name, 'reach-out': 'Reach out to ' + name, reconcile: 'Work through things with ' + name, 'provide-support': 'Send financial support to ' + name }[action.interaction]);
   }
   if (item.action?.kind === 'social') {
     const connectionId = item.action.connectionId;
