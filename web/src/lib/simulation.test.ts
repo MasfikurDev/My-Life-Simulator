@@ -7,6 +7,7 @@ import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase
 import { createGameDebugSnapshot } from './debug-export';
 import { getCareerRole, getJobListings, isEligibleForRole, resolveJobApplication, resolveJobInterview } from './work';
 import { prepareGameEvent, resolveGameEvent } from './events';
+import { getPassiveLifestyleActivities } from './lifestyle';
 
 describe('life simulation', () => {
   it('starts a newborn in a family household with age-scaled attributes and passive support', () => {
