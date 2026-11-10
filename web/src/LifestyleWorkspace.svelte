@@ -6,11 +6,11 @@
   import {
     addOwnedLifestyleItem, addRecurringPayment, cancelRecurringPayment,
     formatCharacterMoney, makeAccountPurchase, makeCardPurchase, makeCashPurchase,
-    planBoughtFoodInNextFreeTime
+    planOwnedFoodInNextFreeTime
   } from './lib/simulation';
 
-  let { character, onChange, onNotify, initialView = 'market' }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifestyleView } = $props();
-  type LifestyleView = 'market' | 'subscriptions' | 'owned';
+  let { character, onChange, onNotify, initialView = 'supermarket' }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifestyleView } = $props();
+  type LifestyleView = 'supermarket' | 'subscriptions' | 'owned';
   type MarketProduct = {
     id: string; name: string; category: string; description: string; price: number;
     kind: 'food' | 'usable' | 'permanent';
@@ -19,7 +19,7 @@
   type Provider = { id: string; name: string; plan: string; category: string; price: number; detail: string };
   const activeView = $derived(initialView);
   let category = $state('All');
-  let dialogKind = $state<'food' | 'product' | 'subscription' | null>(null);
+  let dialogKind = $state<'product' | 'subscription' | null>(null);
   let selectedProductId = $state('');
   let selectedProviderId = $state('');
   let quantity = $state('1');
@@ -78,7 +78,7 @@
     quantity = '1';
     paymentSource = 'cash';
     paymentSourceId = '';
-    dialogKind = product.kind === 'food' ? 'food' : 'product';
+    dialogKind = 'product';
   }
   function openSubscription(provider: Provider) {
     if (character.age < 16) { onNotify('Subscriptions unlock at age 16.'); return; }
@@ -94,40 +94,29 @@
   }
   function completePurchase() {
     if (!selectedProduct || !dialogKind || dialogKind === 'subscription') return;
-    if (dialogKind === 'product' && selectedOwnedQuantity + orderQuantity > 999) {
-      onNotify('Your Owned inventory already has the maximum quantity for this item.');
-      return;
-    }
-    const description = 'Lifestyle market · ' + selectedProduct.name + (orderQuantity > 1 ? ' × ' + orderQuantity : '');
-    let base = character;
-    if (dialogKind === 'food') {
-      const planned = planBoughtFoodInNextFreeTime(character, {
-        productId: selectedProduct.id, name: selectedProduct.name, quantity: orderQuantity, purchaseCost: orderTotal,
-        staminaRecovery: Math.min(30, (selectedProduct.staminaRecovery ?? 0) * orderQuantity),
-        health: Math.min(12, (selectedProduct.health ?? 0) * orderQuantity),
-        happiness: Math.min(10, (selectedProduct.happiness ?? 0) * orderQuantity),
-        stress: Math.min(8, (selectedProduct.stress ?? 0) * orderQuantity),
-        comfort: Math.min(12, (selectedProduct.comfort ?? 0) * orderQuantity)
-      });
-      if (planned.issue) { onNotify(planned.message ?? 'The food could not be added to this week.'); return; }
-      base = planned.character;
-    }
-    const paid = purchaseFrom(base, orderTotal, description);
-    if (paid === base) { onNotify('Payment declined. Check the selected payment method and available balance or credit.'); return; }
-    if (dialogKind === 'product') {
-      const next = addOwnedLifestyleItem(paid, {
-        productId: selectedProduct.id, name: selectedProduct.name, category: selectedProduct.category,
-        description: selectedProduct.description, quantity: orderQuantity,
-        kind: selectedProduct.kind === 'usable' ? 'usable' : 'permanent',
-        ...(selectedProduct.styleScore !== undefined ? { styleScore: selectedProduct.styleScore, formality: selectedProduct.formality ?? 0 } : {})
-      });
-      onChange(next);
-      onNotify(selectedProduct.name + ' purchased and added to Owned.');
-    } else {
-      onChange(paid);
-      onNotify(selectedProduct.name + ' bought and added to this week\'s plan.');
-    }
-    dialogKind = null;
+    if (selectedOwnedQuantity + orderQuantity > 999) { onNotify('Your Owned inventory already has the maximum quantity for this item.'); return; }
+    const description = 'Lifestyle supermarket · ' + selectedProduct.name + (orderQuantity > 1 ? ' × ' + orderQuantity : '');
+    const paid = purchaseFrom(character, orderTotal, description);
+    if (paid === character) { onNotify('Payment declined. Check the selected payment method and available balance or credit.'); return; }
+    const next = addOwnedLifestyleItem(paid, {
+      productId: selectedProduct.id, name: selectedProduct.name, category: selectedProduct.category,
+      description: selectedProduct.description, quantity: orderQuantity,
+      kind: selectedProduct.kind === 'permanent' ? 'permanent' : 'usable',
+      ...(selectedProduct.kind === 'food' ? { foodEffects: { staminaRecovery: selectedProduct.staminaRecovery ?? 0, health: selectedProduct.health ?? 0, happiness: selectedProduct.happiness ?? 0, stress: selectedProduct.stress ?? 0, comfort: selectedProduct.comfort ?? 0 } } : {}),
+      ...(selectedProduct.styleScore !== undefined ? { styleScore: selectedProduct.styleScore, formality: selectedProduct.formality ?? 0 } : {})
+    });
+    if (next === paid) { onNotify('Could not add this purchase to your inventory.'); return; }
+    onChange(next); onNotify(selectedProduct.name + ' bought and added to Owned inventory.'); dialogKind = null;
+  }
+  function planFood(itemId: string) {
+    const result = planOwnedFoodInNextFreeTime(character, itemId);
+    if (result.issue) { onNotify(result.message ?? 'This food cannot be added to the weekly plan.'); return; }
+    onChange(result.character); onNotify('Food reserved from your inventory for this week. It will be consumed when the week is resolved.');
+  }
+  function deviceService(item: { productId: string; category: string }) {
+    if (item.productId === 'phone-basic') return activeSubscriptions.some((payment) => payment.name === 'Mobile data plan') ? 'Mobile service active' : 'Requires mobile service';
+    if (item.productId === 'laptop-basic') return activeSubscriptions.some((payment) => payment.name === 'Home internet') ? 'Broadband active' : 'Requires broadband';
+    return null;
   }
   function wearFashionItem(id: string) {
     const next = equipLifestyleItem(character, id);
@@ -156,11 +145,11 @@
 
 <section class="lifestyle-workspace">
   <header class="lifestyle-heading">
-    <div><div class="eyebrow">LIFESTYLE · EVERYDAY NEEDS</div><h2>{activeView === 'market' ? 'Market' : activeView === 'subscriptions' ? 'Subscriptions' : 'Owned'}</h2><p>{activeView === 'market' ? 'Buy food and useful things for everyday life.' : activeView === 'subscriptions' ? 'Manage services and recurring memberships.' : 'Your purchased items and personal inventory.'}</p></div>
+    <div><div class="eyebrow">LIFESTYLE · EVERYDAY NEEDS</div><h2>{activeView === 'supermarket' ? 'Market' : activeView === 'subscriptions' ? 'Subscriptions' : 'Owned'}</h2><p>{activeView === 'market' ? 'Buy food and useful things for everyday life.' : activeView === 'subscriptions' ? 'Manage services and recurring memberships.' : 'Your purchased items and personal inventory.'}</p></div>
     {#if activeView === 'subscriptions'}<span class="service-count">{activeSubscriptions.length} ACTIVE</span>{:else if activeView === 'owned'}<span class="service-count">{ownedItems.reduce((sum, item) => sum + item.quantity, 0)} ITEMS</span>{/if}
   </header>
   {#if activeView === 'market'}
-    <nav class="market-categories" aria-label="Market categories">
+    <nav class="market-categories" aria-label="Supermarket categories">
       {#each categories as item}<button class:active={category === item} onclick={() => category = item}>{item}</button>{/each}
     </nav>
     <section class="market-section">
@@ -170,7 +159,7 @@
           <article class="market-product">
             <div class="product-mark">{product.kind === 'food' ? 'FOOD' : product.category.toUpperCase()}</div>
             <div class="product-info"><strong>{product.name}</strong><p>{product.description}</p><b>{formatCharacterMoney(character, Math.round(product.price * scale))}</b></div>
-            <button class="buy-button" onclick={() => openProduct(product)}>{product.kind === 'food' ? 'Buy & plan' : 'Buy'}</button>
+            <button class="buy-button" onclick={() => openProduct(product)}>{'Buy'}</button>
           </article>
         {/each}
       </div>
@@ -201,11 +190,11 @@
       {#if ownedItems.length}
         <div class="owned-grid">
           {#each ownedItems as item (item.id)}
-            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small><p>{item.description}</p>{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small><button class="wear-outfit-button" class:equipped={item.equipped === true} onclick={() => wearFashionItem(item.id)} disabled={item.equipped === true}>{item.equipped ? 'Currently wearing' : 'Wear this outfit'}</button>{/if}</article>
+            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small>{#if deviceService(item)}<small class="device-service">{deviceService(item)}</small>{/if}<p>{item.description}</p>{#if item.category === 'Food' && item.foodEffects}<button class="wear-outfit-button" onclick={() => planFood(item.id)} disabled={item.quantity <= (character.weeklyPlan?.activities ?? []).filter((activity) => activity.action?.kind === 'food' && activity.action.ownedItemId === item.id).reduce((sum, activity) => sum + (activity.action?.kind === 'food' ? activity.action.quantity : 0), 0)}>Use this week</button>{/if}{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small><button class="wear-outfit-button" class:equipped={item.equipped === true} onclick={() => wearFashionItem(item.id)} disabled={item.equipped === true}>{item.equipped ? 'Currently wearing' : 'Wear this outfit'}</button>{/if}</article>
           {/each}
         </div>
       {:else}
-        <EmptyState title="Nothing owned yet" description="Reusable and permanent products from the Market will appear here after checkout." />
+        <EmptyState title="Nothing owned yet" description="Food, reusable goods and permanent purchases from the Supermarket appear here after checkout." />
       {/if}
     </section>
   {/if}
@@ -225,16 +214,11 @@
           <div class="eyebrow">{dialogKind === 'food' ? 'FOOD ORDER · ADDS TO THIS WEEK' : 'MARKET CHECKOUT'}</div>
           <h3 id="purchase-dialog-title">{selectedProduct.name}</h3>
           <p>{selectedProduct.description}</p>
-          <label class="quantity-field">Quantity<input type="number" min="1" max="20" bind:value={quantity} /></label>
-          {#if dialogKind === 'food'}
-            <div class="food-benefits"><strong>Weekly plan effects</strong><span>Stamina +{Math.min(30, (selectedProduct.staminaRecovery ?? 0) * orderQuantity)}</span>{#if selectedProduct.health}<span>Health +{Math.min(12, selectedProduct.health * orderQuantity)}</span>{/if}{#if selectedProduct.happiness}<span>Happiness +{Math.min(10, selectedProduct.happiness * orderQuantity)}</span>{/if}{#if selectedProduct.comfort}<span>Comfort +{Math.min(12, selectedProduct.comfort * orderQuantity)}</span>{/if}{#if selectedProduct.stress}<span>Stress −{Math.min(8, selectedProduct.stress * orderQuantity)}</span>{/if}</div>
-            <p class="dialog-note">Payment is taken now. The meal is marked BOUGHT in your planned activities and its effects apply when the week is resolved.</p>
-          {:else}
-            <p class="dialog-note">After successful checkout, this item will be added to your Owned inventory.</p>
-          {/if}
+          <div class="quantity-field"><span>Quantity</span><div class="quantity-stepper"><button type="button" aria-label="Decrease quantity" onclick={() => quantity = String(Math.max(1, orderQuantity - 1))} disabled={orderQuantity <= 1}>−</button><input type="number" min="1" max="20" bind:value={quantity} /><button type="button" aria-label="Increase quantity" onclick={() => quantity = String(Math.min(20, orderQuantity + 1))} disabled={orderQuantity >= 20}>+</button></div></div>
+          <p class="dialog-note">Checkout adds the item to Owned inventory. Choose food from Owned when you want to include it in this week's review.</p>
           <div class="choice-field"><span>Payment source</span><GameChoice label="Purchase payment source" value={paymentSource === 'cash' ? 'cash' : paymentSourceId} options={[{value:'cash',label:'Cash',detail:formatCharacterMoney(character, character.money)},...accounts.map((account) => ({value:account.id,label:account.name,detail:formatCharacterMoney(character, account.balance)})),...activeCards.map((card) => ({value:card.id,label:card.name,detail:card.type + ' card'}))]} onSelect={(value) => { if (value === 'cash') { paymentSource = 'cash'; paymentSourceId = ''; } else if (accounts.some((account) => account.id === value)) { paymentSource = 'account'; paymentSourceId = value; } else { paymentSource = 'card'; paymentSourceId = value; } }} columns={2}/></div>
           <div class="dialog-total"><span>Total · {orderQuantity} {orderQuantity === 1 ? 'item' : 'items'}</span><strong>{formatCharacterMoney(character, orderTotal)}</strong></div>
-          <div class="dialog-actions"><button class="secondary" onclick={() => dialogKind = null}>Cancel</button><button class="primary" onclick={completePurchase} disabled={dialogKind === 'product' && selectedOwnedQuantity + orderQuantity > 999}>Pay & {dialogKind === 'food' ? 'plan' : 'buy'}</button></div>
+          <div class="dialog-actions"><button class="secondary" onclick={() => dialogKind = null}>Cancel</button><button class="primary" onclick={completePurchase} disabled={dialogKind === 'product' && selectedOwnedQuantity + orderQuantity > 999}>Confirm purchase</button></div>
         {/if}
       </dialog>
     </div>
@@ -255,7 +239,7 @@
   .market-section-heading small{font-size:8px;letter-spacing:.8px;color:var(--muted);font-weight:800}
   .market-section-heading h3{font-size:15px;margin:3px 0 0}
   .product-grid,.owned-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  .market-product,.owned-item{display:grid;gap:7px;min-width:0;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--surface-raised)}
+  .market-product,.owned-item{display:grid;gap:5px;min-width:0;padding:9px;border:1px solid var(--line);border-radius:10px;background:var(--surface-raised)}
   .wear-outfit-button{justify-self:start;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--surface);color:var(--text);font-size:10px;font-weight:700}
   .wear-outfit-button.equipped{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
   .product-mark{font-size:7px;letter-spacing:.7px;color:var(--accent);font-weight:850}
@@ -287,10 +271,11 @@
   .purchase-dialog>p{font-size:10px;line-height:1.5;color:var(--muted);margin:0}
   .dialog-close{position:absolute;top:10px;right:10px;width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:var(--surface-raised);color:var(--text);font-size:18px}
   .quantity-field{display:grid;gap:5px;font-size:10px;color:var(--muted)}
-  .quantity-field input{width:100%;min-height:38px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--surface-raised);color:var(--text)}
-  .food-benefits{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
-  .food-benefits strong{flex-basis:100%;font-size:10px}
-  .food-benefits span{padding:5px 7px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-size:9px;font-weight:700}
+  .quantity-stepper{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;gap:7px}
+  .quantity-stepper button{min-height:40px;border:1px solid var(--line);border-radius:8px;background:var(--surface-raised);color:var(--text);font-size:20px;font-weight:700}
+  .quantity-stepper button:disabled{opacity:.35}
+  .quantity-stepper input{width:100%;min-height:40px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--surface-raised);color:var(--text);text-align:center}
+  .device-service{color:var(--accent)!important;font-weight:700}
   .dialog-total{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
   .dialog-total span{font-size:10px;color:var(--muted)}
   .dialog-total strong{font-size:17px;font-variant-numeric:tabular-nums}
