@@ -2,6 +2,7 @@
   import EmptyState from './components/EmptyState.svelte';
   import GameChoice from './GameChoice.svelte';
   import type { Character, PaymentSourceType } from './lib/types';
+  import { equipLifestyleItem } from './lib/lifestyle';
   import {
     addOwnedLifestyleItem, addRecurringPayment, cancelRecurringPayment,
     formatCharacterMoney, makeAccountPurchase, makeCardPurchase, makeCashPurchase,
@@ -127,6 +128,12 @@
     }
     dialogKind = null;
   }
+  function wearFashionItem(id: string) {
+    const next = equipLifestyleItem(character, id);
+    if (next === character) return;
+    onChange(next);
+    onNotify('Outfit changed. Your presentation now reflects the clothes you are wearing.');
+  }
   function startSubscription() {
     if (!selectedProvider) return;
     const sourceId = paymentSource === 'cash' ? undefined : paymentSourceId;
@@ -193,7 +200,7 @@
       {#if ownedItems.length}
         <div class="owned-grid">
           {#each ownedItems as item (item.id)}
-            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small><p>{item.description}</p>{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small>{/if}</article>
+            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small><p>{item.description}</p>{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small><button class="wear-outfit-button" class:equipped={item.equipped === true} onclick={() => wearFashionItem(item.id)} disabled={item.equipped === true}>{item.equipped ? 'Currently wearing' : 'Wear this outfit'}</button>{/if}</article>
           {/each}
         </div>
       {:else}
@@ -248,6 +255,8 @@
   .market-section-heading h3{font-size:15px;margin:3px 0 0}
   .product-grid,.owned-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .market-product,.owned-item{display:grid;gap:7px;min-width:0;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--surface-raised)}
+  .wear-outfit-button{justify-self:start;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--surface);color:var(--text);font-size:10px;font-weight:700}
+  .wear-outfit-button.equipped{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
   .product-mark{font-size:7px;letter-spacing:.7px;color:var(--accent);font-weight:850}
   .product-info{min-width:0}
   .product-info strong,.product-info b{display:block;font-size:11px}
