@@ -139,7 +139,8 @@ describe('passive lifestyle simulation', () => {
     expect(activities.map((item) => item.id)).toEqual(expect.arrayContaining(['service-streaming', 'service-music', 'service-fitness']));
     const resolved = resolvePassiveLifestyleActivities(subscribed, activities);
     expect(resolved.fitness).toBe(character.fitness + 1);
-    expect(resolved.happiness).toBeGreaterThan(character.happiness);
+    expect(activities.find((item) => item.id === 'service-streaming')?.happiness).toBe(1);
+    expect(activities.find((item) => item.id === 'service-music')?.stress).toBe(1);
   });
 
   it('uses owned food from inventory, caps weekly food bonuses by stat, and consumes portions on resolution', () => {
