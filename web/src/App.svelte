@@ -325,13 +325,15 @@
     {/if}
     <MainMenu {slots} onContinue={continueLife} onNewGame={startNewLife} onPresets={openPresetLife} onFullCustom={openCustomLife} onAchievements={() => activeTab='achievements'} onSettings={() => activeTab='settings'} onExit={exitGame} />
   {:else}
-    <main class="main-layout">
+    <main class="main-layout" class:main-layout-no-sidebar={!character && activeTab === 'create'}>
+      {#if character || activeTab !== 'create'}
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
         {#each (character ? [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},...(character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'},{id:'finances',label:'Finance',icon:'◈'}] : []),{id:'life',label:'Lifestyle',icon:'✳'},{id:'profile',label:'Profile',icon:'◉'}] : [{id:'settings',label:'Settings',icon:'⚙'}]) as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => navigateTab(item.id)}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>Active save</strong><small>Slot {activeSlotId.slice(-1)}</small></div></div>{/if}
       </aside>
+      {/if}
       <section class="content">
         {#if activeTab==='create'}
           <CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='menu'} />
@@ -708,4 +710,5 @@
   .review-warning-list p{margin:0;font-size:10px;line-height:1.45;color:var(--text)}
   .week-review-dialog .year-review-note{margin:0}
   @media(max-width:480px){.week-review-dialog{padding:15px;gap:12px}.review-activity-row{gap:8px;padding:8px}.review-change-grid{grid-template-columns:1fr}}
+  .main-layout-no-sidebar{grid-template-columns:minmax(0,1fr)}
 </style>
