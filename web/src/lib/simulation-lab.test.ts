@@ -63,15 +63,11 @@ function preparedAdult(seed: number): Character {
     ...generated,
     money: 5000,
     currencyScale: 1,
-    stamina: 85,
-    health: 82,
-    happiness: 68,
-    fitness: 42,
-    stress: 22,
-    intelligence: 78,
-    focus: 76,
-    discipline: 74,
-    familyCulture: 'supportive',
+    // Keep generated wellbeing, stamina, stress, family culture and personality varied.
+    // Normalize only currency so scenarios compare strategies rather than exchange-rate scale.
+    intelligence: Math.max(generated.intelligence, 45),
+    focus: Math.max(generated.focus, 40),
+    discipline: Math.max(generated.discipline, 40),
     householdArrangement: 'family-supported',
     family: generated.family
       ? { ...generated.family, householdMemberIds: generated.family.people.map((person) => person.id) }
@@ -189,7 +185,7 @@ function educationPursuit(seed: number): Scenario {
 }
 
 function fitnessPursuit(seed: number): Scenario {
-  const initial = { ...preparedAdult(seed), fitness: 42, stamina: 85, health: 82, stress: 22 };
+  const initial = { ...preparedAdult(seed), fitness: 42 };
   return {
     id: '18yo-build-fitness',
     seed,
