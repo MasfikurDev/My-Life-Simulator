@@ -131,9 +131,9 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
   if (extendedFamily.length) {
     activities.push({
       id: 'passive-extended-family',
-      title: 'Relatives check in',
+      title: 'Extended circle checks in',
       source: extendedFamily.slice(0, 2).map((item) => item.name).join(', '),
-      detail: 'Relatives stay in touch and lend a hand when they can',
+      detail: 'People stay in touch and lend a hand when they can',
       staminaRecovery: extendedFamily.some((item) => item.supportLevel === 'strong') ? 2 : 1,
       health: 0,
       happiness: 1,
@@ -192,7 +192,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
     activities.push({
       id: 'passive-stable-home',
       title: 'Stable home environment',
-      source: residence?.name ?? (character.rentalHome ? 'Rental home' : hasSharedPartnerMeals ? partner?.name ?? 'Shared household' : 'Living with relatives'),
+      source: residence?.name ?? (character.rentalHome ? 'Rental home' : hasSharedPartnerMeals ? partner?.name ?? 'Shared household'  : 'Shared household'),
       detail: 'A steady home makes everyday life more comfortable.',
       staminaRecovery: 0,
       health: housingQuality >= 3 ? 1 : 0,
