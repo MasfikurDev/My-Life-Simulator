@@ -841,7 +841,7 @@ function getPlannedActivityTitle(character: Character, item: PlannedActivity): s
   if (item.action?.kind === 'education') return item.action.taskType === 'assignment' ? 'Education assignment' : item.action.taskType === 'exam' ? 'Academic assessment' : 'Focused study';
   if (item.action?.kind === 'care') return ({ rest: 'Rest & recovery', mindfulness: 'Mindfulness', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up' }[item.action.careType]);
   if (item.action?.kind === 'work') return (item.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + item.action.title;
-  if (item.action?.kind === 'family') return ({ 'spend-time': 'Spend time with family', 'reach-out': 'Reach out to family', reconcile: 'Resolve family conflict', 'provide-support': 'Provide family support' }[item.action.interaction]);
+  if (item.action?.kind === 'family') {\n    const person = character.family?.people.find((entry) => entry.id === item.action?.personId);\n    const name = person?.name ?? 'this person';\n    return ({ 'spend-time': 'Spend time with ' + name, 'reach-out': 'Reach out to ' + name, reconcile: 'Work through things with ' + name, 'provide-support': 'Send financial support to ' + name }[item.action.interaction]);\n  }
   if (item.action?.kind === 'social') {
     const connectionId = item.action.connectionId;
     return 'Spend time with ' + ((character.socialConnections ?? []).find((entry) => entry.id === connectionId)?.name ?? 'a social connection');
@@ -865,7 +865,7 @@ function getPlannedActivityReward(character: Character, item: PlannedActivity): 
   if (item.action?.kind === 'education') return 'Field skill (' + getSkillLabel(getEducationSkillId(character.educationEnrollment?.field)) + '), grades and qualifications';
   if (item.action?.kind === 'care') return ({ rest: 'Stamina, health, happiness and lower stress', mindfulness: 'Focus and lower stress', counselling: 'Mental wellbeing and stress recovery', 'medical-checkup': 'Health assessment and treatment planning' }[item.action.careType]);
   if (item.action?.kind === 'work') return 'Career opportunity, employment progression and role-relevant skill';
-  if (item.action?.kind === 'family') return 'Family closeness, trust and relationship history';
+  if (item.action?.kind === 'family') return 'Relationship closeness, trust and shared history';
   if (item.action?.kind === 'social') return 'Relationship closeness, communication skill and stronger social support';
   if (item.action?.kind === 'business') return 'Business performance and financial outcomes';
   if (item.action?.kind === 'event') return 'The chosen event outcome and its consequences';
@@ -914,13 +914,13 @@ export function planActivity(character: Character, activity: ActivityId, date?: 
 
 export function planFamilyInteraction(character: Character, personId: string, interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support', supportAmount = 0, date?: string): ActivityPlanningResult {
   const preview = interactWithFamily(character, personId, interaction, supportAmount);
-  if (preview === character) return { character, issue: 'unavailable', message: 'This interaction is not available for that family member right now.' };
+  if (preview === character) return { character, issue: 'unavailable', message: 'This interaction is not available for that person right now.' };
   if (getWeeklyPlan(character.weeklyPlan).activities.some((item) => item.action?.kind === 'family' && item.action.personId === personId)) {
-    return { character, issue: 'unavailable', message: 'An interaction with this family member is already planned this week.' };
+    return { character, issue: 'unavailable', message: 'An interaction with this person is already planned this week.' };
   }
   const family = character.family;
   const person = family?.people.find((entry) => entry.id === personId);
-  if (!family || !person || person.id === family.playerPersonId) return { character, issue: 'unavailable', message: 'That family member is not available.' };
+  if (!family || !person || person.id === family.playerPersonId) return { character, issue: 'unavailable', message: 'That person is not available.' };
   if (interaction === 'provide-support' && (!Number.isSafeInteger(supportAmount) || supportAmount <= 0)) return { character, issue: 'unavailable', message: 'Enter a valid support amount.' };
   const day = date ?? getWeekStart(character.calendar?.currentDate ?? getFirstWeekStartOfYear(character.year));
   return addWeeklyAction(character, 'family', day, { kind: 'family', personId, interaction, ...(interaction === 'provide-support' ? { supportAmount } : {}) }, interaction === 'provide-support' ? supportAmount : 0);
@@ -1159,7 +1159,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
       if (result !== next) recap.push(item.action.workAction === 'apply' ? 'Job application submitted: ' + item.action.title + '.' : 'Job interview completed: ' + item.action.title + '.');
     } else if (item.action?.kind === 'family') {
       result = interactWithFamily(next, item.action.personId, item.action.interaction, item.action.supportAmount ?? 0);
-      if (result !== next) recap.push('Family: ' + item.action.interaction.replace('-', ' ') + '.');
+      if (result !== next) recap.push('Relationship interaction completed.');
     } else if (item.action?.kind === 'social') {
       const connectionId = item.action.connectionId;
       result = interactWithSocialConnection(next, connectionId);
