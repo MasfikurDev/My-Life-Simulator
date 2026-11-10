@@ -2,10 +2,12 @@
   import type { Character, EducationTaskType } from './lib/types';
   import GameChoice from './GameChoice.svelte';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
-  import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation } from './lib/education';
+  import { enrollInEducation, getAvailableEducationPrograms } from './lib/education';
+  import EducationRecordsWorkspace from './EducationRecordsWorkspace.svelte';
   import { formatCharacterMoney, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getActivityStaminaCost, getValueColor } from './lib/progression';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
+  let subpage = $state<'education' | 'records'>('education');
   let selectedProgramId = $state('');
   let selectedField = $state('');
   const programs = $derived(getAvailableEducationPrograms(character));
@@ -28,11 +30,17 @@
     onChange(result.character); onNotify('Academic task added to this week.');
   }
   function taskPlanned(task: EducationTaskType) { return plannedTasks.some((item) => item.action?.kind === 'education' && item.action.taskType === task); }
-  function pause() { onChange(pauseEducation(character)); onNotify('Education paused. Progress has been saved.'); }
-  function resume() { const result = resumeEducation(character); if (result.issue) { onNotify(result.issue); return; } onChange(result.character); onNotify('Programme resumed. Classes have been arranged automatically.'); }
   function gradeLabel(value: number) { if (enrollment?.level === 'early-learning') return value >= 75 ? 'Developing well' : value >= 50 ? 'On track' : 'Needs more support'; return value >= 85 ? 'Excellent' : value >= 70 ? 'Good' : value >= 60 ? 'Pass' : value >= 45 ? 'At risk' : 'Critical'; }
 </script>
 
+<nav class="finance-nav" aria-label="Education sections">
+  <button class:active={subpage === 'education'} aria-current={subpage === 'education' ? 'page' : undefined} onclick={() => subpage = 'education'}>Education</button>
+  <button class:active={subpage === 'records'} aria-current={subpage === 'records' ? 'page' : undefined} onclick={() => subpage = 'records'}>Educational Records</button>
+</nav>
+
+{#if subpage === 'records'}
+  <EducationRecordsWorkspace {character} />
+{:else}
 {#if enrollment}
   <section class="education-hero domain-panel">
     <div class="education-hero-top"><div><div class="eyebrow">CURRENT ENROLLMENT · {enrollment.institution.toUpperCase()}</div><h2>{enrollment.level === 'bachelor' ? "Bachelor's degree" : enrollment.level === 'master' ? "Master's degree" : enrollment.level === 'doctorate' ? 'Doctoral programme' : enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">{enrollment.status === 'paused' ? 'PAUSED' : 'ENROLLED'}</span></div>
@@ -48,7 +56,6 @@
       {/each}
     </div>
     <div class="education-footnote">{#if enrollment.status === 'paused'}Progress retained{:else}{enrollment.weeklyStudyTarget} study points required each week{/if}</div>
-    {#if enrollment.status === 'paused'}<button class="primary-button education-pause" onclick={resume}>Resume programme</button>{:else}<button class="secondary-button education-pause" onclick={pause}>Pause programme</button>{/if}
   </section>
 
   {#if enrollment.status === 'enrolled'}
@@ -90,14 +97,5 @@
   </section>
 {/if}
 
-{#if character.academicHistory?.length || character.educationRecords?.length}
-  <section class="education-history-section">
-    <div class="section-heading"><div><span class="section-index">02</span><h3>Academic record</h3></div></div>
-    {#each [...(character.academicHistory ?? [])].reverse() as result}
-      <div class="education-history-row"><div><strong>{result.field}</strong><small>{result.institution} · {result.level.replaceAll('-', ' ')} · age {result.completedAtAge}</small></div><span class:education-result-pass={result.outcome === 'completed'}>{result.outcome === 'completed' ? 'Completed · ' : 'Not completed · '}{Math.round(result.grade)}%</span></div>
-    {/each}
-    {#each (character.educationRecords ?? []).filter((record) => record.status === 'paused') as record}
-      <div class="education-history-row"><div><strong>{record.level.replaceAll('-', ' ')}</strong><small>{record.institution} · paused at age {record.startedAtAge}</small></div><span>Paused</span></div>
-    {/each}
-  </section>
 {/if}
+
