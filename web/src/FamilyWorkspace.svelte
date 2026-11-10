@@ -4,14 +4,34 @@
   import { getValueColor } from './lib/progression';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
   import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import { addSocialConnection, removeSocialConnection, setSocialConnectionHousehold } from './lib/lifestyle';
 
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   let supportAmount = $state(0);
+  let socialName = $state('');
+  let socialType = $state<'friend' | 'partner' | 'child' | 'extended-family'>('friend');
+  let socialLivesTogether = $state(false);
   let feedback = $state('');
   const connections = $derived(getFamilyConnections(character));
   const family = $derived(character.family);
   const errors = $derived(family ? validateFamilyState(family) : []);
   const livingCount = $derived(connections.filter((item) => item.living).length);
+  const socialConnections = $derived(character.socialConnections ?? []);
+  function addSocialPerson() {
+    const next = addSocialConnection(character, socialName, socialType, socialLivesTogether);
+    if (next === character) { feedback = 'Check the name, age requirement and whether a partner is already recorded.'; return; }
+    onChange(next);
+    feedback = socialName.trim() + ' added to your social circle.';
+    socialName = '';
+    socialLivesTogether = false;
+  }
+  function removeSocialPerson(id: string) {
+    onChange(removeSocialConnection(character, id));
+    feedback = 'Social connection removed.';
+  }
+  function toggleSocialHousehold(id: string, livesWithPlayer: boolean) {
+    onChange(setSocialConnectionHousehold(character, id, livesWithPlayer));
+  }
   function interactionPlanned(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
     return (character.weeklyPlan?.activities ?? []).some((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
   }
@@ -100,6 +120,33 @@
       </div>
     {/if}
 
+    <section class="family-panel social-panel">
+      <div class="eyebrow">HOUSEHOLD & SOCIAL CIRCLE</div>
+      <h3>People who are part of everyday life</h3>
+      <p>Record friends, partners, children and extended relatives. Their household presence and relationship strength influence automatic weekly support and responsibilities.</p>
+      <div class="social-add-row">
+        <input aria-label="Person name" placeholder="Person's name" bind:value={socialName} maxlength="40" />
+        <select aria-label="Relationship type" bind:value={socialType}>
+          <option value="friend">Friend</option><option value="partner">Partner / spouse</option><option value="child">Child</option><option value="extended-family">Extended family</option>
+        </select>
+        <label><input type="checkbox" bind:checked={socialLivesTogether} /> Lives with me</label>
+        <button class="primary-action" onclick={addSocialPerson} disabled={!socialName.trim()}>Add person</button>
+      </div>
+      {#if socialConnections.length}
+        <div class="social-list">
+          {#each socialConnections as person (person.id)}
+            <article>
+              <div><strong>{person.name}</strong><small>{person.type.replace('-', ' ')} · {person.closeness}/100 closeness</small></div>
+              <label><input type="checkbox" checked={person.livesWithPlayer} onchange={(event) => toggleSocialHousehold(person.id, event.currentTarget.checked)} /> Lives here</label>
+              <button onclick={() => removeSocialPerson(person.id)} aria-label={'Remove ' + person.name}>Remove</button>
+            </article>
+          {/each}
+        </div>
+      {:else}
+        <p class="family-footnote">No friends, partner, children or extended relatives have been recorded yet. No relationships are assumed.</p>
+      {/if}
+    </section>
+
     <section class="family-panel">
       <div class="eyebrow">FAMILY HISTORY</div>
       <h3>Recorded milestones and interactions</h3>
@@ -130,6 +177,16 @@
   .family-summary strong{font-size:18px}.family-summary span{font-size:10px;color:var(--muted)}
   .guardian-note{margin-top:12px;padding:10px;border-radius:9px;background:var(--accent-soft);font-size:11px;line-height:1.5;color:var(--text)}
   .family-list{display:grid;gap:10px}
+  .social-add-row{display:grid;grid-template-columns:1.2fr 1fr;gap:8px;margin-top:12px}
+  .social-add-row>input,.social-add-row>select{min-width:0;min-height:38px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised);color:var(--text);padding:0 9px;font-size:11px}
+  .social-add-row>label,.social-list label{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted)}
+  .social-add-row button{grid-column:2}
+  .social-list{display:grid;gap:7px;margin-top:12px}
+  .social-list article{display:flex;align-items:center;gap:10px;padding:9px;border-radius:9px;background:var(--surface-raised)}
+  .social-list article>div{flex:1;min-width:0;display:grid;gap:3px}
+  .social-list strong{font-size:11px}.social-list small{font-size:9px;color:var(--muted);text-transform:capitalize}
+  .social-list button{border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--muted);padding:6px 8px;font-size:9px}
+  .social-panel>p{margin-top:5px}
   .relative-card{display:grid;gap:12px}
   .relative-head h3{font-size:15px}
   .bond-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
@@ -152,5 +209,5 @@
   .family-timeline strong{font-size:12px}.family-timeline small{font-size:9px;color:var(--muted);text-transform:uppercase}
   .family-footnote{font-size:10px;color:var(--muted);line-height:1.5;margin:0 2px}
   .warning{border-color:var(--warning)}
-  @media(max-width:420px){.family-summary{gap:5px}.family-summary div{padding:8px}.bond-grid{gap:6px}.relative-head{align-items:center}}
+  @media(max-width:420px){.family-summary{gap:5px}.family-summary div{padding:8px}.bond-grid{gap:6px}.relative-head{align-items:center}.social-add-row{grid-template-columns:1fr}.social-add-row button{grid-column:auto}.social-list article{flex-wrap:wrap}}
 </style>
