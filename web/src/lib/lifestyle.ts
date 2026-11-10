@@ -51,9 +51,9 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
   }
 
   const social = livingSocialConnections(character);
-  const partner = social.find((item) => item.type === 'partner' && item.livesWithPlayer);
-  if (partner && partner.closeness >= 30) {
-    activities.push({
+  const partner = social.find((item) => item.type === 'partner' && item.closeness >= 30);
+  if (partner) {
+    activities.push(partner.livesWithPlayer ? {
       id: 'passive-partner-support',
       title: 'Shared household support',
       source: partner.name,
@@ -62,6 +62,17 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       health: 1,
       happiness: partner.supportLevel === 'strong' ? 2 : 1,
       comfort: 2,
+      discipline: 0,
+      stress: partner.closeness >= 65 ? 1 : 0
+    } : {
+      id: 'passive-partner-support',
+      title: 'Partner checks in',
+      source: partner.name,
+      detail: 'Regular contact with your partner provides emotional support',
+      staminaRecovery: 0,
+      health: 0,
+      happiness: 1,
+      comfort: 1,
       discipline: 0,
       stress: partner.closeness >= 65 ? 1 : 0
     });
@@ -115,6 +126,24 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
     });
   }
 
+  const hasFamilyMeals = activities.some((item) => item.id === 'passive-family-meals');
+  const hasSharedPartnerMeals = activities.some((item) => item.id === 'passive-partner-support' && item.staminaRecovery > 0);
+  const hasBoughtFood = (character.weeklyPlan?.activities ?? []).some((item) => item.action?.kind === 'food');
+  if (character.age >= 18 && !hasFamilyMeals && !hasSharedPartnerMeals && !hasBoughtFood) {
+    activities.push({
+      id: 'passive-no-meals',
+      title: 'No regular meals arranged',
+      source: 'Independent routine',
+      detail: 'Buy groceries, prepared meals, delivery or restaurant food to maintain regular nutrition',
+      staminaRecovery: 0,
+      health: -1,
+      happiness: -1,
+      comfort: -1,
+      discipline: 0,
+      stress: -1
+    });
+  }
+
   const scale = character.currencyScale ?? 1;
   const residence = (character.properties ?? []).find((item) => item.id === character.primaryResidenceId);
   const homeValue = residence?.marketValue ?? 0;
@@ -136,6 +165,19 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       comfort: housingQuality,
       discipline: 0,
       stress: housingQuality >= 3 ? 1 : 0
+    });
+  } else if (character.age >= 18 && character.householdArrangement === 'independent') {
+    activities.push({
+      id: 'passive-housing-insecurity',
+      title: 'No stable home arranged',
+      source: 'Independent living',
+      detail: 'Rent a home or move into owned property to improve comfort and security',
+      staminaRecovery: 0,
+      health: 0,
+      happiness: -1,
+      comfort: -2,
+      discipline: 0,
+      stress: -2
     });
   }
 
