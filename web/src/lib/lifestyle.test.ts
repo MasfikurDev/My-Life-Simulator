@@ -154,7 +154,7 @@ describe('passive lifestyle simulation', () => {
       quantity: 2, kind: 'usable', foodEffects: { staminaRecovery: 6, health: 1, happiness: 3, stress: 2, comfort: 1 }
     });
     const eggs = secondStock.ownedLifestyleItems!.find((item) => item.productId === 'meal-eggs')!;
-    const fruit = secondStock.ownedLifestyleItems!.find((item) => item.productId === 'meal-fruit')!;
+    const fruit = secondStock.ownedLifestyleItems!.find((item) => item.productId === 'meal-restaurant')!;
     const first = planOwnedFoodInNextFreeTime(secondStock, eggs.id);
     expect(first.issue).toBeNull();
     expect(first.character.weeklyPlan!.activities[0].action).toMatchObject({ kind: 'food', staminaRecovery: 8, health: 2, happiness: 0 });
@@ -165,7 +165,7 @@ describe('passive lifestyle simulation', () => {
     const resolved = advanceWeek(second.character);
     expect(resolved.issue).toBeNull();
     expect(resolved.character.ownedLifestyleItems!.find((item) => item.productId === 'meal-eggs')?.quantity).toBe(2);
-    expect(resolved.character.ownedLifestyleItems!.find((item) => item.productId === 'meal-fruit')?.quantity).toBe(1);
+    expect(resolved.character.ownedLifestyleItems!.find((item) => item.productId === 'meal-restaurant')?.quantity).toBe(1);
   });
 
   it('allows a non-cohabiting partner to provide emotional support without replacing meals or housing', () => {
