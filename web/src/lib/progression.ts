@@ -54,7 +54,7 @@ export function getEducationStage(age: number): string {
 }
 
 export function isActivityAvailable(age: number, activity: ActivityId, employment?: Employment | null): boolean {
-  if (activity === 'study') return age >= 3;
+  if (activity === 'study') return age >= 3;\n  if (activity === 'exercise' || activity === 'socialize') return age >= 3;
   if (activity === 'work') return age >= 16;
   if (activity === 'apply-job') return age >= 16 && (!employment || age >= 18);
   if (activity === 'career') return age >= 16 && Boolean(employment);

@@ -34,7 +34,7 @@ export function initializeAgeAppropriateStats<T extends Character>(character:T,r
  for(const stat of DEVELOPMENT_STATS){
   potential[stat]=potential[stat]??Math.round(88+random()*12);
   const ceiling=Math.round(getAgeStatCap(character.age,stat)*(potential[stat]??100)/100);
-  Object.assign(next,{[stat]:Math.round(ceiling*(0.62+random()*0.26))});
+  Object.assign(next,{[stat]:stat==='health'?Math.max(50,Math.round(ceiling*(0.62+random()*0.26))):Math.round(ceiling*(0.62+random()*0.26))});
  }
  next.statPotential=potential; return next;
 }
