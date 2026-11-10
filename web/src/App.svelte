@@ -539,7 +539,7 @@
                 <section class="review-section">
                   <details class="review-planned-details">
                     <summary class="review-planned-summary">
-                      <span class="review-planned-heading"><strong>Activities</strong><small>{weeklyReview.activities.length} planned · {weeklyReview.passiveActivities.length} automatic</small></span>
+                      <span class="review-planned-heading"><strong>Activities</strong><small>{weeklyReview.activities.length + weeklyReview.passiveActivities.length} total · {weeklyReview.activities.length} planned · {weeklyReview.passiveActivities.length} automatic</small></span>
                       <span class="review-planned-totals"><span>{weeklyReview.staminaCost} stamina</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong><i aria-hidden="true"></i></span>
                     </summary>
                     {#if weeklyReview.activities.length || weeklyReview.passiveActivities.length}
@@ -561,7 +561,6 @@
                     {:else}
                       <p class="review-empty">No planned or automatic activities are currently contributing this week.</p>
                     {/if}
-                    <div class="review-cash-row"><span>Total direct activity costs</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong></div>
                   </details>
                 </section>
 
