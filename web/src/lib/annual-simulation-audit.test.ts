@@ -66,6 +66,8 @@ describe('age-18 full-year simulation audit', () => {
     let minimumCash = character.money;
     let plannedTurns = 0;
     let passiveActivityEntries = 0;
+    let zeroStaminaWeeks = 0;
+    let lowStaminaWeeks = 0;
 
     for (let week = 0; week < 52; week += 1) {
       const weekStart = character.calendar!.currentDate;
@@ -117,6 +119,8 @@ describe('age-18 full-year simulation audit', () => {
         expect(value).toBeLessThanOrEqual(100);
       }
 
+      if ((character.stamina ?? 50) === 0) zeroStaminaWeeks += 1;
+      if ((character.stamina ?? 50) < 25) lowStaminaWeeks += 1;
       minimumStamina = Math.min(minimumStamina, character.stamina ?? 50);
       maximumStamina = Math.max(maximumStamina, character.stamina ?? 50);
       minimumCash = Math.min(minimumCash, character.money);
@@ -127,6 +131,7 @@ describe('age-18 full-year simulation audit', () => {
     expect(minimumStamina).toBeGreaterThanOrEqual(0);
     expect(maximumStamina).toBeLessThanOrEqual(100);
     expect(minimumCash).toBeGreaterThanOrEqual(0);
+    console.info('AGE18_AUDIT ' + JSON.stringify({ scenario: _scenario, weeks: 52, plannedTurns, passiveActivityEntries, minimumStamina, maximumStamina, minimumCash, zeroStaminaWeeks, lowStaminaWeeks }));
     // 52 weekly turns are 364 days; the generated birthday falls one day later.
     expect(character.age).toBe(18);
     expect(character.year).toBe(2027);
