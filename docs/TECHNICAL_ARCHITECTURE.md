@@ -2,7 +2,7 @@
 
 ## Education, qualifications, wellbeing and medical state
 
-The pure TypeScript domain modules `education.ts` and `wellbeing.ts` own education and health state transitions. The Education workspace calls domain functions for programme availability, enrollment, pause/resume and weekly academic task planning. Enrolling creates `EducationEnrollment` and an `EducationRecord`; attendance and academic progression are automatic weekly responsibilities, not calendar reservations. Programme prerequisites and minimum ability thresholds are checked by the education domain. A completed passing programme records an `AcademicResult` and a `Qualification` with its source `programId`; Work reads those records for eligibility and does not issue or mutate them.
+The pure TypeScript domain modules `education.ts` and `wellbeing.ts` own education and health state transitions. The Education workspace calls domain functions for programme availability, enrollment and weekly academic task planning. Educational Records presents completed academic results and qualifications separately. Enrolling creates `EducationEnrollment` and an `EducationRecord`; attendance and academic progression are automatic weekly responsibilities, not calendar reservations. Programme prerequisites and minimum ability thresholds are checked by the education domain. A completed passing programme records an `AcademicResult` and a `Qualification` with its source `programId`; Work reads those records for eligibility and does not issue or mutate them.
 
 The weekly resolver dispatches education and care actions from `PlannedAction`, applies their costs/effects, resolves academic grades against completed task points, attendance, workload, stress, stamina and health, then updates wellbeing once per week from automatic education/work responsibility load and selected activity effort. Missing academic targets reduces grades. Overload increases stress/fatigue and can trigger burnout/anxiety conditions; rest, mindfulness, counselling and medical check-ups are modeled as planned care actions. Medical conditions, treatment plans and short medication courses are stored in optional `medicalState`.
 
@@ -163,7 +163,7 @@ Current Finance UI boundary:
 - App.svelte owns global navigation, character lifecycle, persistence, and time progression. It should not assemble all finance modules inline.
 
 Education and Work are independent top-level destinations with implemented simulation-backed foundations:
-- Education owns programme discovery, enrollment, weekly study/assignment/exam actions, automatic attendance/progression, grades, tuition, pause/resume, and qualification history.
+- Education owns programme discovery, enrollment, weekly study/assignment/exam actions, automatic attendance/progression, grades, tuition, and qualification history. Education and Educational Records are separate subpages; programme pausing is not exposed as a player action.
 - Work owns job discovery, applications, interviews, expiring offers, employment changes, resignation, extra earnings, career development, and promotion offers. Persistent employer operations, broad workplace decisions, benefits, bonuses, and monthly payroll remain planned.
 - Do not implement either domain as a status panel inside Finance. Their simulation logic remains callable independently from their UI.
 
