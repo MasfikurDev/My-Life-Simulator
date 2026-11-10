@@ -40,6 +40,7 @@
   let selectedTheme = $state<GameTheme>('amoled');
   let slotToDelete = $state<SaveSlotId | null>(null);
   let pendingSlotId = $state<SaveSlotId | null>(null);
+  let pendingAchievementEligible = $state(false);
   let debugCopying = $state(false);
   let advanceReviewOpen = $state(false);
   let weeklyFinanceOpen = $state(false);
@@ -140,7 +141,7 @@
     if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
     try {
-      persist(nextCharacter);
+      persist({ ...nextCharacter, achievementEligible: pendingAchievementEligible });
       activeTab = 'home'; notify('Life saved.'); playSound('start');
     } catch { notify('The save could not be written. Check available device storage and try again.'); }
   }
@@ -149,9 +150,10 @@
     resetSaveData(); saveFormatIssue = null; slots = getSaveSlots(); activeSlotId = 'slot-1'; setActiveSlotId('slot-1');
     notify('Old saves cleared. You can start a new life.');
   }
-  function openCreation(slotId: SaveSlotId) {
+  function openCreation(slotId: SaveSlotId, achievementEligible: boolean) {
     if (slots.find((slot) => slot.id === slotId)?.character) { notify('Delete or switch that save slot before starting another life.'); return; }
     pendingSlotId = slotId;
+    pendingAchievementEligible = achievementEligible;
     activeTab = 'create';
   }
   function continueLife() {
@@ -163,13 +165,23 @@
     if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     const empty = slots.find((slot) => !slot.character);
     if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
-    openCreation(empty.id);
+    openCreation(empty.id, true);
+  }
+  function openPresetLife() {
+    if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
+    const empty = slots.find((slot) => !slot.character);
+    if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
+    pendingSlotId = empty.id;
+    pendingAchievementEligible = false;
+    activeTab = 'create';
   }
   function openCustomLife() {
     if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     const empty = slots.find((slot) => !slot.character);
     if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
-    pendingSlotId = empty.id; activeTab = 'custom';
+    pendingSlotId = empty.id;
+    pendingAchievementEligible = false;
+    activeTab = 'custom';
   }
   function exitGame() {
     const bridge = getAndroidBridge();
@@ -248,8 +260,10 @@
     playSound(crossedYear ? 'year' : 'action');
   }
   function restart() {
+    const keepAchievementEligibility = character?.achievementEligible === true;
     clearSave(activeSlotId); slots = getSaveSlots(); character = null;
-    showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.'); pendingSlotId = activeSlotId;
+    showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.');
+    pendingSlotId = activeSlotId; pendingAchievementEligible = keepAchievementEligibility;
   }
   function reloadLatest() {
     const bridge = getAndroidBridge();
@@ -309,7 +323,7 @@
         <button class="primary-button" onclick={resetUnsupportedSaves}>Discard old saves and start fresh</button>
       </section>
     {/if}
-    <MainMenu {slots} onContinue={continueLife} onNewGame={startNewLife} onPresets={startNewLife} onFullCustom={openCustomLife} onAchievements={() => activeTab='achievements'} onSettings={() => activeTab='settings'} onExit={exitGame} />
+    <MainMenu {slots} onContinue={continueLife} onNewGame={startNewLife} onPresets={openPresetLife} onFullCustom={openCustomLife} onAchievements={() => activeTab='achievements'} onSettings={() => activeTab='settings'} onExit={exitGame} />
   {:else}
     <main class="main-layout">
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
