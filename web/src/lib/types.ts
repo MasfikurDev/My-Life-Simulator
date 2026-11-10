@@ -34,7 +34,9 @@ export type PaymentSourceType = 'cash' | 'account' | 'card';
 export interface BankCard { id: string; name: string; type: CardType; linkedAccountId?: string; creditLimit: number; balance: number; annualInterestRate: number; active: boolean; productId?: string; rewardsRate?: number; rewardBalance?: number; }
 export interface Loan { id: string; name: string; type: LoanType; principal: number; balance: number; annualInterestRate: number; termYears: number; paymentAccountId?: string; active: boolean; }
 export interface RecurringPayment { id: string; name: string; amount: number; category: 'subscription' | 'bill'; sourceType: PaymentSourceType; sourceId?: string; active: boolean; startedAtYear: number; }
-export interface OwnedLifestyleItem { id: string; productId: string; name: string; category: string; description: string; quantity: number; purchasedAtYear: number; kind: 'usable' | 'permanent'; }
+export interface OwnedLifestyleItem { id: string; productId: string; name: string; category: string; description: string; quantity: number; purchasedAtYear: number; kind: 'usable' | 'permanent'; styleScore?: number; formality?: number; condition?: number; equipped?: boolean; }
+export type SocialConnectionType = 'friend' | 'partner' | 'child' | 'extended-family';
+export interface SocialConnection { id: string; name: string; type: SocialConnectionType; closeness: number; active: boolean; livesWithPlayer: boolean; supportLevel: 'occasional' | 'regular' | 'strong'; }
 export interface AutoDepositRule { id: string; targetAccountId: string; method: 'fixed' | 'percentage'; value: number; active: boolean; }
 
 export interface BankAccount {
@@ -223,7 +225,8 @@ export type PlannedAction =
   | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string }
   | { kind: 'education'; taskType: EducationTaskType }
   | { kind: 'care'; careType: CareActionType }
-  | { kind: 'food'; productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number };
+  | { kind: 'food'; productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number; comfort?: number }
+  | { kind: 'social'; connectionId: string; interaction: 'spend-time' };
 
 export interface PlannedActivity {
   id: string;
@@ -239,6 +242,9 @@ export interface Character {
   intelligence: number; fitness: number; money: number;
   /** Ability/condition stats use 0–100; stress is inverse (lower is better). */
   stamina: number; focus: number; confidence: number; discipline: number; creativity: number; socialSkills: number; stress: number;
+  comfort?: number;
+  familyCulture?: 'supportive' | 'structured' | 'strained' | 'neglectful';
+  socialConnections?: SocialConnection[];
   calendar: GameCalendar;
   weeklyPlan: WeeklyPlan;
   lastResolvedWeekStart?: string;

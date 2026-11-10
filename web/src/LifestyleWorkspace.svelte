@@ -2,6 +2,7 @@
   import EmptyState from './components/EmptyState.svelte';
   import GameChoice from './GameChoice.svelte';
   import type { Character, PaymentSourceType } from './lib/types';
+  import { equipLifestyleItem } from './lib/lifestyle';
   import {
     addOwnedLifestyleItem, addRecurringPayment, cancelRecurringPayment,
     formatCharacterMoney, makeAccountPurchase, makeCardPurchase, makeCashPurchase,
@@ -13,7 +14,7 @@
   type MarketProduct = {
     id: string; name: string; category: string; description: string; price: number;
     kind: 'food' | 'usable' | 'permanent';
-    staminaRecovery?: number; health?: number; happiness?: number; stress?: number;
+    staminaRecovery?: number; health?: number; happiness?: number; stress?: number; comfort?: number; styleScore?: number; formality?: number;
   };
   type Provider = { id: string; name: string; plan: string; category: string; price: number; detail: string };
   const activeView = $derived(initialView);
@@ -37,6 +38,9 @@
     { id: 'meal-fruit', name: 'Fresh fruit', category: 'Food', description: 'A fresh snack with a small wellbeing boost', price: 12, kind: 'food', staminaRecovery: 3, health: 2, happiness: 1, stress: 1 },
     { id: 'meal-balanced', name: 'Balanced meal', category: 'Food', description: 'A complete meal for recovery and wellbeing', price: 28, kind: 'food', staminaRecovery: 9, health: 3, happiness: 2, stress: 1 },
     { id: 'meal-chicken', name: 'Chicken meal', category: 'Food', description: 'A substantial protein-rich meal', price: 34, kind: 'food', staminaRecovery: 10, health: 2, happiness: 2 },
+    { id: 'meal-groceries', name: 'Weekly grocery basket', category: 'Food', description: 'A practical mix of groceries to cover regular meals throughout the week', price: 110, kind: 'food', staminaRecovery: 24, health: 4, happiness: 2, comfort: 1 },
+    { id: 'meal-restaurant', name: 'Restaurant dinner', category: 'Eating out', description: 'A sit-down meal with better ambience and a social break', price: 85, kind: 'food', staminaRecovery: 5, health: 1, happiness: 5, comfort: 3, stress: 2 },
+    { id: 'meal-delivery', name: 'Food delivery', category: 'Delivery', description: 'A convenient prepared meal delivered to your home', price: 65, kind: 'food', staminaRecovery: 5, happiness: 4, comfort: 3, stress: 1 },
     { id: 'phone-basic', name: 'Everyday smartphone', category: 'Electronics', description: 'A practical smartphone for daily use', price: 420, kind: 'permanent' },
     { id: 'laptop-basic', name: 'Personal laptop', category: 'Electronics', description: 'A general-purpose laptop for study and work', price: 850, kind: 'permanent' },
     { id: 'headphones', name: 'Wireless headphones', category: 'Electronics', description: 'Portable audio for everyday listening', price: 95, kind: 'permanent' },
@@ -45,7 +49,13 @@
     { id: 'textbook', name: 'Study reference book', category: 'Books', description: 'A reusable reference for independent learning', price: 42, kind: 'permanent' },
     { id: 'fitness-kit', name: 'Home fitness kit', category: 'Fitness', description: 'Basic reusable equipment for exercise', price: 110, kind: 'permanent' },
     { id: 'backpack', name: 'Everyday backpack', category: 'Accessories', description: 'A durable bag for daily essentials', price: 55, kind: 'permanent' },
-    { id: 'desk-lamp', name: 'Desk lamp', category: 'Home', description: 'A useful addition to a study or work space', price: 38, kind: 'permanent' }
+    { id: 'desk-lamp', name: 'Desk lamp', category: 'Home', description: 'A useful addition to a study or work space', price: 38, kind: 'permanent' },
+    { id: 'fashion-basic', name: 'Everyday basics', category: 'Fashion', description: 'Clean, practical clothing for everyday use', price: 45, kind: 'permanent', styleScore: 35, formality: 15 },
+    { id: 'fashion-casual', name: 'Casual outfit', category: 'Fashion', description: 'A coordinated casual look for daily outings', price: 110, kind: 'permanent', styleScore: 55, formality: 25 },
+    { id: 'fashion-smart', name: 'Smart casual outfit', category: 'Fashion', description: 'A polished look suitable for social occasions', price: 240, kind: 'permanent', styleScore: 70, formality: 55 },
+    { id: 'fashion-formal', name: 'Business suit', category: 'Fashion', description: 'Well-tailored formalwear for interviews and professional settings', price: 620, kind: 'permanent', styleScore: 82, formality: 95 },
+    { id: 'fashion-designer', name: 'Designer outfit', category: 'Fashion', description: 'Premium branded clothing with a distinctive look', price: 1450, kind: 'permanent', styleScore: 92, formality: 65 },
+    { id: 'fashion-luxury', name: 'Luxury formalwear', category: 'Fashion', description: 'High-end formal clothing for important occasions', price: 2400, kind: 'permanent', styleScore: 96, formality: 100 }
   ];
   const providers: Provider[] = [
     { id: 'stream-basic', name: 'ViewFlix', category: 'Entertainment', plan: 'Standard streaming', price: 120, detail: 'Films and series · annual plan' },
@@ -55,7 +65,7 @@
     { id: 'fitness-club', name: 'Active Club', category: 'Health & fitness', plan: 'Gym membership', price: 240, detail: 'Access to fitness facilities' },
     { id: 'cloud-storage', name: 'CloudBox', category: 'Digital services', plan: 'Cloud storage', price: 48, detail: 'Personal file storage' }
   ];
-  const categories = ['All', 'Food', 'Electronics', 'Transport', 'Books', 'Fitness', 'Accessories', 'Home'];
+  const categories = ['All', 'Food', 'Eating out', 'Delivery', 'Fashion', 'Electronics', 'Transport', 'Books', 'Fitness', 'Accessories', 'Home'];
   const selectedProduct = $derived(products.find((item) => item.id === selectedProductId));
   const selectedOwnedQuantity = $derived(selectedProduct ? (ownedItems.find((item) => item.productId === selectedProduct.id)?.quantity ?? 0) : 0);
   const selectedProvider = $derived(providers.find((item) => item.id === selectedProviderId));
@@ -96,7 +106,8 @@
         staminaRecovery: Math.min(30, (selectedProduct.staminaRecovery ?? 0) * orderQuantity),
         health: Math.min(12, (selectedProduct.health ?? 0) * orderQuantity),
         happiness: Math.min(10, (selectedProduct.happiness ?? 0) * orderQuantity),
-        stress: Math.min(8, (selectedProduct.stress ?? 0) * orderQuantity)
+        stress: Math.min(8, (selectedProduct.stress ?? 0) * orderQuantity),
+        comfort: Math.min(12, (selectedProduct.comfort ?? 0) * orderQuantity)
       });
       if (planned.issue) { onNotify(planned.message ?? 'The food could not be added to this week.'); return; }
       base = planned.character;
@@ -107,7 +118,8 @@
       const next = addOwnedLifestyleItem(paid, {
         productId: selectedProduct.id, name: selectedProduct.name, category: selectedProduct.category,
         description: selectedProduct.description, quantity: orderQuantity,
-        kind: selectedProduct.kind === 'usable' ? 'usable' : 'permanent'
+        kind: selectedProduct.kind === 'usable' ? 'usable' : 'permanent',
+        ...(selectedProduct.styleScore !== undefined ? { styleScore: selectedProduct.styleScore, formality: selectedProduct.formality ?? 0 } : {})
       });
       onChange(next);
       onNotify(selectedProduct.name + ' purchased and added to Owned.');
@@ -116,6 +128,12 @@
       onNotify(selectedProduct.name + ' bought and added to this week\'s plan.');
     }
     dialogKind = null;
+  }
+  function wearFashionItem(id: string) {
+    const next = equipLifestyleItem(character, id);
+    if (next === character) return;
+    onChange(next);
+    onNotify('Outfit changed. Your presentation now reflects the clothes you are wearing.');
   }
   function startSubscription() {
     if (!selectedProvider) return;
@@ -183,7 +201,7 @@
       {#if ownedItems.length}
         <div class="owned-grid">
           {#each ownedItems as item (item.id)}
-            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}</small><p>{item.description}</p></article>
+            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small><p>{item.description}</p>{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small><button class="wear-outfit-button" class:equipped={item.equipped === true} onclick={() => wearFashionItem(item.id)} disabled={item.equipped === true}>{item.equipped ? 'Currently wearing' : 'Wear this outfit'}</button>{/if}</article>
           {/each}
         </div>
       {:else}
@@ -209,7 +227,7 @@
           <p>{selectedProduct.description}</p>
           <label class="quantity-field">Quantity<input type="number" min="1" max="20" bind:value={quantity} /></label>
           {#if dialogKind === 'food'}
-            <div class="food-benefits"><strong>Weekly plan effects</strong><span>Stamina +{Math.min(30, (selectedProduct.staminaRecovery ?? 0) * orderQuantity)}</span>{#if selectedProduct.health}<span>Health +{Math.min(12, selectedProduct.health * orderQuantity)}</span>{/if}{#if selectedProduct.happiness}<span>Happiness +{Math.min(10, selectedProduct.happiness * orderQuantity)}</span>{/if}{#if selectedProduct.stress}<span>Stress −{Math.min(8, selectedProduct.stress * orderQuantity)}</span>{/if}</div>
+            <div class="food-benefits"><strong>Weekly plan effects</strong><span>Stamina +{Math.min(30, (selectedProduct.staminaRecovery ?? 0) * orderQuantity)}</span>{#if selectedProduct.health}<span>Health +{Math.min(12, selectedProduct.health * orderQuantity)}</span>{/if}{#if selectedProduct.happiness}<span>Happiness +{Math.min(10, selectedProduct.happiness * orderQuantity)}</span>{/if}{#if selectedProduct.comfort}<span>Comfort +{Math.min(12, selectedProduct.comfort * orderQuantity)}</span>{/if}{#if selectedProduct.stress}<span>Stress −{Math.min(8, selectedProduct.stress * orderQuantity)}</span>{/if}</div>
             <p class="dialog-note">Payment is taken now. The meal is marked BOUGHT in your planned activities and its effects apply when the week is resolved.</p>
           {:else}
             <p class="dialog-note">After successful checkout, this item will be added to your Owned inventory.</p>
@@ -238,6 +256,8 @@
   .market-section-heading h3{font-size:15px;margin:3px 0 0}
   .product-grid,.owned-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .market-product,.owned-item{display:grid;gap:7px;min-width:0;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--surface-raised)}
+  .wear-outfit-button{justify-self:start;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--surface);color:var(--text);font-size:10px;font-weight:700}
+  .wear-outfit-button.equipped{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
   .product-mark{font-size:7px;letter-spacing:.7px;color:var(--accent);font-weight:850}
   .product-info{min-width:0}
   .product-info strong,.product-info b{display:block;font-size:11px}

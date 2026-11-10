@@ -35,6 +35,7 @@
     { label: 'Fitness', value: character.fitness, tone: 'fitness', inverse: false },
     { label: 'Stamina', value: character.stamina ?? 50, tone: 'stamina', inverse: false },
     { label: 'Happiness', value: character.happiness, tone: 'happiness', inverse: false },
+    { label: 'Comfort', value: character.comfort ?? 50, tone: 'comfort', inverse: false },
     { label: 'Stress', value: character.stress ?? 30, tone: 'stress', inverse: true }
   ]);
 </script>

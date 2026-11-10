@@ -1,5 +1,6 @@
 import type { CareerPathId, Character, Employment, EmploymentType, JobApplication, JobOffer, PromotionOffer } from './types';
 import { addCalendarDays } from './calendar';
+import { getClothingPresentationScore } from './lifestyle';
 
 export interface CareerRole {
   id: string;
@@ -309,7 +310,8 @@ export function resolveJobInterview(character: Character, applicationId: string,
   const personality = (character.personality ?? []).some((trait) => trait === 'Ambitious' || trait === 'Disciplined') ? 0.06 : 0;
   const communication = ((character.socialSkills ?? 50) - 50) / 500 + ((character.confidence ?? 50) - 50) / 600;
   const readiness = ((character.focus ?? 50) - 50) / 700 - Math.max(0, (character.stress ?? 30) - 60) / 500;
-  const chance = Math.max(0.15, Math.min(0.92, 0.48 + (character.intelligence - 50) / 300 + (performance - 50) / 500 + qualification + personality + communication + readiness));
+  const presentation = Math.max(-0.02, Math.min(0.02, (getClothingPresentationScore(character, 90) - 50) / 2500));
+  const chance = Math.max(0.15, Math.min(0.92, 0.48 + (character.intelligence - 50) / 300 + (performance - 50) / 500 + qualification + personality + communication + readiness + presentation));
   const passed = random() < chance;
   const issuedAt = character.calendar?.currentDate ?? character.year + '-01-01';
   const offer: JobOffer | null = passed ? {

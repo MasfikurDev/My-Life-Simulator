@@ -197,7 +197,8 @@ describe('life simulation', () => {
     expect(afterBirthday.history.some((entry) => entry.title === 'Adult opportunities unlocked')).toBe(true);
   });
   it('uses the correct age for annual health settlement when a birthday is not near January', () => {
-    const base = createCharacter('Older adult', 45);
+    const generated = createCharacter('Older adult', 45);
+    const base = { ...generated, familyCulture: 'neglectful' as const };
     const beforeYearBoundary = {
       ...base,
       calendar: { currentDate: '2026-12-28', birthDate: '1981-07-10' }
@@ -620,7 +621,8 @@ describe('life simulation', () => {
   });
 
   it('credits planned recovery before accepting stamina-costing actions', () => {
-    const base = { ...createCharacter('Recovery planner', 12), stamina: 0 };
+    const generated = createCharacter('Recovery planner', 12);
+    const base = { ...generated, familyCulture: 'neglectful' as const, stamina: 0 };
     const recoveryFirst = planCareActionInNextFreeTime(base, 'rest');
     expect(recoveryFirst.issue).toBeNull();
     const balanced = planActivityInNextFreeTime(recoveryFirst.character, 'study');

@@ -526,6 +526,27 @@
                 <section class="review-section">
                   <details class="review-planned-details">
                     <summary class="review-planned-summary">
+                      <span class="review-planned-heading"><strong>Passive activities</strong><small>{weeklyReview.passiveActivities.length} automatic background {weeklyReview.passiveActivities.length === 1 ? 'activity' : 'activities'} · cannot be removed</small></span>
+                      <span class="review-planned-totals"><span>+{weeklyReview.passiveStaminaRecovery} stamina</span><i aria-hidden="true"></i></span>
+                    </summary>
+                    {#if weeklyReview.passiveActivities.length}
+                      <div class="review-activity-list">
+                        {#each weeklyReview.passiveActivities as activity (activity.id)}
+                          <article class="review-activity-row review-passive-row">
+                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.source} · {activity.detail}</small><small>{activity.reward}</small><span class="review-passive-seal">AUTOMATIC</span></div>
+                            <div class="review-activity-cost"><b>{activity.staminaRecovery ? '+' + activity.staminaRecovery + ' stamina' : 'Background effect'}</b></div>
+                          </article>
+                        {/each}
+                      </div>
+                    {:else}
+                      <p class="review-empty">No household or social support is currently contributing automatic activities.</p>
+                    {/if}
+                  </details>
+                </section>
+
+                <section class="review-section">
+                  <details class="review-planned-details">
+                    <summary class="review-planned-summary">
                       <span class="review-planned-heading"><strong>Planned activities</strong><small>{weeklyReview.activities.length} {weeklyReview.activities.length === 1 ? 'activity' : 'activities'} selected</small></span>
                       <span class="review-planned-totals"><span>{weeklyReview.staminaCost} stamina</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong><i aria-hidden="true"></i></span>
                     </summary>
@@ -555,6 +576,7 @@
                     <div><small>Projected</small><strong>{Math.round(weeklyReview.projectedStamina)}%</strong></div>
                   </div>
                   <div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div>
+                  {#if weeklyReview.passiveStaminaRecovery > 0}<p class="review-empty">Automatic household and social support contributes +{weeklyReview.passiveStaminaRecovery} stamina before planned activity costs.</p>{/if}
                   {#if Math.min(100, weeklyReview.currentStamina + weeklyReview.staminaRecovery) < weeklyReview.staminaCost}<p class="year-review-warning">The plan exceeds your stamina budget. Select recovery activities or remove demanding activities before resolving.</p>{/if}
                 </section>
 
@@ -661,6 +683,8 @@
   .review-section-heading>span{font-size:9px;color:var(--muted);text-align:right}
   .review-activity-list{display:grid;gap:7px}
   .review-activity-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+  .review-passive-row{opacity:.62;filter:saturate(.55);background:var(--surface-raised)}
+  .review-passive-seal{justify-self:start;padding:3px 6px;border:1px solid var(--line);border-radius:5px;color:var(--muted);font-size:7px;font-weight:850;letter-spacing:.7px}
   .review-activity-row>div:first-child{display:grid;gap:4px;min-width:0}
   .review-activity-copy{flex:1}
   .review-bought-seal{justify-self:start;padding:3px 6px;border:1px solid color-mix(in srgb,var(--accent) 48%,transparent);border-radius:5px;background:var(--accent-soft);color:var(--accent);font-size:7px;font-weight:850;letter-spacing:.7px}
