@@ -1053,7 +1053,7 @@ export function addOwnedLifestyleItem(character: Character, item: Omit<OwnedLife
 }
 
 export function planOwnedFoodInNextFreeTime(character: Character, ownedItemId: string): ActivityPlanningResult {
-  const item = (character.ownedLifestyleItems ?? []).find((entry) => entry.id === ownedItemId && entry.category === 'Food' && entry.foodEffects);
+  const item = (character.ownedLifestyleItems ?? []).find((entry) => entry.id === ownedItemId && entry.foodEffects);
   if (!item) return { character, issue: 'unavailable', message: 'Choose an edible item from your inventory.' };
   const schedule = getWeeklyPlan(character.weeklyPlan);
   const reserved = schedule.activities.reduce((total, activity) => total + (activity.action?.kind === 'food' && activity.action.ownedItemId === ownedItemId ? activity.action.quantity : 0), 0);
