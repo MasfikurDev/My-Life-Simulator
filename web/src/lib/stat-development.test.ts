@@ -8,10 +8,10 @@ describe('age-aware stat development',()=>{
   for(const stat of ['health','intelligence','stamina','focus'] as const)expect(child[stat]).toBeLessThan(adult[stat]);
  });
  it('locks formal exercise and social activities until early childhood',()=>{
-  expect(isActivityAvailable(2,'exercise')).toBe(false);
-  expect(isActivityAvailable(2,'socialize')).toBe(false);
-  expect(isActivityAvailable(3,'exercise')).toBe(true);
-  expect(isActivityAvailable(3,'socialize')).toBe(true);
+  expect(isActivityAvailable(1,'exercise')).toBe(false);
+  expect(isActivityAvailable(1,'socialize')).toBe(false);
+  expect(isActivityAvailable(2,'exercise')).toBe(true);
+  expect(isActivityAvailable(2,'socialize')).toBe(true);
  });
  it('raises age ceilings across childhood and young adulthood',()=>{
   expect(getAgeStatCap(5,'stamina')).toBeLessThan(getAgeStatCap(13,'stamina'));
