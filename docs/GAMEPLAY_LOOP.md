@@ -106,7 +106,7 @@ The week is shaped by the character's automatic responsibilities and the player'
 - New characters receive age-appropriate starting values. Children begin with substantially lower health, stamina, intelligence, fitness, focus, confidence, discipline, creativity, social skills, happiness, and comfort than adults.
 - Age ceilings rise gradually through childhood, adolescence, and young adulthood. Different stats use different curves; physical capacity peaks and declines differently from cognitive and social capabilities.
 - Each character has optional per-stat potential values. The field is backward-compatible; missing potential defaults to 100.
-- Natural development resolves once per successfully completed week. It is gradual, age-sensitive, and does not require scheduling basic childhood development.
+- Natural development resolves once per successfully completed week. It is gradual, age-sensitive, and does not require scheduling basic childhood development. Passive family care supports development from birth; guided study unlocks at age 3, and player-directed exercise and social activities unlock at age 2.
 - Activities and environmental effects can improve relevant stats, but positive weekly gains cannot exceed the current effective ceiling. Existing above-ceiling values in older saves are preserved rather than forcibly reduced.
 - Natural development does not replace active growth. Exercise, education, social interaction, and other pursuits remain the main way to build high capabilities. Neglect and adverse circumstances can offset gains.
 - Stress remains an inverse pressure meter, not a developmental capacity.
