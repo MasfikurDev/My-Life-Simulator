@@ -48,7 +48,7 @@ describe('passive lifestyle simulation', () => {
 
     const resolved = advanceWeek(supported);
     expect(resolved.issue).toBeNull();
-    expect(resolved.recap).toContain(expect.stringContaining('Meals provided by family:'));
+    expect(resolved.recap.some((entry) => entry.startsWith('Meals provided by family:'))).toBe(true);
     expect(resolved.recap.some((entry) => entry.includes('Stamina +5'))).toBe(true);
     expect(resolved.character.stamina).toBeGreaterThan(40);
   });
