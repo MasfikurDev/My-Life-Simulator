@@ -139,6 +139,7 @@
       <div class="eyebrow">HOUSEHOLD & SOCIAL CIRCLE</div>
       <h3>People who are part of everyday life</h3>
       <p>Record friends, partners, children and extended relatives. Their household presence and closeness influence automatic weekly support and responsibilities.</p>
+      <div class="family-culture-note"><strong>Family environment · {(character.familyCulture ?? 'supportive').replace('-', ' ')}</strong><span>{character.familyCulture === 'structured' ? 'Regular meals and routines reinforce discipline.' : character.familyCulture === 'strained' ? 'Basic household support is available, but tension limits its benefits.' : character.familyCulture === 'neglectful' ? 'Dependable household support is limited; no automatic family meals are assumed.' : 'Shared meals, encouragement and practical help provide a steady baseline.'}</span></div>
       <div class="social-add-row">
         <input aria-label="Person name" placeholder="Person's name" bind:value={socialName} maxlength="40" />
         <select aria-label="Relationship type" bind:value={socialType}>
@@ -193,6 +194,9 @@
   .family-summary strong{font-size:18px}.family-summary span{font-size:10px;color:var(--muted)}
   .guardian-note{margin-top:12px;padding:10px;border-radius:9px;background:var(--accent-soft);font-size:11px;line-height:1.5;color:var(--text)}
   .family-list{display:grid;gap:10px}
+  .family-culture-note{display:grid;gap:3px;margin-top:9px;padding:9px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised)}
+  .family-culture-note strong{font-size:10px;text-transform:capitalize}
+  .family-culture-note span{font-size:9px;line-height:1.4;color:var(--muted)}
   .social-add-row{display:grid;grid-template-columns:1.2fr 1fr;gap:8px;margin-top:12px}
   .social-add-row>input,.social-add-row>select{min-width:0;min-height:38px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised);color:var(--text);padding:0 9px;font-size:11px}
   .social-add-row>label,.social-list label{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted)}
