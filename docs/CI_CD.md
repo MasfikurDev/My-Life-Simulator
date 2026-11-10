@@ -28,7 +28,7 @@ Workflow: `.github/workflows/pr-guardrails.yml`
 
 - Runs on every pull request open, update, reopen, ready-for-review transition, and edit; it is independent of web/Android path filters.
 - Checks the full base-to-head diff for deleted tracked files.
-- A PR that deletes tracked files fails this guard unless it carries the explicit `allow-file-deletions` label. Apply that label only after reviewing the removed behavior, tests, and documentation. Renames detected by Git are not treated as deletions.
+- A PR that deletes tracked files fails this guard unless its body contains the checked `Intentional file deletions reviewed` checklist item. Check it only after reviewing the removed behavior, tests, and documentation. Renames detected by Git are not treated as deletions.
 - The repository PR template requires scope/preservation review, focused regression tests, cross-domain validation, simulation audit where relevant, UI verification, documentation, and disclosure of intentional removals.
 - The guard does not decide whether a code-level behavior removal inside an edited file is safe. Full diff review and regression tests remain required.
 
