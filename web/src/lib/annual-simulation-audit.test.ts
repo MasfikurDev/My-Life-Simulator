@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { advanceWeek, generateRandomCharacter, getWeeklyActivityReview, planActivity, planCareActionInNextFreeTime } from './simulation';
 import { addSocialConnection, getPassiveLifestyleActivities } from './lifestyle';
+import type { Character } from './types';
 
 function seededRandom(seed: number): () => number {
   let value = seed >>> 0;
@@ -14,7 +15,7 @@ function ageEighteenCharacter(seed: number) {
   return generateRandomCharacter(18, seededRandom(seed));
 }
 
-function householdSupported(character: ReturnType<typeof ageEighteenCharacter>) {
+function householdSupported(character: Character): Character {
   const family = character.family!;
   const householdMemberIds = family.people.map((person) => person.id);
   return {
@@ -25,7 +26,7 @@ function householdSupported(character: ReturnType<typeof ageEighteenCharacter>) 
   };
 }
 
-function independent(character: ReturnType<typeof ageEighteenCharacter>) {
+function independent(character: Character): Character {
   const family = character.family!;
   return {
     ...character,
@@ -37,7 +38,7 @@ function independent(character: ReturnType<typeof ageEighteenCharacter>) {
   };
 }
 
-function stronglySupported(character: ReturnType<typeof ageEighteenCharacter>) {
+function stronglySupported(character: Character): Character {
   let next = householdSupported(character);
   next = addSocialConnection(next, 'Partner', 'partner', true);
   next = {
@@ -57,7 +58,7 @@ describe('age-18 full-year simulation audit', () => {
     ['resource pressure', () => independent(ageEighteenCharacter(1802))],
     ['strong household and partner support', () => stronglySupported(ageEighteenCharacter(1803))]
   ])('completes 52 weekly turns for an 18-year-old: %s', (_scenario, createInitialCharacter) => {
-    let character = createInitialCharacter();
+    let character: Character = createInitialCharacter();
     expect(character.age).toBe(18);
 
     let minimumStamina = character.stamina ?? 50;
@@ -103,9 +104,10 @@ describe('age-18 full-year simulation audit', () => {
         }
       }
 
-      const duplicateGuard = advanceWeek({ ...character, lastResolvedWeekStart: review.weekStart });
+      const duplicateInput = { ...character, lastResolvedWeekStart: review.weekStart };
+      const duplicateGuard = advanceWeek(duplicateInput);
       expect(duplicateGuard.issue).toBe('already-resolved');
-      expect(duplicateGuard.character).not.toBe(result.character);
+      expect(duplicateGuard.character).toBe(duplicateInput);
 
       character = result.character;
       expect(character.stamina).toBeGreaterThanOrEqual(0);
