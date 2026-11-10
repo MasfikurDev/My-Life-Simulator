@@ -206,7 +206,8 @@ describe('life simulation', () => {
     const afterYearBoundary = advanceWeek(beforeYearBoundary).character;
     expect(afterYearBoundary.calendar?.currentDate).toBe('2027-01-04');
     expect(afterYearBoundary.age).toBe(45);
-    expect(afterYearBoundary.health).toBe(beforeYearBoundary.health - 2);
+    // Annual settlement removes 2 health at age 45+, and the unsupported adult meal routine removes 1 more.
+    expect(afterYearBoundary.health).toBe(beforeYearBoundary.health - 3);
   });
   it('reproduces random weekly outcomes from the same saved state and schedule', () => {
     const base = { ...createCharacter('Consistent', 30), intelligence: 100, focus: 100, confidence: 100, discipline: 100, creativity: 100, socialSkills: 100, education: 'Higher education', careerExperienceYears: 5 };

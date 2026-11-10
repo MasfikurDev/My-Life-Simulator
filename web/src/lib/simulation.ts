@@ -1383,7 +1383,8 @@ export function performActivity(character: Character, activity: ActivityId, rand
       const personalityBonus = (next.personality ?? []).some((trait) => trait === 'Ambitious' || trait === 'Disciplined') ? 0.06 : 0;
       const qualificationBonus = hasHigherEducation(next) ? 0.16 : 0;
       const skillBonus = (next.intelligence - 50) / 300;
-      const successChance = next.age < 18 ? 0.86 : Math.max(0.35, Math.min(0.92, 0.62 + qualificationBonus + skillBonus + personalityBonus));
+      const appearanceBonus = Math.max(0, getClothingPresentationScore(next, 85) - 35) / 1000;
+      const successChance = next.age < 18 ? 0.86 : Math.max(0.35, Math.min(0.92, 0.62 + qualificationBonus + skillBonus + personalityBonus + appearanceBonus));
       if (random() < successChance) {
         const previous = next.employment?.title;
         next.employment = offeredJob;

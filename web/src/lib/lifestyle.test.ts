@@ -52,6 +52,7 @@ describe('passive lifestyle simulation', () => {
     character = addSocialConnection(character, 'Friend', 'friend');
     character = addSocialConnection(character, 'Child', 'child');
     character = addSocialConnection(character, 'Aunt', 'extended-family');
+    character = { ...character, socialConnections: character.socialConnections!.map((item) => ({ ...item, closeness: 70, supportLevel: 'regular' as const })) };
     const activities = getPassiveLifestyleActivities(character);
     expect(activities.map((item) => item.id)).toEqual(expect.arrayContaining([
       'passive-partner-support', 'passive-friend-support', 'passive-parenting', 'passive-extended-family'
@@ -72,8 +73,8 @@ describe('passive lifestyle simulation', () => {
     });
     const resolved = advanceWeek(planned.character);
     expect(resolved.issue).toBeNull();
-    expect(resolved.character.socialConnections![0].closeness).toBe(68);
-    expect(resolved.character.socialConnections![0].supportLevel).toBe('regular');
+    expect(resolved.character.socialConnections![0].closeness).toBe(33);
+    expect(resolved.character.socialConnections![0].supportLevel).toBe('occasional');
     expect(resolved.character.history[0].title).toContain('Spent time with Friend');
   });
 
@@ -105,6 +106,7 @@ describe('passive lifestyle simulation', () => {
     let character = createCharacter('Partner support', 30);
     character = { ...character, householdArrangement: 'independent', family: character.family ? { ...character.family, householdMemberIds: [character.family.playerPersonId] } : undefined };
     character = addSocialConnection(character, 'Partner', 'partner', false);
+    character = { ...character, socialConnections: character.socialConnections!.map((item) => ({ ...item, closeness: 60, supportLevel: 'regular' as const })) };
     const passive = getPassiveLifestyleActivities(character);
     expect(passive.find((item) => item.id === 'passive-partner-support')).toMatchObject({ title: 'Partner checks in', staminaRecovery: 0, happiness: 1 });
     expect(passive.some((item) => item.id === 'passive-no-meals')).toBe(true);
@@ -113,6 +115,7 @@ describe('passive lifestyle simulation', () => {
   it('applies passive benefits without consuming planned activity slots', () => {
     let character = createCharacter('Adult', 30);
     character = addSocialConnection(character, 'Partner', 'partner', true);
+    character = { ...character, socialConnections: character.socialConnections!.map((item) => ({ ...item, closeness: 65, supportLevel: 'regular' as const })) };
     const passive = getPassiveLifestyleActivities(character);
     const next = resolvePassiveLifestyleActivities(character, passive);
     expect(next.comfort).toBeGreaterThan(character.comfort ?? 50);
@@ -123,7 +126,7 @@ describe('passive lifestyle simulation', () => {
   it('applies household and partner recovery during weekly resolution without adding removable plans', () => {
     let character = createCharacter('Adult', 30);
     character = addSocialConnection(character, 'Partner', 'partner', true);
-    character = { ...character, stamina: 20, comfort: 35, happiness: 40 };
+    character = { ...character, socialConnections: character.socialConnections!.map((item) => ({ ...item, closeness: 65, supportLevel: 'regular' as const })), stamina: 20, comfort: 35, happiness: 40 };
     const result = advanceWeek(character);
     expect(result.issue).toBeNull();
     expect(result.character.stamina).toBeGreaterThan(character.stamina);
@@ -135,6 +138,7 @@ describe('passive lifestyle simulation', () => {
   it('shows passive entries as a separate derived review list and includes their recovery in the forecast', () => {
     let character = createCharacter('Review adult', 30);
     character = addSocialConnection(character, 'Partner', 'partner', true);
+    character = { ...character, socialConnections: character.socialConnections!.map((item) => ({ ...item, closeness: 65, supportLevel: 'regular' as const })) };
     const review = getWeeklyActivityReview(character);
     expect(review.passiveActivities.some((item) => item.id === 'passive-partner-support')).toBe(true);
     expect(review.passiveStaminaRecovery).toBeGreaterThan(0);
@@ -198,5 +202,34 @@ describe('passive lifestyle simulation', () => {
     const character = createCharacter('Independent', 30);
     expect(character.socialConnections ?? []).toHaveLength(0);
     expect(getPassiveLifestyleActivities(character).some((item) => item.id === 'passive-partner-support')).toBe(false);
+  });
+
+  it('does not grant passive relationship benefits immediately when a new connection is created', () => {
+    let character = createCharacter('New relationship', 30);
+    character = addSocialConnection(character, 'New friend', 'friend');
+    expect(character.socialConnections![0]).toMatchObject({ closeness: 25, supportLevel: 'occasional' });
+    expect(getPassiveLifestyleActivities(character).some((item) => item.id === 'passive-friend-support')).toBe(false);
+  });
+
+  it('does not treat an unsupported family-supported adult as automatically fed or housed', () => {
+    const generated = createCharacter('Unsupported adult', 30);
+    const character = { ...generated, householdArrangement: 'family-supported' as const,
+      family: generated.family ? { ...generated.family, householdMemberIds: [generated.family.playerPersonId] } : undefined };
+    const ids = getPassiveLifestyleActivities(character).map((item) => item.id);
+    expect(ids).toContain('passive-no-meals');
+    expect(ids).toContain('passive-housing-insecurity');
+  });
+
+  it('caps stacked passive lifestyle effects to prevent support bonuses from overwhelming the simulation', () => {
+    const character = createCharacter('Supported adult', 30);
+    const resolved = resolvePassiveLifestyleActivities(character, [
+      { id: 'a', title: 'A', source: 'A', detail: '', staminaRecovery: 0, health: 10, happiness: 10, comfort: 10, discipline: 10, stress: 10 },
+      { id: 'b', title: 'B', source: 'B', detail: '', staminaRecovery: 0, health: 10, happiness: 10, comfort: 10, discipline: 10, stress: 10 }
+    ]);
+    expect(resolved.health).toBe(Math.min(100, character.health + 3));
+    expect(resolved.happiness).toBe(Math.min(100, character.happiness + 4));
+    expect(resolved.comfort).toBe(Math.min(100, (character.comfort ?? 50) + 4));
+    expect(resolved.discipline).toBe(Math.min(100, character.discipline + 3));
+    expect(resolved.stress).toBe(Math.max(0, (character.stress ?? 30) - 4));
   });
 });
