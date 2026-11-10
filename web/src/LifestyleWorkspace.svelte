@@ -242,7 +242,7 @@
           {/each}
         </div>
       {:else}
-        <EmptyState title="Nothing owned yet" description="Food, reusable goods and permanent purchases from the Supermarket appear here after checkout." />
+        <EmptyState title="Inventory is empty" description="Purchased food, supplies and personal items will appear here after checkout." />
       {/if}
     </section>
   {/if}
@@ -305,8 +305,7 @@
   .product-info strong,.product-info b{display:block;font-size:11px}
   .product-info p,.owned-item p{font-size:9px;line-height:1.4;color:var(--muted);margin:4px 0}
   .product-info b{font-size:10px;margin-top:5px}
-  .buy-button,.provider-card button,.owned-service button{min-height:34px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font-size:10px;font-weight:750}
-  .buy-button{justify-self:start}
+  .provider-card button,.owned-service button{min-height:34px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font-size:10px;font-weight:750}
   .provider-grid{display:grid;gap:7px}
   .provider-card,.owned-service{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
   .provider-card:last-child,.owned-service:last-child{border-bottom:0}
