@@ -24,7 +24,7 @@
   {#if character.qualifications?.length}
     <div class="section-heading"><div><span class="section-index">02</span><h3>Qualifications</h3></div></div>
     {#each [...character.qualifications].reverse() as qualification}
-      <article class="education-history-row"><div><strong>{qualification.title}</strong><small>{qualification.institution} · {qualification.field}</small></div><span>Earned at age {qualification.earnedAtAge}</span></article>
+      <article class="education-history-row"><div><strong>{qualification.name}</strong><small>{qualification.issuer} · {qualification.field}</small></div><span>Earned at age {qualification.awardedAtAge}</span></article>
     {/each}
   {/if}
 </section>
