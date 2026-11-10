@@ -1242,8 +1242,9 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     ['discipline', 'Discipline'], ['creativity', 'Creativity'], ['socialSkills', 'Social skills']
   ];
   const changes = fields.map(([key, label]) => {
-    const before = Number(character[key] ?? (key === 'stress' ? 30 : key === 'stamina' ? 50 : 0));
-    const after = Number(projected[key] ?? (key === 'stress' ? 30 : key === 'stamina' ? 50 : 0));
+    const fallback = key === 'stress' ? 30 : key === 'stamina' || key === 'comfort' ? 50 : 0;
+    const before = Number(character[key] ?? fallback);
+    const after = Number(projected[key] ?? fallback);
     return { key: String(key), label, before, after, delta: after - before };
   }).filter((item) => item.delta !== 0);
   const addChange = (key: string, label: string, beforeValue: number | undefined, afterValue: number | undefined) => {
