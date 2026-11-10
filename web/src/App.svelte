@@ -532,7 +532,7 @@
                     {#if weeklyReview.passiveActivities.length}
                       <div class="review-activity-list">
                         {#each weeklyReview.passiveActivities as activity (activity.id)}
-                          <article class="review-activity-row review-passive-row" aria-disabled="true">
+                          <article class="review-activity-row review-passive-row">
                             <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.source} · {activity.detail}</small><small>{activity.reward}</small><span class="review-passive-seal">AUTOMATIC</span></div>
                             <div class="review-activity-cost"><b>{activity.staminaRecovery ? '+' + activity.staminaRecovery + ' stamina' : 'Background effect'}</b></div>
                           </article>
