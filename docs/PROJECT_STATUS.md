@@ -8,6 +8,8 @@
 
 My Life Simulator is an Android-first, mobile-friendly life simulation with a web client. The game uses compact text, cards, buttons, and domain-native workspaces—not a 3D world or a generic life-administration dashboard. Money remains prominent in the overview, while education, work, family, health, and personal life remain meaningful connected systems.
 
+The intended experience is **pursuit-driven rather than chore-driven**: players choose what they want to develop or pursue each week, while routine responsibilities resolve automatically. The same systems should be approachable for casual players, understandable for players pursuing a deliberate direction, and deep enough for experts to optimize through system interactions. See the pursuit-driven gameplay and layered-mastery design direction in [Gameplay loop](GAMEPLAY_LOOP.md#21-pursuit-driven-gameplay-and-layered-mastery). This is a design standard, not a claim that every described mechanic is implemented.
+
 The playable time model is:
 - **Week:** player decisions, automatic education/work responsibilities, stamina-based activities, and turn resolution.
 - **Month:** intended recurring financial settlement and reporting cadence (not yet fully implemented).
