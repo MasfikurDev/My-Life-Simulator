@@ -85,7 +85,7 @@
       <div class="family-summary">
         <div><strong>{connections.length}</strong><span>Relatives</span></div>
         <div><strong>{family.householdMemberIds.length}</strong><span>At home</span></div>
-        <div><strong>{family.dependentPersonIds.length}</strong><span>You support</span></div>
+        <div><strong>{family.dependentPersonIds.length}</strong><span>Rely on you</span></div>
       </div>
       {#if character.age < 18 && family.primaryGuardianId}
         <div class="guardian-note">{family.people.find((person) => person.id === family.primaryGuardianId)?.name ?? 'Your guardian'} looks after you.</div>
@@ -139,7 +139,7 @@
       <div class="eyebrow">YOUR SOCIAL CIRCLE</div>
       <h3>The people around you</h3>
       <p>Add friends, partners and others who shape your story.</p>
-      <div class="family-culture-note"><strong>Home life · {(character.familyCulture ?? 'supportive').replace('-', ' ')}</strong><span>{character.familyCulture === 'structured' ? 'Regular meals and routines keep life organised.' : character.familyCulture === 'strained' ? 'There is some support at home, but tension gets in the way.' : character.familyCulture === 'neglectful' ? 'Meals and day-to-day support are less reliable.' : 'Shared meals and encouragement make everyday life easier.'}</span></div>
+      <div class="family-culture-note"><strong>Home life · {(character.familyCulture ?? 'supportive').replace('-', ' ')}</strong><span>{character.familyCulture === 'structured' ? 'Regular meals and routines keep life organised.' : character.familyCulture === 'strained' ? 'Meals are simpler, and tension can make home life harder.' : character.familyCulture === 'neglectful' ? 'Meals and routines are unpredictable.' : 'Shared meals and encouragement make everyday life easier.'}</span></div>
       <div class="social-add-row">
         <input aria-label="Person name" placeholder="Person's name" bind:value={socialName} maxlength="40" />
         <select aria-label="Relationship type" bind:value={socialType}>
