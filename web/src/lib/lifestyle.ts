@@ -64,9 +64,9 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       title: 'Shared household support',
       source: partner.name,
       detail: 'A cohabiting partner shares meals and everyday responsibilities',
-      staminaRecovery: partner.closeness >= 75 ? 4 : 2,
+      staminaRecovery: partner.supportLevel === 'strong' ? 4 : 2,
       health: 1,
-      happiness: partner.closeness >= 65 ? 2 : 1,
+      happiness: partner.supportLevel === 'strong' ? 2 : 1,
       comfort: 2,
       discipline: 0,
       stress: partner.closeness >= 65 ? 1 : 0
@@ -82,10 +82,10 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       detail: 'Regular contact provides social support',
       staminaRecovery: 0,
       health: 0,
-      happiness: Math.min(2, friends.length),
+      happiness: Math.min(2, friends.filter((item) => item.supportLevel === 'strong').length || 1),
       comfort: 0,
       discipline: 0,
-      stress: friends.some((item) => item.closeness >= 75) ? 2 : 1
+      stress: friends.some((item) => item.supportLevel === 'strong') ? 2 : 1
     });
   }
 
@@ -96,7 +96,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       title: 'Extended family support',
       source: extendedFamily.slice(0, 2).map((item) => item.name).join(', '),
       detail: 'Relatives maintain contact and provide occasional practical support',
-      staminaRecovery: 1,
+      staminaRecovery: extendedFamily.some((item) => item.supportLevel === 'strong') ? 2 : 1,
       health: 0,
       happiness: 1,
       comfort: 1,
@@ -199,7 +199,7 @@ export function addSocialConnection(
       (type === 'partner' && (character.socialConnections ?? []).some((item) => item.active && item.type === 'partner')) ||
       (character.socialConnections ?? []).length >= 30) return character;
   const item: SocialConnection = {
-    id: 'social-' + character.year + '-' + character.age + '-' + ((character.socialConnections ?? []).length + 1),
+    id: 'social-' + character.year + '-' + character.age + '-' + (character.history.length + 1),
     name: label,
     type,
     closeness: 60,
@@ -207,7 +207,8 @@ export function addSocialConnection(
     livesWithPlayer,
     supportLevel: 'regular'
   };
-  return { ...character, socialConnections: [...(character.socialConnections ?? []), item] };
+  const entry = { id: 'social-added-' + item.id, year: character.year, age: character.age, date: character.calendar?.currentDate, title: 'Added ' + label + ' to your social circle', description: 'Recorded a ' + type.replace('-', ' ') + ' connection for everyday life.', kind: 'activity' as const };
+  return { ...character, socialConnections: [...(character.socialConnections ?? []), item], history: [entry, ...character.history] };
 }
 
 export function interactWithSocialConnection(character: Character, id: string): Character {
@@ -233,8 +234,10 @@ export function interactWithSocialConnection(character: Character, id: string): 
 
 export function removeSocialConnection(character: Character, id: string): Character {
   const existing = character.socialConnections ?? [];
-  if (!existing.some((item) => item.id === id)) return character;
-  return { ...character, socialConnections: existing.filter((item) => item.id !== id) };
+  const removed = existing.find((item) => item.id === id);
+  if (!removed) return character;
+  const entry = { id: 'social-removed-' + removed.id, year: character.year, age: character.age, date: character.calendar?.currentDate, title: 'Removed ' + removed.name + ' from your social circle', description: 'The connection is no longer part of your current social support network.', kind: 'activity' as const };
+  return { ...character, socialConnections: existing.filter((item) => item.id !== id), history: [entry, ...character.history] };
 }
 
 export function setSocialConnectionHousehold(character: Character, id: string, livesWithPlayer: boolean): Character {
