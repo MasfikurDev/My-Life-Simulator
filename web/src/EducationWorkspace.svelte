@@ -60,7 +60,7 @@
 
   {#if enrollment.status === 'enrolled'}
   <section class="education-task-section">
-    <div class="section-heading"><div><span class="section-index">01</span><h3>This week's academic work</h3></div><span class="section-hint">{plannedTasks.length} tasks selected</span></div>
+    <div class="section-heading"><div><span class="section-index">01</span><h3>This Week's Academic Work</h3></div><span class="section-hint">{plannedTasks.length} tasks selected</span></div>
 
         <div class="education-task-grid">
       <button class="education-task-card" class:planned={taskPlanned('study')}  onclick={() => planTask('study')}><span class="education-task-icon">↗</span><strong>{enrollment.level === 'early-learning' ? 'Guided play' : 'Focused study'}</strong><ActivityStatusSeal status={taskPlanned('study') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Build curiosity, language and coordination through play' : 'Review lessons and strengthen understanding'}</small><b>{taskPlanned('study') ? 'REMOVE FROM WEEK' : 'ADD STUDY · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
@@ -72,7 +72,7 @@
   {/if}
 {:else}
   <section class="education-intro domain-panel">
-    <h2>Available programmes</h2>
+    <h2>Available Programmes</h2>
     {#if programs.length}
       <div class="education-program-list">
         {#each programs as program}
@@ -85,7 +85,7 @@
       {#if selectedProgram}
         <div class="education-enrol-panel">
           <div><h3>{selectedProgram.title}</h3><p>{selectedProgram.durationWeeks} weeks · age {selectedProgram.minAge}{selectedProgram.maxAge < 120 ? '–' + selectedProgram.maxAge : '+'}</p></div>
-          <div class="education-field-label"><span>Choose your field of study</span>
+          <div class="education-field-label"><span>Choose Your Field of Study</span>
             <GameChoice label="Field of study" value={selectedField || selectedProgram.fieldOptions[0]} options={selectedProgram.fieldOptions.map((field) => ({ value: field, label: field }))} onSelect={(field) => selectedField = field} columns={Math.min(3, selectedProgram.fieldOptions.length)} />
           </div>
           <div class="education-enrol-footer"><span>Tuition: <strong>{selectedProgram.tuition ? formatCharacterMoney(character, selectedProgram.tuition * (character.currencyScale ?? 1)) : 'Free'}</strong></span><button class="primary-button" onclick={enroll}>Enroll & arrange classes</button></div>
