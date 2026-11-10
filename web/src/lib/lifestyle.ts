@@ -152,12 +152,12 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
     ? homeValue >= 50000 * scale ? 4 : homeValue >= 20000 * scale ? 3 : homeValue >= 8000 * scale ? 2 : 1
     : rent > 0 ? rent >= 8000 * scale ? 3 : rent >= 3000 * scale ? 2 : 1
     : character.householdArrangement === 'family-supported' && familyPresent ? 2
-    : character.householdArrangement === 'shared' ? 1 : 0;
+    : character.householdArrangement === 'shared' || hasSharedPartnerMeals ? 1 : 0;
   if (housingQuality > 0) {
     activities.push({
       id: 'passive-stable-home',
       title: 'Stable home environment',
-      source: residence?.name ?? (character.rentalHome ? 'Rental home' : 'Family household'),
+      source: residence?.name ?? (character.rentalHome ? 'Rental home' : hasSharedPartnerMeals ? partner?.name ?? 'Shared household' : 'Family household'),
       detail: 'Your living space provides everyday comfort and stability',
       staminaRecovery: 0,
       health: housingQuality >= 3 ? 1 : 0,
