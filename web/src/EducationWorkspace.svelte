@@ -2,7 +2,7 @@
   import type { Character, EducationTaskType } from './lib/types';
   import GameChoice from './GameChoice.svelte';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
-  import { enrollInEducation, getAvailableEducationPrograms } from './lib/education';
+  import { enrollInEducation, getAvailableEducationPrograms, resumeEducation } from './lib/education';
   import EducationRecordsWorkspace from './EducationRecordsWorkspace.svelte';
   import { formatCharacterMoney, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getActivityStaminaCost, getValueColor } from './lib/progression';
@@ -21,6 +21,11 @@
     const result = enrollInEducation(character, selectedProgram.id, field);
     if (result.issue) { onNotify(result.issue); return; }
     onChange(result.character); onNotify('Enrollment confirmed. Your class timetable has been arranged automatically.');
+  }
+  function resumeLegacyEnrollment() {
+    const result = resumeEducation(character);
+    if (result.issue) { onNotify(result.issue); return; }
+    onChange(result.character); onNotify('Programme continued. Your progress has been retained.');
   }
   function planTask(task: EducationTaskType) {
     const existing = plannedTasks.find((item) => item.action?.kind === 'education' && item.action.taskType === task);
@@ -56,6 +61,7 @@
       {/each}
     </div>
     <div class="education-footnote">{#if enrollment.status === 'paused'}Progress retained{:else}{enrollment.weeklyStudyTarget} study points required each week{/if}</div>
+    {#if enrollment.status === 'paused'}<button class="primary-button" onclick={resumeLegacyEnrollment}>Continue Programme</button>{/if}
   </section>
 
   {#if enrollment.status === 'enrolled'}
