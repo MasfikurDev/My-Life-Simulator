@@ -138,14 +138,16 @@ describe('life simulation', () => {
     expect(planned.character.health).toBe(base.health);
     expect(planned.character.happiness).toBe(base.happiness);
     const review = getWeeklyActivityReview(planned.character);
-    expect(review.activities[0]).toMatchObject({ seal: 'BOUGHT', staminaCost: 0, moneyCost: 0 });
+    expect(review.activities[0]).toMatchObject({ seal: 'BOUGHT', staminaCost: 0, moneyCost: 12 });
     expect(review.staminaRecovery).toBe(8);
+    expect(planned.character.money).toBe(base.money);
     const resolved = advanceWeek(planned.character);
     expect(resolved.issue).toBeNull();
     expect(resolved.character.health).toBeGreaterThan(base.health);
     expect(resolved.character.happiness).toBeGreaterThan(base.happiness);
     expect(resolved.character.stress).toBeLessThan(base.stress);
     expect(resolved.character.stamina).toBeGreaterThan(base.stamina);
+    expect(resolved.character.money).toBe(base.money);
     expect(resolved.character.ownedLifestyleItems).toBeUndefined();
     expect(resolved.character.weeklyPlan.activities).toHaveLength(0);
   });
