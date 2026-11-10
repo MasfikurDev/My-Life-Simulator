@@ -21,6 +21,8 @@ describe('age-aware stat development',()=>{
  });
  it('preserves above-cap legacy values but blocks further gains',()=>{
   const character={...generateRandomCharacter(10,()=>0.35),intelligence:99};
-  expect(applyNaturalStatDevelopment(character).character.intelligence).toBe(99);\n  const attemptedGain={...character,intelligence:100};\n  expect(enforceWeeklyStatCaps(character,attemptedGain).intelligence).toBe(99);
+  expect(applyNaturalStatDevelopment(character).character.intelligence).toBe(99);
+  const attemptedGain={...character,intelligence:100};
+  expect(enforceWeeklyStatCaps(character,attemptedGain).intelligence).toBe(99);
  });
 });
