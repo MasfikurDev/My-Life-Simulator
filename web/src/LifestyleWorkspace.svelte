@@ -43,6 +43,7 @@
     { id: 'meal-delivery', name: 'Food delivery', category: 'Delivery', description: 'A convenient prepared meal delivered to your home', price: 65, kind: 'food', staminaRecovery: 5, happiness: 4, comfort: 3, stress: 1 },
     { id: 'phone-basic', name: 'Everyday smartphone', category: 'Electronics', description: 'A practical smartphone for daily use', price: 420, kind: 'permanent' },
     { id: 'laptop-basic', name: 'Personal laptop', category: 'Electronics', description: 'A general-purpose laptop for study and work', price: 850, kind: 'permanent' },
+    { id: 'desktop-basic', name: 'Desktop PC', category: 'Electronics', description: 'A desktop computer for study, creative work and gaming', price: 1250, kind: 'permanent' },
     { id: 'headphones', name: 'Wireless headphones', category: 'Electronics', description: 'Portable audio for everyday listening', price: 95, kind: 'permanent' },
     { id: 'bicycle', name: 'City bicycle', category: 'Transport', description: 'A reusable personal bicycle', price: 260, kind: 'permanent' },
     { id: 'book-fiction', name: 'Paperback book', category: 'Books', description: 'A book for leisure reading', price: 18, kind: 'usable' },
@@ -115,7 +116,7 @@
   }
   function deviceService(item: { productId: string; category: string }) {
     if (item.productId === 'phone-basic') return activeSubscriptions.some((payment) => payment.name === 'Mobile data plan') ? 'Mobile service active' : 'Requires mobile service';
-    if (item.productId === 'laptop-basic') return activeSubscriptions.some((payment) => payment.name === 'Home internet') ? 'Broadband active' : 'Requires broadband';
+    if (item.productId === 'laptop-basic' || item.productId === 'desktop-basic') return activeSubscriptions.some((payment) => payment.name === 'Home internet') ? 'Broadband active' : 'Requires broadband';
     return null;
   }
   function wearFashionItem(id: string) {
@@ -153,7 +154,7 @@
       {#each categories as item}<button class:active={category === item} onclick={() => category = item}>{item}</button>{/each}
     </nav>
     <section class="market-section">
-      <div class="market-section-heading"><div><small>SHOPPING</small><h3>{category === 'All' ? 'Available products' : category}</h3></div><span>{filteredProducts.length} ITEMS</span></div>
+      <div class="market-section-heading"><div><small>SHOPPING</small><h3>{category === 'All' ? 'Available Products' : category}</h3></div><span>{filteredProducts.length} ITEMS</span></div>
       <div class="product-grid">
         {#each filteredProducts as product (product.id)}
           <article class="market-product">
