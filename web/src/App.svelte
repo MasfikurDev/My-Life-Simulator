@@ -524,50 +524,6 @@
                 <p class="game-event-description">{weeklyReview.weekStart} – {weeklyReview.weekEnd}. Review the effort, expected rewards and combined effects before resolving the week.</p>
 
                 <section class="review-section">
-                  <details class="review-planned-details">
-                    <summary class="review-planned-summary">
-                      <span class="review-planned-heading"><strong>Passive activities</strong><small>{weeklyReview.passiveActivities.length} automatic background {weeklyReview.passiveActivities.length === 1 ? 'activity' : 'activities'} · cannot be removed</small></span>
-                      <span class="review-planned-totals"><span>+{weeklyReview.passiveStaminaRecovery} stamina</span><i aria-hidden="true"></i></span>
-                    </summary>
-                    {#if weeklyReview.passiveActivities.length}
-                      <div class="review-activity-list">
-                        {#each weeklyReview.passiveActivities as activity (activity.id)}
-                          <article class="review-activity-row review-passive-row">
-                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.source} · {activity.detail}</small><small>{activity.reward}</small><span class="review-passive-seal">AUTOMATIC</span></div>
-                            <div class="review-activity-cost"><b>{activity.staminaRecovery ? '+' + activity.staminaRecovery + ' stamina' : 'Background effect'}</b></div>
-                          </article>
-                        {/each}
-                      </div>
-                    {:else}
-                      <p class="review-empty">No household or social support is currently contributing automatic activities.</p>
-                    {/if}
-                  </details>
-                </section>
-
-                <section class="review-section">
-                  <details class="review-planned-details">
-                    <summary class="review-planned-summary">
-                      <span class="review-planned-heading"><strong>Planned activities</strong><small>{weeklyReview.activities.length} {weeklyReview.activities.length === 1 ? 'activity' : 'activities'} selected</small></span>
-                      <span class="review-planned-totals"><span>{weeklyReview.staminaCost} stamina</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong><i aria-hidden="true"></i></span>
-                    </summary>
-                    {#if weeklyReview.activities.length}
-                      <div class="review-activity-list">
-                        {#each weeklyReview.activities as activity (activity.id)}
-                          <article class="review-activity-row">
-                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.reward}</small>{#if activity.seal}<span class="review-bought-seal">{activity.seal}</span>{/if}</div>
-                            <div class="review-activity-cost"><b>{activity.staminaCost ? '−' + activity.staminaCost + ' stamina' : 'No stamina cost'} </b>{#if activity.moneyCost > 0}<small>{formatCharacterMoney(character, activity.moneyCost)}</small>{/if}</div>
-                            <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => removeReviewedActivity(activity.id)}>Remove</button>
-                          </article>
-                        {/each}
-                      </div>
-                    {:else}
-                      <p class="review-empty">No optional activities are planned. Education and employment responsibilities still progress automatically.</p>
-                    {/if}
-                    <div class="review-cash-row"><span>Total direct activity costs</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong></div>
-                  </details>
-                </section>
-
-                <section class="review-section">
                   <div class="review-section-heading"><h3>Stamina forecast</h3><span>After activity effects and recovery</span></div>
                   <div class="review-resource-grid">
                     <div><small>Current</small><strong>{Math.round(weeklyReview.currentStamina)}%</strong></div>
@@ -578,6 +534,35 @@
                   <div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div>
                   {#if weeklyReview.passiveStaminaRecovery > 0}<p class="review-empty">Automatic household and social support contributes +{weeklyReview.passiveStaminaRecovery} stamina before planned activity costs.</p>{/if}
                   {#if Math.min(100, weeklyReview.currentStamina + weeklyReview.staminaRecovery) < weeklyReview.staminaCost}<p class="year-review-warning">The plan exceeds your stamina budget. Select recovery activities or remove demanding activities before resolving.</p>{/if}
+                </section>
+
+                <section class="review-section">
+                  <details class="review-planned-details">
+                    <summary class="review-planned-summary">
+                      <span class="review-planned-heading"><strong>Activities</strong><small>{weeklyReview.activities.length} planned · {weeklyReview.passiveActivities.length} automatic</small></span>
+                      <span class="review-planned-totals"><span>{weeklyReview.staminaCost} stamina</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong><i aria-hidden="true"></i></span>
+                    </summary>
+                    {#if weeklyReview.activities.length || weeklyReview.passiveActivities.length}
+                      <div class="review-activity-list">
+                        {#each weeklyReview.activities as activity (activity.id)}
+                          <article class="review-activity-row">
+                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.reward}</small>{#if activity.seal}<span class="review-bought-seal">{activity.seal}</span>{/if}</div>
+                            <div class="review-activity-cost"><b>{activity.staminaCost ? '−' + activity.staminaCost + ' stamina' : 'No stamina cost'} </b>{#if activity.moneyCost > 0}<small>{formatCharacterMoney(character, activity.moneyCost)}</small>{/if}</div>
+                            <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => removeReviewedActivity(activity.id)}>Remove</button>
+                          </article>
+                        {/each}
+                        {#each weeklyReview.passiveActivities as activity (activity.id)}
+                          <article class="review-activity-row review-passive-row">
+                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.source} · {activity.detail}</small><small>{activity.reward}</small><span class="review-passive-seal">AUTOMATIC</span></div>
+                            <div class="review-activity-cost"><b>{activity.staminaRecovery ? '+' + activity.staminaRecovery + ' stamina' : 'Background effect'}</b></div>
+                          </article>
+                        {/each}
+                      </div>
+                    {:else}
+                      <p class="review-empty">No planned or automatic activities are currently contributing this week.</p>
+                    {/if}
+                    <div class="review-cash-row"><span>Total direct activity costs</span><strong>{formatCharacterMoney(character, weeklyReview.totalMoneyCost)}</strong></div>
+                  </details>
                 </section>
 
                 <section class="review-section">
