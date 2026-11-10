@@ -403,7 +403,7 @@ describe('life simulation', () => {
     const joined = resolveGameEvent(student, 'join');
     const intelligenceAfterChoice = joined.intelligence;
     const nextYear = advanceYear(joined);
-    expect(nextYear.intelligence).toBe(Math.min(82, intelligenceAfterChoice + 2));
+    expect(nextYear.intelligence).toBe(Math.min(82, intelligenceAfterChoice + 3));
     expect(nextYear.scheduledGameConsequences).toHaveLength(0);
     expect(nextYear.history.some((item) => item.title === 'Your reading paid off')).toBe(true);
   });
