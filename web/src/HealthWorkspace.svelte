@@ -35,9 +35,9 @@
   ]);
 </script>
 
-<div class="page-heading"><div><div class="eyebrow">LIFE AT A GLANCE</div><h1>Life <em>Overview</em></h1><p>A snapshot of your circumstances, wellbeing and the stage of life you are in.</p></div></div>
+<div class="page-heading"><div><div class="eyebrow">BODY · MIND · RECOVERY</div><h1>Health & <em>wellbeing</em></h1><p>Manage your physical health, energy and mental wellbeing.</p></div></div>
 <section class="health-overview domain-panel">
-  <div class="health-overview-head"><div><div class="eyebrow">YOUR CURRENT CHAPTER</div><h2>{character.age < 3 ? 'Early childhood' : character.age < 6 ? 'Preschool years' : character.age < 13 ? 'Childhood' : character.age < 18 ? 'Teenage years' : character.age < 25 ? 'Young adulthood' : character.age < 45 ? 'Adulthood' : character.age < 65 ? 'Midlife' : 'Later life'}</h2><p>Age {character.age} · {character.country} · {character.householdArrangement === 'family-supported' ? 'Family home' : character.householdArrangement === 'shared' ? 'Shared home' : character.householdArrangement === 'independent' ? 'Independent living' : 'Living arrangement not set'}.</p></div><span class="domain-status">{character.employment ? 'EMPLOYED' : character.age >= 18 ? 'BETWEEN JOBS' : character.educationEnrollment?.status === 'enrolled' ? 'IN EDUCATION' : 'GROWING UP'}</span></div>
+  <div class="health-overview-head"><div><div class="eyebrow">WELLBEING SNAPSHOT</div><h2>Health and recovery</h2><p>Your current physical and mental wellbeing, including energy and pressure.</p></div><span class="domain-status">{(character.stress ?? 30) >= 82 ? 'HIGH PRESSURE' : (character.stress ?? 30) >= 60 ? 'ELEVATED' : 'MANAGEABLE'}</span></div>
   <div class="health-stat-grid">
     {#each stats as stat}
       <div class="health-stat"><div><span>{stat.label}</span><strong>{Math.round(stat.value)}%</strong></div><div class="meter"><span class:blue={stat.tone !== 'stress'} class:stress-meter={stat.tone === 'stress'} style="width:{stat.value}%;background:{getValueColor(stat.value, stat.inverse)}"></span></div><small>{stat.inverse ? stat.value >= 80 ? 'Critical pressure' : stat.value >= 60 ? 'Elevated pressure' : 'Manageable' : stat.value < 25 ? 'Critical' : stat.value < 45 ? 'Low' : stat.value < 70 ? 'Fair' : 'Strong'}</small></div>
