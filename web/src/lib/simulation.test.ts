@@ -327,7 +327,8 @@ describe('life simulation', () => {
     expect(performActivity(child, 'study').money).toBe(0);
   });
   it('applies activity effects without an annual action-token limit', () => {
-    const c = createCharacter('Sam');
+    const generated = createCharacter('Sam');
+    const c = { ...generated, fitness: 50, statPotential: { ...generated.statPotential, fitness: 100 } };
     const first = performActivity(c, 'exercise');
     const second = performActivity(first, 'exercise');
     expect(first.fitness).toBe(c.fitness + 6);
