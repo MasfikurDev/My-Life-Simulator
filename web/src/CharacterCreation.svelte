@@ -8,10 +8,13 @@
   function reroll() { character = generateRandomCharacter(0); }
 </script>
 <section class="creation-experience">
-  <div class="creation-heading">
-    <div class="eyebrow">NEW CHARACTER</div>
-    <h1>Create a character</h1>
-    <p>Every new game begins at birth. A complete character is generated automatically.</p>
+  <div class="creation-heading-row">
+    <div class="creation-heading">
+      <div class="eyebrow">NEW CHARACTER</div>
+      <h1>Create a character</h1>
+      <p>Every new game begins at birth. A complete character is generated automatically.</p>
+    </div>
+    <button class="text-button creation-back-button" onclick={onCancel}>← Back</button>
   </div>
   <article class="generated-character">
     <div class="generated-character-top">
@@ -43,7 +46,12 @@
   <div class="creation-actions">
     <button class="primary-button" onclick={() => onStart(character)}>Start this life <span>→</span></button>
     <button class="text-button" onclick={reroll}>Generate another</button>
-    <button class="text-button" onclick={onCancel}>Cancel</button>
   </div>
   <div class="start-note">This life will be saved in {slotLabel}.</div>
 </section>
+
+<style>
+  .creation-heading-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+  .creation-back-button{flex:none;white-space:nowrap;margin-top:2px}
+  @media(max-width:520px){.creation-heading-row{gap:10px}.creation-back-button{padding:8px 10px}}
+</style>
