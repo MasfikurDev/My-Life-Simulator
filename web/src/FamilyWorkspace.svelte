@@ -3,7 +3,7 @@
   import { establishFamilyBackground, getFamilyConnections, validateFamilyState } from './lib/family';
   import { getValueColor } from './lib/progression';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
-  import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, planSocialInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { addSocialConnection, removeSocialConnection, setSocialConnectionHousehold } from './lib/lifestyle';
 
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
@@ -28,6 +28,21 @@
   function removeSocialPerson(id: string) {
     onChange(removeSocialConnection(character, id));
     feedback = 'Social connection removed.';
+  }
+  function socialInteractionPlanned(id: string) {
+    return (character.weeklyPlan?.activities ?? []).find((item) => item.action?.kind === 'social' && item.action.connectionId === id);
+  }
+  function interactSocial(id: string) {
+    const existing = socialInteractionPlanned(id);
+    if (existing) {
+      onChange(removePlannedActivity(character, existing.id));
+      feedback = 'Time together removed from this week.';
+      return;
+    }
+    const planned = planSocialInteractionInNextFreeTime(character, id);
+    if (planned.issue) { feedback = planned.message ?? 'Could not plan time together.'; return; }
+    onChange(planned.character);
+    feedback = 'Time together added to this week.';
   }
   function toggleSocialHousehold(id: string, livesWithPlayer: boolean) {
     onChange(setSocialConnectionHousehold(character, id, livesWithPlayer));
@@ -138,6 +153,7 @@
             <article>
               <div><strong>{person.name}</strong><small>{person.type.replace('-', ' ')} · {person.closeness}/100 closeness</small></div>
               <label><input type="checkbox" checked={person.livesWithPlayer} onchange={(event) => toggleSocialHousehold(person.id, event.currentTarget.checked)} /> Lives here</label>
+              <button onclick={() => interactSocial(person.id)}>{socialInteractionPlanned(person.id) ? 'Remove plan' : 'Spend time · 6 stamina'}</button>
               <button onclick={() => removeSocialPerson(person.id)} aria-label={'Remove ' + person.name}>Remove</button>
             </article>
           {/each}
