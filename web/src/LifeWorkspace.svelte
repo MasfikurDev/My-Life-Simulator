@@ -5,11 +5,13 @@
   import FamilyWorkspace from './FamilyWorkspace.svelte';
   import LifeTreeWorkspace from './LifeTreeWorkspace.svelte';
   import HealthWorkspace from './HealthWorkspace.svelte';
-  type LifeView = 'overview' | 'supermarket' | 'subscriptions' | 'owned' | 'family' | 'tree' | 'history';
+  import LifeOverview from './LifeOverview.svelte';
+  type LifeView = 'overview' | 'health' | 'supermarket' | 'subscriptions' | 'owned' | 'family' | 'tree' | 'history';
   let { character, onChange, onNotify, initialView = 'overview' }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifeView } = $props();
   let activeView = $state<LifeView>(initialView);
   const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
+    { id: 'health', label: 'Health' },
     { id: 'owned', label: 'Inventory' },
     { id: 'supermarket', label: 'Supermarket' },
     { id: 'subscriptions', label: 'Subscriptions' },
@@ -52,6 +54,8 @@
     {/each}
   </nav>
   {#if activeView === 'overview'}
+    <LifeOverview {character} />
+  {:else if activeView === 'health'}
     <HealthWorkspace {character} {onChange} {onNotify} />
   {:else if activeView === 'family'}
     <FamilyWorkspace {character} {onChange} />
