@@ -865,7 +865,7 @@ function getPlannedActivityReward(character: Character, item: PlannedActivity): 
   if (item.action?.kind === 'business') return 'Business performance and financial outcomes';
   if (item.action?.kind === 'event') return 'The chosen event outcome and its consequences';
   return ({
-    study: 'Subject-specific knowledge, intelligence, focus and learning progress',
+    study: character.educationEnrollment ? getSkillLabel(getEducationSkillId(character.educationEnrollment.field)) + ' knowledge, intelligence and learning progress' : 'Self-directed learning capability, intelligence and focus',
     exercise: 'Physical fitness skill, health, stamina and lower stress',
     socialize: 'Communication skill, relationship quality and happiness',
     work: 'Income, role-relevant skill and work experience',
