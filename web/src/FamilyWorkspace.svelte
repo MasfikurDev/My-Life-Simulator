@@ -64,36 +64,36 @@
   {#if !family}
     <section class="family-panel">
       <div class="eyebrow">LIFE RECORDS</div>
-      <h2>Background unavailable</h2>
-      <p>This save has no relative records yet. Start a basic record to keep track of the people in your life.</p>
-      <button class="primary-action" onclick={() => onChange(establishFamilyBackground(character))}>Start records</button>
+      <h2>No background yet</h2>
+      <p>Your story is missing its starting relationships. Create a background to begin.</p>
+      <button class="primary-action" onclick={() => onChange(establishFamilyBackground(character))}>Begin</button>
     </section>
   {:else if errors.length > 0}
     <section class="family-panel warning">
       <div class="eyebrow">RECORD CHECK</div>
-      <h2>Some relationship records need attention</h2>
+      <h2>Your relationship history needs attention</h2>
       {#each errors as error}<p>{error}</p>{/each}
-      <p>Your existing save has not been changed. Export a gameplay snapshot before attempting recovery.</p>
+      <p>Your progress has not been changed. Export a game snapshot before trying to repair these entries.</p>
     </section>
   {:else}
     {#if feedback}<p class="family-footnote" role="status">{feedback}</p>{/if}
     <section class="family-panel">
       <div class="family-panel-head">
-        <div><div class="eyebrow">YOUR FAMILY</div><h2>Family connections</h2><p>Choose how to spend time with relatives. Planned interactions use stamina and take effect when the week ends.</p></div>
+        <div><div class="eyebrow">YOUR PEOPLE</div><h2>Your relatives</h2><p>Spend time, reach out or make things right. Your choices use stamina and shape these relationships when the week ends.</p></div>
         <span class="family-count">{livingCount} living</span>
       </div>
       <div class="family-summary">
         <div><strong>{connections.length}</strong><span>Relatives</span></div>
-        <div><strong>{family.householdMemberIds.length}</strong><span>In your household</span></div>
-        <div><strong>{family.dependentPersonIds.length}</strong><span>Dependants</span></div>
+        <div><strong>{family.householdMemberIds.length}</strong><span>At home</span></div>
+        <div><strong>{family.dependentPersonIds.length}</strong><span>Rely on you</span></div>
       </div>
       {#if character.age < 18 && family.primaryGuardianId}
-        <div class="guardian-note">Primary guardian: {family.people.find((person) => person.id === family.primaryGuardianId)?.name ?? 'Recorded guardian'}. Your guardian handles day-to-day care.</div>
+        <div class="guardian-note">{family.people.find((person) => person.id === family.primaryGuardianId)?.name ?? 'Your guardian'} looks after you.</div>
       {/if}
     </section>
 
     {#if connections.length === 0}
-      <section class="family-panel"><h3>No relatives recorded</h3><p>No relatives are listed yet. New connections can appear as your life unfolds.</p></section>
+      <section class="family-panel"><h3>No relatives yet</h3><p>You haven't met or recorded any relatives in this story yet.</p></section>
     {:else}
       <div class="family-list">
         {#each connections as connection (connection.person.id)}
@@ -109,24 +109,24 @@
                 <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><div class="bond-meter tension"><i style="width:{connection.bond.tension}%;background:{getValueColor(connection.bond.tension, true)}"></i></div></div>
               </div>
               {#if connection.bond.lastInteractionYear !== null}
-                <p class="last-contact">Last time together: {connection.bond.lastInteractionYear}</p>
+                <p class="last-contact">Last time you connected: {connection.bond.lastInteractionYear}</p>
               {:else}
-                <p class="last-contact">You have not spent time together yet.</p>
+                <p class="last-contact">You haven't connected yet.</p>
               {/if}
               {#if connection.living}
                 <div class="relative-actions">
-                  <button onclick={() => interact(connection.person.id, 'spend-time')}>{interactionPlanned(connection.person.id, 'spend-time') ? 'Remove spend-time plan' : 'Spend time · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'spend-time') ? 'planned' : 'available'} /></button>
-                  {#if character.age >= 10}<button onclick={() => interact(connection.person.id, 'reach-out')}>{interactionPlanned(connection.person.id, 'reach-out') ? 'Remove reach-out plan' : 'Reach out · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'reach-out') ? 'planned' : 'available'} /></button>{/if}
+                  <button onclick={() => interact(connection.person.id, 'spend-time')}>{interactionPlanned(connection.person.id, 'spend-time') ? 'Cancel plan' : 'Spend time · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'spend-time') ? 'planned' : 'available'} /></button>
+                  {#if character.age >= 10}<button onclick={() => interact(connection.person.id, 'reach-out')}>{interactionPlanned(connection.person.id, 'reach-out') ? 'Cancel plan' : 'Reach out · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'reach-out') ? 'planned' : 'available'} /></button>{/if}
                   {#if character.age >= 13 && connection.bond.tension >= 15}<button onclick={() => interact(connection.person.id, 'reconcile')}>{interactionPlanned(connection.person.id, 'reconcile') ? 'Remove plan' : 'Work through conflict · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'reconcile') ? 'planned' : 'available'} /></button>{/if}
                 </div>
                 {#if character.age >= 18}
                   <div class="support-row">
-                    <label>Support amount
+                    <label>Amount to send
                       <input type="number" min="1" step="1" bind:value={supportAmount} />
                     </label>
-                    <button disabled={!interactionPlanned(connection.person.id, 'provide-support') && (!Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money)} onclick={() => interact(connection.person.id, 'provide-support')}>{interactionPlanned(connection.person.id, 'provide-support') ? 'Remove support plan' : 'Provide support · 3 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'provide-support') ? 'planned' : 'available'} /></button>
+                    <button disabled={!interactionPlanned(connection.person.id, 'provide-support') && (!Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money)} onclick={() => interact(connection.person.id, 'provide-support')}>{interactionPlanned(connection.person.id, 'provide-support') ? 'Cancel plan' : 'Send money · 3 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'provide-support') ? 'planned' : 'available'} /></button>
                   </div>
-                  <p class="support-note">Available cash: {formatCharacterMoney(character)}. Support is an actual expense and is recorded in Finance.</p>
+                  <p class="support-note">Cash available: {formatCharacterMoney(character)}. This gift will appear in your finances.</p>
                 {/if}
               {/if}
             {/if}
@@ -136,16 +136,16 @@
     {/if}
 
     <section class="family-panel social-panel">
-      <div class="eyebrow">PEOPLE IN YOUR LIFE</div>
-      <h3>Friends, partners & family</h3>
-      <p>Add the people around you and set who shares your home.</p>
-      <div class="family-culture-note"><strong>Home life · {(character.familyCulture ?? 'supportive').replace('-', ' ')}</strong><span>{character.familyCulture === 'structured' ? 'Regular meals and routines keep life organised.' : character.familyCulture === 'strained' ? 'There is some support at home, but tension gets in the way.' : character.familyCulture === 'neglectful' ? 'Meals and day-to-day support are less reliable.' : 'Shared meals and encouragement make everyday life easier.'}</span></div>
+      <div class="eyebrow">YOUR SOCIAL CIRCLE</div>
+      <h3>The people around you</h3>
+      <p>Add friends, partners and others who shape your story.</p>
+      <div class="family-culture-note"><strong>Home life · {(character.familyCulture ?? 'supportive').replace('-', ' ')}</strong><span>{character.familyCulture === 'structured' ? 'Regular meals and routines keep life organised.' : character.familyCulture === 'strained' ? 'Meals are simpler, and tension can make home life harder.' : character.familyCulture === 'neglectful' ? 'Meals and routines are unpredictable.' : 'Shared meals and encouragement make everyday life easier.'}</span></div>
       <div class="social-add-row">
         <input aria-label="Person name" placeholder="Person's name" bind:value={socialName} maxlength="40" />
         <select aria-label="Relationship type" bind:value={socialType}>
           <option value="friend">Friend</option><option value="partner">Partner / spouse</option><option value="child">Child</option><option value="extended-family">Extended family</option>
         </select>
-        <label><input type="checkbox" bind:checked={socialLivesTogether} /> Lives with me</label>
+        <label><input type="checkbox" bind:checked={socialLivesTogether} /> Shares my home</label>
         <button class="primary-action" onclick={addSocialPerson} disabled={!socialName.trim()}>Add person</button>
       </div>
       {#if socialConnections.length}
@@ -153,7 +153,7 @@
           {#each socialConnections as person (person.id)}
             <article>
               <div><strong>{person.name}</strong><small>{person.type.replace('-', ' ')} · {person.closeness}/100 closeness</small></div>
-              <label><input type="checkbox" checked={person.livesWithPlayer} onchange={(event) => toggleSocialHousehold(person.id, event.currentTarget.checked)} /> Lives here</label>
+              <label><input type="checkbox" checked={person.livesWithPlayer} onchange={(event) => toggleSocialHousehold(person.id, event.currentTarget.checked)} /> Shares your home</label>
               <button disabled={person.closeness >= 100 && !socialInteractionPlanned(person.id)} onclick={() => interactSocial(person.id)}>{socialInteractionPlanned(person.id) ? 'Remove plan' : person.closeness >= 100 ? 'Strong bond' : 'Spend time · 6 stamina'}</button>
               <button onclick={() => removeSocialPerson(person.id)} aria-label={'Remove ' + person.name}>Remove</button>
             </article>
@@ -165,8 +165,8 @@
     </section>
 
     <section class="family-panel">
-      <div class="eyebrow">RELATIONSHIP HISTORY</div>
-      <h3>Milestones & moments</h3>
+      <div class="eyebrow">YOUR STORY</div>
+      <h3>Shared moments</h3>
       {#if family.history.length === 0}<p>No moments recorded yet.</p>{:else}
         <div class="family-timeline">
           {#each [...family.history].reverse() as item (item.id)}
@@ -175,7 +175,7 @@
         </div>
       {/if}
     </section>
-    <p class="family-footnote">Closeness, trust and tension change through the choices you make and the time you spend together.</p>
+    <p class="family-footnote">Every choice leaves a mark. Time together can build trust, bring you closer or help resolve old tension.</p>
   {/if}
 </section>
 

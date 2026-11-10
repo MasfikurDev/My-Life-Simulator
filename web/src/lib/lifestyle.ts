@@ -71,9 +71,9 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
     const strained = familyCulture === 'strained';
     activities.push({
       id: 'passive-family-meals',
-      title: 'Meals provided by family',
-      source: 'Living with relatives',
-      detail: structured ? 'Regular meals and routines' : strained ? 'Basic meals are available, with limited support' : 'Shared meals and everyday encouragement',
+      title: 'Meals at home',
+      source: 'Home',
+      detail: structured ? 'Regular meals and a steady routine' : strained ? 'Basic meals, though home life feels tense' : 'Shared meals and encouragement make the week easier',
       staminaRecovery: strained ? 3 : 5 + quality,
       health: strained ? 0 : 1 + quality,
       happiness: strained ? 0 : structured ? 1 : 2,
@@ -88,9 +88,9 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
   if (partner) {
     activities.push(partner.livesWithPlayer ? {
       id: 'passive-partner-support',
-      title: 'Shared household support',
+      title: 'Sharing the load',
       source: partner.name,
-      detail: 'A cohabiting partner shares meals and everyday responsibilities',
+      detail: 'You share meals and everyday responsibilities',
       staminaRecovery: partner.supportLevel === 'strong' ? 4 : 2,
       health: 1,
       happiness: partner.supportLevel === 'strong' ? 2 : 1,
@@ -101,7 +101,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       id: 'passive-partner-support',
       title: 'Partner checks in',
       source: partner.name,
-      detail: 'Regular contact with your partner provides emotional support',
+      detail: 'Regular check-ins help you feel connected',
       staminaRecovery: 0,
       health: 0,
       happiness: 1,
@@ -131,9 +131,9 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
   if (extendedFamily.length) {
     activities.push({
       id: 'passive-extended-family',
-      title: 'Extended family support',
+      title: 'Relatives check in',
       source: extendedFamily.slice(0, 2).map((item) => item.name).join(', '),
-      detail: 'Relatives maintain contact and provide occasional practical support',
+      detail: 'Relatives stay in touch and lend a hand when they can',
       staminaRecovery: extendedFamily.some((item) => item.supportLevel === 'strong') ? 2 : 1,
       health: 0,
       happiness: 1,
@@ -149,7 +149,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       id: 'passive-parenting',
       title: 'Time with children',
       source: children.slice(0, 2).map((item) => item.name).join(', '),
-      detail: 'Family connection brings enjoyment alongside ongoing responsibilities',
+      detail: 'Time with your children brings joy and new responsibilities',
       staminaRecovery: 0,
       health: 0,
       happiness: Math.min(2, children.filter((item) => item.closeness >= 45).length),

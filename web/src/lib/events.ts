@@ -163,13 +163,13 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
         events.push({
           id,
           title: 'A chance to reconnect',
-          description: relative.person.name + ' is someone you have not spent much time with lately. Make room to reconnect.',
+          description: relative.person.name + ' is someone you have not caught up with in a while. Make time to reconnect.',
           category: 'personal',
           choices: [
             {
               id: 'make-time',
               label: 'Make time for them',
-              detail: 'Spend time together and strengthen your family connection.',
+              detail: 'Catch up and strengthen your bond.',
               staminaCost: 5,
               moneyCost: 0,
               effects: { happiness: 2 },
