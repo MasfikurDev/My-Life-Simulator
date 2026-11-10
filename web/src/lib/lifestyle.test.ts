@@ -126,7 +126,7 @@ describe('passive lifestyle simulation', () => {
   });
 
   it('gives active lifestyle subscriptions modest service-specific weekly benefits', () => {
-    const character = createCharacter('Subscribed player', 30);
+    const character = { ...createCharacter('Subscribed player', 30), happiness: 50, fitness: 50 };
     const subscribed = {
       ...character,
       recurringPayments: [
