@@ -215,6 +215,8 @@ Family is a connected life system built around persistent people, kinship/guardi
 
 The current code implements family-of-origin generation, graph validation, and a targeted interaction loop. New characters may begin with parents/guardians and siblings; partners and children are never assumed in the kinship graph. Existing saves require explicit family-background initialization. Family interactions change the selected bond and record history; adult financial support debits cash and writes to the common Finance ledger. Family interactions are scheduled through the weekly activity plan.
 
+Independent adults must arrange their own meals through paid groceries, prepared food, delivery, or restaurant choices; missing meals create a small weekly wellbeing penalty. Independent living without a rental, owned residence, shared household, or cohabiting partner home also creates a modest housing-insecurity penalty. Renting or owning a more comfortable home provides a stronger weekly comfort benefit.
+
 A separate lightweight social-circle record lets the player explicitly record friends, a partner, children, and extended relatives for household/social support. It is not a replacement for the kinship graph and does not yet model full partnership, parenthood, adoption, custody, caregiving, mortality, inheritance, or legacy. Social time is scheduled as a six-stamina weekly activity and raises the selected connection's closeness; closeness controls passive check-in/household support. Do not present the lightweight social record as a complete family-life simulation.
 
 ## Life tree and decision progression
