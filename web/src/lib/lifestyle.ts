@@ -210,6 +210,27 @@ export function addSocialConnection(
   return { ...character, socialConnections: [...(character.socialConnections ?? []), item] };
 }
 
+export function interactWithSocialConnection(character: Character, id: string): Character {
+  const connection = (character.socialConnections ?? []).find((item) => item.id === id && item.active);
+  if (!connection || connection.closeness >= 100) return character;
+  const closeness = clamp(connection.closeness + 8);
+  const supportLevel = closeness >= 75 ? 'strong' : closeness >= 45 ? 'regular' : 'occasional';
+  const entry = {
+    id: 'social-interaction-' + character.year + '-' + character.age + '-' + character.history.length,
+    year: character.year,
+    age: character.age,
+    date: character.calendar?.currentDate,
+    title: 'Spent time with ' + connection.name,
+    description: 'Made time for the relationship and strengthened the connection.',
+    kind: 'activity' as const
+  };
+  return {
+    ...character,
+    socialConnections: (character.socialConnections ?? []).map((item) => item.id === id ? { ...item, closeness, supportLevel } : item),
+    history: [entry, ...character.history]
+  };
+}
+
 export function removeSocialConnection(character: Character, id: string): Character {
   const existing = character.socialConnections ?? [];
   if (!existing.some((item) => item.id === id)) return character;
