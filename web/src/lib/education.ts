@@ -57,7 +57,7 @@ export function enrollInEducation(character: Character, programId: string, field
   const program = getEducationProgram(programId);
   if (!program || !getAvailableEducationPrograms(character).some((item) => item.id === programId)) return { character, issue: 'This programme is not available at your current age or education level.' };
   if (!program.fieldOptions.includes(field)) return { character, issue: 'Choose a valid field of study.' };
-  if (character.educationEnrollment) return { character, issue: 'Complete, pause or leave your current programme before enrolling elsewhere.' };
+  if (character.educationEnrollment) return { character, issue: 'Complete or leave your current programme before enrolling elsewhere.' };
   const scale = character.currencyScale ?? 1;
   const tuition = Math.round(program.tuition * scale);
   if (character.money < tuition) return { character, issue: 'You cannot afford the programme tuition right now.' };
