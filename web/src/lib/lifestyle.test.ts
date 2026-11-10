@@ -31,6 +31,28 @@ describe('passive lifestyle simulation', () => {
     expect(neglectful.some((item) => item.id === 'passive-family-meals')).toBe(false);
   });
 
+  it('records automatic family meal stamina recovery in the weekly review and recap', () => {
+    const child = createCharacter('Child', 12);
+    const family = child.family!;
+    const householdIds = family.people.filter((person) => person.id !== family.playerPersonId).map((person) => person.id);
+    const supported = {
+      ...child,
+      stamina: 40,
+      familyCulture: 'supportive' as const,
+      family: { ...family, householdMemberIds: [family.playerPersonId, ...householdIds] }
+    };
+    const review = getWeeklyActivityReview(supported);
+    const meals = review.passiveActivities.find((item) => item.id === 'passive-family-meals');
+    expect(meals?.staminaRecovery).toBe(5);
+    expect(meals?.reward).toContain('Stamina +5');
+
+    const resolved = advanceWeek(supported);
+    expect(resolved.issue).toBeNull();
+    expect(resolved.recap).toContain(expect.stringContaining('Meals provided by family:'));
+    expect(resolved.recap.some((entry) => entry.includes('Stamina +5'))).toBe(true);
+    expect(resolved.character.stamina).toBeGreaterThan(40);
+  });
+
   it('stops family meals and family housing support when an adult moves out', () => {
     const generated = createCharacter('Moved out', 30);
     const family = generated.family!;
