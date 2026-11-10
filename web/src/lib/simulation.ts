@@ -100,7 +100,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), history: []
   };
   character.family = createFamilyState(character, random);
-  character.history.push(event(character, 'A new chapter begins', name + ' begins life at age ' + age + ' in ' + character.birthplace + ', ' + profile.country + '. A ' + background.toLowerCase() + ' upbringing shapes the starting point, but the choices ahead are yours.', 'milestone'));
+  character.history.push(event(character, 'A new chapter begins', name + ' begins life at age ' + age + ' in ' + character.birthplace + ', ' + profile.country + '. Starting circumstances shape the beginning, but the choices ahead are yours.', 'milestone'));
   return prepareGameEvent(character);
 }
 
@@ -753,7 +753,7 @@ export function getHouseholdBudget(character: Character) {
 export function setHouseholdArrangement(character: Character, arrangement: HouseholdArrangement): Character {
   if (character.age < 18 || character.householdArrangement === arrangement) return character;
   const next = { ...character, householdArrangement: arrangement, history: [...character.history] };
-  const label = arrangement === 'family-supported' ? 'With family' : arrangement === 'shared' ? 'Shared household' : 'Independent living';
+  const label = arrangement === 'family-supported' ? 'Shared with relatives' : arrangement === 'shared' ? 'Shared household' : 'Independent living';
   next.history.unshift(event(next, 'Changed living arrangement', 'Your living arrangement is now: ' + label + '. The annual household budget will change next year.', 'milestone'));
   return next;
 }
@@ -841,7 +841,11 @@ function getPlannedActivityTitle(character: Character, item: PlannedActivity): s
   if (item.action?.kind === 'education') return item.action.taskType === 'assignment' ? 'Education assignment' : item.action.taskType === 'exam' ? 'Academic assessment' : 'Focused study';
   if (item.action?.kind === 'care') return ({ rest: 'Rest & recovery', mindfulness: 'Mindfulness', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up' }[item.action.careType]);
   if (item.action?.kind === 'work') return (item.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + item.action.title;
-  if (item.action?.kind === 'family') {\n    const person = character.family?.people.find((entry) => entry.id === item.action?.personId);\n    const name = person?.name ?? 'this person';\n    return ({ 'spend-time': 'Spend time with ' + name, 'reach-out': 'Reach out to ' + name, reconcile: 'Work through things with ' + name, 'provide-support': 'Send financial support to ' + name }[item.action.interaction]);\n  }
+  if (item.action?.kind === 'family') {
+    const person = character.family?.people.find((entry) => entry.id === item.action?.personId);
+    const name = person?.name ?? 'this person';
+    return ({ 'spend-time': 'Spend time with ' + name, 'reach-out': 'Reach out to ' + name, reconcile: 'Work through things with ' + name, 'provide-support': 'Send financial support to ' + name }[item.action.interaction]);
+  }
   if (item.action?.kind === 'social') {
     const connectionId = item.action.connectionId;
     return 'Spend time with ' + ((character.socialConnections ?? []).find((entry) => entry.id === connectionId)?.name ?? 'a social connection');
