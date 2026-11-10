@@ -1120,7 +1120,7 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
 /* Status seals are rendered as explicit inline labels; planned cards stay fully readable and actionable. */
 
 /* Explicit inline seals replace the old full-button overlay across every workspace. */
-.work-primary .activity-status-seal,.work-secondary .activity-status-seal,.relative-actions button .activity-status-seal,.asset-actions button .activity-status-seal,.education-independent-study button .activity-status-seal{vertical-align:middle;margin-left:5px}
+.work-primary .activity-status-seal,.work-secondary .activity-status-seal,.relative-actions button .activity-status-seal,.asset-actions button .activity-status-seal{vertical-align:middle;margin-left:5px}
 
 @media(max-width:620px){.education-task-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.health-care-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.education-task-card,.health-care-card{padding:9px}.education-task-card strong,.health-care-card strong{font-size:10px}.education-task-card small,.health-care-card p{font-size:8px}}
 @media(max-width:360px){.education-task-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

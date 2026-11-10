@@ -333,7 +333,7 @@
           </div>
           <button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>
         {:else if activeTab==='profile' || activeTab==='settings'}
-          <div class="page-heading"><div><div class="eyebrow">{character ? 'CHARACTER & GAME MANAGEMENT' : 'PREFERENCES & CONTROLS'}</div><h1>{character ? 'Your <em>profile</em>' : 'Game <em>settings</em>'}</h1><p>{character ? 'Character details and saved-life controls.' : 'Adjust how the game appears and manage your saved story.'}</p></div></div>
+          <div class="page-heading"><div><div class="eyebrow">{character ? 'CHARACTER & GAME MANAGEMENT' : 'PREFERENCES & CONTROLS'}</div><h1>{#if character}Your <em>profile</em>{:else}Game <em>settings</em>{/if}</h1><p>{character ? 'Character details and saved-life controls.' : 'Adjust how the game appears and manage your saved story.'}</p></div></div>
           {#if !character}<button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>{/if}
           {#if character}
             <section class="settings-section profile-character-section">
