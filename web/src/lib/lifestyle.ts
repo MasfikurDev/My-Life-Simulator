@@ -46,7 +46,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       happiness: strained ? 0 : structured ? 1 : 2,
       comfort: strained ? 1 : 2 + quality,
       discipline: structured ? 2 : character.personality?.includes('Disciplined') ? 1 : 0,
-      stress: strained ? 1 : 0
+      stress: strained ? -1 : 0
     });
   }
 
@@ -122,7 +122,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
       happiness: Math.min(2, children.length),
       comfort: 1,
       discipline: 0,
-      stress: Math.min(3, children.length)
+      stress: -Math.min(3, children.length)
     });
   }
 
