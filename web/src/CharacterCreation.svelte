@@ -4,36 +4,18 @@
   import { getValueColor } from './lib/progression';
   type Props = { slotLabel: string; onStart: (character: Character) => void; onCancel: () => void };
   let { slotLabel, onStart, onCancel }: Props = $props();
-  const lifePaths = [
-    { age: 0, label: 'Birth', detail: 'Early development and care' },
-    { age: 6, label: 'Childhood', detail: 'School, learning and growth' },
-    { age: 13, label: 'Teen years', detail: 'Identity and friendships' },
-    { age: 18, label: 'Young adult', detail: 'Education and independence' },
-    { age: 30, label: 'Established adult', detail: 'Career and relationships' },
-    { age: 45, label: 'Midlife', detail: 'Responsibilities and new paths' },
-    { age: 65, label: 'Later life', detail: 'Retirement and legacy' }
-  ];
-  let selectedAge = $state(18);
-  let character = $state<Character>(generateRandomCharacter(18));
-  function chooseAge(age: number) { selectedAge = age; character = generateRandomCharacter(age); }
-  function reroll() { character = generateRandomCharacter(selectedAge); }
+  let character = $state<Character>(generateRandomCharacter(0));
+  function reroll() { character = generateRandomCharacter(0); }
 </script>
 <section class="creation-experience">
   <div class="creation-heading">
     <div class="eyebrow">NEW CHARACTER</div>
     <h1>Create a character</h1>
-    <p>Choose a starting stage. A complete character is generated automatically.</p>
-  </div>
-  <div class="life-path-picker" aria-label="Choose a starting life stage">
-    {#each lifePaths as path}
-      <button class:life-path-active={selectedAge === path.age} class="life-path-option" onclick={() => chooseAge(path.age)}>
-        <strong>{path.label}</strong><small>Age {path.age}</small>
-      </button>
-    {/each}
+    <p>Every new game begins at birth. A complete character is generated automatically.</p>
   </div>
   <article class="generated-character">
     <div class="generated-character-top">
-      <div><div class="generated-label">RANDOMLY GENERATED LIFE</div><h2>{character.name}</h2><p>Age {character.age} · {character.gender === 'non-binary' ? 'Non-binary' : character.gender === 'female' ? 'Female' : 'Male'}</p></div>
+      <div><div class="generated-label">BORN INTO A NEW LIFE</div><h2>{character.name}</h2><p>Age {character.age} · {character.gender === 'non-binary' ? 'Non-binary' : character.gender === 'female' ? 'Female' : 'Male'}</p></div>
       <button class="reroll-button" onclick={reroll} aria-label="Generate another character" title="Generate another character">↻ <span>Reroll</span></button>
     </div>
     <div class="identity-grid">
