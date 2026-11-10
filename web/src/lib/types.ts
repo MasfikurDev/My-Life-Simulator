@@ -34,7 +34,7 @@ export type PaymentSourceType = 'cash' | 'account' | 'card';
 export interface BankCard { id: string; name: string; type: CardType; linkedAccountId?: string; creditLimit: number; balance: number; annualInterestRate: number; active: boolean; productId?: string; rewardsRate?: number; rewardBalance?: number; }
 export interface Loan { id: string; name: string; type: LoanType; principal: number; balance: number; annualInterestRate: number; termYears: number; paymentAccountId?: string; active: boolean; }
 export interface RecurringPayment { id: string; name: string; amount: number; category: 'subscription' | 'bill'; sourceType: PaymentSourceType; sourceId?: string; active: boolean; startedAtYear: number; }
-export interface OwnedLifestyleItem { id: string; productId: string; name: string; category: string; description: string; quantity: number; purchasedAtYear: number; kind: 'usable' | 'permanent'; styleScore?: number; formality?: number; condition?: number; }
+export interface OwnedLifestyleItem { id: string; productId: string; name: string; category: string; description: string; quantity: number; purchasedAtYear: number; kind: 'usable' | 'permanent'; styleScore?: number; formality?: number; condition?: number; equipped?: boolean; }
 export type SocialConnectionType = 'friend' | 'partner' | 'child' | 'extended-family';
 export interface SocialConnection { id: string; name: string; type: SocialConnectionType; closeness: number; active: boolean; livesWithPlayer: boolean; supportLevel: 'occasional' | 'regular' | 'strong'; }
 export interface AutoDepositRule { id: string; targetAccountId: string; method: 'fixed' | 'percentage'; value: number; active: boolean; }
