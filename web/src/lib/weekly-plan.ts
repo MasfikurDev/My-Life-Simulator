@@ -1,6 +1,6 @@
 import type { PlannedActivity, WeeklyPlan } from './types';
 
-const ACTION_KINDS = ['activity', 'family', 'business', 'event', 'work', 'education', 'care', 'food'] as const;
+const ACTION_KINDS = ['activity', 'family', 'business', 'event', 'work', 'education', 'care', 'food', 'social'] as const;
 
 export function getWeeklyPlan(plan: WeeklyPlan): WeeklyPlan {
   return plan;
@@ -28,6 +28,7 @@ export function isValidWeeklyPlan(value: unknown): value is WeeklyPlan {
       case 'education': return item.activityId === 'study' && ['study', 'assignment', 'exam'].includes(String(action.taskType));
       case 'care': return item.activityId === 'healthcare' && ['rest', 'counselling', 'medical-checkup', 'mindfulness'].includes(String(action.careType));
       case 'food': return item.activityId === 'food' && typeof action.productId === 'string' && typeof action.name === 'string' && Number.isInteger(action.quantity) && Number(action.quantity) > 0 && Number(action.quantity) <= 20 && Number.isFinite(action.staminaRecovery) && Number(action.staminaRecovery) >= 0 && Number(action.staminaRecovery) <= 30 && Number.isFinite(action.health) && Number(action.health) >= 0 && Number(action.health) <= 12 && Number.isFinite(action.happiness) && Number(action.happiness) >= 0 && Number(action.happiness) <= 10 && Number.isFinite(action.stress) && Number(action.stress) >= 0 && Number(action.stress) <= 8;
+      case 'social': return item.activityId === 'socialize' && typeof action.connectionId === 'string' && action.interaction === 'spend-time';
       default: return false;
     }
   });
