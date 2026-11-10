@@ -1584,18 +1584,14 @@ function settleCalendarYear(character: Character, targetYear: number, targetAge:
   next = advanceFamilyYear(next);
   next = advanceEconomicConditions(next);
   if (simulateBackgroundWeeks) {
-    // Direct year advancement represents 52 quiet weekly cycles. Resolve background life effects
-    // without replaying player-selected actions or duplicating annual financial settlement.
-    const backgroundRoutines = new Set<string>();
-    for (let week = 0; week < 52; week += 1) {
-      const passive = getPassiveLifestyleActivities(next);
-      passive.forEach((item) => backgroundRoutines.add(item.title));
-      next = resolvePassiveLifestyleActivities(next, passive);
-      const recovery = passive.reduce((total, item) => total + item.staminaRecovery, 0);
-      next.stamina = clamp((next.stamina ?? 50) + recovery + 3);
-    }
-    if (backgroundRoutines.size) {
-      next.history.unshift(event(next, 'Everyday life continued', 'Automatic background routines remained active through the year: ' + [...backgroundRoutines].join(', ') + '.'));
+    // The direct year-skip is a coarse annual turn, not 52 replayed weekly turns.
+    // Resolve the current passive household/lifestyle state once without replaying player actions.
+    const passive = getPassiveLifestyleActivities(next);
+    next = resolvePassiveLifestyleActivities(next, passive);
+    const recovery = passive.reduce((total, item) => total + item.staminaRecovery, 0);
+    next.stamina = clamp((next.stamina ?? 50) + recovery + 3);
+    if (passive.length) {
+      next.history.unshift(event(next, 'Everyday life continued', 'Background routines remained active: ' + [...new Set(passive.map((item) => item.title))].join(', ') + '.'));
     }
   }
 
