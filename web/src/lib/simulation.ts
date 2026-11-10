@@ -790,7 +790,7 @@ export interface ActivityPlanningResult {
  * Stamina effort is calculated separately and charged during weekly resolution.
  */
 export function getPlannedActivityCost(character: Character, item: PlannedActivity): number {
-  if (item.action?.kind === 'food') return item.action.purchaseCost;
+  if (item.action?.kind === 'food') return item.action.purchaseCost ?? 0;
   if (item.action?.kind === 'work' || item.action?.kind === 'social') return 0;
   if (item.action?.kind === 'education') return getActivityCost(character, 'study');
   if (item.action?.kind === 'care') return character.age < 18 ? 0 : Math.round((item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (character.currencyScale ?? 1));
