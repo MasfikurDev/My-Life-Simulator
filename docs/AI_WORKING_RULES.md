@@ -190,3 +190,5 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 
 
 103. Player-facing writing must sound like a life-simulation game, not a family-services tool, case-management system, or technical dashboard. Use direct, natural language that frames relationships as people, choices, shared moments, and consequences. Keep accurate relationship terms where they identify a real person or mechanic, but avoid system-led phrases such as “family support,” “household support,” “family connections,” and explanations of internal simulation processing in player-facing copy. Explain stamina, costs, and outcomes in concise gameplay language. This is a copy rule only: never rename or alter internal IDs, relationship data, eligibility, rewards, financial effects, or save formats to satisfy it.
+
+194. Standard New Game always starts at age 0 (birth); do not expose a starting-age picker in that flow. Only saves explicitly created through standard New Game are achievement-eligible. Presets and Full Custom Starting are not achievement-eligible, and legacy saves without the explicit eligibility flag must not count toward achievements.
