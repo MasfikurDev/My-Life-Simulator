@@ -13,7 +13,7 @@
   type MarketProduct = {
     id: string; name: string; category: string; description: string; price: number;
     kind: 'food' | 'usable' | 'permanent';
-    staminaRecovery?: number; health?: number; happiness?: number; stress?: number;
+    staminaRecovery?: number; health?: number; happiness?: number; stress?: number; styleScore?: number; formality?: number;
   };
   type Provider = { id: string; name: string; plan: string; category: string; price: number; detail: string };
   const activeView = $derived(initialView);
@@ -45,7 +45,13 @@
     { id: 'textbook', name: 'Study reference book', category: 'Books', description: 'A reusable reference for independent learning', price: 42, kind: 'permanent' },
     { id: 'fitness-kit', name: 'Home fitness kit', category: 'Fitness', description: 'Basic reusable equipment for exercise', price: 110, kind: 'permanent' },
     { id: 'backpack', name: 'Everyday backpack', category: 'Accessories', description: 'A durable bag for daily essentials', price: 55, kind: 'permanent' },
-    { id: 'desk-lamp', name: 'Desk lamp', category: 'Home', description: 'A useful addition to a study or work space', price: 38, kind: 'permanent' }
+    { id: 'desk-lamp', name: 'Desk lamp', category: 'Home', description: 'A useful addition to a study or work space', price: 38, kind: 'permanent' },
+    { id: 'fashion-basic', name: 'Everyday basics', category: 'Fashion', description: 'Clean, practical clothing for everyday use', price: 45, kind: 'permanent', styleScore: 35, formality: 15 },
+    { id: 'fashion-casual', name: 'Casual outfit', category: 'Fashion', description: 'A coordinated casual look for daily outings', price: 110, kind: 'permanent', styleScore: 55, formality: 25 },
+    { id: 'fashion-smart', name: 'Smart casual outfit', category: 'Fashion', description: 'A polished look suitable for social occasions', price: 240, kind: 'permanent', styleScore: 70, formality: 55 },
+    { id: 'fashion-formal', name: 'Business suit', category: 'Fashion', description: 'Well-tailored formalwear for interviews and professional settings', price: 620, kind: 'permanent', styleScore: 82, formality: 95 },
+    { id: 'fashion-designer', name: 'Designer outfit', category: 'Fashion', description: 'Premium branded clothing with a distinctive look', price: 1450, kind: 'permanent', styleScore: 92, formality: 65 },
+    { id: 'fashion-luxury', name: 'Luxury formalwear', category: 'Fashion', description: 'High-end formal clothing for important occasions', price: 2400, kind: 'permanent', styleScore: 96, formality: 100 }
   ];
   const providers: Provider[] = [
     { id: 'stream-basic', name: 'ViewFlix', category: 'Entertainment', plan: 'Standard streaming', price: 120, detail: 'Films and series · annual plan' },
@@ -55,7 +61,7 @@
     { id: 'fitness-club', name: 'Active Club', category: 'Health & fitness', plan: 'Gym membership', price: 240, detail: 'Access to fitness facilities' },
     { id: 'cloud-storage', name: 'CloudBox', category: 'Digital services', plan: 'Cloud storage', price: 48, detail: 'Personal file storage' }
   ];
-  const categories = ['All', 'Food', 'Electronics', 'Transport', 'Books', 'Fitness', 'Accessories', 'Home'];
+  const categories = ['All', 'Food', 'Fashion', 'Electronics', 'Transport', 'Books', 'Fitness', 'Accessories', 'Home'];
   const selectedProduct = $derived(products.find((item) => item.id === selectedProductId));
   const selectedOwnedQuantity = $derived(selectedProduct ? (ownedItems.find((item) => item.productId === selectedProduct.id)?.quantity ?? 0) : 0);
   const selectedProvider = $derived(providers.find((item) => item.id === selectedProviderId));
@@ -107,7 +113,8 @@
       const next = addOwnedLifestyleItem(paid, {
         productId: selectedProduct.id, name: selectedProduct.name, category: selectedProduct.category,
         description: selectedProduct.description, quantity: orderQuantity,
-        kind: selectedProduct.kind === 'usable' ? 'usable' : 'permanent'
+        kind: selectedProduct.kind === 'usable' ? 'usable' : 'permanent',
+        ...(selectedProduct.styleScore !== undefined ? { styleScore: selectedProduct.styleScore, formality: selectedProduct.formality ?? 0 } : {})
       });
       onChange(next);
       onNotify(selectedProduct.name + ' purchased and added to Owned.');
@@ -183,7 +190,7 @@
       {#if ownedItems.length}
         <div class="owned-grid">
           {#each ownedItems as item (item.id)}
-            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}</small><p>{item.description}</p></article>
+            <article class="owned-item"><div class="owned-item-top"><strong>{item.name}</strong><span>{item.quantity > 1 ? '×' + item.quantity : item.kind === 'permanent' ? 'PERMANENT' : 'USABLE'}</span></div><small>{item.category} · Bought in year {item.purchasedAtYear}{item.category === 'Fashion' ? ' · Condition ' + (item.condition ?? 100) + '%' : ''}</small><p>{item.description}</p>{#if item.category === 'Fashion' && item.styleScore !== undefined}<small>Style {item.styleScore}/100 · Formality {item.formality ?? 0}/100</small>{/if}</article>
           {/each}
         </div>
       {:else}
