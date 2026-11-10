@@ -346,7 +346,7 @@
                 <div class="overview-context-item"><span>BIRTHPLACE</span><strong>{character.birthplace ?? 'Not recorded'}</strong></div>
                 <div class="overview-context-item"><span>LANGUAGE</span><strong>{character.language ?? 'Not recorded'}</strong></div>
                 <div class="overview-context-item"><span>PERSONALITY</span><strong>{character.personality?.join(' · ') ?? 'Not recorded'}</strong></div>
-                <div class="overview-context-item"><span>FAMILY BACKGROUND</span><strong>{character.familyBackground ?? 'Not recorded'}</strong></div>
+                <div class="overview-context-item"><span>UPBRINGING</span><strong>{character.familyBackground ?? 'Not recorded'}</strong></div>
               </div>
               {#if character.appearance}
                 <div class="overview-context profile-detail-grid">
@@ -532,7 +532,7 @@
                     <div><small>Projected</small><strong>{Math.round(weeklyReview.projectedStamina)}%</strong></div>
                   </div>
                   <div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div>
-                  {#if weeklyReview.passiveStaminaRecovery > 0}<p class="review-empty">Automatic household and social support contributes +{weeklyReview.passiveStaminaRecovery} stamina before planned activity costs.</p>{/if}
+                  {#if weeklyReview.passiveStaminaRecovery > 0}<p class="review-empty">Home life and close connections restore +{weeklyReview.passiveStaminaRecovery} stamina before your planned activities.</p>{/if}
                   {#if Math.min(100, weeklyReview.currentStamina + weeklyReview.staminaRecovery) < weeklyReview.staminaCost}<p class="year-review-warning">The plan exceeds your stamina budget. Select recovery activities or remove demanding activities before resolving.</p>{/if}
                 </section>
 
