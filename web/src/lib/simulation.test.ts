@@ -7,8 +7,55 @@ import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase
 import { createGameDebugSnapshot } from './debug-export';
 import { getCareerRole, getJobListings, isEligibleForRole, resolveJobApplication, resolveJobInterview } from './work';
 import { prepareGameEvent, resolveGameEvent } from './events';
+import { getPassiveLifestyleActivities } from './lifestyle';
 
 describe('life simulation', () => {
+  it('starts a newborn in a family household with age-scaled attributes and passive support', () => {
+    const newborn = createCharacter('Newborn', 0);
+    expect(newborn.householdArrangement).toBe('family-supported');
+    expect(newborn.health).toBeLessThanOrEqual(30);
+    expect(newborn.intelligence).toBeLessThanOrEqual(30);
+    expect(newborn.family?.householdMemberIds.length).toBeGreaterThan(1);
+    const supported = { ...newborn, familyCulture: 'supportive' as const };
+    const passive = getPassiveLifestyleActivities(supported);
+    expect(passive.map((item) => item.id)).toContain('passive-family-meals');
+    expect(passive.map((item) => item.id)).toContain('passive-stable-home');
+  });
+
+  it('resolves passive background life and natural development during direct year advancement', () => {
+    const newborn = createCharacter('Growing child', 0);
+    const family = newborn.family!;
+    const supported = {
+      ...newborn,
+      familyCulture: 'supportive' as const,
+      health: 10, happiness: 10, intelligence: 10, fitness: 10, stamina: 10,
+      focus: 10, confidence: 10, discipline: 10, creativity: 10, socialSkills: 10,
+      family: { ...family, householdMemberIds: family.people.filter((person) => person.id !== family.playerPersonId).map((person) => person.id).concat(family.playerPersonId) }
+    };
+    const next = advanceYear(supported);
+    expect(next.age).toBe(1);
+    expect(next.intelligence).toBe(13);
+    expect(next.fitness).toBe(13);
+    expect(next.stamina).toBeGreaterThan(supported.stamina);
+    expect(next.health).toBeGreaterThan(supported.health);
+    expect(next.happiness).toBeGreaterThan(supported.happiness);
+    expect(next.comfort).toBeGreaterThan(supported.comfort ?? 50);
+    expect(next.lastYearRecap?.some((entry) => entry.includes('Everyday life continued'))).toBe(true);
+  });
+
+  it('applies annual passive penalties once rather than replaying 52 weekly turns', () => {
+    const generated = createCharacter('Independent adult', 30);
+    const adult = {
+      ...generated,
+      money: 100000,
+      householdArrangement: 'independent' as const,
+      family: generated.family ? { ...generated.family, householdMemberIds: [generated.family.playerPersonId] } : undefined
+    };
+    const next = advanceYear(adult);
+    expect(next.happiness).toBe(adult.happiness - 2);
+    expect(next.history.some((entry) => entry.title === 'Everyday life continued')).toBe(true);
+  });
+
   it('calculates age- and currency-scaled activity costs', () => {
     const adult = { ...createCharacter('Adult', 18), currencyScale: 100, money: 3500 };
     const child = { ...createCharacter('Child', 12), currencyScale: 100, money: 0 };
@@ -356,7 +403,7 @@ describe('life simulation', () => {
     const joined = resolveGameEvent(student, 'join');
     const intelligenceAfterChoice = joined.intelligence;
     const nextYear = advanceYear(joined);
-    expect(nextYear.intelligence).toBe(intelligenceAfterChoice + 2);
+    expect(nextYear.intelligence).toBe(Math.min(82, intelligenceAfterChoice + 3));
     expect(nextYear.scheduledGameConsequences).toHaveLength(0);
     expect(nextYear.history.some((item) => item.title === 'Your reading paid off')).toBe(true);
   });
@@ -741,7 +788,7 @@ describe('life simulation', () => {
     expect(next.lastYearExpenses).toBe(100);
     expect(next.lastYearShortfall).toBe(getHouseholdBudget(next).total - 100);
     expect(next.money).toBe(0);
-    expect(next.happiness).toBe(adult.happiness - 4);
+    expect(next.happiness).toBe(Math.max(0, adult.happiness - 6));
     expect(next.history.some((item) => item.title === 'Household budget shortfall')).toBe(true);
   });
   it('settles annual household costs from income and savings', () => {
