@@ -35,6 +35,8 @@ A modern, polished, mobile-first life simulation interface. It should feel like 
 ## Dashboard priorities
 Overview is the landing surface for the current life, not a duplicate of every domain. Show the shared life context once in the global header and keep Overview focused on useful current-week information and the complete activity feed. Group activities into expandable week sections, newest first, with the current week expanded by default. Keep major achievements and life-stage milestones in Life History; do not duplicate every routine activity there. Keep study controls in School, job-search/workplace details in Work, personal stats and activities in Life, and financial products in Finance. Before adding any summary or shortcut, inspect navigation and destination screens for duplicates. Never fabricate financial metrics or imply unimplemented mechanics.
 
+- Use Title Case for all semantic page, section, card, dialog and modal headings. Keep descriptions and explanatory copy in sentence case; uppercase eyebrow labels remain a separate visual treatment.
+
 ## Compactness and usability are mandatory requirements
 
 Every screen must use space deliberately and make common actions easy to reach. Compact does not mean cramped or tiny.
