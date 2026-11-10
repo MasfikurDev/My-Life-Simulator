@@ -34,6 +34,7 @@ export type PaymentSourceType = 'cash' | 'account' | 'card';
 export interface BankCard { id: string; name: string; type: CardType; linkedAccountId?: string; creditLimit: number; balance: number; annualInterestRate: number; active: boolean; productId?: string; rewardsRate?: number; rewardBalance?: number; }
 export interface Loan { id: string; name: string; type: LoanType; principal: number; balance: number; annualInterestRate: number; termYears: number; paymentAccountId?: string; active: boolean; }
 export interface RecurringPayment { id: string; name: string; amount: number; category: 'subscription' | 'bill'; sourceType: PaymentSourceType; sourceId?: string; active: boolean; startedAtYear: number; }
+export interface OwnedLifestyleItem { id: string; productId: string; name: string; category: string; description: string; quantity: number; purchasedAtYear: number; kind: 'usable' | 'permanent'; }
 export interface AutoDepositRule { id: string; targetAccountId: string; method: 'fixed' | 'percentage'; value: number; active: boolean; }
 
 export interface BankAccount {
@@ -221,11 +222,12 @@ export type PlannedAction =
   | { kind: 'event'; eventId: string; choiceId: string; staminaCost: number }
   | { kind: 'work'; workAction: 'apply' | 'interview'; jobId: string; title: string }
   | { kind: 'education'; taskType: EducationTaskType }
-  | { kind: 'care'; careType: CareActionType };
+  | { kind: 'care'; careType: CareActionType }
+  | { kind: 'food'; productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number };
 
 export interface PlannedActivity {
   id: string;
-  activityId: ActivityId | 'family' | 'business' | 'event' | 'healthcare';
+  activityId: ActivityId | 'family' | 'business' | 'event' | 'healthcare' | 'food';
   action: PlannedAction;
 }
 export interface WeeklyPlan {
@@ -252,6 +254,7 @@ export interface Character {
   cards?: BankCard[];
   loans?: Loan[];
   recurringPayments?: RecurringPayment[];
+  ownedLifestyleItems?: OwnedLifestyleItem[];
   autoDepositRules?: AutoDepositRule[];
   vaultBalance?: number;
   properties?: PropertyAsset[];

@@ -1,4 +1,4 @@
-import type { ActivityId, PlannedAction, PlannedActivity, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
+import type { ActivityId, PlannedAction, PlannedActivity, OwnedLifestyleItem, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
 import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
@@ -789,7 +789,7 @@ export interface ActivityPlanningResult {
  * Stamina effort is calculated separately and charged during weekly resolution.
  */
 export function getPlannedActivityCost(character: Character, item: PlannedActivity): number {
-  if (item.action?.kind === 'work') return 0;
+  if (item.action?.kind === 'food' || item.action?.kind === 'work') return 0;
   if (item.action?.kind === 'education') return getActivityCost(character, 'study');
   if (item.action?.kind === 'care') return character.age < 18 ? 0 : Math.round((item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (character.currencyScale ?? 1));
   if (item.action?.kind === 'family' && item.action.interaction === 'provide-support') return item.action.supportAmount ?? 0;
@@ -810,6 +810,7 @@ export function getPlannedActivityCost(character: Character, item: PlannedActivi
 
 /** Stamina is the weekly effort budget; personal actions never reserve calendar periods. */
 export function getPlannedActivityStaminaCost(item: PlannedActivity): number {
+  if (item.action?.kind === 'food') return 0;
   if (item.action?.kind === 'education') return 8;
   if (item.action?.kind === 'care') return ({ rest: 0, mindfulness: 4, counselling: 2, 'medical-checkup': 0 }[item.action.careType]);
   if (item.action?.kind === 'work') return item.action.workAction === 'interview' ? 10 : 8;
@@ -821,11 +822,13 @@ export function getPlannedActivityStaminaCost(item: PlannedActivity): number {
 
 /** Planned recovery is credited before costs, so the weekly budget is independent of toggle order. */
 export function getPlannedActivityStaminaRecovery(item: PlannedActivity): number {
+  if (item.action?.kind === 'food') return item.action.staminaRecovery;
   if (item.action?.kind !== 'care') return 0;
   return item.action.careType === 'rest' ? 14 : item.action.careType === 'medical-checkup' ? 5 : 0;
 }
 
 function getPlannedActivityTitle(character: Character, item: PlannedActivity): string {
+  if (item.action?.kind === 'food') return 'Meal · ' + item.action.name + (item.action.quantity > 1 ? ' × ' + item.action.quantity : '');
   if (item.action?.kind === 'education') return item.action.taskType === 'assignment' ? 'Education assignment' : item.action.taskType === 'exam' ? 'Academic assessment' : 'Focused study';
   if (item.action?.kind === 'care') return ({ rest: 'Rest & recovery', mindfulness: 'Mindfulness', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up' }[item.action.careType]);
   if (item.action?.kind === 'work') return (item.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + item.action.title;
@@ -845,6 +848,7 @@ function getPlannedActivityTitle(character: Character, item: PlannedActivity): s
 
 
 function getPlannedActivityReward(item: PlannedActivity): string {
+  if (item.action?.kind === 'food') return 'Bought meal · stamina +' + item.action.staminaRecovery + (item.action.health ? ' · health +' + item.action.health : '') + (item.action.happiness ? ' · happiness +' + item.action.happiness : '');
   if (item.action?.kind === 'education') return 'Knowledge, focus, discipline and course progress';
   if (item.action?.kind === 'care') return ({ rest: 'Stamina, health, happiness and lower stress', mindfulness: 'Focus and lower stress', counselling: 'Mental wellbeing and stress recovery', 'medical-checkup': 'Health assessment and treatment planning' }[item.action.careType]);
   if (item.action?.kind === 'work') return 'Career opportunity and employment progression';
@@ -1003,6 +1007,25 @@ export function planCareActionInNextFreeTime(character: Character, careType: Car
   return planForCurrentWeek(character, (date) => addWeeklyAction(character, 'healthcare', date, { kind: 'care', careType }, cost));
 }
 
+export function addOwnedLifestyleItem(character: Character, item: Omit<OwnedLifestyleItem, 'id' | 'purchasedAtYear'>): Character {
+  if (!item.productId || !item.name.trim() || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20) return character;
+  const items = [...(character.ownedLifestyleItems ?? [])];
+  const existing = items.find((entry) => entry.productId === item.productId);
+  if (existing) {
+    if (existing.quantity + item.quantity > 999) return character;
+    return { ...character, ownedLifestyleItems: items.map((entry) => entry.id === existing.id ? { ...entry, quantity: entry.quantity + item.quantity } : entry) };
+  }
+  const owned: OwnedLifestyleItem = { ...item, id: 'owned-' + character.year + '-' + character.age + '-' + (items.length + 1), purchasedAtYear: character.year };
+  return { ...character, ownedLifestyleItems: [...items, owned] };
+}
+
+export function planBoughtFoodInNextFreeTime(character: Character, food: { productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number }): ActivityPlanningResult {
+  if (!food.productId || !food.name.trim() || !Number.isInteger(food.quantity) || food.quantity < 1 || food.quantity > 20 || !Number.isFinite(food.staminaRecovery) || food.staminaRecovery < 0 || food.staminaRecovery > 30 || !Number.isFinite(food.health) || food.health < 0 || food.health > 12 || !Number.isFinite(food.happiness) || food.happiness < 0 || food.happiness > 10 || !Number.isFinite(food.stress) || food.stress < 0 || food.stress > 8) {
+    return { character, issue: 'unavailable', message: 'This food order is invalid.' };
+  }
+  return planForCurrentWeek(character, (date) => addWeeklyAction(character, 'food', date, { kind: 'food', ...food }, 0));
+}
+
 export function planActivityInNextFreeTime(character: Character, activity: ActivityId): ActivityPlanningResult {
   return planForCurrentWeek(character, (date) => planActivity(character, activity, date));
 }
@@ -1074,7 +1097,10 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     // Recovery was credited up front; charge each selected activity exactly once.
     next = { ...next, stamina: clamp((next.stamina ?? 50) - getPlannedActivityStaminaCost(item)) };
     let result: Character;
-    if (item.action?.kind === 'education') {
+    if (item.action?.kind === 'food') {
+      result = { ...next, health: clamp(next.health + item.action.health), happiness: clamp(next.happiness + item.action.happiness), stress: clamp((next.stress ?? 30) - item.action.stress) };
+      recap.push('Food: enjoyed bought ' + item.action.name + (item.action.quantity > 1 ? ' × ' + item.action.quantity : '') + '.');
+    } else if (item.action?.kind === 'education') {
       result = performActivity(next, 'study', weekRandom);
       if (result !== next) {
         educationTasks.push(item.action.taskType);
@@ -1138,6 +1164,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
 export interface WeeklyActivityReviewItem {
   id: string;
   title: string;
+  seal?: 'BOUGHT';
   staminaCost: number;
   moneyCost: number;
   reward: string;
@@ -1212,6 +1239,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   const activities = schedule.activities.map((item) => ({
     id: item.id,
     title: getPlannedActivityTitle(character, item),
+    seal: item.action?.kind === 'food' ? 'BOUGHT' as const : undefined,
     staminaCost: getPlannedActivityStaminaCost(item),
     moneyCost: getPlannedActivityCost(character, item),
     reward: getPlannedActivityReward(item)
