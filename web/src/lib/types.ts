@@ -239,6 +239,8 @@ export interface WeeklyPlan {
   activities: PlannedActivity[];
 }
 export interface Character {
+  /** Only standard New Game lives beginning at birth can earn achievements. */
+  achievementEligible?: boolean;
   name: string; age: number; year: number; health: number; happiness: number;
   intelligence: number; fitness: number; money: number;
   /** Ability/condition stats use 0–100; stress is inverse (lower is better). */
