@@ -416,7 +416,7 @@ Status labels:
 | Kinship, guardianship, bonds, household/dependency references | Family | Lifestyle may derive support; Finance may record support payments |
 | Health conditions, stamina, stress, workload | Health / wellbeing | Other domains submit workload/effects through coordinator |
 | Cash, accounts, cards, loans, assets/liabilities, ledger, tax | Finance | Other domains request transactions |
-| Market purchases, owned lifestyle goods, clothing condition, service choices | Lifestyle | Finance executes payment; Work reads presentation |
+| Supermarket purchases, owned lifestyle goods, clothing condition, service choices | Lifestyle | Finance executes payment; Work reads presentation |
 | Residence/property ownership and rental state | Property / Finance assets | Lifestyle derives housing comfort |
 | Pending events and scheduled consequences | Events | Domain commands perform actual effects |
 | Narrative history and weekly recap | Shared history pipeline / Character history | Domains emit truthful records |
