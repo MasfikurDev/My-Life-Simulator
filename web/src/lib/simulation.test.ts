@@ -128,7 +128,7 @@ describe('life simulation', () => {
   it('plans bought food with no stamina cost and applies its effects only when the week resolves', () => {
     const base = { ...createCharacter('Food buyer', 30), stamina: 35, health: 50, happiness: 50, stress: 40, money: 100, currencyScale: 1 };
     const planned = planBoughtFoodInNextFreeTime(base, {
-      productId: 'balanced-meal', name: 'Balanced meal', quantity: 1,
+      productId: 'balanced-meal', name: 'Balanced meal', quantity: 1, purchaseCost: 12,
       staminaRecovery: 8, health: 2, happiness: 3, stress: 2
     });
     expect(planned.issue).toBeNull();
