@@ -100,7 +100,7 @@ export function generateRandomCharacter(startAge = 18, random: () => number = Ma
     money: Math.round(moneyBase * profile.scale * moneyMultiplier), history: []
   };
   character.family = createFamilyState(character, random);
-  character.history.push(event(character, 'A new chapter begins', name + ' begins life at age ' + age + ' in ' + character.birthplace + ', ' + profile.country + '. Their ' + background.toLowerCase() + ' family background shapes their starting circumstances, but not their future.', 'milestone'));
+  character.history.push(event(character, 'A new chapter begins', name + ' begins life at age ' + age + ' in ' + character.birthplace + ', ' + profile.country + '. A ' + background.toLowerCase() + ' upbringing shapes the starting point, but the choices ahead are yours.', 'milestone'));
   return prepareGameEvent(character);
 }
 
