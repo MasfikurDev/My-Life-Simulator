@@ -73,6 +73,33 @@ describe('passive lifestyle simulation', () => {
     expect(resolved.character.history[0].title).toContain('Spent time with Friend');
   });
 
+  it('requires independent adults to arrange food and stable housing, while a paid meal clears the food penalty', () => {
+    const generated = createCharacter('Independent adult', 30);
+    const independent = {
+      ...generated,
+      householdArrangement: 'independent' as const,
+      family: generated.family ? { ...generated.family, householdMemberIds: [generated.family.playerPersonId] } : undefined
+    };
+    const passive = getPassiveLifestyleActivities(independent);
+    expect(passive.map((item) => item.id)).toEqual(expect.arrayContaining(['passive-no-meals', 'passive-housing-insecurity']));
+    const planned = planBoughtFoodInNextFreeTime(independent, {
+      productId: 'meal-balanced', name: 'Balanced meal', quantity: 1,
+      staminaRecovery: 9, health: 3, happiness: 2, stress: 1, comfort: 0
+    });
+    expect(planned.issue).toBeNull();
+    expect(getPassiveLifestyleActivities(planned.character).some((item) => item.id === 'passive-no-meals')).toBe(false);
+    expect(getPassiveLifestyleActivities(planned.character).some((item) => item.id === 'passive-housing-insecurity')).toBe(true);
+  });
+
+  it('allows a non-cohabiting partner to provide emotional support without replacing meals or housing', () => {
+    let character = createCharacter('Partner support', 30);
+    character = { ...character, householdArrangement: 'independent', family: character.family ? { ...character.family, householdMemberIds: [character.family.playerPersonId] } : undefined };
+    character = addSocialConnection(character, 'Partner', 'partner', false);
+    const passive = getPassiveLifestyleActivities(character);
+    expect(passive.find((item) => item.id === 'passive-partner-support')).toMatchObject({ title: 'Partner checks in', staminaRecovery: 0, happiness: 1 });
+    expect(passive.some((item) => item.id === 'passive-no-meals')).toBe(true);
+  });
+
   it('applies passive benefits without consuming planned activity slots', () => {
     let character = createCharacter('Adult', 30);
     character = addSocialConnection(character, 'Partner', 'partner', true);
