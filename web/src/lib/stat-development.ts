@@ -45,7 +45,7 @@ function weeklyRate(age:number,stat:DevelopmentStat):number{
 export function applyNaturalStatDevelopment<T extends Character>(character:T):{character:T;changes:DevelopmentStat[]}{
  let next=character; const changes:DevelopmentStat[]=[];
  for(const stat of DEVELOPMENT_STATS){
-  const before=Number(next[stat]??0), after=Math.min(getStatCeiling(next,stat),before+weeklyRate(next.age,stat));
+  const before=stat==='comfort' && next.comfort===undefined ? 50 : Number(next[stat]??0), after=Math.min(getStatCeiling(next,stat),before+weeklyRate(next.age,stat));
   if(after>before){next=Object.assign({},next,{[stat]:Math.round(after*1000)/1000});changes.push(stat);}
  }
  return {character:next,changes};
@@ -54,7 +54,7 @@ export function enforceWeeklyStatCaps<T extends Character>(before:Character,afte
  const next={...after};
  for(const stat of DEVELOPMENT_STATS){
   const oldValue=Number(before[stat]??0), newValue=Number(after[stat]??0);
-  if(newValue>oldValue)Object.assign(next,{[stat]:Math.min(newValue,Math.max(oldValue,getStatCeiling(after,stat)))});
+  if(newValue>oldValue){const ceiling=getStatCeiling(after,stat);Object.assign(next,{[stat]:oldValue>=ceiling?oldValue:Math.min(newValue,ceiling)});}
  }
  return next;
 }

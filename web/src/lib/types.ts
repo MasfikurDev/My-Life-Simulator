@@ -237,7 +237,9 @@ export interface WeeklyPlan {
   version: 1;
   activities: PlannedActivity[];
 }
-export interface Character {\n  /** Optional per-stat development potential (50–100); absent on older saves. */\n  statPotential?: Partial<Record<'health' | 'happiness' | 'intelligence' | 'fitness' | 'stamina' | 'focus' | 'confidence' | 'discipline' | 'creativity' | 'socialSkills' | 'comfort', number>>;
+export interface Character {
+  /** Optional per-stat development potential (50–100); absent on older saves. */
+  statPotential?: Partial<Record<'health' | 'happiness' | 'intelligence' | 'fitness' | 'stamina' | 'focus' | 'confidence' | 'discipline' | 'creativity' | 'socialSkills' | 'comfort', number>>;
   name: string; age: number; year: number; health: number; happiness: number;
   intelligence: number; fitness: number; money: number;
   /** Ability/condition stats use 0–100; stress is inverse (lower is better). */
