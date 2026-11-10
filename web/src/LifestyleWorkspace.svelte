@@ -38,6 +38,7 @@
     { id: 'meal-fruit', name: 'Fresh fruit', category: 'Food', description: 'A fresh snack with a small wellbeing boost', price: 12, kind: 'food', staminaRecovery: 3, health: 2, happiness: 1, stress: 1 },
     { id: 'meal-balanced', name: 'Balanced meal', category: 'Food', description: 'A complete meal for recovery and wellbeing', price: 28, kind: 'food', staminaRecovery: 9, health: 3, happiness: 2, stress: 1 },
     { id: 'meal-chicken', name: 'Chicken meal', category: 'Food', description: 'A substantial protein-rich meal', price: 34, kind: 'food', staminaRecovery: 10, health: 2, happiness: 2 },
+    { id: 'meal-groceries', name: 'Weekly grocery basket', category: 'Food', description: 'A practical mix of groceries to cover regular meals throughout the week', price: 110, kind: 'food', staminaRecovery: 24, health: 4, happiness: 2, comfort: 1 },
     { id: 'meal-restaurant', name: 'Restaurant dinner', category: 'Eating out', description: 'A sit-down meal with better ambience and a social break', price: 85, kind: 'food', staminaRecovery: 5, health: 1, happiness: 5, comfort: 3, stress: 2 },
     { id: 'meal-delivery', name: 'Food delivery', category: 'Delivery', description: 'A convenient prepared meal delivered to your home', price: 65, kind: 'food', staminaRecovery: 5, happiness: 4, comfort: 3, stress: 1 },
     { id: 'phone-basic', name: 'Everyday smartphone', category: 'Electronics', description: 'A practical smartphone for daily use', price: 420, kind: 'permanent' },
