@@ -39,6 +39,7 @@ describe('passive lifestyle simulation', () => {
       ...child,
       stamina: 40,
       familyCulture: 'supportive' as const,
+      familyBackground: 'Working-class',
       family: { ...family, householdMemberIds: [family.playerPersonId, ...householdIds] }
     };
     const review = getWeeklyActivityReview(supported);
