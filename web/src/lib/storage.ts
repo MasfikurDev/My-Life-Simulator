@@ -4,7 +4,7 @@ import { isValidWeeklyPlan } from './weekly-plan';
 
 const KEY = 'my-life-simulator.save';
 const SETTINGS_KEY = 'my-life-simulator.settings';
-export const CURRENT_SCHEMA = 6;
+export const CURRENT_SCHEMA = 7;
 const SLOT_IDS: SaveSlotId[] = ['slot-1', 'slot-2', 'slot-3'];
 const emptySlots = (): SaveSlot[] => SLOT_IDS.map((id) => ({ id, character: null, updatedAt: null }));
 
@@ -16,7 +16,10 @@ function isCurrentCharacter(value: unknown): value is Character {
   if (!c.calendar || !/^\d{4}-\d{2}-\d{2}$/.test(c.calendar.currentDate) || !/^\d{4}-\d{2}-\d{2}$/.test(c.calendar.birthDate)) return false;
   if (![c.stamina, c.focus, c.confidence, c.discipline, c.creativity, c.socialSkills, c.stress].every((value) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100)) return false;
   if (!isValidWeeklyPlan(c.weeklyPlan)) return false;
-  if (c.ownedLifestyleItems !== undefined && (!Array.isArray(c.ownedLifestyleItems) || c.ownedLifestyleItems.some((item) => !item || typeof item.id !== 'string' || typeof item.productId !== 'string' || typeof item.name !== 'string' || typeof item.category !== 'string' || typeof item.description !== 'string' || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 999 || !Number.isInteger(item.purchasedAtYear) || !['usable', 'permanent'].includes(item.kind)))) return false;
+  if (c.comfort !== undefined && (!Number.isFinite(c.comfort) || c.comfort < 0 || c.comfort > 100)) return false;
+  if (c.familyCulture !== undefined && !['supportive', 'structured', 'strained', 'neglectful'].includes(c.familyCulture)) return false;
+  if (c.socialConnections !== undefined && (!Array.isArray(c.socialConnections) || c.socialConnections.length > 30 || c.socialConnections.some((item) => !item || typeof item.id !== 'string' || typeof item.name !== 'string' || !item.name.trim() || !['friend', 'partner', 'child', 'extended-family'].includes(item.type) || !Number.isInteger(item.closeness) || item.closeness < 0 || item.closeness > 100 || typeof item.active !== 'boolean' || typeof item.livesWithPlayer !== 'boolean' || !['occasional', 'regular', 'strong'].includes(item.supportLevel)))) return false;
+  if (c.ownedLifestyleItems !== undefined && (!Array.isArray(c.ownedLifestyleItems) || c.ownedLifestyleItems.some((item) => !item || typeof item.id !== 'string' || typeof item.productId !== 'string' || typeof item.name !== 'string' || typeof item.category !== 'string' || typeof item.description !== 'string' || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 999 || !Number.isInteger(item.purchasedAtYear) || !['usable', 'permanent'].includes(item.kind) || (item.styleScore !== undefined && (!Number.isInteger(item.styleScore) || item.styleScore < 0 || item.styleScore > 100)) || (item.formality !== undefined && (!Number.isInteger(item.formality) || item.formality < 0 || item.formality > 100)) || (item.condition !== undefined && (!Number.isInteger(item.condition) || item.condition < 0 || item.condition > 100))))) return false;
   if (c.pendingGameEvent && (!Array.isArray(c.pendingGameEvent.choices) || c.pendingGameEvent.choices.some((choice) =>
     !Number.isFinite(choice.staminaCost) || choice.staminaCost < 0 || !Number.isFinite(choice.moneyCost) || choice.moneyCost < 0))) return false;
   return true;
