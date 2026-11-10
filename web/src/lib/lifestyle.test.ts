@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { addOwnedLifestyleItem, advanceWeek, createCharacter } from './simulation';
+import { addOwnedLifestyleItem, advanceWeek, createCharacter, planSocialInteractionInNextFreeTime } from './simulation';
 import {
   addSocialConnection,
   applyWeeklyClothingWear,
+  interactWithSocialConnection,
   getClothingPresentationScore,
   getPassiveLifestyleActivities,
   removeSocialConnection,
@@ -39,6 +40,21 @@ describe('passive lifestyle simulation', () => {
     const partner = character.socialConnections!.find((item) => item.type === 'partner')!;
     expect(setSocialConnectionHousehold(character, partner.id, false).socialConnections!.find((item) => item.id === partner.id)?.livesWithPlayer).toBe(false);
     expect(removeSocialConnection(character, partner.id).socialConnections).toHaveLength(3);
+  });
+
+  it('lets players schedule social time and improves support after weekly resolution', () => {
+    let character = addSocialConnection(createCharacter('Social adult', 30), 'Friend', 'friend');
+    const friend = character.socialConnections![0];
+    const planned = planSocialInteractionInNextFreeTime(character, friend.id);
+    expect(planned.issue).toBeNull();
+    expect(planned.character.weeklyPlan.activities[0]).toMatchObject({
+      activityId: 'socialize', action: { kind: 'social', connectionId: friend.id }
+    });
+    const resolved = advanceWeek(planned.character);
+    expect(resolved.issue).toBeNull();
+    expect(resolved.character.socialConnections![0].closeness).toBe(68);
+    expect(resolved.character.socialConnections![0].supportLevel).toBe('regular');
+    expect(resolved.character.history[0].title).toContain('Spent time with Friend');
   });
 
   it('applies passive benefits without consuming planned activity slots', () => {
