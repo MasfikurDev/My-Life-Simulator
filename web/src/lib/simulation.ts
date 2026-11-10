@@ -790,7 +790,8 @@ export interface ActivityPlanningResult {
  * Stamina effort is calculated separately and charged during weekly resolution.
  */
 export function getPlannedActivityCost(character: Character, item: PlannedActivity): number {
-  if (item.action?.kind === 'food' || item.action?.kind === 'work' || item.action?.kind === 'social') return 0;
+  if (item.action?.kind === 'food') return item.action.purchaseCost;
+  if (item.action?.kind === 'work' || item.action?.kind === 'social') return 0;
   if (item.action?.kind === 'education') return getActivityCost(character, 'study');
   if (item.action?.kind === 'care') return character.age < 18 ? 0 : Math.round((item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (character.currencyScale ?? 1));
   if (item.action?.kind === 'family' && item.action.interaction === 'provide-support') return item.action.supportAmount ?? 0;
@@ -854,7 +855,7 @@ function getPlannedActivityTitle(character: Character, item: PlannedActivity): s
 
 
 function getPlannedActivityReward(item: PlannedActivity): string {
-  if (item.action?.kind === 'food') return 'Bought meal · stamina +' + item.action.staminaRecovery + (item.action.health ? ' · health +' + item.action.health : '') + (item.action.happiness ? ' · happiness +' + item.action.happiness : '') + (item.action.comfort ? ' · comfort +' + item.action.comfort : '');
+  if (item.action?.kind === 'food') return 'Bought meal' + (item.action.staminaRecovery ? ' · stamina +' + item.action.staminaRecovery : '') + (item.action.health ? ' · health +' + item.action.health : '') + (item.action.happiness ? ' · happiness +' + item.action.happiness : '') + (item.action.comfort ? ' · comfort +' + item.action.comfort : '') + (item.action.stress ? ' · stress −' + item.action.stress : '');
   if (item.action?.kind === 'education') return 'Knowledge, focus, discipline and course progress';
   if (item.action?.kind === 'care') return ({ rest: 'Stamina, health, happiness and lower stress', mindfulness: 'Focus and lower stress', counselling: 'Mental wellbeing and stress recovery', 'medical-checkup': 'Health assessment and treatment planning' }[item.action.careType]);
   if (item.action?.kind === 'work') return 'Career opportunity and employment progression';
@@ -1040,8 +1041,8 @@ export function addOwnedLifestyleItem(character: Character, item: Omit<OwnedLife
   return { ...character, ownedLifestyleItems: [...items, owned] };
 }
 
-export function planBoughtFoodInNextFreeTime(character: Character, food: { productId: string; name: string; quantity: number; staminaRecovery: number; health: number; happiness: number; stress: number; comfort?: number }): ActivityPlanningResult {
-  if (!food.productId || !food.name.trim() || !Number.isInteger(food.quantity) || food.quantity < 1 || food.quantity > 20 || !Number.isFinite(food.staminaRecovery) || food.staminaRecovery < 0 || food.staminaRecovery > 30 || !Number.isFinite(food.health) || food.health < 0 || food.health > 12 || !Number.isFinite(food.happiness) || food.happiness < 0 || food.happiness > 10 || !Number.isFinite(food.stress) || food.stress < 0 || food.stress > 8 || (food.comfort !== undefined && (!Number.isFinite(food.comfort) || food.comfort < 0 || food.comfort > 12))) {
+export function planBoughtFoodInNextFreeTime(character: Character, food: { productId: string; name: string; quantity: number; purchaseCost: number; staminaRecovery: number; health: number; happiness: number; stress: number; comfort?: number }): ActivityPlanningResult {
+  if (!food.productId || !food.name.trim() || !Number.isInteger(food.quantity) || food.quantity < 1 || food.quantity > 20 || !Number.isFinite(food.purchaseCost) || food.purchaseCost < 0 || !Number.isFinite(food.staminaRecovery) || food.staminaRecovery < 0 || food.staminaRecovery > 30 || !Number.isFinite(food.health) || food.health < 0 || food.health > 12 || !Number.isFinite(food.happiness) || food.happiness < 0 || food.happiness > 10 || !Number.isFinite(food.stress) || food.stress < 0 || food.stress > 8 || (food.comfort !== undefined && (!Number.isFinite(food.comfort) || food.comfort < 0 || food.comfort > 12))) {
     return { character, issue: 'unavailable', message: 'This food order is invalid.' };
   }
   return planForCurrentWeek(character, (date) => addWeeklyAction(character, 'food', date, { kind: 'food', ...food }, 0));
