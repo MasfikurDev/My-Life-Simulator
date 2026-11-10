@@ -29,13 +29,7 @@ export function getPassiveLifestyleActivities(character: Character): PassiveLife
     (person.deathYear === undefined || person.deathYear > character.year)
   ) ?? [];
   const familyPresent = familyMembersAtHome.length > 0 &&
-    (character.age < 18 || character.householdArrangement === 'family-supported' ||
-      familyMembersAtHome.some((person) => family?.relationships.some((relation) =>
-        relation.endedAtYear === undefined &&
-        relation.fromPersonId === person.id &&
-        relation.toPersonId === family.playerPersonId &&
-        ['parent', 'guardian', 'adoptive-parent', 'step-parent'].includes(relation.type)
-      )));
+    (character.age < 18 || character.householdArrangement === 'family-supported');
   const familyCulture = character.familyCulture ?? 'supportive';
   if (familyPresent && familyCulture !== 'neglectful') {
     const background = character.familyBackground ?? 'Modest';
