@@ -721,6 +721,15 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
   .topbar-week-dots i{width:5px;height:5px}
 }
 
+/* Independent study action */
+.education-independent-study{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0 20px;border-bottom:1px solid var(--line);margin-bottom:18px;min-width:0}
+.education-independent-study>div{display:grid;gap:5px;min-width:0}
+.education-independent-study>div>strong{font-size:17px;line-height:1.25;color:var(--text)}
+.education-independent-study>div>p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+.education-independent-study>div>small{font-size:11px;color:var(--subtle)}
+.education-independent-study>button{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:40px}
+@media(max-width:480px){.education-independent-study{align-items:flex-start;gap:10px}.education-independent-study>button{padding:10px 12px;white-space:nowrap;font-size:10px}}
+
 /* Education and health systems */
 .education-hero,.education-intro,.health-overview{margin-bottom:24px}
 .education-hero-top,.health-overview-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px}
