@@ -190,8 +190,8 @@ describe('passive lifestyle simulation', () => {
     const wearingSecond = equipLifestyleItem(wearingFirst, second.ownedLifestyleItems![1].id);
     expect(wearingSecond.ownedLifestyleItems!.filter((item) => item.equipped)).toHaveLength(1);
     expect(wearingSecond.ownedLifestyleItems!.find((item) => item.productId === 'formal')?.equipped).toBe(true);
-    expect(wearingSecond.ownedLifestyleItems!.find((item) => item.productId === 'casual')?.condition).toBeUndefined();
-    expect(applyWeeklyClothingWear(wearingSecond).ownedLifestyleItems!.find((item) => item.productId === 'casual')?.condition).toBeUndefined();
+    expect(wearingSecond.ownedLifestyleItems!.find((item) => item.productId === 'casual')?.condition).toBe(100);
+    expect(applyWeeklyClothingWear(wearingSecond).ownedLifestyleItems!.find((item) => item.productId === 'casual')?.condition).toBe(100);
   });
 
   it('does not assume social relationships or household support', () => {
