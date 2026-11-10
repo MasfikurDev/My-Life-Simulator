@@ -22,6 +22,10 @@
     if (['expense', 'family-support', 'loan-payment', 'loan-interest', 'card-purchase', 'card-interest', 'recurring-payment', 'investment-buy', 'property-purchase', 'property-rent', 'business-expense', 'tax', 'fee'].includes(type)) return 'expense';
     return null;
   }
+  function displayLifeEventDescription(description: string) {
+    return description.replace(/A (working-class|modest|comfortable|affluent) upbringing shapes the starting point, but the choices ahead are yours\./i, 'Starting circumstances shape the beginning, but the choices ahead are yours.');
+  }
+
   function groupLifeMilestones() {
     const groups = new Map<string, { key: string; age: number; year: number; events: Character['history']; transactions: NonNullable<Character['financialTransactions']> }>();
     for (const event of character.history.filter((item) => item.kind !== 'activity')) {
@@ -76,7 +80,7 @@
                 </div>
               {/if}
               {#each group.events as event}
-                <div class="life-milestone-event"><span class:milestone-event-dot={event.kind === 'event'}></span><div><strong>{event.title}</strong><p>{event.description}</p></div></div>
+                <div class="life-milestone-event"><span class:milestone-event-dot={event.kind === 'event'}></span><div><strong>{event.title}</strong><p>{displayLifeEventDescription(event.description)}</p></div></div>
               {/each}
               {#if group.transactions.length}
                 <details class="life-milestone-transactions"><summary>Financial records <span>{group.transactions.length}</span></summary>
