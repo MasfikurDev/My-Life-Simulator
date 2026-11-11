@@ -179,6 +179,10 @@ A game event uses a stable ID, eligibility conditions, narrative, choices, costs
 - Time advances only through an explicit player action.
 - Never silently discard a save.
 
+## New Game and achievement eligibility
+- Standard New Game always generates a character at age 0 (birth); the standard creation screen has no starting-age selector.
+- Achievements are counted only from saves explicitly marked as originating from standard New Game. Preset and Full Custom Starting lives remain playable but never contribute to achievements. Existing saves without the eligibility marker are not retroactively eligible.
+
 ## Current playable foundation
 The current game has scenario-led character creation with coherent randomized identity, three independent local save slots, a date-based weekly progression calendar, automatic education/work responsibilities, and a stamina-backed weekly activity plan, a simulation-backed weekly review, deterministic weekly resolution, contextual events, domain-native School/Work/Life/Finance/Lifestyle workspaces, a simulation-owned family foundation, recruitment and career progression, and a connected financial system covering accounts, cards, loans, recurring payments, property, investments, businesses, and taxation. Overview records everyday activities by simulation week; Life History is reserved for major achievements and life-stage milestones.
 

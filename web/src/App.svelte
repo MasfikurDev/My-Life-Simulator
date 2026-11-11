@@ -40,6 +40,7 @@
   let selectedTheme = $state<GameTheme>('amoled');
   let slotToDelete = $state<SaveSlotId | null>(null);
   let pendingSlotId = $state<SaveSlotId | null>(null);
+  let pendingAchievementEligible = $state(false);
   let debugCopying = $state(false);
   let advanceReviewOpen = $state(false);
   let weeklyFinanceOpen = $state(false);
@@ -140,7 +141,7 @@
     if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
     try {
-      persist(nextCharacter);
+      persist({ ...nextCharacter, achievementEligible: pendingAchievementEligible });
       activeTab = 'home'; notify('Life saved.'); playSound('start');
     } catch { notify('The save could not be written. Check available device storage and try again.'); }
   }
@@ -149,9 +150,10 @@
     resetSaveData(); saveFormatIssue = null; slots = getSaveSlots(); activeSlotId = 'slot-1'; setActiveSlotId('slot-1');
     notify('Old saves cleared. You can start a new life.');
   }
-  function openCreation(slotId: SaveSlotId) {
+  function openCreation(slotId: SaveSlotId, achievementEligible: boolean) {
     if (slots.find((slot) => slot.id === slotId)?.character) { notify('Delete or switch that save slot before starting another life.'); return; }
     pendingSlotId = slotId;
+    pendingAchievementEligible = achievementEligible;
     activeTab = 'create';
   }
   function continueLife() {
@@ -163,13 +165,23 @@
     if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     const empty = slots.find((slot) => !slot.character);
     if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
-    openCreation(empty.id);
+    openCreation(empty.id, true);
+  }
+  function openPresetLife() {
+    if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
+    const empty = slots.find((slot) => !slot.character);
+    if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
+    pendingSlotId = empty.id;
+    pendingAchievementEligible = false;
+    activeTab = 'create';
   }
   function openCustomLife() {
     if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     const empty = slots.find((slot) => !slot.character);
     if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
-    pendingSlotId = empty.id; activeTab = 'custom';
+    pendingSlotId = empty.id;
+    pendingAchievementEligible = false;
+    activeTab = 'custom';
   }
   function exitGame() {
     const bridge = getAndroidBridge();
@@ -248,8 +260,10 @@
     playSound(crossedYear ? 'year' : 'action');
   }
   function restart() {
+    const keepAchievementEligibility = character?.achievementEligible === true;
     clearSave(activeSlotId); slots = getSaveSlots(); character = null;
-    showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.'); pendingSlotId = activeSlotId;
+    showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.');
+    pendingSlotId = activeSlotId; pendingAchievementEligible = keepAchievementEligibility;
   }
   function reloadLatest() {
     const bridge = getAndroidBridge();
@@ -309,15 +323,17 @@
         <button class="primary-button" onclick={resetUnsupportedSaves}>Discard old saves and start fresh</button>
       </section>
     {/if}
-    <MainMenu {slots} onContinue={continueLife} onNewGame={startNewLife} onPresets={startNewLife} onFullCustom={openCustomLife} onAchievements={() => activeTab='achievements'} onSettings={() => activeTab='settings'} onExit={exitGame} />
+    <MainMenu {slots} onContinue={continueLife} onNewGame={startNewLife} onPresets={openPresetLife} onFullCustom={openCustomLife} onAchievements={() => activeTab='achievements'} onSettings={() => activeTab='settings'} onExit={exitGame} />
   {:else}
-    <main class="main-layout">
+    <main class="main-layout" class:main-layout-no-sidebar={!character && activeTab === 'create'}>
+      {#if character || activeTab !== 'create'}
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
-        {#each (character ? [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},...(character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'},{id:'finances',label:'Finance',icon:'◈'}] : []),{id:'life',label:'Lifestyle',icon:'✳'},{id:'profile',label:'Profile',icon:'◉'}] : [{id:'settings',label:'Settings',icon:'⚙'}]) as item}
+        {#each (character ? [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},...(character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'},{id:'finances',label:'Finance',icon:'◈'}] : []),{id:'life',label:'Life',icon:'✳'},{id:'profile',label:'Profile',icon:'◉'}] : [{id:'settings',label:'Settings',icon:'⚙'}]) as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => navigateTab(item.id)}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>Active save</strong><small>Slot {activeSlotId.slice(-1)}</small></div></div>{/if}
       </aside>
+      {/if}
       <section class="content">
         {#if activeTab==='create'}
           <CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='menu'} />
@@ -325,7 +341,7 @@
           <CustomCharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='menu'} />
         {:else if activeTab==='achievements'}
           <div class="page-heading"><div><div class="eyebrow">MILESTONES & PROGRESS</div><h1>Achievements</h1><p>Milestones earned across the lives saved on this device.</p></div></div>
-          {@const allLives = slots.flatMap((slot) => slot.character ? [slot.character] : [])}
+          {@const allLives = slots.flatMap((slot) => slot.character?.achievementEligible === true ? [slot.character] : [])}
           <div class="achievement-grid">
             {#each [{title:'First Chapter',detail:'Start your first life.',done:allLives.length>0,mark:'✦'},{title:'Growing Up',detail:'Reach adulthood.',done:allLives.some((life)=>life.age>=18),mark:'⌁'},{title:'A Long Journey',detail:'Reach age 65.',done:allLives.some((life)=>life.age>=65),mark:'◇'},{title:'A Life Well Lived',detail:'Reach age 90.',done:allLives.some((life)=>life.age>=90),mark:'★'}] as achievement}
               <article class:achievement-unlocked={achievement.done} class="achievement-card"><div class="achievement-mark">{achievement.mark}</div><div><strong>{achievement.title}</strong><p>{achievement.detail}</p><small>{achievement.done ? 'UNLOCKED' : 'LOCKED'}</small></div></article>
@@ -384,7 +400,7 @@
           </section>
           <section class="settings-section">
             <div class="settings-section-heading"><span class="section-index">{character ? '05' : '03'}</span><div><h3>Save slots</h3><p>Keep up to three separate lives on this device.</p></div></div>
-            <div class="save-slot-list">{#each slots as slot, index}<div class="save-slot-row"><div class="save-slot-meta"><strong>Slot {index + 1}</strong>{#if slot.character}<span>{slot.character.name} · Age {slot.character.age} · {formatCharacterMoney(slot.character)}</span><small>{slot.id === activeSlotId ? 'CURRENT SLOT' : 'SAVED LIFE'}</small>{:else}<span class="empty-slot-label">Empty slot</span>{/if}</div><div class="save-slot-actions">{#if slot.character}<button class="secondary-button" onclick={() => loadSlot(slot)} disabled={slot.id===activeSlotId}>Load</button><button class="danger-button" onclick={() => slotToDelete=slot.id}>Delete</button>{:else}<button class="secondary-button" onclick={() => openCreation(slot.id)}>New life</button>{/if}</div></div>{/each}</div>
+            <div class="save-slot-list">{#each slots as slot, index}<div class="save-slot-row"><div class="save-slot-meta"><strong>Slot {index + 1}</strong>{#if slot.character}<span>{slot.character.name} · Age {slot.character.age} · {formatCharacterMoney(slot.character)}</span><small>{slot.id === activeSlotId ? 'CURRENT SLOT' : 'SAVED LIFE'}</small>{:else}<span class="empty-slot-label">Empty slot</span>{/if}</div><div class="save-slot-actions">{#if slot.character}<button class="secondary-button" onclick={() => loadSlot(slot)} disabled={slot.id===activeSlotId}>Load</button><button class="danger-button" onclick={() => slotToDelete=slot.id}>Delete</button>{:else}<button class="secondary-button" onclick={() => openCreation(slot.id, false)}>New life</button>{/if}</div></div>{/each}</div>
             <div class="setting-note">Saves stay in this browser or app on this device. Clearing app data or browser storage can remove them. Cloud backup is not available yet.</div>
           </section>
           <section class="settings-section">
@@ -694,4 +710,5 @@
   .review-warning-list p{margin:0;font-size:10px;line-height:1.45;color:var(--text)}
   .week-review-dialog .year-review-note{margin:0}
   @media(max-width:480px){.week-review-dialog{padding:15px;gap:12px}.review-activity-row{gap:8px;padding:8px}.review-change-grid{grid-template-columns:1fr}}
+  .main-layout-no-sidebar{grid-template-columns:minmax(0,1fr)}
 </style>
