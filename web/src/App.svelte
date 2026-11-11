@@ -398,6 +398,7 @@
               <ThemeOption theme="lavender" title="Lavender" description="Dark plum with gentle violet" selected={selectedTheme === 'lavender'} onSelect={chooseTheme} />
               <ThemeOption theme="sunset" title="Sunset" description="Warm charcoal with amber highlights" selected={selectedTheme === 'sunset'} onSelect={chooseTheme} />
               <ThemeOption theme="rose" title="Rose" description="Deep berry with soft pink accents" selected={selectedTheme === 'rose'} onSelect={chooseTheme} />
+              <ThemeOption theme="techno" title="Techno" description="Neon cyan with electric blue" selected={selectedTheme === 'techno'} onSelect={chooseTheme} />
             </div>
             <div class="setting-note">Theme changes affect the interface only. Your characters, saves and game progress are unchanged.</div>
           </UiCard>
