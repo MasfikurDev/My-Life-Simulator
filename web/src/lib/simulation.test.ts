@@ -47,6 +47,7 @@ describe('life simulation', () => {
     const generated = createCharacter('Independent adult', 30);
     const adult = {
       ...generated,
+      currencyScale: 1,
       money: 100000,
       householdArrangement: 'independent' as const,
       family: generated.family ? { ...generated.family, householdMemberIds: [generated.family.playerPersonId] } : undefined
