@@ -33,3 +33,13 @@
   --coral:#a84f43;--blue:#426b9b;--amber:#92651c;--danger:#a33e37;--danger-soft:#f5e4e1;--success:#267447;--warning:#92651c;--warning-soft:#f3ead7;--info:#426b9b;
   --shadow-card:0 8px 24px rgba(45,48,36,.08);--shadow-color:#33382f;--overlay-color:#232a23;--illustration-deep:#e2eee4;--illustration-mid:#d7e8d9;--illustration-light:#c4ddc9;--success-soft:#e2eee4;--info-soft:#e7edf5;
 }
+
+:root[data-theme="techno"]{
+  color-scheme:dark;--on-accent:#04131a;--bg:#050811;--surface:#0b1220;--surface-raised:#111d30;--surface-hover:#172943;
+  --line:#1c3d55;--line-strong:#27617a;--text:#e8f8ff;--muted:#9bb9c9;--subtle:#6d91a5;
+  --accent:#39e6f2;--accent-strong:#16b9d0;--accent-soft:#10313e;--green:#45e6c2;--green-dark:#123d3b;--mint:#45e6c2;
+  --coral:#ff829d;--blue:#6ab8ff;--amber:#ffd078;--danger:#ff829d;--danger-soft:#3a1d31;
+  --shadow-color:#02050c;--illustration-deep:#071321;--illustration-mid:#102a40;--illustration-light:#17445a;
+  --success-soft:#10352f;--info-soft:#102d45;--success:#45e6c2;--warning:#ffd078;--warning-soft:#392b19;--info:#6ab8ff;
+  --shadow-card:0 8px 26px rgba(0,0,0,.34),0 0 18px rgba(57,230,242,.055);
+}
