@@ -327,9 +327,9 @@
     <MainMenu {slots} onContinue={continueLife} onNewGame={startNewLife} onPresets={openPresetLife} onFullCustom={openCustomLife} onAchievements={() => activeTab='achievements'} onSettings={() => activeTab='settings'} onExit={exitGame} />
   {:else}
     <main class="main-layout" class:main-layout-no-sidebar={!character && ['create','custom','presets'].includes(activeTab)}>
-      {#if character || !['create','custom','presets'].includes(activeTab)}
+      {#if character}
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
-        {#each (character ? [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},...(character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'},{id:'finances',label:'Finance',icon:'◈'}] : []),{id:'life',label:'Life',icon:'✳'},{id:'profile',label:'Profile',icon:'◉'}] : [{id:'settings',label:'Settings',icon:'⚙'}]) as item}
+        {#each [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},...(character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'},{id:'finances',label:'Finance',icon:'◈'}] : []),{id:'life',label:'Life',icon:'✳'},{id:'profile',label:'Profile',icon:'◉'}] as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => navigateTab(item.id)}><span class="nav-icon">{item.icon}</span>{item.label}</button>
         {/each}
         {#if character}<div class="side-profile"><div class="avatar">{character.name.slice(0,1).toUpperCase()}</div><div><strong>Active save</strong><small>Slot {activeSlotId.slice(-1)}</small></div></div>{/if}
@@ -386,9 +386,8 @@
             </section>
           {/if}
           <details class="profile-settings-group">
-            <summary><span><strong>{character ? 'Settings & management' : 'Game settings'}</strong><small>Appearance, sound, saves, display and game controls</small></span><i aria-hidden="true"></i></summary>
+            <summary><span><strong>Appearance</strong><small>Choose the visual theme used throughout the game.</small></span><i aria-hidden="true"></i></summary>
           <UiCard as="section" class="settings-section appearance-settings" padded={false}>
-            <div class="settings-section-heading"><span class="section-index">{character ? '03' : '01'}</span><div><h3>Appearance</h3></div></div>
             <div class="theme-option-grid" role="group" aria-label="Game theme">
               <ThemeOption theme="amoled" title="AMOLED" description="Pure black and emerald" selected={selectedTheme === 'amoled'} onSelect={chooseTheme} />
               <ThemeOption theme="midnight" title="Midnight" description="Deep navy and blue" selected={selectedTheme === 'midnight'} onSelect={chooseTheme} />
@@ -397,17 +396,23 @@
             </div>
             <div class="setting-note">Theme changes affect the interface only. Your characters, saves and game progress are unchanged.</div>
           </UiCard>
+          </details>
+          <details class="profile-settings-group">
+            <summary><span><strong>Sound</strong><small>Control the audio cues used for game actions.</small></span><i aria-hidden="true"></i></summary>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '04' : '02'}</span><div><h3>Sound</h3><p>Control the small audio cues used for game actions.</p></div></div>
             <div class="setting-row"><div><strong>Sound effects</strong><p>Subtle original tones for actions, starting a life and advancing a week. No background music.</p></div><button class:setting-enabled={soundEnabled} class="setting-toggle" role="switch" aria-checked={soundEnabled} onclick={() => toggleSounds(!soundEnabled)}><span></span><small>{soundEnabled ? 'ON' : 'OFF'}</small></button></div>
           </section>
+          </details>
+          <details class="profile-settings-group">
+            <summary><span><strong>Save slots</strong><small>Manage up to three separate lives on this device.</small></span><i aria-hidden="true"></i></summary>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '05' : '03'}</span><div><h3>Save slots</h3><p>Keep up to three separate lives on this device.</p></div></div>
             <div class="save-slot-list">{#each slots as slot, index}<div class="save-slot-row"><div class="save-slot-meta"><strong>Slot {index + 1}</strong>{#if slot.character}<span>{slot.character.name} · Age {slot.character.age} · {formatCharacterMoney(slot.character)}</span><small>{slot.id === activeSlotId ? 'CURRENT SLOT' : 'SAVED LIFE'}</small>{:else}<span class="empty-slot-label">Empty slot</span>{/if}</div><div class="save-slot-actions">{#if slot.character}<button class="secondary-button" onclick={() => loadSlot(slot)} disabled={slot.id===activeSlotId}>Load</button><button class="danger-button" onclick={() => slotToDelete=slot.id}>Delete</button>{:else}<button class="secondary-button" onclick={() => openCreation(slot.id, false)}>New life</button>{/if}</div></div>{/each}</div>
             <div class="setting-note">Saves stay in this browser or app on this device. Clearing app data or browser storage can remove them. Cloud backup is not available yet.</div>
           </section>
+          </details>
+          <details class="profile-settings-group">
+            <summary><span><strong>Game log & debug</strong><small>Review gameplay records or copy a simulation snapshot.</small></span><i aria-hidden="true"></i></summary>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '06' : '04'}</span><div><h3>Game log & debug</h3><p>Review recent gameplay records or copy the complete simulation state for testing.</p></div></div>
             {#if character}
               <div class="debug-export-row"><div><strong>Gameplay snapshot</strong><p>Includes the character, current stats, finances, save slot and complete life history. It excludes device identifiers and browser data.</p></div><button class="secondary-button" onclick={copyDebugSnapshot} disabled={debugCopying}>{debugCopying ? 'Copying…' : 'Copy snapshot'}</button></div>
               <div class="settings-log-list">{#each character.history.slice(0,6) as item}<div class="settings-log-item"><span class="timeline-dot {item.kind}"></span><div><strong>{item.title}</strong><p>{item.description}</p><small>AGE {item.age} · {item.year}</small></div></div>{/each}</div>
@@ -416,22 +421,28 @@
               <p class="settings-empty-log">The game log will appear here after a life is started.</p>
             {/if}
           </section>
+          </details>
+          <details class="profile-settings-group">
+            <summary><span><strong>Display</strong><small>Choose how the game uses your screen.</small></span><i aria-hidden="true"></i></summary>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '07' : '05'}</span><div><h3>Display</h3><p>Choose how the game uses your screen.</p></div></div>
             <div class="setting-row"><div><strong>Immersive fullscreen</strong><p>Hide the status and navigation bars for a distraction-free view. Swipe from an edge to reveal system controls.</p></div><button class:setting-enabled={fullscreen} class="setting-toggle" role="switch" aria-checked={fullscreen} onclick={toggleFullscreen}><span></span><small>{fullscreen ? 'ON' : 'OFF'}</small></button></div>
             <div class="setting-note">Fullscreen can place content behind the camera cutout on some devices. Turn it off to keep the game inside the safe screen area.</div>
           </section>
+          </details>
+          <details class="profile-settings-group">
+            <summary><span><strong>Game controls</strong><small>Reload the game or check for the latest published version.</small></span><i aria-hidden="true"></i></summary>
           <section class="settings-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '08' : '06'}</span><div><h3>Game controls</h3><p>Reload the hosted game or check for the newest version.</p></div></div>
             <div class="setting-action-row"><div><strong>Reload game</strong><p>Refresh the current page without changing your saved life.</p></div><button class="secondary-button" onclick={() => window.location.reload()}>Reload</button></div>
             <div class="setting-action-row"><div><strong>Check for updates</strong><p>Fetch the latest published game files and restart the game view. Your save is preserved.</p></div><button class="secondary-button" onclick={reloadLatest}>Check now</button></div>
           </section>
+          </details>
+          <details class="profile-settings-group">
+            <summary><span><strong>Saved game</strong><small>Restart the current life by deleting its active save.</small></span><i aria-hidden="true"></i></summary>
           <section class="settings-section danger-section">
-            <div class="settings-section-heading"><span class="section-index">{character ? '09' : '07'}</span><div><h3>Saved game</h3><p>Start over by deleting the life currently saved on this device.</p></div></div>
             <div class="setting-action-row"><div><strong>Restart current life</strong><p>Delete only the active save slot and create a new life in that slot.</p></div><button class="danger-button" onclick={() => showRestartConfirm=true} disabled={!character}>Restart</button></div>
           </section>
-          <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
           </details>
+          <div class="settings-version">MY LIFE SIMULATOR <span>·</span> EARLY PLAYABLE</div>
         {:else if character && activeTab==='home'}
           {@const educationStatus = character.educationEnrollment ? character.educationEnrollment.field + ' · ' + character.educationEnrollment.institution : character.education ?? getEducationStage(character.age)}
           {@const workStatus = character.employment
