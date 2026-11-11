@@ -20,6 +20,7 @@ const presets: Preset[] = [
 let selectedId = $state('first-independence');
 let generated = $state<Character>(generateRandomCharacter(18));
 const selected = $derived(presets.find((item) => item.id === selectedId) ?? presets[2]);
+const presetFunds = $derived(Math.round((selected.age < 16 ? 0 : selected.age < 18 ? 120 : 850) * (generated.currencyScale ?? 1) * (selected.background === 'Working-class' ? 0.65 : selected.background === 'Modest' ? 0.9 : selected.background === 'Comfortable' ? 1.15 : 1.55)));
 function preview(preset: Preset) {
   selectedId = preset.id;
   generated = generateRandomCharacter(preset.age);
@@ -71,7 +72,7 @@ function start() {
         <div><small>LIFE STAGE</small><strong>{selected.stage}</strong></div>
         <div><small>STARTING CIRCUMSTANCES</small><strong>{selected.background}</strong></div>
         <div><small>COUNTRY</small><strong>{generated.country ?? generated.nationality}</strong></div>
-        <div><small>STARTING FUNDS</small><strong>{formatCharacterMoney(generated)}</strong></div>
+        <div><small>STARTING FUNDS</small><strong>{formatCharacterMoney({ ...generated, money: presetFunds })}</strong></div>
       </div>
       <div class="preset-challenge"><small>YOUR FIRST CHALLENGE</small><p>{selected.challenge}</p></div>
       <button class="primary-button preset-start" onclick={start}>Play this scenario <span>→</span></button>
