@@ -8,6 +8,7 @@
   import CharacterCreation from './CharacterCreation.svelte';
   import MainMenu from './MainMenu.svelte';
   import CustomCharacterCreation from './CustomCharacterCreation.svelte';
+  import Presets from './Presets.svelte';
   import FinanceWorkspace from './FinanceWorkspace.svelte';
   import LifeWorkspace from './LifeWorkspace.svelte';
   import WorkWorkspace from './WorkWorkspace.svelte';
@@ -173,7 +174,7 @@
     if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
     pendingSlotId = empty.id;
     pendingAchievementEligible = false;
-    activeTab = 'create';
+    activeTab = 'presets';
   }
   function openCustomLife() {
     if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
@@ -337,6 +338,8 @@
       <section class="content">
         {#if activeTab==='create'}
           <CharacterCreation onStart={startLife} onCancel={() => activeTab='menu'} />
+        {:else if activeTab==='presets'}
+          <Presets onStart={startLife} onCancel={() => activeTab='menu'} />
         {:else if activeTab==='custom'}
           <CustomCharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='menu'} />
         {:else if activeTab==='achievements'}
