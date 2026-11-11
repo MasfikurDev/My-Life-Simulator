@@ -68,7 +68,10 @@ Top-level Life contains the modular Lifestyle experience: **Supermarket, Subscri
 - Overview activity history is grouped by expandable week; the current week is expanded by default. Major achievements and life-stage milestones belong in Life History, not a duplicate Overview milestone panel.
 - Preserve the established visual identity and semantic theme system. Do not redesign the app or copy another game's identity when implementing a focused change.
 
-- Standard **New Game** always begins at birth and is the only mode eligible for achievements. Presets and Full Custom Starting remain separate, non-achievement gameplay modes; never award achievements from their saves.
+- Standard **New Game** always begins at birth and is the only mode eligible for achievements. Keep its generated-character Reroll beside the identity.
+- **Presets** is its own starting-scenario catalog with ready-made ages, circumstances, and challenges; it must not reuse the New Game page.
+- **Full Custom Starting** is a separate, compact game-style scenario builder for life stage/exact age, starting circumstances, identity, and origin—not a generic settings form.
+- Presets and Full Custom Starting remain non-achievement gameplay modes; never award achievements from their saves.
 
 ## Architecture, saves, and quality
 
