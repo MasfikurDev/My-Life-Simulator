@@ -17,13 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Check out complete history
+      - name: Check out PR merge and base commits
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
       - name: Require explicit approval for deleted files
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
-          GITHUB_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           DELETIONS_REVIEWED: ${{ contains(github.event.pull_request.body, '[x] Intentional file deletions reviewed') }}
         run: bash .github/scripts/check-pr-deletions.sh
