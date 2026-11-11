@@ -103,11 +103,13 @@ describe('local appearance and audio preferences', () => {
     expect(JSON.parse(values.get('my-life-simulator.settings') || '{}')).toEqual({ theme: 'paper', soundEnabled: false });
   });
   it('restores every newly registered theme from local settings', () => {
+    const values = installStorage();
     const themes = ['ocean', 'forest', 'lavender', 'sunset', 'rose'] as const;
     for (const theme of themes) {
       setThemePreference(theme);
       expect(getThemePreference()).toBe(theme);
     }
+    expect(JSON.parse(values.get('my-life-simulator.settings') || '{}').theme).toBe('rose');
   });
   it('falls back to AMOLED for an unknown stored theme', () => {
     const values = installStorage();
