@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 if [[ "${GITHUB_EVENT_NAME:-}" != "pull_request" ]]; then echo "Deletion guard only applies to pull requests."; exit 0; fi
-base_ref="${GITHUB_BASE_REF:?GITHUB_BASE_REF is required for pull requests}"
+base_sha="${GITHUB_BASE_SHA:?GITHUB_BASE_SHA is required for pull requests}"
 deletions_reviewed="${DELETIONS_REVIEWED:-false}"
-git fetch --no-tags origin "+refs/heads/$base_ref:refs/remotes/origin/$base_ref"
-deleted_files="$(git diff --name-only --diff-filter=D "origin/$base_ref...HEAD")"
+deleted_files="$(git diff --name-only --diff-filter=D "$base_sha" HEAD)"
 if [[ -z "$deleted_files" ]]; then echo "No tracked files were deleted."; exit 0; fi
 echo "Deleted tracked files:"
 printf '%s\n' "$deleted_files"
