@@ -200,13 +200,13 @@
 </section>
 
 <style>
-  .work-workspace{display:grid;gap:14px;min-width:0}
+  .work-workspace{display:grid;gap:10px;min-width:0}
   .work-header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
   .work-date{flex:none;padding:8px 10px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:10px}
   .work-nav{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px}
   .work-nav button{flex:none;min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:650}
   .work-nav button.active{border-color:var(--accent);background:var(--accent-soft);color:var(--text)}
-  .work-panel,.work-listing,.work-offer{min-width:0;padding:15px;border:1px solid var(--line);border-radius:13px;background:var(--surface)}
+  .work-panel,.work-listing,.work-offer{min-width:0;padding:13px;border:1px solid var(--line);border-radius:13px;background:var(--surface)}
   .work-panel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
   .work-panel-heading h2{font-size:24px;line-height:1.2;letter-spacing:-.7px}
   .work-panel h2,.work-offer h2{margin:4px 0;color:var(--text);font-size:21px}
