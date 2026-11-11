@@ -12,7 +12,7 @@
   const currencySymbols: Record<string, string> = {
     BDT: '৳', INR: '₹', USD: '$', GBP: '£', CAD: 'CA$', AUD: 'A$', JPY: '¥', NGN: '₦', BRL: 'R$', EUR: '€'
   };
-  const countryFlag = $derived(countryFlags[character.country] ?? '🌐');
+  const countryFlag = $derived(countryFlags[character.country ?? ''] ?? '🌐');
   const currencySymbol = $derived(currencySymbols[character.currency ?? 'USD'] ?? character.currency ?? '¤');
 </script>
 <section class="creation-experience">
