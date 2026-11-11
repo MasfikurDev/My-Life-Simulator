@@ -14,6 +14,8 @@
   };
   const countryFlag = $derived(countryFlags[character.country ?? ''] ?? '🌐');
   const currencySymbol = $derived(currencySymbols[character.currency ?? 'USD'] ?? character.currency ?? '¤');
+  const genderIcon = $derived(character.gender === 'female' ? '♀' : character.gender === 'non-binary' ? '⚧' : '♂');
+  const genderLabel = $derived(character.gender === 'non-binary' ? 'Non-binary' : character.gender === 'female' ? 'Female' : 'Male');
 </script>
 <section class="creation-experience">
   <div class="creation-heading-row">
@@ -26,7 +28,7 @@
   </div>
   <article class="generated-character">
     <div class="generated-character-top">
-      <div><div class="generated-label">BORN INTO A NEW LIFE</div><h2>{character.name}</h2><p>Age {character.age} · {character.gender === 'non-binary' ? 'Non-binary' : character.gender === 'female' ? 'Female' : 'Male'}</p></div>
+      <div><div class="generated-label">BORN INTO A NEW LIFE</div><h2>{character.name}</h2><p class="character-gender"><span class="gender-icon" aria-hidden="true">{genderIcon}</span>{genderLabel} · Age {character.age}</p></div>
     </div>
     <div class="identity-grid">
       <div><small>Nationality</small><strong>{character.nationality}</strong></div>
@@ -59,9 +61,10 @@
 <style>
   .creation-experience{margin:0}
   .creation-heading-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
-  .identity-country,.identity-currency{display:flex;align-items:center;gap:7px}
+  .identity-country,.identity-currency,.character-gender{display:flex;align-items:center;gap:7px}
   .country-flag{font-size:17px;line-height:1}
   .currency-icon{display:inline-grid;place-items:center;min-width:21px;height:21px;padding:0 4px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font-size:12px;font-weight:850;line-height:1}
+  .gender-icon{display:inline-grid;place-items:center;width:18px;height:18px;border:1px solid var(--line);border-radius:50%;font-size:13px;font-weight:800;line-height:1}
   .generation-note{margin:0}
   .creation-back-button{flex:none;white-space:nowrap;margin-top:2px}
   @media(max-width:520px){.creation-heading-row{gap:10px}.creation-back-button{padding:8px 10px}}
