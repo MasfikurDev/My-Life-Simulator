@@ -64,7 +64,8 @@ describe('education progression', () => {
     expect(resumed.character.weeklyPlan.activities).toEqual(enrolled.weeklyPlan.activities);
   });
   it('supports early development from birth without awarding a formal degree', () => {
-    const infant = createCharacter('Infant', 1);
+    // Keep the completion fixture independent of randomly generated infant health, stress and stamina.
+    const infant = { ...createCharacter('Infant', 1), health: 90, stress: 20, stamina: 80 };
     expect(getAvailableEducationPrograms(infant).some((program) => program.id === 'early-development')).toBe(true);
     const enrolled = enrollInEducation(infant, 'early-development', 'Play & discovery');
     expect(enrolled.issue).toBeNull();
