@@ -106,7 +106,7 @@
 <style>
   .life-workspace {
     display:grid;
-    gap:14px;
+    gap:10px;
     min-width:0;
   }
             .life-workspace .finance-nav {
@@ -143,7 +143,7 @@
     color:var(--accent);
   }
       @media (max-width: 620px) {
-    .life-workspace { gap:12px; }
+    .life-workspace { gap:9px; }
     .life-workspace .finance-nav {
       margin-right:-2px;
       padding-bottom:7px;

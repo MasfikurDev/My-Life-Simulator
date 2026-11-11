@@ -180,8 +180,8 @@
 </section>
 
 <style>
-  .family-workspace{display:grid;gap:12px;min-width:0}
-  .family-panel,.relative-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+  .family-workspace{display:grid;gap:10px;min-width:0}
+  .family-panel,.relative-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0}
   .family-panel h2{font-size:20px;letter-spacing:-.4px;margin:4px 0}
   .family-panel h3,.relative-card h3{font-size:14px;margin:0}
   .family-panel p,.relative-card p{font-size:12px;color:var(--muted);line-height:1.55;margin:5px 0 0}
