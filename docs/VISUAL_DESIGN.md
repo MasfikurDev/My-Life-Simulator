@@ -9,7 +9,7 @@ A modern, polished, mobile-first life simulation interface. It should feel like 
 - AMOLED-first dark theme is the default on every device, independent of operating-system theme preference.
 - Use true black (#000) for the app canvas to take advantage of OLED pixels; use near-black charcoal surfaces for cards and navigation so hierarchy remains visible.
 - Use restrained emerald as the primary action and selection accent. Reserve muted blue, amber, and coral for distinct stat/event categories.
-- Offer nine distinct selectable palettes: AMOLED, Midnight, Graphite, Paper, Ocean, Forest, Lavender, Sunset, and Rose. Keep each palette coherent across every workspace, control, overlay, and status state; theme changes are presentation-only and must not alter simulation or save data.
+- Offer nine distinct selectable palettes: AMOLED, Midnight, Graphite, Paper, Ocean, Forest, Lavender, Sunset, Rose, and Techno. Keep each palette coherent across every workspace, control, overlay, and status state; theme changes are presentation-only and must not alter simulation or save data.
 - Maintain readable contrast, clear borders, and visible keyboard/touch focus.
 - Use system font stacks; do not fetch remote fonts at runtime.
 - AMOLED remains the default. Players can explicitly select AMOLED, Midnight, Graphite, or Paper in Settings → Appearance; the preference is local, applies immediately, and does not alter character saves.
@@ -101,6 +101,7 @@ Do not render multiple controls or components for the same action or destination
 - Shared UI primitives live in `web/src/components/`; theme metadata and local preference handling live in `web/src/lib/theme.ts` and `web/src/lib/storage.ts`.
 - Shared tokens and theme palettes are defined in `web/src/styles/`. Domain-specific components remain in their owning workspaces and consume shared primitives/tokens where appropriate.
 - Build new UI from existing primitives before introducing one-off markup or CSS. Add variants only for genuinely shared behavior; do not flatten domain-native experiences into generic cards.
+- Techno uses deep navy-black surfaces, neon cyan/electric-blue accents, and restrained glow on selected and primary interactive states. Glow must not reduce text clarity or create visual clutter.
 - All existing screen and workspace styles are migrated to semantic theme tokens; new and revised UI must use shared tokens rather than hard-coded palette colors. Theme coverage includes navigation, forms, dialogs, activity states, financial displays, and overlays. Maintain accessible contrast and visible focus in every palette.
 
 ## Game-first copy
