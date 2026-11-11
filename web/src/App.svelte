@@ -336,7 +336,7 @@
       {/if}
       <section class="content">
         {#if activeTab==='create'}
-          <CharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='menu'} />
+          <CharacterCreation onStart={startLife} onCancel={() => activeTab='menu'} />
         {:else if activeTab==='custom'}
           <CustomCharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='menu'} />
         {:else if activeTab==='achievements'}
