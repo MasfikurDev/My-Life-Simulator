@@ -179,9 +179,11 @@ A game event uses a stable ID, eligibility conditions, narrative, choices, costs
 - Time advances only through an explicit player action.
 - Never silently discard a save.
 
-## New Game and achievement eligibility
-- Standard New Game always generates a character at age 0 (birth); the standard creation screen has no starting-age selector.
-- Achievements are counted only from saves explicitly marked as originating from standard New Game. Preset and Full Custom Starting lives remain playable but never contribute to achievements. Existing saves without the eligibility marker are not retroactively eligible.
+## New Game, Presets, and Full Custom Starting
+- Standard **New Game** always generates a character at age 0 (birth). Its creation screen reviews the generated identity and starting profile; it must not expose a starting-age picker or scenario builder. Keep its Reroll control beside the generated identity and do not add a duplicate Generate another section.
+- **Presets** is a separate scenario-selection page, not another New Game character screen. It offers distinct, ready-to-play starting stories at different life stages, with each card communicating the starting age, circumstances, and central challenge. Selecting a preset generates a fresh character for that scenario and starts a non-achievement-eligible save.
+- **Full Custom Starting** is a separate scenario builder. Let players choose a life stage or exact starting age, starting circumstances, identity, country, birthplace, and language. Present choices as compact game controls/cards with a live starting-profile summary, not a long generic settings form. Do not add arbitrary stats or unsupported simulation effects merely to make the builder look richer.
+- Presets and Full Custom Starting remain playable but never contribute to achievements. Only saves explicitly marked as originating from standard New Game are eligible. Existing saves without the eligibility marker are not retroactively eligible.
 
 ## Current playable foundation
 The current game has scenario-led character creation with coherent randomized identity, three independent local save slots, a date-based weekly progression calendar, automatic education/work responsibilities, and a stamina-backed weekly activity plan, a simulation-backed weekly review, deterministic weekly resolution, contextual events, domain-native School/Work/Life/Finance/Lifestyle workspaces, a simulation-owned family foundation, recruitment and career progression, and a connected financial system covering accounts, cards, loans, recurring payments, property, investments, businesses, and taxation. Overview records everyday activities by simulation week; Life History is reserved for major achievements and life-stage milestones.
