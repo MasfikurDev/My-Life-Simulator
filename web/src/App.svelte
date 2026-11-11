@@ -393,6 +393,11 @@
               <ThemeOption theme="midnight" title="Midnight" description="Deep navy and blue" selected={selectedTheme === 'midnight'} onSelect={chooseTheme} />
               <ThemeOption theme="graphite" title="Graphite" description="Soft charcoal and violet" selected={selectedTheme === 'graphite'} onSelect={chooseTheme} />
               <ThemeOption theme="paper" title="Paper" description="Warm light and forest green" selected={selectedTheme === 'paper'} onSelect={chooseTheme} />
+              <ThemeOption theme="ocean" title="Ocean" description="Deep blue with cool aqua accents" selected={selectedTheme === 'ocean'} onSelect={chooseTheme} />
+              <ThemeOption theme="forest" title="Forest" description="Evergreen surfaces and soft green" selected={selectedTheme === 'forest'} onSelect={chooseTheme} />
+              <ThemeOption theme="lavender" title="Lavender" description="Dark plum with gentle violet" selected={selectedTheme === 'lavender'} onSelect={chooseTheme} />
+              <ThemeOption theme="sunset" title="Sunset" description="Warm charcoal with amber highlights" selected={selectedTheme === 'sunset'} onSelect={chooseTheme} />
+              <ThemeOption theme="rose" title="Rose" description="Deep berry with soft pink accents" selected={selectedTheme === 'rose'} onSelect={chooseTheme} />
             </div>
             <div class="setting-note">Theme changes affect the interface only. Your characters, saves and game progress are unchanged.</div>
           </UiCard>

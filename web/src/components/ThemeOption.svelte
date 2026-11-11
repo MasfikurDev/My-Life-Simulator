@@ -7,7 +7,12 @@
     amoled: ['#000000','#101511','#72d69a'],
     midnight: ['#070b16','#141e32','#86b7ff'],
     graphite: ['#101114','#22252c','#c0a0ff'],
-    paper: ['#f4f1e9','#fffdf7','#267447']
+    paper: ['#f4f1e9','#fffdf7','#267447'],
+    ocean: ['#07151b','#102b35','#55c6d8'],
+    forest: ['#0b1711','#172b20','#83c58b'],
+    lavender: ['#171326','#2a2140','#c5a6ff'],
+    sunset: ['#20140f','#3a241a','#f0a45e'],
+    rose: ['#1d1018','#38202d','#ed91b0']
   };
 </script>
 <button class="theme-option" class:selected type="button" aria-pressed={selected} onclick={() => onSelect(theme)}>

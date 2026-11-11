@@ -9,6 +9,7 @@ A modern, polished, mobile-first life simulation interface. It should feel like 
 - AMOLED-first dark theme is the default on every device, independent of operating-system theme preference.
 - Use true black (#000) for the app canvas to take advantage of OLED pixels; use near-black charcoal surfaces for cards and navigation so hierarchy remains visible.
 - Use restrained emerald as the primary action and selection accent. Reserve muted blue, amber, and coral for distinct stat/event categories.
+- Offer nine distinct selectable palettes: AMOLED, Midnight, Graphite, Paper, Ocean, Forest, Lavender, Sunset, and Rose. Keep each palette coherent across every workspace, control, overlay, and status state; theme changes are presentation-only and must not alter simulation or save data.
 - Maintain readable contrast, clear borders, and visible keyboard/touch focus.
 - Use system font stacks; do not fetch remote fonts at runtime.
 - AMOLED remains the default. Players can explicitly select AMOLED, Midnight, Graphite, or Paper in Settings → Appearance; the preference is local, applies immediately, and does not alter character saves.
@@ -94,7 +95,7 @@ Do not render multiple controls or components for the same action or destination
 - Use progressive disclosure within each domain. Do not show controls from unrelated domains or repeat the same summary and action on multiple screens.
 
 ## Theme system and reusable UI foundation
-- AMOLED remains the default regardless of operating-system appearance. Player-selected themes are explicit and locally persisted: AMOLED, Midnight, Graphite, and Paper.
+- AMOLED remains the default regardless of operating-system appearance. Player-selected themes are explicit and locally persisted: AMOLED, Midnight, Graphite, Paper, Ocean, Forest, Lavender, Sunset, and Rose.
 - Theme preference is presentation-only, stored alongside local app preferences and never inside a character save. It must not change gameplay state or require a save migration.
 - Theme selection is available in Settings → Appearance, updates immediately, and survives app restarts. Missing or invalid preferences fall back to AMOLED.
 - Shared UI primitives live in `web/src/components/`; theme metadata and local preference handling live in `web/src/lib/theme.ts` and `web/src/lib/storage.ts`.
