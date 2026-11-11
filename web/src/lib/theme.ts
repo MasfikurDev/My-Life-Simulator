@@ -1,4 +1,4 @@
-export const GAME_THEMES = ['amoled', 'midnight', 'graphite', 'paper', 'ocean', 'forest', 'lavender', 'sunset', 'rose'] as const;
+export const GAME_THEMES = ['amoled', 'midnight', 'graphite', 'paper', 'ocean', 'forest', 'lavender', 'sunset', 'rose', 'techno'] as const;
 export type GameTheme = typeof GAME_THEMES[number];
 export const DEFAULT_THEME: GameTheme = 'amoled';
 export function isGameTheme(value: unknown): value is GameTheme {
