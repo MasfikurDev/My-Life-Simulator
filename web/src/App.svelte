@@ -8,6 +8,7 @@
   import CharacterCreation from './CharacterCreation.svelte';
   import MainMenu from './MainMenu.svelte';
   import CustomCharacterCreation from './CustomCharacterCreation.svelte';
+  import Presets from './Presets.svelte';
   import FinanceWorkspace from './FinanceWorkspace.svelte';
   import LifeWorkspace from './LifeWorkspace.svelte';
   import WorkWorkspace from './WorkWorkspace.svelte';
@@ -173,7 +174,7 @@
     if (!empty) { notify('All save slots are full. Delete a slot before starting another life.'); activeTab = 'settings'; return; }
     pendingSlotId = empty.id;
     pendingAchievementEligible = false;
-    activeTab = 'create';
+    activeTab = 'presets';
   }
   function openCustomLife() {
     if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
@@ -325,8 +326,8 @@
     {/if}
     <MainMenu {slots} onContinue={continueLife} onNewGame={startNewLife} onPresets={openPresetLife} onFullCustom={openCustomLife} onAchievements={() => activeTab='achievements'} onSettings={() => activeTab='settings'} onExit={exitGame} />
   {:else}
-    <main class="main-layout" class:main-layout-no-sidebar={!character && activeTab === 'create'}>
-      {#if character || activeTab !== 'create'}
+    <main class="main-layout" class:main-layout-no-sidebar={!character && ['create','custom','presets'].includes(activeTab)}>
+      {#if character || !['create','custom','presets'].includes(activeTab)}
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
         {#each (character ? [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},...(character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'},{id:'finances',label:'Finance',icon:'◈'}] : []),{id:'life',label:'Life',icon:'✳'},{id:'profile',label:'Profile',icon:'◉'}] : [{id:'settings',label:'Settings',icon:'⚙'}]) as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => navigateTab(item.id)}><span class="nav-icon">{item.icon}</span>{item.label}</button>
@@ -337,6 +338,8 @@
       <section class="content">
         {#if activeTab==='create'}
           <CharacterCreation onStart={startLife} onCancel={() => activeTab='menu'} />
+        {:else if activeTab==='presets'}
+          <Presets onStart={startLife} onCancel={() => activeTab='menu'} />
         {:else if activeTab==='custom'}
           <CustomCharacterCreation slotLabel={pendingSlotId ?? activeSlotId} onStart={startLife} onCancel={() => activeTab='menu'} />
         {:else if activeTab==='achievements'}

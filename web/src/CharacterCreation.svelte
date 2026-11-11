@@ -5,6 +5,7 @@
   type Props = { onStart: (character: Character) => void; onCancel: () => void };
   let { onStart, onCancel }: Props = $props();
   let character = $state<Character>(generateRandomCharacter(0));
+  function reroll() { character = generateRandomCharacter(0); }
   const countryFlags: Record<string, string> = {
     Bangladesh: '🇧🇩', India: '🇮🇳', 'United States': '🇺🇸', 'United Kingdom': '🇬🇧',
     Canada: '🇨🇦', Australia: '🇦🇺', Japan: '🇯🇵', Nigeria: '🇳🇬', Brazil: '🇧🇷', Germany: '🇩🇪'
@@ -29,6 +30,7 @@
   <article class="generated-character">
     <div class="generated-character-top">
       <div><div class="generated-label">BORN INTO A NEW LIFE</div><h2>{character.name}</h2><p class="character-gender"><span class="gender-icon" aria-hidden="true">{genderIcon}</span>{genderLabel} · Age {character.age}</p></div>
+      <button class="reroll-button" onclick={reroll} aria-label="Reroll character" title="Reroll character">↻ <span>Reroll</span></button>
     </div>
     <div class="identity-grid">
       <div><small>Nationality</small><strong>{character.nationality}</strong></div>
