@@ -3,13 +3,18 @@
 **Authority:** These rules and the canonical documents are binding product memory, not disposable brainstorming.
 
 ## Mandatory reading
-Before planning, coding, reviewing, or changing direction, read:
-1. `docs/PRODUCT_VISION.md`
-2. `docs/GAMEPLAY_DESIGN.md`
-3. `docs/VISUAL_DESIGN.md`
-4. `docs/TECHNICAL_ARCHITECTURE.md`
-5. `docs/ROADMAP.md`
-6. For any UI, layout, styling, component, or responsive-behavior task, also read `.github/skills/ui-engineering/SKILL.md` and follow its verification checklist.
+Before every task, read:
+1. `docs/CURRENT_DIRECTION.md` for the latest approved direction and superseded decisions.
+2. This file, `docs/AI_WORKING_RULES.md`, for agent conduct and safeguards.
+
+Then read only the canonical references relevant to the task:
+- Product scope: `docs/PRODUCT_VISION.md`.
+- Gameplay mechanics and age progression: `docs/GAMEPLAY_DESIGN.md`.
+- Weekly calendar, resolution order, events, and progression acceptance tests: `docs/GAMEPLAY_LOOP.md`.
+- The owning domain specification(s), such as Finance, Family, Career, or Education, for domain changes.
+- `docs/TECHNICAL_ARCHITECTURE.md` for architecture, persistence, or cross-domain contracts.
+- `docs/VISUAL_DESIGN.md` and `.github/skills/ui-engineering/SKILL.md` for UI/layout/styling; follow the skill's verification checklist.
+- `docs/ROADMAP.md` for sequencing context only. It is a dated status snapshot, not an instruction to implement every listed item.
 
 Then inspect relevant source, tests, recent history, current main, and open PRs. The repository is the source of truth; chat memory is context, never a substitute for checking the current repository.
 
@@ -136,7 +141,7 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 54. The main Overview header must present authoritative current-life context: age/life stage, education stage, and employment status, with age-appropriate wording derived from progression and Character state. Do not imply school enrollment, qualifications, employment, or career progress that the save does not contain. Keep detailed education controls in Education, employment/career controls in Work, personal stats and activities in Lifestyle, and financial products in Finance. Before adding Overview content, compare it with persistent navigation and each domain workspace; remove repeated identity, summaries, shortcuts, and actions unless the repetition serves a distinct navigation or decision purpose.
 
 
-55. Finance navigation is limited to Banking, Business, Property, Investments, and Taxes, in that order. Banking owns accounts, cards, loans, savings deposits, and personal vault. Cards and loans are internal Banking sections, not Finance destinations. Do not reintroduce separate Finance menu entries for Cards, Loans, Bills & Subscriptions, Savings & Vault, or Living Costs.
+55. Finance workspace navigation currently begins with Overview, followed by Banking, Business, Property, Investments, and Taxes; verify the live `FinanceWorkspace.svelte` before changing that order. Banking owns accounts, cards, loans, savings deposits, and personal vault as internal sections, not separate Finance destinations. Do not reintroduce separate Finance menu entries for Cards, Loans, Bills & Subscriptions, Savings & Vault, or Living Costs without an explicit approved redesign.
 56. Do not restore retired Discover, My services, or Home destinations without an explicit new decision. Keep supermarket purchases, subscriptions, and owned inventory in their existing owning workspaces and shared Finance transaction path. Housing remains in Finance → Property where supported. Before changing these flows, verify the live component structure and current Lifestyle/Finance specifications; do not infer exact navigation from this rule.
 57. Payment-card controls and authoritative card balances exist only in Banking. Lifestyle may show a concise read-only card/payment-method reference to explain how a subscription is paid, but must not duplicate card controls or imply a separate card ledger. Subscription records remain in the existing recurringPayments field; do not create a second subscription store.
 58. Provider subscriptions must use the existing recurringPayments records and annual settlement rules, with a confirmation dialog showing annual price and selected payment source, age eligibility, cancellation, and missed-payment behavior. Supermarket food checkout debits the selected payment source and adds food to Owned inventory; it never plans meals automatically. The player reserves owned food for the weekly review, and reserved portions are consumed on week resolution. Cap weekly food bonuses independently by stat and allow different food types to contribute different uncapped benefits. Non-food reusable/permanent products also enter ownedLifestyleItems only after successful payment. Failed payment must not grant inventory or food effects, and must never silently create debt.
