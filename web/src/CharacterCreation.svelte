@@ -2,10 +2,9 @@
   import { formatCharacterMoney, generateRandomCharacter } from './lib/simulation';
   import type { Character } from './lib/types';
   import { getValueColor } from './lib/progression';
-  type Props = { slotLabel: string; onStart: (character: Character) => void; onCancel: () => void };
-  let { slotLabel, onStart, onCancel }: Props = $props();
+  type Props = { onStart: (character: Character) => void; onCancel: () => void };
+  let { onStart, onCancel }: Props = $props();
   let character = $state<Character>(generateRandomCharacter(0));
-  function reroll() { character = generateRandomCharacter(0); }
   const countryFlags: Record<string, string> = {
     Bangladesh: '🇧🇩', India: '🇮🇳', 'United States': '🇺🇸', 'United Kingdom': '🇬🇧',
     Canada: '🇨🇦', Australia: '🇦🇺', Japan: '🇯🇵', Nigeria: '🇳🇬', Brazil: '🇧🇷', Germany: '🇩🇪'
@@ -28,7 +27,6 @@
   <article class="generated-character">
     <div class="generated-character-top">
       <div><div class="generated-label">BORN INTO A NEW LIFE</div><h2>{character.name}</h2><p>Age {character.age} · {character.gender === 'non-binary' ? 'Non-binary' : character.gender === 'female' ? 'Female' : 'Male'}</p></div>
-      <button class="reroll-button" onclick={reroll} aria-label="Generate another character" title="Generate another character">↻ <span>Reroll</span></button>
     </div>
     <div class="identity-grid">
       <div><small>Nationality</small><strong>{character.nationality}</strong></div>
