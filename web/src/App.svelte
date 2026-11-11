@@ -326,8 +326,8 @@
     {/if}
     <MainMenu {slots} onContinue={continueLife} onNewGame={startNewLife} onPresets={openPresetLife} onFullCustom={openCustomLife} onAchievements={() => activeTab='achievements'} onSettings={() => activeTab='settings'} onExit={exitGame} />
   {:else}
-    <main class="main-layout" class:main-layout-no-sidebar={!character && activeTab === 'create'}>
-      {#if character || activeTab !== 'create'}
+    <main class="main-layout" class:main-layout-no-sidebar={!character && ['create','custom','presets'].includes(activeTab)}>
+      {#if character || !['create','custom','presets'].includes(activeTab)}
       <aside class="side-nav"><div class="side-caption">YOUR WORLD</div>
         {#each (character ? [{id:'home',label:'Overview',icon:'⌂'},{id:'education',label:'Education',icon:'▤'},...(character.age >= 16 ? [{id:'work',label:'Work',icon:'▣'},{id:'finances',label:'Finance',icon:'◈'}] : []),{id:'life',label:'Life',icon:'✳'},{id:'profile',label:'Profile',icon:'◉'}] : [{id:'settings',label:'Settings',icon:'⚙'}]) as item}
           <button class:active={activeTab===item.id} class="nav-item" onclick={() => navigateTab(item.id)}><span class="nav-icon">{item.icon}</span>{item.label}</button>
