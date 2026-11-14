@@ -70,3 +70,61 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
 }
 :root[data-theme="aurora"] .primary-button,:root[data-theme="aurora"] .advance-fab{box-shadow:0 0 18px color-mix(in srgb,var(--accent) 18%,transparent)}
 :root[data-theme="aurora"] button:focus-visible,:root[data-theme="aurora"] a:focus-visible,:root[data-theme="aurora"] input:focus-visible,:root[data-theme="aurora"] select:focus-visible,:root[data-theme="aurora"] textarea:focus-visible{outline-color:var(--accent);box-shadow:var(--focus-ring)}
+
+/* Aurora's atmosphere belongs to the app canvas, not only to event cards. */
+:root[data-theme="aurora"] body{
+  position:relative;
+  isolation:isolate;
+  background:var(--bg);
+}
+:root[data-theme="aurora"] body::before,
+:root[data-theme="aurora"] body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+}
+:root[data-theme="aurora"] body::before{
+  opacity:.72;
+  background-image:
+    radial-gradient(ellipse at 12% 8%,rgba(121,105,224,.25),transparent 38%),
+    radial-gradient(ellipse at 88% 24%,rgba(74,190,180,.17),transparent 34%),
+    radial-gradient(ellipse at 52% 92%,rgba(153,105,208,.18),transparent 42%),
+    repeating-linear-gradient(125deg,transparent 0 46px,rgba(177,188,255,.035) 47px 48px,transparent 49px 94px),
+    linear-gradient(135deg,rgba(96,86,177,.07),transparent 48%,rgba(71,178,168,.06));
+  background-size:150% 150%,150% 150%,150% 150%,96px 96px,100% 100%;
+  background-position:0% 0%,100% 0%,50% 100%,0 0,center;
+  animation:aurora-canvas-drift 32s ease-in-out infinite alternate;
+}
+:root[data-theme="aurora"] body::after{
+  inset:-18%;
+  opacity:.42;
+  filter:blur(54px);
+  background:
+    radial-gradient(ellipse at 24% 32%,rgba(116,102,220,.24),transparent 34%),
+    radial-gradient(ellipse at 76% 62%,rgba(69,190,174,.18),transparent 32%);
+  animation:aurora-glow-float 38s ease-in-out infinite alternate;
+}
+:root[data-theme="aurora"] .app-shell{
+  position:relative;
+  z-index:1;
+  background:transparent;
+}
+:root[data-theme="aurora"] .main-layout{
+  background:transparent;
+}
+@keyframes aurora-canvas-drift{
+  0%{background-position:0% 0%,100% 0%,50% 100%,0 0,center}
+  100%{background-position:14% 9%,86% 14%,58% 88%,48px 32px,center}
+}
+@keyframes aurora-glow-float{
+  0%{transform:translate3d(-2%,1%,0) scale(.96)}
+  100%{transform:translate3d(2%,-2%,0) scale(1.05)}
+}
+@media(prefers-reduced-motion:reduce){
+  :root[data-theme="aurora"] body::before,
+  :root[data-theme="aurora"] body::after{
+    animation:none!important;
+  }
+}
