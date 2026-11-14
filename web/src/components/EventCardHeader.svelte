@@ -78,6 +78,7 @@
   .event-theme-finance,.event-theme-money{--event-a:#9b6922;--event-b:#557b45;--event-glow:rgba(255,230,160,.34)}
   .event-theme-achievement{--event-a:#b47a20;--event-b:#a74477;--event-glow:rgba(255,226,155,.4)}
   .event-theme-opportunity{--event-a:#7544c9;--event-b:#a23d99;--event-glow:rgba(222,188,255,.38)}
+  .event-theme-challenge{--event-a:#a34a35;--event-b:#8d3d65;--event-glow:rgba(255,190,165,.38)}
   @keyframes event-drift-one{to{transform:translate(-24px,20px) scale(1.12)}}
   @keyframes event-drift-two{to{transform:translate(26px,-15px) scale(.88)}}
   @keyframes event-grid-pan{to{background-position:68px 34px}}
