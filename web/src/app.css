@@ -559,6 +559,10 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 
 /* Yearly gameplay: contextual decisions and a compact chapter recap. */
 .game-event-panel,.year-recap{margin:0 0 15px;padding:15px;border:1px solid var(--line);border-radius:13px;background:var(--surface)}
+.game-event-panel{padding:0;overflow:hidden}
+.game-event-content{padding:14px 15px 15px}
+.game-event-panel .game-event-choices{margin-top:0}
+@media(max-width:480px){.game-event-content{padding:12px}}
 .game-event-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .game-event-status{padding:5px 8px;border:1px solid var(--line-strong);border-radius:6px;color:var(--accent);font-size:8px;font-weight:800;letter-spacing:.8px}
 .game-event-panel h2,.year-recap h2{margin:9px 0 6px;color:var(--text);font-size:17px;letter-spacing:-.35px}
