@@ -128,3 +128,68 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
     animation:none!important;
   }
 }
+
+/* Aurora card system: subtle animated pattern work is shared by every card family. */
+:root[data-theme="aurora"] .app-shell :where(
+  .ui-card,
+  [class*="-card"],
+  .info-panel,
+  .settings-section,
+  .profile-settings-group,
+  .game-event-panel,
+  .weekly-finance-source,
+  .weekly-finance-totals > div,
+  .character-profile-flow,
+  .education-enrol-panel,
+  .education-subject,
+  .title-menu-button,
+  .title-submenu button
+){
+  background-image:
+    radial-gradient(ellipse at var(--aurora-glow-x,92%) var(--aurora-glow-y,8%),rgba(143,232,212,.105),transparent 48%),
+    repeating-linear-gradient(132deg,transparent 0 25px,rgba(183,190,255,.045) 26px 27px,transparent 28px 54px),
+    linear-gradient(145deg,var(--surface-raised),var(--surface));
+  background-size:160% 160%,108px 108px,100% 100%;
+  background-position:0% 0%,0 0,center;
+  animation:aurora-card-pattern-drift 26s ease-in-out infinite alternate;
+  background-repeat:no-repeat,repeat,no-repeat;
+}
+:root[data-theme="aurora"] .app-shell :where(
+  .stat-card,.activity-card,.history-card,.money-card,.advance-row,
+  .character-profile-card,.overview-context-item,.education-task-card,
+  .health-care-card,.finance-card,.bank-account-card,.achievement-card,
+  .milestone-card,.life-history-card,.family-card,.work-card,.job-card,
+  .asset-card,.property-card,.investment-card,.loan-card,.subscription-card,
+  .product-card,.weekly-finance-source
+){
+  --aurora-glow-x:100%;
+  --aurora-glow-y:0%;
+}
+:root[data-theme="aurora"] .app-shell :where(
+  .activity-card,.education-task-card,.health-care-card,.finance-card,
+  .bank-account-card,.achievement-card,.milestone-card,.family-card,
+  .work-card,.job-card,.asset-card,.property-card,.investment-card,
+  .loan-card,.subscription-card,.product-card
+):nth-child(2n){
+  --aurora-glow-x:0%;
+  --aurora-glow-y:100%;
+}
+:root[data-theme="aurora"] .app-shell :where(
+  .ui-card,[class*="-card"],.info-panel,.settings-section,
+  .profile-settings-group,.game-event-panel
+){
+  background-blend-mode:screen,normal,normal;
+}
+@keyframes aurora-card-pattern-drift{
+  0%{background-position:0% 0%,0 0,center}
+  100%{background-position:100% 65%,54px 34px,center}
+}
+@media(prefers-reduced-motion:reduce){
+  :root[data-theme="aurora"] .app-shell :where(
+    .ui-card,[class*="-card"],.info-panel,.settings-section,
+    .profile-settings-group,.game-event-panel,.weekly-finance-source,
+    .weekly-finance-totals > div,.character-profile-flow,
+    .education-enrol-panel,.education-subject,.title-menu-button,
+    .title-submenu button
+  ){animation:none!important}
+}
