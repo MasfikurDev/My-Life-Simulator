@@ -400,6 +400,7 @@
               <ThemeOption theme="sunset" title="Sunset" description="Warm charcoal with amber highlights" selected={selectedTheme === 'sunset'} onSelect={chooseTheme} />
               <ThemeOption theme="rose" title="Rose" description="Deep berry with soft pink accents" selected={selectedTheme === 'rose'} onSelect={chooseTheme} />
               <ThemeOption theme="techno" title="Techno" description="Neon cyan with electric blue" selected={selectedTheme === 'techno'} onSelect={chooseTheme} />
+              <ThemeOption theme="aurora" title="Aurora" description="Atmospheric violet with mint light" selected={selectedTheme === 'aurora'} onSelect={chooseTheme} />
             </div>
             <div class="setting-note">Theme changes affect the interface only. Your characters, saves and game progress are unchanged.</div>
           </UiCard>
@@ -533,8 +534,8 @@
           {/if}
           {#if character.pendingGameEvent}
             {@const lifeEvent = character.pendingGameEvent}
-            <section class="game-event-panel">
-              <EventCardHeader category={lifeEvent.category} title={lifeEvent.title} description={lifeEvent.description} age={character.age} />
+            <section class="game-event-panel" class:aurora-event-panel={selectedTheme === 'aurora'}>
+              <EventCardHeader active={selectedTheme === 'aurora'} category={lifeEvent.category} title={lifeEvent.title} description={lifeEvent.description} age={character.age} />
               <div class="game-event-content">
               <div class="game-event-choices">
                 {#each lifeEvent.choices as choice}
