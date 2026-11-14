@@ -13,7 +13,8 @@
     lavender: ['#171326','#2a2140','#c5a6ff'],
     sunset: ['#20140f','#3a241a','#f0a45e'],
     rose: ['#1d1018','#38202d','#ed91b0'],
-    techno: ['#050811','#111d30','#39e6f2']
+    techno: ['#050811','#111d30','#39e6f2'],
+    aurora: ['#101126','#29234a','#8fe8d4']
   };
 </script>
 <button class="theme-option" class:selected type="button" aria-pressed={selected} onclick={() => onSelect(theme)}>
