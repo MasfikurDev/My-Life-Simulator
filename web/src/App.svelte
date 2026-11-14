@@ -16,6 +16,7 @@
   import ThemeOption from './components/ThemeOption.svelte';
   import EmptyState from './components/EmptyState.svelte';
   import UiCard from './components/UiCard.svelte';
+  import EventCardHeader from './components/EventCardHeader.svelte';
   import type { GameTheme } from './lib/theme';
   import { clearSave, getActiveSlotId, getSaveFormatIssue, getSaveSlots, resetSaveData, getSoundEnabled, getThemePreference, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled, setThemePreference } from './lib/storage';
   import type { Character, FinancialTransaction, SaveSlot, SaveSlotId } from './lib/types';
@@ -533,9 +534,8 @@
           {#if character.pendingGameEvent}
             {@const lifeEvent = character.pendingGameEvent}
             <section class="game-event-panel">
-              <div class="game-event-top"><span class="eyebrow">THIS YEAR · {lifeEvent.category.toUpperCase()}</span><span class="game-event-status">DECISION</span></div>
-              <h2>{lifeEvent.title}</h2>
-              <p class="game-event-description">{lifeEvent.description}</p>
+              <EventCardHeader category={lifeEvent.category} title={lifeEvent.title} description={lifeEvent.description} age={character.age} />
+              <div class="game-event-content">
               <div class="game-event-choices">
                 {#each lifeEvent.choices as choice}
                   <button class="game-event-choice" class:planned={!!eventChoicePlanned(choice.id)} disabled={!eventChoicePlanned(choice.id) && character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
@@ -549,6 +549,7 @@
                 {/each}
               </div>
               <p class="game-event-footnote">Toggle a decision to include or remove it from this week. Non-immediate choices use stamina; you can also leave the situation unanswered.</p>
+              </div>
             </section>
           {/if}
           {#if advanceReviewOpen && weeklyReview}

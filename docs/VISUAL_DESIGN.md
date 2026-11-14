@@ -26,6 +26,12 @@ A modern, polished, mobile-first life simulation interface. It should feel like 
 - Comfortable touch targets; no hover-only interactions.
 - Avoid decorative scenery that competes with the character, current situation, and decisions.
 
+## Animated life-event headers
+- Life-event cards may use a category-specific animated header to distinguish opportunities, challenges, and personal events without changing event data or outcomes.
+- Keep title, age/category context, and event description stable and readable while decorative layers animate independently.
+- Use lightweight CSS/SVG patterns (soft moving gradients, orbs, linework, rings, and restrained particles); avoid remote assets, canvas effects, and animation that competes with choices.
+- Preserve the shared card structure across categories; vary only the semantic color treatment and decorative pattern. Respect `prefers-reduced-motion` and maintain contrast in every theme.
+
 ## Navigation model
 - Keep the established responsive navigation and domain-native destinations; do not invent a second navigation model in a redesign.
 - The shared game header carries current-life identity/status and compact calendar context. It shows the month and four week-position indicators, highlighting the current week. Keep the header compact on phones.
