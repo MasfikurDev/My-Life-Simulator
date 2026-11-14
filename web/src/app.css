@@ -580,7 +580,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .year-recap ul{display:grid;gap:7px;margin:0;padding:0 0 0 15px;color:var(--muted);font-size:10px;line-height:1.5}
 .year-recap li::marker{color:var(--accent)}
 @media(max-width:620px){
- .game-event-panel,.year-recap{padding:12px}
+ .game-event-panel{padding:0}
+ .year-recap{padding:12px}
  .game-event-panel h2,.year-recap h2{font-size:15px}
  .game-event-choice{padding:10px;gap:8px}
  .game-event-choice-copy strong{font-size:10px}
