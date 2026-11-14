@@ -9,7 +9,7 @@ A modern, polished, mobile-first life simulation interface. It should feel like 
 - AMOLED-first dark theme is the default on every device, independent of operating-system theme preference.
 - Use true black (#000) for the app canvas to take advantage of OLED pixels; use near-black charcoal surfaces for cards and navigation so hierarchy remains visible.
 - Use restrained emerald as the primary action and selection accent. Reserve muted blue, amber, and coral for distinct stat/event categories.
-- Offer nine distinct selectable palettes: AMOLED, Midnight, Graphite, Paper, Ocean, Forest, Lavender, Sunset, Rose, and Techno. Keep each palette coherent across every workspace, control, overlay, and status state; theme changes are presentation-only and must not alter simulation or save data.
+- Offer nine distinct selectable palettes: AMOLED, Midnight, Graphite, Paper, Ocean, Forest, Lavender, Sunset, Rose, Techno, and Aurora. Keep each palette coherent across every workspace, control, overlay, and status state; theme changes are presentation-only and must not alter simulation or save data.
 - Maintain readable contrast, clear borders, and visible keyboard/touch focus.
 - Use system font stacks; do not fetch remote fonts at runtime.
 - AMOLED remains the default. Players can explicitly select AMOLED, Midnight, Graphite, or Paper in Settings → Appearance; the preference is local, applies immediately, and does not alter character saves.
@@ -26,11 +26,13 @@ A modern, polished, mobile-first life simulation interface. It should feel like 
 - Comfortable touch targets; no hover-only interactions.
 - Avoid decorative scenery that competes with the character, current situation, and decisions.
 
-## Animated life-event headers
-- Life-event cards may use a category-specific animated header to distinguish opportunities, challenges, and personal events without changing event data or outcomes.
+## Aurora theme and animated life-event headers
+- Aurora is an optional, selectable full-interface theme; it must never replace the AMOLED default or alter gameplay and save data.
+- Apply its atmospheric violet surfaces, mint highlights, subtle gradients, and restrained interactive accents consistently across navigation, cards, buttons, and overlays.
+- The animated category-specific life-event header is an Aurora-only treatment. Other themes retain the standard compact event card layout.
 - Keep title, age/category context, and event description stable and readable while decorative layers animate independently.
 - Use lightweight CSS/SVG patterns (soft moving gradients, orbs, linework, rings, and restrained particles); avoid remote assets, canvas effects, and animation that competes with choices.
-- Preserve the shared card structure across categories; vary only the semantic color treatment and decorative pattern. Respect `prefers-reduced-motion` and maintain contrast in every theme.
+- Preserve the shared card structure across categories; vary only semantic color treatment and decorative pattern. Respect `prefers-reduced-motion` and maintain contrast.
 
 ## Navigation model
 - Keep the established responsive navigation and domain-native destinations; do not invent a second navigation model in a redesign.
@@ -102,12 +104,13 @@ Do not render multiple controls or components for the same action or destination
 
 ## Theme system and reusable UI foundation
 - AMOLED remains the default regardless of operating-system appearance. Player-selected themes are explicit and locally persisted: AMOLED, Midnight, Graphite, Paper, Ocean, Forest, Lavender, Sunset, and Rose.
-- Theme preference is presentation-only, stored alongside local app preferences and never inside a character save. It must not change gameplay state or require a save migration.
+- Theme preference is presentation-only, stored alongside local app preferences and never inside a character save. It must not change gameplay state or require a save migration. Aurora is an optional visual variant; AMOLED remains the default.
 - Theme selection is available in Settings → Appearance, updates immediately, and survives app restarts. Missing or invalid preferences fall back to AMOLED.
 - Shared UI primitives live in `web/src/components/`; theme metadata and local preference handling live in `web/src/lib/theme.ts` and `web/src/lib/storage.ts`.
 - Shared tokens and theme palettes are defined in `web/src/styles/`. Domain-specific components remain in their owning workspaces and consume shared primitives/tokens where appropriate.
 - Build new UI from existing primitives before introducing one-off markup or CSS. Add variants only for genuinely shared behavior; do not flatten domain-native experiences into generic cards.
 - Techno uses deep navy-black surfaces, neon cyan/electric-blue accents, and restrained glow on selected and primary interactive states. Glow must not reduce text clarity or create visual clutter.
+- Aurora uses atmospheric violet surfaces, mint highlights, soft gradients, and animated category-specific life-event headers. Animation is decorative, lightweight, and disabled under `prefers-reduced-motion`.
 - All existing screen and workspace styles are migrated to semantic theme tokens; new and revised UI must use shared tokens rather than hard-coded palette colors. Theme coverage includes navigation, forms, dialogs, activity states, financial displays, and overlays. Maintain accessible contrast and visible focus in every palette.
 
 ## Game-first copy
