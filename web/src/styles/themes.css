@@ -144,7 +144,7 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
   .education-subject,
   .title-menu-button,
   .title-submenu button
-){
+):not(.event-card-header){
   background-image:
     radial-gradient(ellipse at var(--aurora-glow-x,92%) var(--aurora-glow-y,8%),rgba(143,232,212,.105),transparent 48%),
     repeating-linear-gradient(132deg,transparent 0 25px,rgba(183,190,255,.045) 26px 27px,transparent 28px 54px),
