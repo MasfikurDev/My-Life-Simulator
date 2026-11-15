@@ -122,6 +122,13 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
   0%{transform:translate3d(-2%,1%,0) scale(.96)}
   100%{transform:translate3d(2%,-2%,0) scale(1.05)}
 }
+
+:root[data-theme="cyberpunk"] .main-layout .side-nav .nav-item:focus-visible,
+:root[data-theme="obsidian"] .main-layout .side-nav .nav-item:focus-visible,
+:root[data-theme="abyss"] .main-layout .side-nav .nav-item:focus-visible,
+:root[data-theme="verdant"] .main-layout .side-nav .nav-item:focus-visible,
+:root[data-theme="crimson"] .main-layout .side-nav .nav-item:focus-visible,
+:root[data-theme="solstice"] .main-layout .side-nav .nav-item:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){
   :root[data-theme="aurora"] body::before,
   :root[data-theme="aurora"] body::after{
@@ -330,3 +337,72 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
 :root[data-theme="verdant"] .app-shell button:focus-visible,
 :root[data-theme="crimson"] .app-shell button:focus-visible,
 :root[data-theme="solstice"] .app-shell button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+
+/* Navigation controls: distinct theme-specific treatments for sidebar and mobile navigation. */
+:root[data-theme="cyberpunk"] .main-layout .side-nav .nav-item{
+  position:relative;border:1px solid transparent;border-radius:5px;background:linear-gradient(100deg,rgba(57,230,242,.035),rgba(255,79,216,.025));color:#a9b4c8;
+  letter-spacing:.015em;transition:background .2s,border-color .2s,color .2s,box-shadow .2s,transform .2s;
+}
+:root[data-theme="cyberpunk"] .main-layout .side-nav .nav-item .nav-icon{color:#63cddd;text-shadow:0 0 9px rgba(57,230,242,.3)}
+:root[data-theme="cyberpunk"] .main-layout .side-nav .nav-item:not(.active):hover{border-color:rgba(57,230,242,.3);background:rgba(57,230,242,.08);color:#e8f5ff}
+:root[data-theme="cyberpunk"] .main-layout .side-nav .nav-item.active{border-color:rgba(255,79,216,.62);background:linear-gradient(100deg,rgba(255,79,216,.2),rgba(57,230,242,.09));color:#fff;box-shadow:inset 3px 0 #ff4fd8,0 0 18px rgba(255,79,216,.12);text-shadow:0 0 10px rgba(255,79,216,.25)}
+:root[data-theme="cyberpunk"] .main-layout .side-nav .nav-item.active .nav-icon{color:#ff78df;text-shadow:0 0 12px rgba(255,79,216,.65)}
+:root[data-theme="obsidian"] .main-layout .side-nav .nav-item{
+  border:1px solid transparent;border-radius:9px;background:linear-gradient(100deg,rgba(214,184,117,.025),transparent);color:#aaa69b;
+  transition:background .2s,border-color .2s,color .2s,box-shadow .2s;
+}
+:root[data-theme="obsidian"] .main-layout .side-nav .nav-item .nav-icon{color:#a9966b}
+:root[data-theme="obsidian"] .main-layout .side-nav .nav-item:not(.active):hover{border-color:rgba(214,184,117,.25);background:linear-gradient(100deg,rgba(214,184,117,.09),rgba(255,255,255,.015));color:#f0e6ce}
+:root[data-theme="obsidian"] .main-layout .side-nav .nav-item.active{border-color:#756342;background:linear-gradient(110deg,#403824,#25231e 78%);color:#f2dfb5;box-shadow:inset 0 1px rgba(255,255,255,.08),inset 3px 0 #d6b875,0 4px 13px rgba(0,0,0,.22)}
+:root[data-theme="obsidian"] .main-layout .side-nav .nav-item.active .nav-icon{color:#f0d18b;text-shadow:0 0 10px rgba(214,184,117,.25)}
+:root[data-theme="abyss"] .main-layout .side-nav .nav-item{
+  border:1px solid transparent;border-radius:999px;background:rgba(23,75,98,.12);color:#91b5c5;
+  transition:background .22s,border-color .22s,color .22s,box-shadow .22s,transform .22s;
+}
+:root[data-theme="abyss"] .main-layout .side-nav .nav-item .nav-icon{color:#69b9d4}
+:root[data-theme="abyss"] .main-layout .side-nav .nav-item:not(.active):hover{border-color:rgba(76,201,240,.27);background:rgba(76,201,240,.1);color:#d9f7ff}
+:root[data-theme="abyss"] .main-layout .side-nav .nav-item.active{border-color:rgba(117,220,244,.62);background:linear-gradient(100deg,rgba(76,201,240,.23),rgba(33,139,185,.12));color:#e3faff;box-shadow:inset 0 1px rgba(255,255,255,.12),0 0 17px rgba(16,137,180,.15)}
+:root[data-theme="abyss"] .main-layout .side-nav .nav-item.active .nav-icon{color:#9cecff;text-shadow:0 0 12px rgba(76,201,240,.5)}
+:root[data-theme="verdant"] .main-layout .side-nav .nav-item{
+  border:1px solid transparent;border-radius:13px 7px 13px 7px;background:rgba(91,145,82,.045);color:#a9bda5;
+  transition:background .2s,border-color .2s,color .2s,box-shadow .2s,transform .2s;
+}
+:root[data-theme="verdant"] .main-layout .side-nav .nav-item .nav-icon{color:#9bc58e}
+:root[data-theme="verdant"] .main-layout .side-nav .nav-item:not(.active):hover{border-color:rgba(177,223,120,.25);background:rgba(139,213,162,.09);color:#e2f4d9}
+:root[data-theme="verdant"] .main-layout .side-nav .nav-item.active{border-color:#648a56;background:linear-gradient(105deg,rgba(139,213,162,.2),rgba(177,223,120,.07));color:#e0f3d4;box-shadow:inset 3px 0 #b1df78,0 4px 13px rgba(0,0,0,.16)}
+:root[data-theme="verdant"] .main-layout .side-nav .nav-item.active .nav-icon{color:#c5ed98;text-shadow:0 0 10px rgba(177,223,120,.25)}
+:root[data-theme="crimson"] .main-layout .side-nav .nav-item{
+  border:1px solid transparent;border-radius:7px 14px 7px 14px;background:rgba(190,57,82,.045);color:#c4a3aa;
+  transition:background .2s,border-color .2s,color .2s,box-shadow .2s,transform .2s;
+}
+:root[data-theme="crimson"] .main-layout .side-nav .nav-item .nav-icon{color:#dc7888}
+:root[data-theme="crimson"] .main-layout .side-nav .nav-item:not(.active):hover{border-color:rgba(255,100,124,.28);background:rgba(255,100,124,.1);color:#ffe2e6}
+:root[data-theme="crimson"] .main-layout .side-nav .nav-item.active{border-color:rgba(255,154,165,.5);background:linear-gradient(105deg,rgba(237,83,109,.22),rgba(185,46,80,.1));color:#ffe0e4;box-shadow:inset 3px 0 #ff8993,0 4px 14px rgba(0,0,0,.18)}
+:root[data-theme="crimson"] .main-layout .side-nav .nav-item.active .nav-icon{color:#ffabb4;text-shadow:0 0 11px rgba(255,100,124,.4)}
+:root[data-theme="solstice"] .main-layout .side-nav .nav-item{
+  border:1px solid transparent;border-radius:14px;background:rgba(224,126,58,.045);color:#c3aa98;
+  transition:background .22s,border-color .22s,color .22s,box-shadow .22s,transform .22s;
+}
+:root[data-theme="solstice"] .main-layout .side-nav .nav-item .nav-icon{color:#e6a76c}
+:root[data-theme="solstice"] .main-layout .side-nav .nav-item:not(.active):hover{border-color:rgba(255,180,95,.28);background:rgba(255,180,95,.1);color:#fff0dc}
+:root[data-theme="solstice"] .main-layout .side-nav .nav-item.active{border-color:rgba(255,218,154,.55);background:linear-gradient(110deg,rgba(255,180,95,.22),rgba(216,121,67,.1));color:#fff0d9;box-shadow:inset 3px 0 #ffd18a,0 4px 16px rgba(0,0,0,.16)}
+:root[data-theme="solstice"] .main-layout .side-nav .nav-item.active .nav-icon{color:#ffcf91;text-shadow:0 0 11px rgba(255,180,95,.35)}
+
+/* The mobile bar uses a centered active capsule instead of the desktop side rail. */
+@media(max-width:620px){
+  :root[data-theme="cyberpunk"] .main-layout .side-nav .nav-item.active{box-shadow:inset 0 -2px #ff4fd8,0 0 16px rgba(255,79,216,.12)}
+  :root[data-theme="obsidian"] .main-layout .side-nav .nav-item.active{box-shadow:inset 0 -2px #d6b875,0 0 12px rgba(214,184,117,.08)}
+  :root[data-theme="abyss"] .main-layout .side-nav .nav-item.active{box-shadow:inset 0 -2px #75dcf4,0 0 14px rgba(76,201,240,.12)}
+  :root[data-theme="verdant"] .main-layout .side-nav .nav-item.active{box-shadow:inset 0 -2px #b1df78,0 0 12px rgba(177,223,120,.08)}
+  :root[data-theme="crimson"] .main-layout .side-nav .nav-item.active{box-shadow:inset 0 -2px #ff8993,0 0 14px rgba(255,100,124,.1)}
+  :root[data-theme="solstice"] .main-layout .side-nav .nav-item.active{box-shadow:inset 0 -2px #ffd18a,0 0 14px rgba(255,180,95,.1)}
+}
+@media(prefers-reduced-motion:reduce){
+  :root[data-theme="cyberpunk"] .main-layout .side-nav .nav-item,
+  :root[data-theme="obsidian"] .main-layout .side-nav .nav-item,
+  :root[data-theme="abyss"] .main-layout .side-nav .nav-item,
+  :root[data-theme="verdant"] .main-layout .side-nav .nav-item,
+  :root[data-theme="crimson"] .main-layout .side-nav .nav-item,
+  :root[data-theme="solstice"] .main-layout .side-nav .nav-item{transition:none}
+}
