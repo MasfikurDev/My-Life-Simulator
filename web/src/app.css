@@ -1500,3 +1500,18 @@ body:has(.app-shell .main-layout){height:100dvh}
   }
   .app-shell:has(.side-nav)>.footer{display:none}
 }
+
+
+/* Keep the mobile navigation surface, but don't extend its background
+   into the device safe-area strip below the bar. */
+@media(max-width:620px){
+  .app-shell:has(.side-nav)>.main-layout>.side-nav{
+    background:linear-gradient(
+      to bottom,
+      color-mix(in srgb,var(--illustration-deep) 96.1%, transparent) 0,
+      color-mix(in srgb,var(--illustration-deep) 96.1%, transparent) calc(100% - env(safe-area-inset-bottom)),
+      transparent calc(100% - env(safe-area-inset-bottom)),
+      transparent 100%
+    );
+  }
+}
