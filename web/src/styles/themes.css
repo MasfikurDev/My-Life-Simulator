@@ -671,7 +671,9 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
   .ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,
   .game-event-panel,.weekly-finance-source,.weekly-finance-totals>div,
   .character-profile-flow,.education-enrol-panel,.education-subject,
-  .title-menu-button,.title-submenu button
+  .title-menu-button,.title-submenu button,.market-product,.owned-item,
+  .relative-card,.health-care-card,.family-panel,.life-overview-panel,
+  .market-section,.service-section,.provider-card,.owned-service,.life-tree .branch-card
 ):not(.event-card-header):not(.hero-card):not(.weekly-finance-card):not(.money-focus):not(.game-event-panel){
   background-image:var(--panel-wash,none)!important;
   background-repeat:no-repeat!important;background-size:100% 100%!important;animation:none!important;
