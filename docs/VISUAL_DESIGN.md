@@ -1,6 +1,6 @@
 # Visual Design System
 
-**Canonical visual direction · Reviewed 2026-11-08**
+**Canonical visual direction · Reviewed 2026-11-15**
 
 ## Product feel
 A modern, polished, mobile-first life simulation interface. It should feel like a premium interactive game with the clarity of a well-designed personal app—not a corporate admin tool, spreadsheet, retro text adventure, or 3D lobby.
@@ -9,10 +9,10 @@ A modern, polished, mobile-first life simulation interface. It should feel like 
 - AMOLED-first dark theme is the default on every device, independent of operating-system theme preference.
 - Use true black (#000) for the app canvas to take advantage of OLED pixels; use near-black charcoal surfaces for cards and navigation so hierarchy remains visible.
 - Use restrained emerald as the primary action and selection accent. Reserve muted blue, amber, and coral for distinct stat/event categories.
-- Offer nine distinct selectable palettes: AMOLED, Midnight, Graphite, Paper, Ocean, Forest, Lavender, Sunset, Rose, Techno, and Aurora. Keep each palette coherent across every workspace, control, overlay, and status state; theme changes are presentation-only and must not alter simulation or save data.
+- Offer 17 distinct selectable palettes: AMOLED, Midnight, Graphite, Paper, Ocean, Forest, Lavender, Sunset, Rose, Techno, Aurora, Cyberpunk, Obsidian, Abyss, Verdant, Crimson, and Solstice. Keep each palette coherent across every workspace, control, overlay, and status state; theme changes are presentation-only and must not alter simulation or save data.
 - Maintain readable contrast, clear borders, and visible keyboard/touch focus.
 - Use system font stacks; do not fetch remote fonts at runtime.
-- AMOLED remains the default. Players can explicitly select AMOLED, Midnight, Graphite, or Paper in Settings → Appearance; the preference is local, applies immediately, and does not alter character saves.
+- AMOLED remains the default. Players can explicitly select any of the 17 supported themes in Settings → Appearance; the preference is local, applies immediately, and does not alter character saves.
 
 ## Visual language
 - 2D cards, buttons, clear sections, concise labels, readable summaries.
@@ -104,7 +104,7 @@ Do not render multiple controls or components for the same action or destination
 - Use progressive disclosure within each domain. Do not show controls from unrelated domains or repeat the same summary and action on multiple screens.
 
 ## Theme system and reusable UI foundation
-- AMOLED remains the default regardless of operating-system appearance. Player-selected themes are explicit and locally persisted: AMOLED, Midnight, Graphite, Paper, Ocean, Forest, Lavender, Sunset, and Rose.
+- AMOLED remains the default regardless of operating-system appearance. Player-selected themes are explicit and locally persisted: AMOLED, Midnight, Graphite, Paper, Ocean, Forest, Lavender, Sunset, Rose, Techno, Aurora, Cyberpunk, Obsidian, Abyss, Verdant, Crimson, and Solstice.
 - Theme preference is presentation-only, stored alongside local app preferences and never inside a character save. It must not change gameplay state or require a save migration. Aurora is an optional visual variant; AMOLED remains the default.
 - Theme selection is available in Settings → Appearance, updates immediately, and survives app restarts. Missing or invalid preferences fall back to AMOLED.
 - Shared UI primitives live in `web/src/components/`; theme metadata and local preference handling live in `web/src/lib/theme.ts` and `web/src/lib/storage.ts`.
@@ -120,3 +120,11 @@ Do not render multiple controls or components for the same action or destination
 - Replace removed copy with compact, real game data when available: balances, rates, grade, attendance, progress, salary, requirements, capacity, dates, and status. Never invent a metric; omit it when the simulation does not track it.
 - Use short action labels that describe the in-world action ("Enroll", "Apply", "Book", "Transfer", "Rest"), not UI instructions ("Click here to manage...").
 - Prefer meaningful in-world names over invented dramatic names. Do not add flavor text that obscures what a system does.
+
+
+## Recent visual QA refinements
+- The title menu uses shrink-safe responsive tracks and natural mobile content height. Verify it at narrow Android widths before considering the menu layout complete.
+- Paper controls use dark semantic text on light secondary surfaces and a light danger-soft surface for destructive actions. Recheck contrast for every new button variant added to the light theme.
+- Profile presents core attributes first and secondary attributes through disclosure. Relationship cards prioritize closeness and disclose trust/tension separately without removing access to either metric.
+- Supermarket category navigation is a horizontally scrollable, keyboard-focusable rail with 44px minimum touch targets and a programmatically exposed selected state.
+- Avoid repeated subscription counts and maintain semantic heading order in the Life Story and Profile screens.
