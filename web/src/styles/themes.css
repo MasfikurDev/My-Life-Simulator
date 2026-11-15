@@ -48,6 +48,19 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
 :root[data-theme="paper"] .character-profile-flow{background:var(--surface-raised);border-color:var(--line);color:var(--text)}
 :root[data-theme="paper"] .weekly-finance-close{background:var(--surface-raised);border-color:var(--line);color:var(--text)}
 
+/* Paper uses dark semantic text on light secondary controls; never reuse pale dark-theme button text. */
+:root[data-theme="paper"] .app-shell :is(
+  button.secondary,.secondary-button,button.quiet,.relative-actions button,.support-row button,
+  .provider-card button,.owned-service button,.wear-outfit-button,.dialog-actions .secondary,
+  .shop-actions .secondary,.title-menu-button,.title-submenu button
+){color:var(--text);border-color:var(--line-strong)}
+:root[data-theme="paper"] .app-shell :is(.add-cart-button,.cart-button,.plan-food-button,.wear-outfit-button.equipped){
+  color:var(--accent-strong);border-color:var(--line-strong)
+}
+:root[data-theme="paper"] .app-shell :is(.danger-button,button.danger,[class*="danger-button"]){
+  background:var(--danger-soft);border-color:var(--danger);color:var(--danger)
+}
+
 /* Techno: restrained neon accents, with glow reserved for interactive emphasis. */
 :root[data-theme="techno"] .app-shell{background:var(--bg);color:var(--text)}
 :root[data-theme="techno"] .topbar,:root[data-theme="techno"] .side-nav{border-color:var(--line)}
