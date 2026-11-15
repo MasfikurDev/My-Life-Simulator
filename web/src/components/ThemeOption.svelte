@@ -57,5 +57,5 @@
     .motion-preview::after,.theme-option-animated .theme-option-copy strong::after{animation:none}
   }
   @media(max-width:420px){.theme-option{gap:7px;padding:8px;min-height:66px}.theme-preview{width:44px;height:38px}}
-  @media(max-width:360px){.theme-option-copy small{font-size:9px}.theme-motion-tag{display:none}}
+  @media(max-width:360px){.theme-option-copy small{font-size:9px}}
 </style>
