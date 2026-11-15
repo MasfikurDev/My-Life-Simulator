@@ -401,6 +401,12 @@
               <ThemeOption theme="rose" title="Rose" description="Deep berry with soft pink accents" selected={selectedTheme === 'rose'} onSelect={chooseTheme} />
               <ThemeOption theme="techno" title="Techno" description="Neon cyan with electric blue" selected={selectedTheme === 'techno'} onSelect={chooseTheme} />
               <ThemeOption theme="aurora" title="Aurora" description="Atmospheric violet with mint light" selected={selectedTheme === 'aurora'} onSelect={chooseTheme} />
+              <ThemeOption theme="cyberpunk" title="Cyberpunk" description="Neon magenta, cyan and electric grid" selected={selectedTheme === 'cyberpunk'} onSelect={chooseTheme} />
+              <ThemeOption theme="obsidian" title="Obsidian" description="Black glass with brushed gold accents" selected={selectedTheme === 'obsidian'} onSelect={chooseTheme} />
+              <ThemeOption theme="abyss" title="Abyss" description="Deep ocean blue with underwater light" selected={selectedTheme === 'abyss'} onSelect={chooseTheme} />
+              <ThemeOption theme="verdant" title="Verdant" description="Lush emerald with organic textures" selected={selectedTheme === 'verdant'} onSelect={chooseTheme} />
+              <ThemeOption theme="crimson" title="Crimson" description="Dramatic burgundy with flowing red accents" selected={selectedTheme === 'crimson'} onSelect={chooseTheme} />
+              <ThemeOption theme="solstice" title="Solstice" description="Warm dusk with amber and sunset gradients" selected={selectedTheme === 'solstice'} onSelect={chooseTheme} />
             </div>
             <div class="setting-note">Theme changes affect the interface only. Your characters, saves and game progress are unchanged.</div>
           </UiCard>
