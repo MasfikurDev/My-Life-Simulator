@@ -28,7 +28,6 @@
 <button class="theme-option" class:selected class:theme-option-animated={hasMotion} type="button" aria-pressed={selected} data-theme-preview={theme} onclick={() => onSelect(theme)}>
   <span class="theme-preview" class:motion-preview={hasMotion} aria-hidden="true">{#each swatches[theme] as color}<i style:background={color}></i>{/each}</span>
   <span class="theme-option-copy"><strong>{title}</strong><small>{description}</small></span>
-  {#if hasMotion}<span class="theme-motion-tag" aria-label="Animated theme">MOTION</span>{/if}
   <span class="theme-check" aria-hidden="true">{selected ? '✓' : ''}</span>
 </button>
 <style>
@@ -49,7 +48,6 @@
   .theme-option-copy{display:grid;gap:3px;min-width:0;flex:1}
   .theme-option-copy strong{font-size:12px}
   .theme-option-copy small{font-size:10px;color:var(--muted)}
-  .theme-motion-tag{flex:none;padding:3px 5px;border:1px solid color-mix(in srgb,var(--accent) 50%,transparent);border-radius:4px;background:color-mix(in srgb,var(--accent) 13%,var(--surface));color:var(--accent);font-size:8px;font-weight:800;letter-spacing:.08em}
   .theme-check{display:grid;place-items:center;width:20px;height:20px;flex:none;border:1px solid var(--line-strong);border-radius:50%;color:var(--bg);font-size:12px}
   .selected .theme-check{background:var(--accent);border-color:var(--accent)}
   @keyframes theme-preview-sweep{0%,20%{transform:translateX(-30%) rotate(8deg)}80%,100%{transform:translateX(45%) rotate(8deg)}}
@@ -58,6 +56,6 @@
     .theme-option,.theme-option::before{transition:none}
     .motion-preview::after,.theme-option-animated .theme-option-copy strong::after{animation:none}
   }
-  @media(max-width:420px){.theme-option{gap:7px;padding:8px;min-height:66px}.theme-preview{width:44px;height:38px}.theme-motion-tag{font-size:7px;padding:3px 4px}}
-  @media(max-width:360px){.theme-option-copy small{font-size:9px}.theme-motion-tag{display:none}}
+  @media(max-width:420px){.theme-option{gap:7px;padding:8px;min-height:66px}.theme-preview{width:44px;height:38px}}
+  @media(max-width:360px){.theme-option-copy small{font-size:9px}}
 </style>

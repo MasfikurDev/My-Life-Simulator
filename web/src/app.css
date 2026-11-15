@@ -1421,3 +1421,25 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
   .modal{padding:18px}
 }
 @media(max-width:360px){.app-shell{padding-inline:10px}}
+
+
+/* Full-bleed app header aligned to the page grid. */
+.app-shell>.topbar{width:calc(100% + 10.4%);margin-left:-5.2%;padding-inline:5.2%;box-sizing:border-box;min-width:0}
+@media(max-width:620px){.app-shell>.topbar{width:calc(100% + 28px);margin-left:-14px;padding-inline:14px}}
+@media(max-width:360px){.app-shell>.topbar{width:calc(100% + 20px);margin-left:-10px;padding-inline:10px}}
+
+/* Consistent accessible form controls. */
+input[type="radio"],input[type="checkbox"]{accent-color:var(--accent);width:17px;height:17px;flex:0 0 auto;cursor:pointer}
+input[type="radio"]{appearance:none;border:1.5px solid var(--line-strong);border-radius:50%;background:var(--surface-raised);display:inline-grid;place-content:center;transition:border-color .18s,box-shadow .18s,background .18s}
+input[type="radio"]::before{content:"";width:7px;height:7px;border-radius:50%;transform:scale(0);transition:transform .16s ease;background:var(--on-accent)}
+input[type="radio"]:checked{border-color:var(--accent);background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input[type="radio"]:checked::before{transform:scale(1)}
+input[type="radio"]:focus-visible,input[type="checkbox"]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+input[type="radio"]:disabled,input[type="checkbox"]:disabled{cursor:not-allowed;opacity:.45}
+input[type="checkbox"]{border-radius:5px}
+progress{appearance:none;display:block;width:100%;height:8px;overflow:hidden;border:0;border-radius:999px;background:var(--surface-raised);accent-color:var(--accent)}
+progress::-webkit-progress-bar{background:var(--surface-raised);border-radius:999px}
+progress::-webkit-progress-value{background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 62%,white));border-radius:999px}
+progress::-moz-progress-bar{background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 62%,white));border-radius:999px}
+.meter,.career-performance-meter,.progress-track,.progress-bar,[role="progressbar"]{border-radius:999px;overflow:hidden}
+.meter span,.career-performance-meter span,.progress-track>span,.progress-bar>span{border-radius:inherit}

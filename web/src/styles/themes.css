@@ -493,3 +493,160 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
   :root[data-theme="rose"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav),
   :root[data-theme="techno"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){animation:none!important}
 }
+
+
+/* Theme-wide buttons, radio controls and progress treatments. */
+:root:not([data-theme="amoled"]){--control-radius:12px}
+:root[data-theme="midnight"]{--control-radius:7px}
+:root[data-theme="graphite"]{--control-radius:5px}
+:root[data-theme="paper"]{--control-radius:9px}
+:root[data-theme="ocean"],:root[data-theme="abyss"]{--control-radius:999px}
+:root[data-theme="forest"],:root[data-theme="verdant"]{--control-radius:13px 7px 13px 7px}
+:root[data-theme="lavender"],:root[data-theme="solstice"]{--control-radius:14px}
+:root[data-theme="sunset"]{--control-radius:14px 8px 14px 8px}
+:root[data-theme="rose"]{--control-radius:8px 14px 8px 14px}
+:root[data-theme="techno"],:root[data-theme="cyberpunk"]{--control-radius:4px}
+:root[data-theme="obsidian"]{--control-radius:6px}
+:root[data-theme="crimson"]{--control-radius:7px 14px 7px 14px}
+:root:not([data-theme="amoled"]) .app-shell button:not(.theme-option),:root:not([data-theme="amoled"]) .app-shell [role="button"]{border-radius:var(--control-radius);transition:background .2s,border-color .2s,box-shadow .2s,transform .18s,color .18s}
+:root:not([data-theme="amoled"]) .app-shell button:not(:disabled):not(.theme-option):active,:root:not([data-theme="amoled"]) .app-shell [role="button"]:active{transform:translateY(1px) scale(.985)}
+:root:not([data-theme="amoled"]) .app-shell button:disabled{filter:saturate(.55);opacity:.48}
+:root:not([data-theme="amoled"]) .app-shell input[type="radio"],:root:not([data-theme="amoled"]) .app-shell input[type="checkbox"]{accent-color:var(--accent)}
+:root:not([data-theme="amoled"]) .app-shell input[type="radio"]:checked,:root:not([data-theme="amoled"]) .app-shell input[type="checkbox"]:checked{box-shadow:0 0 0 3px var(--accent-soft),0 0 12px color-mix(in srgb,var(--accent) 24%,transparent)}
+:root:not([data-theme="amoled"]) .app-shell progress,:root:not([data-theme="amoled"]) .app-shell .meter,:root:not([data-theme="amoled"]) .app-shell .career-performance-meter,:root:not([data-theme="amoled"]) .app-shell .progress-track,:root:not([data-theme="amoled"]) .app-shell [role="progressbar"]{background:linear-gradient(180deg,var(--surface-raised),var(--surface));border:1px solid color-mix(in srgb,var(--accent) 22%,var(--line));box-shadow:inset 0 1px 2px rgba(0,0,0,.24)}
+:root:not([data-theme="amoled"]) .app-shell .meter span,:root:not([data-theme="amoled"]) .app-shell .career-performance-meter span,:root:not([data-theme="amoled"]) .app-shell .progress-track>span,:root:not([data-theme="amoled"]) .app-shell .progress-bar>span{background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 65%,white));box-shadow:0 0 9px color-mix(in srgb,var(--accent) 34%,transparent)}
+:root[data-theme="paper"] .app-shell button:not(.theme-option){box-shadow:0 2px 5px rgba(65,55,35,.08)}
+:root[data-theme="cyberpunk"] .app-shell button:not(.theme-option):not(:disabled):hover,:root[data-theme="techno"] .app-shell button:not(.theme-option):not(:disabled):hover{box-shadow:0 0 0 1px var(--accent),0 0 18px color-mix(in srgb,var(--accent) 24%,transparent)}
+:root[data-theme="forest"] .app-shell button:not(.theme-option):not(:disabled):hover,:root[data-theme="verdant"] .app-shell button:not(.theme-option):not(:disabled):hover{box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 17%,transparent)}
+:root[data-theme="ocean"] .app-shell button:not(.theme-option):not(:disabled):hover,:root[data-theme="abyss"] .app-shell button:not(.theme-option):not(:disabled):hover{box-shadow:0 0 16px color-mix(in srgb,var(--accent) 20%,transparent)}
+@media(prefers-reduced-motion:reduce){:root:not([data-theme="amoled"]) .app-shell button,:root:not([data-theme="amoled"]) .app-shell [role="button"],:root:not([data-theme="amoled"]) .app-shell input[type="radio"]{transition:none}}
+
+
+/* Lifestyle workspace coverage: extend each theme's visual language to every
+   nested life page, rather than styling only the outer navigation shell. */
+:root[data-theme] .app-shell :where(
+  .life-workspace .finance-nav button,
+  .lifestyle-workspace .market-categories button,
+  .life-tree .tree-tabs button
+){
+  border-radius:var(--control-radius,10px);
+  border-color:var(--line);
+  background:var(--surface);
+  color:var(--muted);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--text) 3%,transparent);
+}
+:root[data-theme] .app-shell :where(
+  .life-workspace .finance-nav button.active,
+  .lifestyle-workspace .market-categories button.active,
+  .life-tree .tree-tabs button.active
+){
+  border-color:color-mix(in srgb,var(--accent) 58%,var(--line));
+  background:linear-gradient(135deg,var(--accent-soft),var(--surface));
+  color:var(--accent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 10%,transparent),0 3px 12px color-mix(in srgb,var(--accent) 9%,transparent);
+}
+:root[data-theme] .app-shell :where(
+  .life-overview-panel,.life-overview-stats,.health-overview,.health-care-card,
+  .health-conditions-section,.market-section,.service-section,.market-product,
+  .owned-item,.family-panel,.relative-card,.life-tree .tree-intro,
+  .life-tree .node-content,.life-tree .branch-card,.life-tree .tree-empty,
+  .life-milestone-group,.life-milestone-content
+){
+  border-radius:var(--panel-radius,14px);
+  border-color:var(--line);
+  box-shadow:var(--panel-shadow,0 5px 18px color-mix(in srgb,#000 8%,transparent));
+}
+:root[data-theme] .app-shell :where(
+  .life-overview-panel,.life-overview-stats,.health-overview,
+  .health-care-card,.health-conditions-section,.market-section,.service-section,
+  .family-panel,.relative-card,.life-tree .tree-intro,.life-tree .node-content,
+  .life-milestone-group
+){
+  background-image:var(--panel-wash,linear-gradient(145deg,color-mix(in srgb,var(--surface-raised) 42%,transparent),transparent 72%));
+}
+:root[data-theme] .app-shell :where(
+  .life-overview-facts>div,.health-stat,.family-summary>div,
+  .family-culture-note,.social-list article,.life-tree .tree-total,
+  .life-tree .branch-card,.market-product,.owned-item,.cash-payment
+){
+  border-radius:var(--tile-radius,10px);
+  border-color:var(--line);
+}
+:root[data-theme] .app-shell :where(
+  .health-care-card,.market-product,.owned-item,.relative-card,
+  .life-tree .branch-card,.provider-card,.owned-service
+){
+  transition:transform .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease;
+}
+:root[data-theme] .app-shell :where(
+  .health-care-card:not(:disabled),.market-product:not(.unavailable),
+  .relative-card,.life-tree .branch-card,.provider-card,.owned-service
+):hover{
+  border-color:color-mix(in srgb,var(--accent) 42%,var(--line));
+  box-shadow:0 7px 22px color-mix(in srgb,var(--accent) 9%,transparent);
+}
+:root[data-theme] .app-shell :where(
+  .health-care-card:not(:disabled),.market-product:not(.unavailable),
+  .life-tree .branch-card
+):hover{transform:translateY(-2px)}
+:root[data-theme] .app-shell :where(
+  .health-care-card.planned,.life-tree .branch-card.chosen,
+  .wear-outfit-button.equipped,.owned-label
+){
+  border-color:color-mix(in srgb,var(--accent) 58%,var(--line));
+  background:linear-gradient(135deg,var(--accent-soft),var(--surface));
+}
+:root[data-theme] .app-shell :where(
+  .health-care-icon,.provider-mark,.empty-glyph,.product-mark
+){
+  border-radius:var(--icon-radius,10px);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--text) 8%,transparent);
+}
+:root[data-theme] .app-shell :where(
+  .meter,.bond-meter,.health-stat .meter,.life-overview-stat .meter
+){border-radius:var(--meter-radius,999px);background:var(--surface-raised)}
+:root[data-theme] .app-shell :where(
+  .meter span,.bond-meter i,.life-overview-stat .meter span
+){border-radius:inherit}
+:root[data-theme] .app-shell :where(
+  .health-warning,.guardian-note,.family-culture-note,.branch-followup,
+  .life-milestone-finance,.life-overview-facts>div
+){background-color:color-mix(in srgb,var(--surface-raised) 78%,var(--accent-soft) 22%)}
+:root[data-theme] .app-shell :where(
+  .life-milestone-group>summary,.life-milestone-transactions>summary
+){border-radius:var(--tile-radius,10px)}
+:root[data-theme] .app-shell :where(
+  .market-product,.owned-item,.health-care-card,.relative-card,
+  .life-tree .node-content,.life-tree .branch-card
+){min-width:0}
+:root[data-theme] .app-shell :where(
+  .market-product strong,.owned-item strong,.health-care-card strong,
+  .relative-card h3,.life-tree .node-content h3
+){letter-spacing:var(--card-letter-spacing,normal)}
+:root[data-theme] .app-shell :where(
+  .family-panel,.relative-card,.health-overview,.health-care-card,
+  .health-conditions-section,.life-overview-panel,.life-overview-stats,
+  .market-section,.service-section,.life-tree .tree-intro,.life-tree .node-content
+){backdrop-filter:var(--panel-backdrop,none)}
+
+/* Distinct geometry and surface treatments for each theme family. */
+:root[data-theme="midnight"]{--panel-radius:10px;--tile-radius:7px;--icon-radius:7px;--panel-shadow:0 7px 22px rgba(0,0,0,.2);--panel-wash:linear-gradient(145deg,rgba(75,130,255,.07),transparent 68%);--card-letter-spacing:.01em}
+:root[data-theme="graphite"]{--panel-radius:8px;--tile-radius:5px;--icon-radius:6px;--panel-shadow:0 4px 12px rgba(0,0,0,.24);--panel-wash:linear-gradient(145deg,rgba(180,160,220,.055),transparent 70%)}
+:root[data-theme="paper"]{--panel-radius:8px;--tile-radius:6px;--icon-radius:5px;--panel-shadow:0 3px 10px rgba(67,54,32,.08);--panel-wash:linear-gradient(145deg,rgba(125,105,65,.055),transparent 72%)}
+:root[data-theme="ocean"],:root[data-theme="abyss"]{--panel-radius:19px;--tile-radius:13px;--icon-radius:12px;--panel-shadow:0 8px 26px rgba(0,100,180,.13);--panel-wash:linear-gradient(145deg,rgba(30,170,220,.09),transparent 70%)}
+:root[data-theme="forest"],:root[data-theme="verdant"]{--panel-radius:15px 8px 15px 8px;--tile-radius:11px 6px 11px 6px;--icon-radius:10px 5px 10px 5px;--panel-shadow:0 7px 20px rgba(25,100,55,.12);--panel-wash:linear-gradient(145deg,rgba(50,150,85,.08),transparent 70%)}
+:root[data-theme="lavender"]{--panel-radius:17px;--tile-radius:12px;--icon-radius:12px;--panel-shadow:0 8px 24px rgba(130,90,190,.12);--panel-wash:linear-gradient(145deg,rgba(165,125,235,.09),transparent 70%)}
+:root[data-theme="sunset"],:root[data-theme="solstice"]{--panel-radius:14px 8px 14px 8px;--tile-radius:10px 6px 10px 6px;--icon-radius:9px 5px 9px 5px;--panel-shadow:0 7px 20px rgba(180,100,35,.12);--panel-wash:linear-gradient(145deg,rgba(240,145,65,.09),transparent 70%)}
+:root[data-theme="rose"]{--panel-radius:9px 16px 9px 16px;--tile-radius:7px 12px 7px 12px;--icon-radius:7px 11px 7px 11px;--panel-shadow:0 7px 20px rgba(190,65,125,.12);--panel-wash:linear-gradient(145deg,rgba(225,90,155,.085),transparent 70%)}
+:root[data-theme="techno"]{--panel-radius:5px;--tile-radius:4px;--icon-radius:4px;--panel-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 8%,transparent),0 8px 24px rgba(0,0,0,.22);--panel-wash:linear-gradient(135deg,rgba(0,230,255,.07),transparent 48%,rgba(70,90,255,.06));--card-letter-spacing:.015em}
+:root[data-theme="cyberpunk"]{--panel-radius:4px;--tile-radius:3px;--icon-radius:3px;--panel-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 12%,transparent),0 0 20px color-mix(in srgb,var(--accent) 7%,transparent);--panel-wash:linear-gradient(125deg,rgba(255,40,190,.08),transparent 42%,rgba(0,220,255,.07));--card-letter-spacing:.02em}
+:root[data-theme="obsidian"]{--panel-radius:6px;--tile-radius:5px;--icon-radius:5px;--panel-shadow:0 8px 24px rgba(0,0,0,.32);--panel-wash:linear-gradient(145deg,rgba(215,175,95,.07),transparent 70%)}
+:root[data-theme="crimson"]{--panel-radius:8px 15px 8px 15px;--tile-radius:6px 11px 6px 11px;--icon-radius:6px 10px 6px 10px;--panel-shadow:0 8px 22px rgba(150,25,45,.15);--panel-wash:linear-gradient(145deg,rgba(210,45,65,.09),transparent 70%)}
+:root[data-theme="aurora"]{--panel-radius:16px;--tile-radius:11px;--icon-radius:11px;--panel-shadow:0 8px 25px rgba(95,120,190,.13);--panel-wash:linear-gradient(135deg,rgba(145,105,245,.09),transparent 48%,rgba(75,220,180,.06))}
+:root[data-theme="amoled"]{--panel-radius:10px;--tile-radius:7px;--icon-radius:7px;--panel-shadow:none;--panel-wash:none;--panel-backdrop:none}
+@media(hover:none){
+  :root[data-theme] .app-shell :where(.health-care-card,.market-product,.life-tree .branch-card):hover{transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+  :root[data-theme] .app-shell :where(.health-care-card,.market-product,.owned-item,.relative-card,.life-tree .branch-card){transition:none}
+}
