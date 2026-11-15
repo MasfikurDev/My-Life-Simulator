@@ -150,7 +150,7 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
     repeating-linear-gradient(132deg,transparent 0 20px,rgba(183,190,255,.12) 21px 23px,transparent 24px 46px),
     linear-gradient(145deg,var(--surface-raised),var(--surface)) !important;
   background-size:220% 220%,92px 92px,100% 100% !important;
-  background-position:0% 0%,0 0,center !important;
+  background-position:0% 0%,0 0,center;
   background-repeat:no-repeat,repeat,no-repeat !important;
   animation:aurora-card-pattern-drift 10s linear infinite alternate !important;
 }
