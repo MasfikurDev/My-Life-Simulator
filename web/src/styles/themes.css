@@ -406,3 +406,90 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
   :root[data-theme="crimson"] .main-layout .side-nav .nav-item,
   :root[data-theme="solstice"] .main-layout .side-nav .nav-item{transition:none}
 }
+
+
+/* Legacy theme refresh: each classic palette gets its own surface language and low-intensity motion.
+   AMOLED remains deliberately still and minimal for battery-conscious play. */
+:root[data-theme="midnight"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){
+  border-color:#304568;
+  background-image:linear-gradient(118deg,rgba(92,151,239,.10),transparent 42%),repeating-linear-gradient(135deg,transparent 0 26px,rgba(134,183,255,.035) 27px 28px,transparent 29px 54px),linear-gradient(145deg,var(--surface-raised),var(--surface));
+  background-size:180% 180%,108px 108px,100% 100%;
+  animation:classic-midnight-shift 24s ease-in-out infinite alternate;
+}
+:root[data-theme="graphite"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){
+  border-color:#494e5d;
+  background-image:linear-gradient(135deg,rgba(192,160,255,.075),transparent 46%),repeating-linear-gradient(45deg,transparent 0 18px,rgba(192,160,255,.045) 19px 20px,transparent 21px 38px),linear-gradient(155deg,#292c34,var(--surface));
+  background-size:160% 160%,76px 76px,100% 100%;
+  animation:classic-graphite-sheen 28s linear infinite;
+}
+:root[data-theme="paper"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){
+  border-color:#d4cfbf;
+  background-image:radial-gradient(ellipse at 12% 0%,rgba(38,116,71,.10),transparent 48%),repeating-linear-gradient(0deg,transparent 0 27px,rgba(88,101,73,.045) 28px 29px),linear-gradient(145deg,#fffef9,#f5f1e7);
+  background-size:170% 170%,100% 58px,100% 100%;
+  animation:classic-paper-light 32s ease-in-out infinite alternate;
+}
+:root[data-theme="ocean"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){
+  border-color:#315967;
+  background-image:radial-gradient(ellipse at 90% 8%,rgba(85,198,216,.16),transparent 44%),repeating-linear-gradient(165deg,transparent 0 24px,rgba(117,188,232,.055) 25px 26px,transparent 27px 52px),linear-gradient(150deg,#153440,var(--surface));
+  background-size:190% 190%,120px 120px,100% 100%;
+  animation:classic-ocean-current 26s ease-in-out infinite alternate;
+}
+:root[data-theme="forest"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){
+  border-color:#385b42;
+  background-image:radial-gradient(ellipse at 10% 5%,rgba(131,197,139,.13),transparent 46%),repeating-linear-gradient(125deg,transparent 0 30px,rgba(131,197,139,.045) 31px 32px,transparent 33px 64px),linear-gradient(145deg,#1b3022,var(--surface));
+  background-size:180% 180%,128px 128px,100% 100%;
+  animation:classic-forest-canopy 30s ease-in-out infinite alternate;
+}
+:root[data-theme="lavender"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){
+  border-color:#55466c;
+  background-image:radial-gradient(ellipse at 85% 0%,rgba(197,166,255,.15),transparent 46%),repeating-linear-gradient(145deg,transparent 0 22px,rgba(197,166,255,.055) 23px 24px,transparent 25px 50px),linear-gradient(145deg,#332747,var(--surface));
+  background-size:190% 190%,104px 104px,100% 100%;
+  animation:classic-lavender-haze 27s ease-in-out infinite alternate;
+}
+:root[data-theme="sunset"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){
+  border-color:#684630;
+  background-image:radial-gradient(ellipse at 95% 0%,rgba(240,164,94,.16),transparent 46%),linear-gradient(115deg,transparent 0 38%,rgba(238,145,129,.055) 39% 40%,transparent 41% 100%),linear-gradient(145deg,#432b20,var(--surface));
+  background-size:180% 180%,140px 100%,100% 100%;
+  animation:classic-sunset-glow 28s ease-in-out infinite alternate;
+}
+:root[data-theme="rose"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){
+  border-color:#654052;
+  background-image:radial-gradient(ellipse at 12% 0%,rgba(237,145,176,.14),transparent 48%),repeating-linear-gradient(135deg,transparent 0 25px,rgba(237,145,176,.045) 26px 27px,transparent 28px 56px),linear-gradient(145deg,#3b2331,var(--surface));
+  background-size:180% 180%,112px 112px,100% 100%;
+  animation:classic-rose-bloom 30s ease-in-out infinite alternate;
+}
+:root[data-theme="techno"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){
+  border-color:#285a70;
+  background-image:linear-gradient(110deg,rgba(57,230,242,.10),transparent 40%,rgba(76,116,255,.08)),repeating-linear-gradient(90deg,transparent 0 30px,rgba(57,230,242,.045) 31px 32px,transparent 33px 64px),linear-gradient(145deg,#17283b,var(--surface));
+  background-size:200% 200%,96px 96px,100% 100%;
+  animation:classic-techno-pulse 22s ease-in-out infinite alternate;
+}
+:root[data-theme="midnight"] .app-shell .nav-item.active{background:linear-gradient(110deg,rgba(134,183,255,.2),rgba(94,152,238,.08));border-color:#5e83b7;box-shadow:inset 3px 0 #86b7ff,0 0 14px rgba(134,183,255,.10)}
+:root[data-theme="graphite"] .app-shell .nav-item.active{background:linear-gradient(110deg,rgba(192,160,255,.19),rgba(162,125,232,.07));border-color:#74628f;box-shadow:inset 3px 0 #c0a0ff}
+:root[data-theme="paper"] .app-shell .nav-item.active{background:linear-gradient(110deg,#e2eee4,#f5f8ef);border-color:#9ebda4;box-shadow:inset 3px 0 #267447}
+:root[data-theme="ocean"] .app-shell .nav-item.active{background:linear-gradient(110deg,rgba(85,198,216,.2),rgba(117,188,232,.07));border-color:#4c9aaa;box-shadow:inset 3px 0 #55c6d8}
+:root[data-theme="forest"] .app-shell .nav-item.active{background:linear-gradient(110deg,rgba(131,197,139,.2),rgba(92,174,105,.07));border-color:#56845f;box-shadow:inset 3px 0 #83c58b}
+:root[data-theme="lavender"] .app-shell .nav-item.active{background:linear-gradient(110deg,rgba(197,166,255,.2),rgba(169,184,242,.07));border-color:#816aa0;box-shadow:inset 3px 0 #c5a6ff}
+:root[data-theme="sunset"] .app-shell .nav-item.active{background:linear-gradient(110deg,rgba(240,164,94,.2),rgba(238,145,129,.07));border-color:#a66e48;box-shadow:inset 3px 0 #f0a45e}
+:root[data-theme="rose"] .app-shell .nav-item.active{background:linear-gradient(110deg,rgba(237,145,176,.2),rgba(215,111,150,.07));border-color:#995a76;box-shadow:inset 3px 0 #ed91b0}
+:root[data-theme="techno"] .app-shell .nav-item.active{background:linear-gradient(110deg,rgba(57,230,242,.19),rgba(76,116,255,.08));border-color:#367e9a;box-shadow:inset 3px 0 #39e6f2}
+@keyframes classic-midnight-shift{from{background-position:0% 0%,0 0,center}to{background-position:100% 45%,54px 38px,center}}
+@keyframes classic-graphite-sheen{from{background-position:0% 0%,0 0,center}to{background-position:100% 0%,76px 76px,center}}
+@keyframes classic-paper-light{from{background-position:0% 0%,0 0,center}to{background-position:100% 80%,0 58px,center}}
+@keyframes classic-ocean-current{from{background-position:0% 0%,0 0,center}to{background-position:100% 80%,60px 60px,center}}
+@keyframes classic-forest-canopy{from{background-position:0% 0%,0 0,center}to{background-position:85% 100%,64px 64px,center}}
+@keyframes classic-lavender-haze{from{background-position:0% 0%,0 0,center}to{background-position:100% 60%,52px 52px,center}}
+@keyframes classic-sunset-glow{from{background-position:0% 0%,0 0,center}to{background-position:100% 75%,70px 0,center}}
+@keyframes classic-rose-bloom{from{background-position:0% 0%,0 0,center}to{background-position:90% 100%,56px 56px,center}}
+@keyframes classic-techno-pulse{from{background-position:0% 0%,0 0,center}to{background-position:100% 100%,48px 48px,center}}
+@media(prefers-reduced-motion:reduce){
+  :root[data-theme="midnight"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav),
+  :root[data-theme="graphite"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav),
+  :root[data-theme="paper"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav),
+  :root[data-theme="ocean"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav),
+  :root[data-theme="forest"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav),
+  :root[data-theme="lavender"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav),
+  :root[data-theme="sunset"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav),
+  :root[data-theme="rose"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav),
+  :root[data-theme="techno"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){animation:none!important}
+}
