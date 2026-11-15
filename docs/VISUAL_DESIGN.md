@@ -22,6 +22,7 @@ A modern, polished, mobile-first life simulation interface. It should feel like 
 - Purposeful transitions and interaction feedback; respect reduced-motion.
 - Charts only when they communicate useful trends.
 - Semantic design tokens, not scattered hard-coded colors.
+- Cyberpunk uses electric cyan as the primary action and focus color, magenta as a secondary decorative accent, and a softer distinct red only for danger/destructive states. Keep the neon grid low-contrast so text and controls remain dominant.
 - Responsive layouts: narrow Android screens first, desktop browser usable.
 - Comfortable touch targets; no hover-only interactions.
 - Avoid decorative scenery that competes with the character, current situation, and decisions.
