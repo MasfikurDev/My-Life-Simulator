@@ -14,7 +14,13 @@
     sunset: ['#20140f','#3a241a','#f0a45e'],
     rose: ['#1d1018','#38202d','#ed91b0'],
     techno: ['#050811','#111d30','#39e6f2'],
-    aurora: ['#101126','#29234a','#8fe8d4']
+    aurora: ['#101126','#29234a','#8fe8d4'],
+    cyberpunk: ['#090713','#201432','#ff4fd8'],
+    obsidian: ['#0b0b0d','#202024','#d6b875'],
+    abyss: ['#06111b','#10283a','#4cc9f0'],
+    verdant: ['#08140f','#192c20','#b1df78'],
+    crimson: ['#180a10','#351622','#ff647c'],
+    solstice: ['#1b1012','#3b2020','#ffb45f']
   };
 </script>
 <button class="theme-option" class:selected type="button" aria-pressed={selected} onclick={() => onSelect(theme)}>
