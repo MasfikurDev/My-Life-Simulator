@@ -173,13 +173,13 @@
 <section class="lifestyle-workspace">
   <header class="lifestyle-heading">
     <div><div class="eyebrow">LIFESTYLE · EVERYDAY NEEDS</div><h2>{activeView === 'supermarket' ? 'Supermarket' : activeView === 'subscriptions' ? 'Subscriptions' : 'Inventory'}</h2><p>{activeView === 'supermarket' ? 'Browse everyday goods and build an order.' : activeView === 'subscriptions' ? 'Manage services and recurring memberships.' : 'Your purchased items and supplies.'}</p></div>
-    {#if activeView === 'subscriptions'}<span class="service-count">{activeSubscriptions.length} ACTIVE</span>{:else if activeView === 'owned'}<span class="service-count">{ownedItems.reduce((sum, item) => sum + item.quantity, 0)} ITEMS</span>{/if}
+    {#if activeView === 'owned'}<span class="service-count">{ownedItems.reduce((sum, item) => sum + item.quantity, 0)} ITEMS</span>{/if}
   </header>
   {#if activeView === 'supermarket'}
     {#if shopStage === 'browse'}
     <div class="shop-toolbar"><span>{cartCount} {cartCount === 1 ? 'item' : 'items'} in cart</span><button class="cart-button" onclick={() => shopStage = 'cart'} disabled={cartCount === 0}>Cart · {formatCharacterMoney(character, cartTotal)}</button></div>
-    <nav class="market-categories" aria-label="Supermarket categories">
-      {#each categories as item}<button class:active={category === item} onclick={() => category = item}>{item}</button>{/each}
+    <nav class="market-categories" aria-label="Supermarket categories" tabindex="0">
+      {#each categories as item}<button class:active={category === item} aria-pressed={category === item} onclick={() => category = item}>{item}</button>{/each}
     </nav>
     <section class="market-section">
       <div class="market-section-heading"><div><small>SHOPPING</small><h3>{category === 'All' ? 'Available Products' : category}</h3></div><span>{filteredProducts.length} ITEMS</span></div>
@@ -271,9 +271,11 @@
   .lifestyle-heading h2{font-size:24px;line-height:1.2;letter-spacing:-.7px;margin:3px 0 4px}
   .lifestyle-heading p{font-size:11px;line-height:1.5;color:var(--muted);margin:0}
   .service-count,.market-section-heading>span{font-size:9px;color:var(--muted);white-space:nowrap}
-  .market-categories{display:flex;gap:6px;overflow-x:auto;padding:2px 0 7px;scrollbar-width:thin}
-  .market-categories button{flex:none;min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap}
+  .market-categories{display:flex;gap:6px;min-width:0;overflow-x:auto;overflow-y:hidden;padding:2px 0 8px;scrollbar-width:thin;scroll-snap-type:x proximity;scroll-padding-inline:8px;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  .market-categories button{flex:none;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap;scroll-snap-align:start}
   .market-categories button.active{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 50%,transparent);color:var(--accent)}
+  .market-categories:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:9px}
+  .market-categories button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .market-section,.service-section{padding:12px;border:1px solid var(--line);border-radius:13px;background:var(--surface);display:grid;gap:8px;min-width:0}
   .market-section-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .market-section-heading small{font-size:8px;letter-spacing:.8px;color:var(--muted);font-weight:800}
