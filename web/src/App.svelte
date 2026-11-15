@@ -357,10 +357,10 @@
           {#if !character}<button class="text-button" onclick={() => activeTab='menu'}>← Back to main menu</button>{/if}
           {#if character}
             <section class="settings-section profile-character-section">
-              <div class="settings-section-heading"><span class="section-index">01</span><div><h3>Character</h3></div></div>
+              <div class="settings-section-heading"><span class="section-index">01</span><div><h2>Character</h2></div></div>
               <div class="character-profile-card">
                 <div class="character-avatar" aria-hidden="true">{character.name.trim().split(/\\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</div>
-                <div class="character-profile-copy"><div class="character-profile-heading"><h2>{character.name}</h2><span class="character-age">AGE {character.age}</span></div><p>{getLifeStage(character.age).label} · {character.country ?? character.nationality ?? 'Country not recorded'}</p><div class="character-profile-tags"><span>{character.gender ?? 'Gender not recorded'}</span><span>{character.nationality ?? 'Nationality not recorded'}</span></div></div>
+                <div class="character-profile-copy"><div class="character-profile-heading"><h3>{character.name}</h3><span class="character-age">AGE {character.age}</span></div><p>{getLifeStage(character.age).label} · {character.country ?? character.nationality ?? 'Country not recorded'}</p><div class="character-profile-tags"><span>{character.gender ?? 'Gender not recorded'}</span><span>{character.nationality ?? 'Nationality not recorded'}</span></div></div>
               </div>
               <div class="overview-context profile-detail-grid">
                 <div class="overview-context-item"><span>BIRTHPLACE</span><strong>{character.birthplace ?? 'Not recorded'}</strong></div>
@@ -378,12 +378,20 @@
               {/if}
             </section>
             <section class="settings-section profile-attributes-section">
-              <div class="settings-section-heading"><span class="section-index">02</span><div><h3>Attributes</h3></div></div>
+              <div class="settings-section-heading"><span class="section-index">02</span><div><h2>Attributes</h2></div></div>
               <div class="character-stats-grid">
-                {#each [{label:'Health',value:character.health},{label:'Happiness',value:character.happiness},{label:'Fitness',value:character.fitness},{label:'Intelligence',value:character.intelligence},{label:'Stamina',value:character.stamina ?? 50},{label:'Focus',value:character.focus ?? 50},{label:'Discipline',value:character.discipline ?? 50},{label:'Confidence',value:character.confidence ?? 50},{label:'Creativity',value:character.creativity ?? 50},{label:'Social skills',value:character.socialSkills ?? 50},{label:'Stress',value:character.stress ?? 0}] as stat}
-                  <div class="character-stat"><div class="character-stat-ring" class:stress-stat={stat.label === 'Stress'} style={`--stat-value: ${Math.max(0, Math.min(100, stat.value))}%`}><strong>{Math.round(stat.value)}</strong></div><span>{stat.label}</span>{#if stat.label === 'Stress'}<small>Higher is worse</small>{/if}</div>
+                {#each [{label:'Health',value:character.health},{label:'Happiness',value:character.happiness},{label:'Fitness',value:character.fitness},{label:'Intelligence',value:character.intelligence}] as stat}
+                  <div class="character-stat"><div class="character-stat-ring" style={`--stat-value: ${Math.max(0, Math.min(100, stat.value))}%`}><strong>{Math.round(stat.value)}</strong></div><span>{stat.label}</span></div>
                 {/each}
               </div>
+              <details class="profile-more-attributes">
+                <summary><span>More attributes</span><small>7 additional</small></summary>
+                <div class="character-stats-grid">
+                  {#each [{label:'Stamina',value:character.stamina ?? 50},{label:'Focus',value:character.focus ?? 50},{label:'Discipline',value:character.discipline ?? 50},{label:'Confidence',value:character.confidence ?? 50},{label:'Creativity',value:character.creativity ?? 50},{label:'Social skills',value:character.socialSkills ?? 50},{label:'Stress',value:character.stress ?? 0}] as stat}
+                    <div class="character-stat"><div class="character-stat-ring" class:stress-stat={stat.label === 'Stress'} style={`--stat-value: ${Math.max(0, Math.min(100, stat.value))}%`}><strong>{Math.round(stat.value)}</strong></div><span>{stat.label}</span>{#if stat.label === 'Stress'}<small>Higher is worse</small>{/if}</div>
+                  {/each}
+                </div>
+              </details>
             </section>
           {/if}
           <details class="profile-settings-group">

@@ -1,6 +1,6 @@
 # Current Product and Gameplay Direction
 
-**Canonical clarification and change log · Reviewed 2026-11-10**
+**Canonical clarification and change log · Reviewed 2026-11-15**
 
 This document records the latest decisions that supersede older wording elsewhere in the repository. It is an implementation contract, not a claim that every listed behavior is already implemented. Use the live code and tests to determine implementation status; use this document and the linked specifications for intended behavior.
 
@@ -67,6 +67,17 @@ Top-level Life contains the modular Lifestyle experience: **Supermarket, Subscri
 - Keep actions in their owning domain. The weekly review is the unified summary/confirmation surface, not a replacement for domain-native selection.
 - Overview activity history is grouped by expandable week; the current week is expanded by default. Major achievements and life-stage milestones belong in Life History, not a duplicate Overview milestone panel.
 - Preserve the established visual identity and semantic theme system. Do not redesign the app or copy another game's identity when implementing a focused change.
+
+## Visual QA implementation contract
+
+- The title screen must use shrink-safe grid tracks and a single-column layout at narrow viewport widths. Text-bearing grid children use `min-width: 0`; no menu column may impose a minimum width wider than its available container. On phones the menu uses natural content height and may scroll when expanded or when the viewport is genuinely short; it must not clip the menu footer.
+- Paper is a light palette. Secondary controls use readable dark text on light surfaces; primary controls use the accent with a legible foreground; danger controls use the danger-soft surface with the danger semantic color. Do not carry pale dark-theme button text into Paper.
+- Profile shows the four core attributes first (Health, Happiness, Fitness, Intelligence). The remaining seven attributes remain available through progressive disclosure; no attribute is removed from the character model or hidden permanently.
+- Relationship cards keep Closeness visible and disclose Trust and Tension on demand. Relationship actions and their costs remain visible and unchanged.
+- Supermarket categories remain a single horizontally scrollable rail, with keyboard focus, explicit selected state, and touch targets of at least 44 CSS px. Do not wrap the complete category catalog into multiple rows on narrow screens.
+- Subscription active count is shown once, in the active-subscriptions section. The page header must not repeat the same count.
+- Life Story has a semantic page heading before the grouped life-history periods. Heading levels must reflect page, section, and character-name hierarchy rather than styling convenience.
+- Responsive visual validation should cover 320, 360, 390, 430, 768, 1024, and 1440 CSS px where practical. Confirm no horizontal overflow, clipped controls, or safe-area/navigation collisions; reduced-motion behavior remains mandatory for animated themes.
 
 - Standard **New Game** always begins at birth and is the only mode eligible for achievements. Keep its generated-character Reroll beside the identity.
 - **Presets** is its own starting-scenario catalog with ready-made ages, circumstances, and challenges; it must not reuse the New Game page.

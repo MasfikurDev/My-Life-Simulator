@@ -103,11 +103,16 @@
               <span class:deceased={!connection.living} class="relative-status">{connection.living ? 'Living' : 'Deceased'}</span>
             </div>
             {#if connection.bond}
-              <div class="bond-grid">
+              <div class="bond-grid bond-grid-primary">
                 <div><span>Closeness</span><strong>{connection.bond.closeness}/100</strong><div class="bond-meter"><i style="width:{connection.bond.closeness}%;background:{getValueColor(connection.bond.closeness)}"></i></div></div>
-                <div><span>Trust</span><strong>{connection.bond.trust}/100</strong><div class="bond-meter"><i style="width:{connection.bond.trust}%;background:{getValueColor(connection.bond.trust)}"></i></div></div>
-                <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><div class="bond-meter tension"><i style="width:{connection.bond.tension}%;background:{getValueColor(connection.bond.tension, true)}"></i></div></div>
               </div>
+              <details class="relative-bond-details">
+                <summary>Trust &amp; tension</summary>
+                <div class="bond-grid">
+                  <div><span>Trust</span><strong>{connection.bond.trust}/100</strong><div class="bond-meter"><i style="width:{connection.bond.trust}%;background:{getValueColor(connection.bond.trust)}"></i></div></div>
+                  <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><div class="bond-meter tension"><i style="width:{connection.bond.tension}%;background:{getValueColor(connection.bond.tension, true)}"></i></div></div>
+                </div>
+              </details>
               {#if connection.bond.lastInteractionYear !== null}
                 <p class="last-contact">Last time you connected: {connection.bond.lastInteractionYear}</p>
               {:else}
@@ -209,7 +214,12 @@
   .social-panel>p{margin-top:5px}
   .relative-card{display:grid;gap:12px}
   .relative-head h3{font-size:15px}
-  .bond-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+  .bond-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .bond-grid-primary{grid-template-columns:minmax(0,1fr)}
+  .relative-bond-details{display:grid;gap:8px}
+  .relative-bond-details>summary{width:max-content;max-width:100%;cursor:pointer;color:var(--muted);font-size:10px;font-weight:700;list-style:none}
+  .relative-bond-details>summary::-webkit-details-marker{display:none}
+  .relative-bond-details>summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
   .bond-grid>div{display:grid;grid-template-columns:1fr auto;gap:5px;align-items:center}
   .bond-grid span{font-size:10px;color:var(--muted)}.bond-grid strong{font-size:11px}
   .bond-meter{grid-column:1/-1;height:5px;border-radius:8px;background:var(--surface-raised);overflow:hidden}
