@@ -493,3 +493,30 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
   :root[data-theme="rose"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav),
   :root[data-theme="techno"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.topbar,.side-nav){animation:none!important}
 }
+
+
+/* Theme-wide buttons, radio controls and progress treatments. */
+:root:not([data-theme="amoled"]){--control-radius:12px}
+:root[data-theme="midnight"]{--control-radius:7px}
+:root[data-theme="graphite"]{--control-radius:5px}
+:root[data-theme="paper"]{--control-radius:9px}
+:root[data-theme="ocean"],:root[data-theme="abyss"]{--control-radius:999px}
+:root[data-theme="forest"],:root[data-theme="verdant"]{--control-radius:13px 7px 13px 7px}
+:root[data-theme="lavender"],:root[data-theme="solstice"]{--control-radius:14px}
+:root[data-theme="sunset"]{--control-radius:14px 8px 14px 8px}
+:root[data-theme="rose"]{--control-radius:8px 14px 8px 14px}
+:root[data-theme="techno"],:root[data-theme="cyberpunk"]{--control-radius:4px}
+:root[data-theme="obsidian"]{--control-radius:6px}
+:root[data-theme="crimson"]{--control-radius:7px 14px 7px 14px}
+:root:not([data-theme="amoled"]) .app-shell button:not(.theme-option),:root:not([data-theme="amoled"]) .app-shell [role="button"]{border-radius:var(--control-radius);transition:background .2s,border-color .2s,box-shadow .2s,transform .18s,color .18s}
+:root:not([data-theme="amoled"]) .app-shell button:not(:disabled):not(.theme-option):active,:root:not([data-theme="amoled"]) .app-shell [role="button"]:active{transform:translateY(1px) scale(.985)}
+:root:not([data-theme="amoled"]) .app-shell button:disabled{filter:saturate(.55);opacity:.48}
+:root:not([data-theme="amoled"]) .app-shell input[type="radio"],:root:not([data-theme="amoled"]) .app-shell input[type="checkbox"]{accent-color:var(--accent)}
+:root:not([data-theme="amoled"]) .app-shell input[type="radio"]:checked,:root:not([data-theme="amoled"]) .app-shell input[type="checkbox"]:checked{box-shadow:0 0 0 3px var(--accent-soft),0 0 12px color-mix(in srgb,var(--accent) 24%,transparent)}
+:root:not([data-theme="amoled"]) .app-shell progress,:root:not([data-theme="amoled"]) .app-shell .meter,:root:not([data-theme="amoled"]) .app-shell .career-performance-meter,:root:not([data-theme="amoled"]) .app-shell .progress-track,:root:not([data-theme="amoled"]) .app-shell [role="progressbar"]{background:linear-gradient(180deg,var(--surface-raised),var(--surface));border:1px solid color-mix(in srgb,var(--accent) 22%,var(--line));box-shadow:inset 0 1px 2px rgba(0,0,0,.24)}
+:root:not([data-theme="amoled"]) .app-shell .meter span,:root:not([data-theme="amoled"]) .app-shell .career-performance-meter span,:root:not([data-theme="amoled"]) .app-shell .progress-track>span,:root:not([data-theme="amoled"]) .app-shell .progress-bar>span{background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 65%,white));box-shadow:0 0 9px color-mix(in srgb,var(--accent) 34%,transparent)}
+:root[data-theme="paper"] .app-shell button:not(.theme-option){box-shadow:0 2px 5px rgba(65,55,35,.08)}
+:root[data-theme="cyberpunk"] .app-shell button:not(.theme-option):not(:disabled):hover,:root[data-theme="techno"] .app-shell button:not(.theme-option):not(:disabled):hover{box-shadow:0 0 0 1px var(--accent),0 0 18px color-mix(in srgb,var(--accent) 24%,transparent)}
+:root[data-theme="forest"] .app-shell button:not(.theme-option):not(:disabled):hover,:root[data-theme="verdant"] .app-shell button:not(.theme-option):not(:disabled):hover{box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 17%,transparent)}
+:root[data-theme="ocean"] .app-shell button:not(.theme-option):not(:disabled):hover,:root[data-theme="abyss"] .app-shell button:not(.theme-option):not(:disabled):hover{box-shadow:0 0 16px color-mix(in srgb,var(--accent) 20%,transparent)}
+@media(prefers-reduced-motion:reduce){:root:not([data-theme="amoled"]) .app-shell button,:root:not([data-theme="amoled"]) .app-shell [role="button"],:root:not([data-theme="amoled"]) .app-shell input[type="radio"]{transition:none}}
