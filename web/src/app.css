@@ -1454,3 +1454,48 @@ progress::-webkit-progress-value{background:linear-gradient(90deg,var(--accent),
 progress::-moz-progress-bar{background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 62%,white));border-radius:999px}
 .meter,.career-performance-meter,.progress-track,.progress-bar,[role="progressbar"]{border-radius:999px;overflow:hidden}
 .meter span,.career-performance-meter span,.progress-track>span,.progress-bar>span{border-radius:inherit}
+
+
+/* Keep the game chrome stationary; only the active page content scrolls. */
+html:has(.app-shell .main-layout),
+body:has(.app-shell .main-layout){
+  height:100%;
+  overflow:hidden;
+}
+body:has(.app-shell .main-layout){height:100dvh}
+.app-shell:has(.main-layout){
+  height:100vh;
+  height:100dvh;
+  min-height:0;
+  overflow:hidden;
+}
+.app-shell:has(.main-layout)>.topbar{
+  flex:0 0 auto;
+}
+.app-shell:has(.main-layout)>.main-layout{
+  flex:1 1 0;
+  min-height:0;
+  overflow:hidden;
+}
+.app-shell:has(.main-layout)>.main-layout>.content{
+  min-height:0;
+  height:100%;
+  overflow-y:auto;
+  overscroll-behavior-y:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-gutter:stable;
+}
+.app-shell:has(.main-layout)>.footer{flex:0 0 auto}
+@media(max-width:620px){
+  .app-shell:has(.main-layout)>.main-layout{
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+    padding:13px 0 calc(96px + env(safe-area-inset-bottom));
+  }
+  .app-shell:has(.main-layout)>.main-layout>.content{
+    flex:1 1 auto;
+    width:100%;
+    max-width:none;
+  }
+}
