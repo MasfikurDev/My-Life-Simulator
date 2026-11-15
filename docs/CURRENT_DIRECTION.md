@@ -100,3 +100,10 @@ Top-level Life contains the modular Lifestyle experience: **Supermarket, Subscri
 ## Change-control rule
 
 When a newer explicit decision conflicts with an older document, this file records the current direction. Update the older canonical section and its acceptance criteria when next touching that area; do not revive superseded UX or mechanics from historical notes. Before implementing a feature, inspect the current code and tests and label it **implemented**, **partially implemented**, or **planned** accurately.
+
+
+## Mobile shell and theme-pattern correction
+- On phone layouts, use one vertical scroll owner for the page content below the persistent game header. Do not nest a full-height, independently scrolling content element inside an overflow-hidden main layout; this creates a clipped horizontal cutout at the bottom of long pages.
+- Keep the bottom navigation fixed and visible. Reserve bottom scroll padding for both the navigation and the floating Advance action, including the device safe-area inset. The final content item must be fully reachable.
+- Decorative patterns are reserved for focal feature surfaces. Generic cards and product tiles stay visually quiet; theme identity is expressed through palette, geometry, surface finish, borders, shadows, and a limited signature pattern on focal panels.
+- All 17 themes must remain available. Pattern intensity and repetition must not obscure content or make every component in a theme look identical. Respect reduced-motion preferences.
