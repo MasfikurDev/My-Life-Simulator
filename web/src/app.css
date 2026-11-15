@@ -1498,4 +1498,5 @@ body:has(.app-shell .main-layout){height:100dvh}
     width:100%;
     max-width:none;
   }
+  .app-shell:has(.side-nav)>.footer{display:none}
 }
