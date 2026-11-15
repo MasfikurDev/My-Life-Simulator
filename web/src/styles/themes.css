@@ -234,3 +234,99 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
   :root[data-theme="crimson"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.weekly-finance-source,.weekly-finance-totals>div,.character-profile-flow,.education-enrol-panel,.education-subject,.title-menu-button,.title-submenu button),
   :root[data-theme="solstice"] .app-shell :where(.ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,.game-event-panel,.weekly-finance-source,.weekly-finance-totals>div,.character-profile-flow,.education-enrol-panel,.education-subject,.title-menu-button,.title-submenu button){animation:none!important}
 }
+
+
+/* Theme-specific button language: keep shared sizing and behavior, vary the visual character. */
+:root[data-theme="cyberpunk"] .app-shell :where(.primary-button,.hero-button,.advance-fab){
+  border:1px solid color-mix(in srgb,var(--accent) 78%,white);border-radius:5px;
+  background:linear-gradient(120deg,#ff4fd8 0%,#c43bff 55%,#4bdff2 125%);color:#10091c;
+  box-shadow:inset 0 1px rgba(255,255,255,.3),0 0 0 1px rgba(255,79,216,.16),0 0 17px rgba(255,79,216,.2);
+  letter-spacing:.035em;text-shadow:0 1px rgba(255,255,255,.12);
+}
+:root[data-theme="cyberpunk"] .app-shell :where(.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle,.save-slot-actions button){
+  border:1px solid color-mix(in srgb,var(--blue) 58%,var(--line));border-radius:5px;
+  background:linear-gradient(145deg,rgba(85,201,255,.09),rgba(255,79,216,.045)),var(--surface-raised);color:var(--text);
+  box-shadow:inset 0 1px rgba(255,255,255,.045);
+}
+:root[data-theme="cyberpunk"] .app-shell .danger-button{border-color:color-mix(in srgb,var(--danger) 70%,var(--line));background:linear-gradient(135deg,#4b1b39,#281426);color:#ff91b5}
+:root[data-theme="cyberpunk"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):hover{
+  border-color:var(--accent);filter:brightness(1.12);box-shadow:inset 0 1px rgba(255,255,255,.12),0 0 0 1px rgba(255,79,216,.22),0 0 22px rgba(57,230,242,.17);
+}
+:root[data-theme="cyberpunk"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):active{transform:translateY(1px) scale(.985)}
+
+:root[data-theme="obsidian"] .app-shell :where(.primary-button,.hero-button,.advance-fab){
+  border:1px solid #e4ca8b;border-radius:9px;background:linear-gradient(155deg,#f0dfb4 0%,#d0b16e 48%,#a98545 100%);color:#211b10;
+  box-shadow:inset 0 1px rgba(255,255,255,.55),inset 0 -1px rgba(80,56,19,.2),0 5px 14px rgba(0,0,0,.25);
+  letter-spacing:.015em;
+}
+:root[data-theme="obsidian"] .app-shell :where(.secondary-button,.icon-button,.reroll-button,.setting-toggle,.save-slot-actions button){
+  border:1px solid #6e624b;border-radius:9px;background:linear-gradient(180deg,#292823,#19191a);color:#e6d5ae;
+  box-shadow:inset 0 1px rgba(255,255,255,.055),0 2px 5px rgba(0,0,0,.2);
+}
+:root[data-theme="obsidian"] .app-shell .danger-button{border:1px solid #9a6158;border-radius:9px;background:linear-gradient(145deg,#482925,#2c1918);color:#f0aaa0}
+:root[data-theme="obsidian"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):hover{
+  border-color:#e5c982;filter:brightness(1.09);box-shadow:inset 0 1px rgba(255,255,255,.12),0 5px 16px rgba(0,0,0,.32),0 0 0 1px rgba(214,184,117,.12);
+}
+:root[data-theme="obsidian"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):active{transform:translateY(1px)}
+
+:root[data-theme="abyss"] .app-shell :where(.primary-button,.hero-button,.advance-fab){
+  border:1px solid #75dcf4;border-radius:999px;background:linear-gradient(115deg,#8ce8f5 0%,#4cc9f0 48%,#218bb9 100%);color:#06131d;
+  box-shadow:inset 0 1px rgba(255,255,255,.42),0 5px 16px rgba(16,137,180,.22);
+}
+:root[data-theme="abyss"] .app-shell :where(.secondary-button,.icon-button,.reroll-button,.setting-toggle,.save-slot-actions button){
+  border:1px solid #326b83;border-radius:999px;background:linear-gradient(145deg,rgba(76,201,240,.12),rgba(10,27,41,.94));color:#bdefff;
+  box-shadow:inset 0 1px rgba(255,255,255,.06);
+}
+:root[data-theme="abyss"] .app-shell .danger-button{border:1px solid #98556a;border-radius:999px;background:linear-gradient(145deg,#472337,#261725);color:#ffb0c0}
+:root[data-theme="abyss"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):hover{
+  border-color:#8ce8f5;filter:brightness(1.1);box-shadow:inset 0 1px rgba(255,255,255,.13),0 0 0 3px rgba(76,201,240,.09),0 7px 20px rgba(16,137,180,.2);
+}
+:root[data-theme="abyss"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):active{transform:scale(.98)}
+
+:root[data-theme="verdant"] .app-shell :where(.primary-button,.hero-button,.advance-fab){
+  border:1px solid #c8eca0;border-radius:13px 7px 13px 7px;background:linear-gradient(135deg,#c7e99b 0%,#9bce6b 52%,#6d9f4d 100%);color:#10200f;
+  box-shadow:inset 0 1px rgba(255,255,255,.4),0 5px 15px rgba(93,145,67,.2);
+}
+:root[data-theme="verdant"] .app-shell :where(.secondary-button,.icon-button,.reroll-button,.setting-toggle,.save-slot-actions button){
+  border:1px solid #4e7953;border-radius:11px 6px 11px 6px;background:linear-gradient(145deg,rgba(139,213,162,.09),var(--surface-raised));color:#d5efce;
+}
+:root[data-theme="verdant"] .app-shell .danger-button{border:1px solid #a65e58;border-radius:11px 6px 11px 6px;background:linear-gradient(145deg,#492722,#2b1b18);color:#f0aaa0}
+:root[data-theme="verdant"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):hover{
+  border-color:#b1df78;filter:brightness(1.08);box-shadow:inset 0 1px rgba(255,255,255,.12),0 0 0 3px rgba(177,223,120,.08),0 7px 17px rgba(0,0,0,.2);
+}
+:root[data-theme="verdant"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):active{transform:translateY(1px) scale(.99)}
+
+:root[data-theme="crimson"] .app-shell :where(.primary-button,.hero-button,.advance-fab){
+  border:1px solid #ff9aa5;border-radius:7px 14px 7px 14px;background:linear-gradient(125deg,#ff8993 0%,#ed536d 54%,#b92e50 100%);color:#260b13;
+  box-shadow:inset 0 1px rgba(255,255,255,.32),0 5px 17px rgba(196,45,78,.23);
+}
+:root[data-theme="crimson"] .app-shell :where(.secondary-button,.icon-button,.reroll-button,.setting-toggle,.save-slot-actions button){
+  border:1px solid #713747;border-radius:7px 12px 7px 12px;background:linear-gradient(145deg,rgba(255,100,124,.1),var(--surface-raised));color:#ffdce2;
+}
+:root[data-theme="crimson"] .app-shell .danger-button{border:1px solid #e77b82;border-radius:7px 12px 7px 12px;background:linear-gradient(135deg,#642532,#3a1722);color:#ffb6bd}
+:root[data-theme="crimson"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):hover{
+  border-color:#ff9aa5;filter:brightness(1.1);box-shadow:inset 0 1px rgba(255,255,255,.13),0 0 0 3px rgba(255,100,124,.09),0 7px 19px rgba(0,0,0,.22);
+}
+:root[data-theme="crimson"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):active{transform:translateY(1px) scale(.99)}
+
+:root[data-theme="solstice"] .app-shell :where(.primary-button,.hero-button,.advance-fab){
+  border:1px solid #ffda9a;border-radius:14px;background:linear-gradient(130deg,#ffd18a 0%,#ffb45f 48%,#d87943 100%);color:#2b170c;
+  box-shadow:inset 0 1px rgba(255,255,255,.42),0 5px 17px rgba(224,126,58,.22);
+}
+:root[data-theme="solstice"] .app-shell :where(.secondary-button,.icon-button,.reroll-button,.setting-toggle,.save-slot-actions button){
+  border:1px solid #76503b;border-radius:12px;background:linear-gradient(145deg,rgba(255,180,95,.11),var(--surface-raised));color:#ffe5c7;
+  box-shadow:inset 0 1px rgba(255,255,255,.045);
+}
+:root[data-theme="solstice"] .app-shell .danger-button{border:1px solid #a65f54;border-radius:12px;background:linear-gradient(145deg,#542b25,#321b1a);color:#ffc0b2}
+:root[data-theme="solstice"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):hover{
+  border-color:#ffda9a;filter:brightness(1.09);box-shadow:inset 0 1px rgba(255,255,255,.15),0 0 0 3px rgba(255,180,95,.09),0 7px 20px rgba(0,0,0,.22);
+}
+:root[data-theme="solstice"] .app-shell :where(.primary-button,.hero-button,.advance-fab,.secondary-button,.danger-button,.icon-button,.reroll-button,.setting-toggle):not(:disabled):active{transform:translateY(1px) scale(.99)}
+
+/* Keep the existing keyboard focus ring and disabled treatment above theme decoration. */
+:root[data-theme="cyberpunk"] .app-shell button:focus-visible,
+:root[data-theme="obsidian"] .app-shell button:focus-visible,
+:root[data-theme="abyss"] .app-shell button:focus-visible,
+:root[data-theme="verdant"] .app-shell button:focus-visible,
+:root[data-theme="crimson"] .app-shell button:focus-visible,
+:root[data-theme="solstice"] .app-shell button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
