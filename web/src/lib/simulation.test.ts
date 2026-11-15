@@ -512,8 +512,12 @@ describe('life simulation', () => {
     const candidate = {
       ...createCharacter('Candidate', 30),
       intelligence: 90,
+      discipline: 100,
+      confidence: 100,
       education: 'Higher education',
       careerExperienceYears: 5,
+      careerPathId: 'operations' as const,
+      skills: { operations: 100 },
       currencyScale: 1
     };
     const listing = getJobListings(candidate).find((item) => {
