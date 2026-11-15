@@ -57,13 +57,13 @@
 
 /* Expanded visual themes: each theme has its own surface and accent identity. */
 :root[data-theme="cyberpunk"]{
-  color-scheme:dark;--on-accent:#10091c;--bg:#090713;--surface:#130e22;--surface-raised:#201432;--surface-hover:#2b1a40;
+  color-scheme:dark;--on-accent:#04131a;--bg:#090713;--surface:#130e22;--surface-raised:#201432;--surface-hover:#2b1a40;
   --line:#47245d;--line-strong:#71328a;--text:#f8edff;--muted:#c4a8d6;--subtle:#9270aa;
-  --accent:#ff4fd8;--accent-strong:#d72db4;--accent-soft:#3a1741;--green:#4fffe0;--green-dark:#123b3b;--mint:#4fffe0;
-  --coral:#ff6e9e;--blue:#55c9ff;--amber:#ffd166;--danger:#ff6e9e;--danger-soft:#421b35;
+  --accent:#39dce9;--accent-strong:#16b9d0;--accent-soft:#10313e;--accent-secondary:#ff4fd8;--green:#4fffe0;--green-dark:#123b3b;--mint:#4fffe0;
+  --coral:#ff6e9e;--blue:#55c9ff;--amber:#ffd166;--danger:#e87886;--danger-soft:#3a1c2c;
   --shadow-color:#03020a;--illustration-deep:#160d25;--illustration-mid:#2a1640;--illustration-light:#4a2260;
   --success-soft:#123b35;--info-soft:#172d4b;--success:#4fffe0;--warning:#ffd166;--warning-soft:#3c2b18;--info:#55c9ff;
-  --shadow-card:0 8px 28px rgba(0,0,0,.38),0 0 20px rgba(255,79,216,.08);
+  --shadow-card:0 8px 28px rgba(0,0,0,.38),0 0 20px color-mix(in srgb,var(--accent-secondary) 8%,transparent);
 }
 :root[data-theme="obsidian"]{
   color-scheme:dark;--on-accent:#17120a;--bg:#0b0b0d;--surface:#151518;--surface-raised:#202024;--surface-hover:#2b2b30;
