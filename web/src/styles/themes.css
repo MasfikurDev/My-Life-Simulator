@@ -664,3 +664,79 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
 @media(prefers-reduced-motion:reduce){
   :root[data-theme] .app-shell :where(.health-care-card,.market-product,.owned-item,.relative-card,.life-tree .branch-card){transition:none}
 }
+
+
+/* Pattern restraint: decorative motion belongs to focal surfaces, not every card. */
+:root[data-theme] .app-shell :where(
+  .ui-card,[class*="-card"],.info-panel,.settings-section,.profile-settings-group,
+  .game-event-panel,.weekly-finance-source,.weekly-finance-totals>div,
+  .character-profile-flow,.education-enrol-panel,.education-subject,
+  .title-menu-button,.title-submenu button,.market-product,.owned-item,
+  .relative-card,.health-care-card,.family-panel,.life-overview-panel,
+  .market-section,.service-section,.provider-card,.owned-service,.life-tree .branch-card
+):not(.event-card-header):not(.hero-card):not(.weekly-finance-card):not(.money-focus):not(.game-event-panel){
+  background-image:var(--panel-wash,none)!important;
+  background-repeat:no-repeat!important;background-size:100% 100%!important;animation:none!important;
+}
+:root[data-theme] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel){position:relative;isolation:isolate;background-image:var(--panel-wash,linear-gradient(145deg,var(--surface-raised),var(--surface)))!important}
+:root[data-theme] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.28;
+  border-radius:inherit;background-repeat:repeat;
+}
+:root[data-theme] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)>*{position:relative;z-index:1}
+:root[data-theme="amoled"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  opacity:.12;background:radial-gradient(circle at 85% 15%,var(--accent) 0 1px,transparent 1.5px);background-size:28px 28px
+}
+:root[data-theme="midnight"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:repeating-linear-gradient(90deg,transparent 0 34px,color-mix(in srgb,var(--accent) 9%,transparent) 35px,transparent 36px 68px)
+}
+:root[data-theme="graphite"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:linear-gradient(115deg,transparent 0 42%,rgba(210,205,225,.08) 50%,transparent 58%)
+}
+:root[data-theme="paper"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  opacity:.22;background:radial-gradient(ellipse at 12% 0%,rgba(115,95,55,.12),transparent 62%)
+}
+:root[data-theme="ocean"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:radial-gradient(ellipse at 85% 110%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 42%),radial-gradient(ellipse at 10% 0%,color-mix(in srgb,var(--blue) 12%,transparent),transparent 38%)
+}
+:root[data-theme="forest"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:repeating-linear-gradient(68deg,transparent 0 38px,color-mix(in srgb,var(--accent) 8%,transparent) 39px,transparent 40px 78px)
+}
+:root[data-theme="lavender"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:repeating-radial-gradient(ellipse at 100% 0%,transparent 0 28px,color-mix(in srgb,var(--accent) 8%,transparent) 29px,transparent 30px 58px)
+}
+:root[data-theme="sunset"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:linear-gradient(0deg,transparent 0 62%,color-mix(in srgb,var(--accent) 10%,transparent) 63% 64%,transparent 65%),linear-gradient(180deg,transparent 0 78%,color-mix(in srgb,var(--amber) 9%,transparent) 79% 80%,transparent 81%)
+}
+:root[data-theme="rose"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:radial-gradient(circle,color-mix(in srgb,var(--accent) 13%,transparent) 1px,transparent 1.8px);background-size:19px 19px
+}
+:root[data-theme="techno"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:linear-gradient(90deg,transparent 49.5%,color-mix(in srgb,var(--accent) 10%,transparent) 50%,transparent 50.5%),linear-gradient(0deg,transparent 49.5%,color-mix(in srgb,var(--accent-secondary) 9%,transparent) 50%,transparent 50.5%);background-size:32px 32px
+}
+:root[data-theme="aurora"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:radial-gradient(ellipse at 18% 20%,rgba(145,105,245,.2),transparent 44%),radial-gradient(ellipse at 82% 78%,rgba(75,220,180,.15),transparent 40%)
+}
+:root[data-theme="cyberpunk"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:linear-gradient(90deg,transparent 0 84%,color-mix(in srgb,var(--accent-secondary) 22%,transparent) 84.2% 84.8%,transparent 85%),linear-gradient(0deg,transparent 0 72%,color-mix(in srgb,var(--accent) 18%,transparent) 72.2% 72.8%,transparent 73%)
+}
+:root[data-theme="obsidian"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:linear-gradient(112deg,transparent 0 36%,rgba(255,255,255,.045) 44%,rgba(214,184,117,.12) 49%,transparent 56% 100%);
+  background-size:220% 100%;animation:obsidian-focal-sheen 20s ease-in-out infinite alternate
+}
+@keyframes obsidian-focal-sheen{to{background-position:-120% 0}}
+:root[data-theme="abyss"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:repeating-radial-gradient(ellipse at 0% 100%,transparent 0 24px,color-mix(in srgb,var(--accent) 10%,transparent) 25px,transparent 26px 52px)
+}
+:root[data-theme="verdant"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:linear-gradient(35deg,transparent 0 44%,color-mix(in srgb,var(--accent) 9%,transparent) 45%,transparent 46%),linear-gradient(145deg,transparent 0 68%,color-mix(in srgb,var(--accent-secondary) 8%,transparent) 69%,transparent 70%)
+}
+:root[data-theme="crimson"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:linear-gradient(155deg,transparent 0 38%,rgba(255,125,134,.13) 39% 40%,transparent 41% 100%),linear-gradient(25deg,transparent 0 74%,rgba(255,100,124,.08) 75% 76%,transparent 77%)
+}
+:root[data-theme="solstice"] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{
+  background:repeating-conic-gradient(from 235deg at 100% 0%,transparent 0deg 18deg,rgba(255,210,126,.08) 19deg 20deg,transparent 21deg 38deg)
+}
+@media(prefers-reduced-motion:reduce){
+  :root[data-theme] .app-shell :where(.hero-card,.weekly-finance-card,.money-focus,.game-event-panel)::after{animation:none!important}
+}

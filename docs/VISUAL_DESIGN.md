@@ -128,3 +128,12 @@ Do not render multiple controls or components for the same action or destination
 - Profile presents core attributes first and secondary attributes through disclosure. Relationship cards prioritize closeness and disclose trust/tension separately without removing access to either metric.
 - Supermarket category navigation is a horizontally scrollable, keyboard-focusable rail with 44px minimum touch targets and a programmatically exposed selected state.
 - Avoid repeated subscription counts and maintain semantic heading order in the Life Story and Profile screens.
+
+
+## Pattern and surface hierarchy (2026-11-15)
+- Decorative patterns are not a universal card background. Most product, relationship, settings, profile, and information cards use quiet surfaces with theme-specific tint, shape, border, and elevation.
+- Animated or high-contrast patterns are reserved for focal surfaces such as the hero, weekly finance feature, money focus, and major life-event panel. Do not apply the same pattern to every card in a workspace.
+- Each theme has a distinct visual vocabulary (geometry, texture, light behavior, and motion), not merely a different accent color. Within a theme, vary emphasis by component role; do not duplicate the focal pattern across adjacent cards.
+- Theme motion must remain low-contrast, lightweight, and disabled by prefers-reduced-motion. Text, prices, controls, and focus indicators always take precedence over decoration.
+- Theme selection previews should communicate surface and geometry differences as well as accent color. Preserve all 17 themes and their existing palette identities.
+- Mobile gameplay uses a single page-level scroll container below the persistent header. The bottom navigation and Advance action remain fixed, and the content scroll region reserves enough space for both so the final cards and controls are reachable.
