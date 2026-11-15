@@ -167,6 +167,18 @@ A game event uses a stable ID, eligibility conditions, narrative, choices, costs
 - Advancing without choosing explicitly lets the situation pass and records that outcome. It does not spend an action or silently grant benefits.
 - The Home overview shows the current situation and recent year recap. This is an initial event loop, not yet the complete year-planning/review interface or a broad event engine.
 
+
+
+### Age-aware narrative events and choice dialogs (planned)
+
+The event catalogue must span the complete life course, beginning with a birth/arrival introduction at age 0 in standard New Game. The opening event establishes only facts present in generated character, origin, family and household state. It is not a newborn decision prompt.
+
+Agency is age-appropriate: parents, guardians or responsible adults make relevant early-childhood decisions; the player gradually assumes decisions as the character matures. Eligibility must use actual age/date, life stage and contextual domain state. Event content should cover infancy, childhood, adolescence, young adulthood, adulthood and later life without assuming that every character follows the same path or has a partner, children, particular family structure, wealth, education or health condition.
+
+Weekly choice dialogs are a focused presentation layer over the existing event engine. Important events open one accessible dialog at a time, with context, involved people, known costs, requirements, likely outcomes and material risks. Informational milestones and events with one suitable response are valid; choices must be genuinely distinct when multiple options are offered. Consequential irreversible decisions may use a separate confirmation. Planned actions remain in the existing weekly plan; event handling must not create a second resource/action system. Pending events, deadlines, expiry, decisions and linked follow-ups persist and appear in chronological history. Quiet weeks remain quiet.
+
+**Status boundary:** the current engine has only the initial school reading group (6–17), adult side project (18–64), and low-health wellbeing check-in (35+) event slice, plus pending-choice persistence, cost validation, expiry and next-year follow-up. The birth introduction, guardian-mediated childhood choices, broad life-stage catalogue, and queued weekly dialog UI are planned, not implemented. See [GAMEPLAY_LOOP.md](GAMEPLAY_LOOP.md) for the full behavior and acceptance tests.
+
 ## Simulation rules
 - Actions consume a communicated resource, usually time, money, or energy.
 - Attribute changes have sensible bounds.
