@@ -224,3 +224,24 @@ Every milestone needs a playable outcome and acceptance criteria. Avoid parallel
 - [ ] Test contrasting scenarios: financially constrained student, working adult saving toward stability, and affluent character choosing higher-quality living.
 
 **Acceptance:** Money has meaningful short-, medium-, and long-term value. Cheaper options remain viable but carry understandable trade-offs; better-quality options provide grounded benefits at proportionate prices; purchases are recorded atomically and cannot bypass available-funds rules.
+
+
+## Milestone — Age-aware life events and weekly choice dialogs
+
+**Goal:** Make narrative events a continuous, age-appropriate part of the character's life from birth onward, with a clear weekly dialog experience for situations that need player attention.
+
+**Current foundation (partially implemented):** the event engine has three initial authored events (school reading group ages 6–17, adult side project ages 18–64, and a low-health wellbeing check-in from age 35), pending-choice persistence, simulation-side cost validation, history, expiry and scheduled next-year follow-up. This is not yet a full life-event system or dedicated weekly dialog flow.
+
+**Planned work**
+- [ ] Add the age-0 birth/arrival introduction to standard New Game, grounded in generated character, origin, family and household facts.
+- [ ] Add age-appropriate event eligibility and content across infancy, toddler years, childhood, adolescence, young adulthood, adulthood and later life.
+- [ ] Implement guardian/responsible-adult agency for infancy and early childhood; gradually shift decision ownership to the player as the character matures.
+- [ ] Build a focused weekly event/choice dialog that presents important events one at a time, with clear context, involved people, costs, requirements, likely outcomes and material risks.
+- [ ] Support informational milestones and single-response events without forcing fake multi-option choices.
+- [ ] Add confirmation only for consequential, irreversible decisions; keep ordinary choices direct.
+- [ ] Integrate planned event actions with the existing weekly activity plan and simulation-side validation. Do not add a second action quota, timetable, wallet or stamina system.
+- [ ] Persist queued/pending events, deadlines, expiry, decisions and linked follow-ups across save/load; record each outcome once in Life History.
+- [ ] Prioritize events by urgency and relevance, apply cooldowns/category balance, and allow quiet weeks without filler popups.
+- [ ] Test age/date boundaries, family variations, eligibility, event sequencing, save/load, expiry, follow-up, narrow mobile dialogs, keyboard/focus behavior and reduced motion.
+
+**Acceptance:** standard age-0 New Game begins with a truthful birth/arrival event; children never receive adult-agency choices; relevant events appear at the right ages and circumstances; multiple events are presented one at a time; choices have visible costs and material consequences; quiet weeks remain quiet; all outcomes are deterministic, persistent and auditable. Full design and test rules: [GAMEPLAY_LOOP.md](GAMEPLAY_LOOP.md).

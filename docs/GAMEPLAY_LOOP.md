@@ -244,6 +244,57 @@ Do not repeat all financial account details or all school/work details. Link to 
 
 The player explicitly confirms **Start next week**. The simulation resolves the week once, in a deterministic order, then displays a concise recap with the most important outcomes and their causes. The recap is based on actual simulation effects, not UI guesses.
 
+
+
+### 3.3.1 Age-aware life events and weekly choice dialogs (planned)
+
+**Product decision:** the event system must cover the character's life from birth onward. It must not begin only when the character reaches school age or adulthood. Standard New Game begins at age 0, and its first authored narrative beat is a birth/arrival event that establishes the character's real starting circumstances.
+
+The birth event is an introductory, context-setting event—not a conventional player dilemma. A newborn does not make decisions. It introduces the character, birthplace/origin, parents or guardians, household and relevant birth circumstances using the generated character and family state. It must not invent a partner, parent, sibling, wealth level, medical condition, or other unsupported fact. If the starting family configuration is limited or unusual, the event must reflect that accurately.
+
+**Age and agency rules**
+- Event eligibility is derived from the character's actual age on the current game date and the current life stage, not merely the number of weeks played.
+- Age bands are content guidance, not hard-coded assumptions that every person follows an identical life. Use the existing education, family, household, country, health, finance, relationship, and history state to determine relevance.
+- Age 0 events establish birth and initial circumstances. During infancy and early childhood, choices that require agency belong to a parent/guardian or responsible adult and must be presented as such. Do not attribute adult intentions, consent, or decisions to an infant or young child.
+- As the character matures, the player gradually becomes the decision-maker. The transition must be contextually appropriate and must not abruptly grant adult agency to a child.
+- Childhood, adolescence, adulthood, and later-life event pools should reflect age-appropriate opportunities, responsibilities, relationships, risks, and language. A teen may receive school, friendship, independence and early relationship situations; adult employment, independent housing, marriage or parenthood events require their own actual eligibility conditions.
+- Later-life events may address retirement, changing health, caregiving, family milestones and legacy only when the corresponding systems and state exist.
+
+**Narrative coverage (planned content direction, not a claim that these events are implemented):**
+- Birth / age 0: arrival, family introduction, origin and starting circumstances.
+- Infancy / toddler years: care arrangements, early milestones, health visits and family circumstances.
+- Childhood: school entry, learning, hobbies, friendships, family activities and age-appropriate challenges.
+- Adolescence: academic direction, peer relationships, interests, growing independence and family boundaries.
+- Young adulthood: education transitions, first work, financial independence, housing, relationships and major opportunities.
+- Adulthood: career changes, partnership, parenthood where applicable, household finances, business, care responsibilities and unexpected events.
+- Later life: retirement, health and care, family milestones, changing independence, estate choices and legacy where supported.
+
+**Weekly dialog presentation**
+- The weekly event system is the presentation and interaction layer over the event simulation model; it does not replace domain-owned screens or the unified weekly activity plan.
+- Important events requiring player attention open a focused, accessible choice dialog. The dialog explains why the event is relevant now, the people involved, known costs/requirements, likely directions and material risks.
+- Choices must distinguish player decisions from guardian/responsible-adult decisions. Display affordability and eligibility from simulation results; never rely on UI-only validation.
+- A consequential choice may require a separate confirmation step that restates its irreversible cost or commitment. Do not add redundant confirmation to ordinary, reversible, low-impact actions.
+- Some events are informational milestones with no choice. Some offer one appropriate response; others offer multiple genuinely distinct choices. Do not manufacture fake choices to fill a dialog.
+- Events that can be planned as activities must integrate with the existing weekly plan; immediate choices remain immediate only when the event definition explicitly permits it. Event dialogs must not introduce a second action quota, timetable, wallet or stamina budget.
+- Unresolved events, deadlines and follow-ups must remain persistent across save/load. The player must not avoid expiry indefinitely by leaving a dialog open.
+- Queue multiple events by priority and relevance. Never stack several modal dialogs at once. After resolving or dismissing one, present the next eligible event at a clear transition point.
+- Quiet weeks remain valid. Do not force an event every week or flood the player with low-value popups. Use frequency limits, cooldowns, uniqueness and event-category balance.
+- Record event presentation, chosen response, missed/expired outcome and meaningful consequences in chronological history. Delayed consequences must link back to the originating event and choice.
+
+**Implementation status:** the existing event engine is an initial partial slice, not this complete age-aware system. Current authored events are a school reading group (ages 6–17), an adult side project (ages 18–64), and a wellbeing check-in (age 35+ when health is 60 or lower). The current save can hold a pending event and choice, validate costs, record history, expire unresolved events and schedule a next-year follow-up. Birth/age-0 introduction, infant/child guardian agency, broad age-stage event coverage, and a dedicated queued weekly dialog experience are not implemented yet.
+
+**Acceptance tests**
+1. A standard age-0 New Game receives a birth/arrival introduction based only on generated, persisted facts.
+2. A newborn never receives a choice that implies they can personally consent, spend money, attend school or make adult decisions.
+3. A guardian-mediated choice identifies the responsible adult and validates the actual family/guardian state.
+4. An age-ineligible event cannot be selected even if the UI is bypassed.
+5. Age changes on the character's birthday and unlocks only events whose complete eligibility conditions are met.
+6. Different starting family, country, household, health and financial circumstances produce appropriately different event context without fabricated facts.
+7. Multiple pending events are prioritized and presented one at a time; quiet weeks do not generate filler dialogs.
+8. Event choice, expiry, follow-up and save/load behavior are deterministic, persistent and recorded once.
+9. Event costs and likely consequences are visible before selection; rejected choices leave the complete prior state unchanged.
+10. Dialogs work with keyboard and assistive technology, preserve focus, respect reduced motion and remain usable on narrow mobile screens.
+
 ### 3.4 Monthly and yearly rhythms
 
 **Monthly layer**

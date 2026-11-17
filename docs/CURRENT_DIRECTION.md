@@ -107,3 +107,12 @@ When a newer explicit decision conflicts with an older document, this file recor
 - Keep the bottom navigation fixed and visible. Reserve bottom scroll padding for both the navigation and the floating Advance action, including the device safe-area inset. The final content item must be fully reachable.
 - Decorative patterns are reserved for focal feature surfaces. Generic cards and product tiles stay visually quiet; theme identity is expressed through palette, geometry, surface finish, borders, shadows, and a limited signature pattern on focal panels.
 - All 17 themes must remain available. Pattern intensity and repetition must not obscure content or make every component in a theme look identical. Respect reduced-motion preferences.
+
+
+## Age-aware life events and weekly choice dialogs
+- The narrative event system must begin at age 0. Standard New Game opens with a birth/arrival introduction grounded in generated character, origin, family and household data; a newborn is never asked to make decisions.
+- Event eligibility follows actual age/date, life stage and relevant domain state. Early-childhood decisions are made by an appropriate parent/guardian/responsible adult; player agency increases gradually as the character matures.
+- Build age-appropriate event content from infancy through later life. Do not assume a standard family structure, education path, relationship status, health condition or financial situation.
+- Important weekly events use a focused, accessible, one-at-a-time choice dialog. Show context, involved people, known costs, requirements, likely outcomes and material risks. Informational events and single-response situations are allowed; do not fabricate choices.
+- Keep event actions integrated with the existing weekly plan and simulation validation. Persist pending events, deadlines, outcomes and follow-ups; record consequences in Life History. Quiet weeks remain quiet.
+- Status: the existing three-event catalogue and pending-choice/expiry/follow-up mechanics are only an initial event-engine slice. Birth introduction, guardian-mediated child decisions, full age-stage coverage and the dedicated queued weekly dialog experience remain planned.
