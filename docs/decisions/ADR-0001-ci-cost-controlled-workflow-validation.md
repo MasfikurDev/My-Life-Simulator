@@ -1,10 +1,10 @@
 # ADR-0001: Cost-controlled workflow validation
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0002: Restore full pull-request validation](ADR-0002-restore-full-pull-request-validation.md)
 - **Date:** 2026-11-18
 - **Decision owners / approval:** Direct user request, implemented in [PR #174](https://github.com/MasfikurDev/My-Life-Simulator/pull/174)
 - **Supersedes:** None
-- **Superseded by:** None
+- **Superseded by:** [ADR-0002: Restore full pull-request validation](ADR-0002-restore-full-pull-request-validation.md)
 
 ## Context
 

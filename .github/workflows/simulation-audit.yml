@@ -1,0 +1,45 @@
+name: Long simulation audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch or commit to run the long simulation audit against
+        required: true
+        default: main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "web/src/lib/**"
+      - "web/package.json"
+      - "web/package-lock.json"
+      - ".github/workflows/simulation-audit.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: simulation-audit-${{ github.event.pull_request.number || inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Check out simulation scenarios
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || inputs.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund --no-progress
+      - name: Run long simulation suite
+        run: npm run test:simulation -- --reporter=dot

@@ -10,34 +10,45 @@
 - Web-only changes do not require rebuilding or reinstalling the APK; the wrapper receives the latest published web app on a fresh launch.
 - Android wrapper/workflow changes trigger an Android APK build.
 
-## Web validation and deployment
+## Web workflow
 
 Workflow: `.github/workflows/web.yml`
 
-- Triggers for web changes and workflow changes on PRs and pushes to `main`; manual dispatch remains available.
-- Draft PRs skip the validation job. Becoming ready for review triggers the full validation; subsequent commits validate normally. Converting a PR back to draft cancels an in-progress run.
-- Uses Node.js 22, locked dependencies via `npm ci`, and the existing npm cache.
-- Runs Svelte checking and the regular Vitest suite concurrently, then runs the production build.
-- Runs `npm run test:simulation` in the same job only when `web/src/lib/**`, the web package/lockfile, or the web workflow changes. Manual dispatch runs the long suite.
-- The simulation stress suite is still a separate test command, but no longer a separate workflow or dependency installation.
-- Uploads the Pages artifact only outside pull-request runs and deploys to GitHub Pages only from `main`, after validation succeeds.
-- Validation has read-only repository permissions. Pages write and OIDC permissions remain isolated to the deployment job.
-- Concurrency cancels obsolete runs for the same PR/ref.
-- Commands: `npm run check`, `npm test`, conditional `npm run test:simulation -- --reporter=dot`, and `npm run build:app`.
+- Triggers on pull requests and pushes to `main` when `web/**` or the workflow itself changes; also supports manual dispatch.
+- Every applicable PR update is validated, including draft PRs. Becoming ready for review also triggers validation.
+- Uses Node.js 22 and locked dependencies via `npm ci`.
+- Runs Svelte checks and the regular Vitest regression suite concurrently, then builds the production site.
+- Uploads the Pages artifact outside pull-request runs.
+- Deploys to GitHub Pages only from `main`, after validation succeeds.
+- Uses read-only repository contents permission, scoped Pages deployment permissions, path filters, and concurrency cancellation.
+- Web build command is `npm run build:app`; validation commands are `npm run check` and `npm test`.
 
-## Removed standalone workflows
+## Pull request safeguards
 
-- `.github/workflows/pr-guardrails.yml` was removed. File deletions are reviewed through the mandatory full-diff PR checklist and normal code review; deletion-specific checkbox enforcement is no longer an automated status check.
-- `.github/workflows/simulation-audit.yml` was removed. Its long simulation test remains in `web/package.json` and is invoked conditionally by `web.yml`.
-- The now-unreferenced `.github/scripts/check-pr-deletions.sh` was removed.
-- This consolidation intentionally removes two workflow runs/status checks and one independent deletion-only job. It does not remove the simulation stress tests or ordinary PR diff review.
+Workflow: `.github/workflows/pr-guardrails.yml`
+
+- Runs on every pull request open, update, reopen, ready-for-review transition, and edit; it is independent of web/Android path filters.
+- Checks the full base-to-head diff for deleted tracked files.
+- A PR that deletes tracked files fails this guard unless its body contains the checked `Intentional file deletions reviewed` checklist item. Check it only after reviewing the removed behavior, tests, and documentation. Renames detected by Git are not treated as deletions.
+- The repository PR template requires scope/preservation review, focused regression tests, cross-domain validation, simulation audit where relevant, UI verification, documentation, and disclosure of intentional removals.
+- The guard does not decide whether a code-level behavior removal inside an edited file is safe. Full diff review and regression tests remain required.
+
+## Long simulation audit
+
+Workflow: `.github/workflows/simulation-audit.yml`
+
+- The dedicated `test:simulation` command runs the deterministic long-running scenarios in `web/src/lib/simulation-stress.test.ts`.
+- The suite covers 52-week runs, deterministic replay, annual settlement, birthday/life-stage transition, age-diverse stat and cash bounds, and a planned action through the normal weekly resolver.
+- It runs automatically on PRs that change `web/src/lib/**`, the web package scripts/lockfile, or the audit workflow itself; manual dispatch is available for the exact branch/commit.
+- The workflow checks out the exact PR head commit for pull-request runs. Its default manual ref is `main`.
+- A green long-simulation result is evidence for these scenarios only; it does not replace focused tests for the changed mechanic or broader integration review.
 
 ## Android APK and beta publishing
 
 Workflow: `.github/workflows/android.yml`
 
 - Android-only path filters remain; web-only changes do not build an APK.
-- Draft PRs skip Android builds. Ready-for-review transitions and subsequent commits build normally.
+- Every applicable Android PR update is built and validated, including draft PRs.
 - Uses Java 17 and Gradle 8.11.1 with the existing Gradle cache/build cache.
 - The build job remains read-only. Persistent signing secrets are available only to the signing-preparation step and the single Gradle assemble step, and only for non-PR runs on `main`; unrelated steps never receive the secret values.
 - Pull-request builds generate a throwaway CI keystore (no repository secrets) and pass its credentials to Gradle. This exercises the same `persistentDebug` signing path and signer verification without exposing the release key.
@@ -53,12 +64,12 @@ Workflow: `.github/workflows/android.yml`
 
 ## CI cost and safety rules
 
-Durable rationale and trade-offs are recorded in [ADR-0001: Cost-controlled workflow validation](decisions/ADR-0001-ci-cost-controlled-workflow-validation.md).
+The validation policy is to run the full applicable checks on PR updates, including drafts. Public-repository standard GitHub-hosted runners do not create a reason to skip validation.
 
 - Keep path filters so web-only changes do not trigger Android builds and Android-only changes do not trigger web validation/deployment.
-- Skip expensive work on draft PRs, but always validate when a PR becomes ready for review.
-- Keep Svelte checks, unit tests, and production build on every applicable non-draft web PR and main push.
-- Run the long simulation suite only for relevant simulation/library/package/workflow changes or explicit manual dispatch.
+- Run Svelte checks, unit tests, and the production build on every applicable web PR update and main push, including draft PRs.
+- Run the separate long simulation audit automatically for its relevant paths and by manual dispatch.
+- Keep the PR deletion safeguard active; deletions require the explicit reviewed checklist item.
 - Preserve concurrency cancellation, npm/Gradle caches, least-privilege permissions, and single-build artifact hand-off.
 - Do not restore Cloudflare CI, Wrangler jobs, scheduled polling, or redundant deployment targets without an explicit product decision.
 - Never report checks or deployment as successful until the exact GitHub Actions run confirms it.
