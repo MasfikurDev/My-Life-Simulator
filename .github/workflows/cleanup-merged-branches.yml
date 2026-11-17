@@ -8,11 +8,6 @@ on:
         required: true
         type: boolean
         default: true
-      minimum_age_days:
-        description: Minimum number of days since the pull request was merged
-        required: true
-        type: number
-        default: 7
   pull_request:
     paths:
       - ".github/workflows/cleanup-merged-branches.yml"
@@ -48,7 +43,6 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       DRY_RUN: ${{ inputs.dry_run }}
-      MINIMUM_AGE_DAYS: ${{ inputs.minimum_age_days }}
       DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
     steps:
       - uses: actions/checkout@v4
