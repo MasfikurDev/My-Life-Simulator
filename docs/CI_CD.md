@@ -47,6 +47,8 @@ Workflow: `.github/workflows/android.yml`
 
 ## CI cost and safety rules
 
+Durable rationale and trade-offs are recorded in [ADR-0001: Cost-controlled workflow validation](decisions/ADR-0001-ci-cost-controlled-workflow-validation.md).
+
 - Keep path filters so web-only changes do not trigger Android builds and Android-only changes do not trigger web validation/deployment.
 - Skip expensive work on draft PRs, but always validate when a PR becomes ready for review.
 - Keep Svelte checks, unit tests, and production build on every applicable non-draft web PR and main push.
