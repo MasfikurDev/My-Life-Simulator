@@ -1,6 +1,7 @@
 name: Web validation and Pages deployment
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
     paths: ["web/**", ".github/workflows/web.yml"]
   push:
     branches: [main]
@@ -9,17 +10,20 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: web-pages-${{ github.ref }}
+  group: web-pages-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
   validate:
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -44,6 +48,43 @@ jobs:
             echo "Validation failed (svelte-check: $check_status, tests: $test_status)."
             exit 1
           fi
+      - name: Detect changes requiring the long simulation suite
+        id: simulation-scope
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Manual validation requested; running the long simulation suite."
+            exit 0
+          fi
+
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            git fetch --no-tags --depth=1 origin "$PR_BASE_SHA" "$PR_HEAD_SHA"
+            changed_files="$(git diff --name-only "$PR_BASE_SHA" "$PR_HEAD_SHA")"
+          elif [[ "$PUSH_BEFORE_SHA" =~ ^0+$ ]]; then
+            changed_files="$(git ls-tree -r --name-only "$GITHUB_SHA")"
+          else
+            git fetch --no-tags --depth=1 origin "$PUSH_BEFORE_SHA"
+            changed_files="$(git diff --name-only "$PUSH_BEFORE_SHA" "$GITHUB_SHA")"
+          fi
+
+          if printf '%s\n' "$changed_files" | grep -Eq '^(web/src/lib/|web/package\.json$|web/package-lock\.json$|\.github/workflows/web\.yml$)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Simulation-related files changed; running the long simulation suite."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "No simulation-related files changed; skipping the long simulation suite."
+          fi
+      - name: Run long simulation suite
+        if: steps.simulation-scope.outputs.run == 'true'
+        run: npm run test:simulation -- --reporter=dot
       # GitHub Pages is hosted below /<repository>/.
       - name: Build production site
         env:
