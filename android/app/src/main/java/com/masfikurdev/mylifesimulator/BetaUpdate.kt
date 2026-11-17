@@ -33,6 +33,7 @@ data class BetaUpdate(
             release.scheme == "https" && release.host == "github.com" &&
             release.pathSegments.take(2) == listOf("MasfikurDev", "My-Life-Simulator") &&
             apk.scheme == "https" && apk.host == "github.com" &&
+            apk.pathSegments.take(2) == listOf("MasfikurDev", "My-Life-Simulator") &&
             apk.pathSegments.contains("releases") &&
             sha256.matches(Regex("(?i)^[a-f0-9]{64}$"))
     }
