@@ -30,7 +30,7 @@ A modern, polished, mobile-first life simulation interface. It should feel like 
 ## Aurora theme and animated life-event headers
 - Aurora is an optional, selectable full-interface theme; it must never replace the AMOLED default or alter gameplay and save data.
 - Apply its atmospheric violet surfaces, mint highlights, subtle gradients, and restrained interactive accents consistently across navigation, cards, buttons, and overlays.
-- The animated category-specific life-event header is an Aurora-only treatment. Other themes retain the standard compact event card layout.
+- Every theme uses the shared animated category-specific life-event header when a decision is pending. Theme-specific gradients, patterns, and motion keep the header consistent in structure while giving each palette a distinct atmosphere.
 - Keep title, age/category context, and event description stable and readable while decorative layers animate independently.
 - Use lightweight CSS/SVG patterns (soft moving gradients, orbs, linework, rings, and restrained particles); avoid remote assets, canvas effects, and animation that competes with choices.
 - Preserve the shared card structure across categories; vary only semantic color treatment and decorative pattern. Respect `prefers-reduced-motion` and maintain contrast.
@@ -146,3 +146,11 @@ Do not render multiple controls or components for the same action or destination
 - Keep ambient motion subtle and avoid making every card glow or animate continuously. Hover-only treatments are supplemental; touch feedback and keyboard focus remain first-class.
 - Respect `prefers-reduced-motion` by removing entrance, pulse, and transition effects while preserving all state and interaction cues.
 - Continue to preserve compact layouts, 44px primary touch targets, theme-specific palette identity, readable content, and stable mobile navigation/safe areas.
+
+
+## Event presentation and shared controls (2026-11-17)
+- Pending life events use the animated category header in every theme, not Aurora alone. Keep the title, age, category, description, and decision choices consistent while theme-specific gradients and patterns provide distinct atmosphere.
+- Event choices communicate selected/planned state with a clear marker and accent rail. Stamina and money costs are compact chips; disabled affordability states remain visible and understandable.
+- Shared UiButton uses semantic primary, secondary, quiet, and danger variants with tactile press feedback, focus visibility, theme-aware geometry, and reduced-motion support.
+- Shared UiCard uses the theme's panel radius, wash, and shadow tokens. Interactive cards gain restrained lift on hover-capable devices and retain a visible focus-within state.
+- Preserve compact mobile layouts and avoid repeating one generic pattern across every card. Keep decorative motion confined to focal event surfaces and honor reduced-motion preferences.
