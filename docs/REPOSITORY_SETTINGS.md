@@ -108,3 +108,32 @@ If these areas are changed later, verify their live values and update this docum
 ## Review history
 
 - **2026-11-17:** Recorded the reviewed General settings, squash-only merge policy, and active `Main Protection` ruleset. Required status checks remain intentionally disabled. Administrative Actions and security settings remain unverified.
+
+
+## Public repository and code protection
+
+The repository is intentionally public. Public visibility allows anyone to read and clone the source; it does not grant a general copyright license to reuse, redistribute, or publish modified versions. No license is currently declared. Do not add a license or change repository visibility without an explicit maintainer decision.
+
+### Repository security features
+
+The live values for GitHub's security and analysis settings have not yet been verified. Check **Settings → Code security and analysis** directly. Recommended protections for this public repository are:
+
+- Secret scanning alerts, with push protection enabled where available.
+- Dependabot alerts and security updates.
+- Review dependency update pull requests before merging.
+- Keep Actions permissions least-privileged and pin third-party Actions to verified full commit SHAs.
+- Keep credentials, local environment files, signing keystores, and generated build outputs out of Git.
+
+Do not record a feature as enabled until its live setting has been checked. Public repository visibility alone is not proof that every security feature is configured.
+
+### Workflow supply-chain policy
+
+Every third-party or GitHub-maintained action used by repository workflows should be pinned to a full commit SHA. Keep a human-readable version comment beside each pin and update pins deliberately after checking the upstream release and commit. Avoid floating major-version tags such as `@v4` in workflow files.
+
+### Local file hygiene
+
+The root `.gitignore` excludes common local environment files, signing material, editor state, dependency directories, and generated web/Android build output. Ignore rules prevent accidental additions; they do not remove files already tracked or erase credentials from Git history. If a credential is ever committed, revoke or rotate it immediately and assess history cleanup separately.
+
+### Security reporting
+
+See [Security Policy](../.github/SECURITY.md). Keep vulnerability reports private until the maintainer has assessed and addressed the issue.
