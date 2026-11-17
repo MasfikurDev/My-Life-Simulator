@@ -109,6 +109,15 @@ When a newer explicit decision conflicts with an older document, this file recor
 - All 17 themes must remain available. Pattern intensity and repetition must not obscure content or make every component in a theme look identical. Respect reduced-motion preferences.
 
 
+## Age-aware life events and weekly choice dialogs
+- The narrative event system must begin at age 0. Standard New Game opens with a birth/arrival introduction grounded in generated character, origin, family and household data; a newborn is never asked to make decisions.
+- Event eligibility follows actual age/date, life stage and relevant domain state. Early-childhood decisions are made by an appropriate parent/guardian/responsible adult; player agency increases gradually as the character matures.
+- Build age-appropriate event content from infancy through later life. Do not assume a standard family structure, education path, relationship status, health condition or financial situation.
+- Important weekly events use a focused, accessible, one-at-a-time choice dialog. Show context, involved people, known costs, requirements, likely outcomes and material risks. Informational events and single-response situations are allowed; do not fabricate choices.
+- Keep event actions integrated with the existing weekly plan and simulation validation. Persist pending events, deadlines, outcomes and follow-ups; record consequences in Life History. Quiet weeks remain quiet.
+- Status: the existing three-event catalogue and pending-choice/expiry/follow-up mechanics are only an initial event-engine slice. Birth introduction, guardian-mediated child decisions, full age-stage coverage and the dedicated queued weekly dialog experience remain planned.
+
+
 ## Reusable UI framework direction (2026-11-17)
 - Build a small, in-repository, theme-aware Svelte UI framework to replace repeated manual CSS changes. It is a shared foundation, not a mandate for uniform-looking screens.
 - Use semantic theme tokens, configurable primitives, reusable domain components, and page-level composition. Each component must support meaningful variants for density, surface, hierarchy, layout, tone, and interaction while preserving domain-native identity.
