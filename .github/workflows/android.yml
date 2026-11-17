@@ -17,19 +17,54 @@ jobs:
     timeout-minutes: 25
     permissions:
       contents: read
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
-      # setup-gradle persists Gradle distributions, dependency artifacts, and build-cache data.
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.11.1"
+      - name: Prepare persistent beta signing key
+        shell: bash
+        run: |
+          if [[ -z "$ANDROID_KEYSTORE_BASE64" || -z "$ANDROID_KEYSTORE_PASSWORD" || -z "$ANDROID_KEY_ALIAS" || -z "$ANDROID_KEY_PASSWORD" ]]; then
+            if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
+              echo "::error::Persistent Android signing secrets are required before publishing a beta APK."
+              exit 1
+            fi
+            echo "Persistent signing secrets are unavailable; this non-release validation build will use the standard debug key."
+            exit 0
+          fi
+
+          signing_dir="$RUNNER_TEMP/my-life-simulator-signing"
+          mkdir -p "$signing_dir"
+          keystore_path="$signing_dir/my-life-simulator.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore_path"
+          test -s "$keystore_path"
+          keytool -list -keystore "$keystore_path" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null
+          chmod 600 "$keystore_path"
+          echo "ANDROID_KEYSTORE_PATH=$keystore_path" >> "$GITHUB_ENV"
       - name: Assemble debug APK
         working-directory: android
         run: gradle --no-daemon --build-cache --parallel --console=plain assembleDebug
+      - name: Verify persistent APK signature
+        if: github.event_name != 'pull_request' || env.ANDROID_KEYSTORE_PATH != ''
+        shell: bash
+        run: |
+          if [[ -z "$ANDROID_KEYSTORE_PATH" ]]; then
+            echo "::error::Refusing to publish an APK without the persistent signing key."
+            exit 1
+          fi
+          apksigner="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          test -n "$apksigner"
+          "$apksigner" verify --verbose --print-certs android/app/build/outputs/apk/debug/app-debug.apk
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with:
