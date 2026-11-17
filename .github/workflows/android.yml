@@ -53,7 +53,7 @@ jobs:
           echo "ANDROID_KEYSTORE_PATH=$keystore_path" >> "$GITHUB_ENV"
       - name: Assemble debug APK
         working-directory: android
-        run: gradle --no-daemon --build-cache --parallel --console=plain assembleDebug
+        run: gradle --no-daemon --build-cache --parallel --console=plain -PappVersionCode="$GITHUB_RUN_NUMBER" -PappVersionName="0.1.$GITHUB_RUN_NUMBER" assembleDebug
       - name: Verify persistent APK signature
         shell: bash
         run: |
