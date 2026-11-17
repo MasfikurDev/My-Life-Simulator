@@ -45,7 +45,7 @@ Workflow: `.github/workflows/android.yml`
 - The separate publish job runs only on a push to `main`, downloads the exact APK artifact from that run, and receives `contents: write`.
 - **Beta version numbers are release-based, not workflow-run-based.** On a main push, the build reads existing published beta pre-releases with `beta-<version>-<attempt>` tags and assigns the next version number. The successful release uses that number for its APK `versionCode`, `versionName`, release title, and tag.
 - PR validation and manual workflow runs use a non-release version and do not upload a beta APK artifact. They therefore cannot consume a beta version number or produce an APK that could be mistaken for an installable beta upgrade.
-- The build reads repository tags with its existing `contents: read` permission; only the separate publish job receives `contents: write`.
+- The build reads published release metadata with its existing `contents: read` permission; only the separate publish job receives `contents: write`.
 - The existing single-build artifact hand-off remains in place. No second APK build is introduced for publishing.
 
 ## CI cost and safety rules
