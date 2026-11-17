@@ -137,3 +137,12 @@ Do not render multiple controls or components for the same action or destination
 - Theme motion must remain low-contrast, lightweight, and disabled by prefers-reduced-motion. Text, prices, controls, and focus indicators always take precedence over decoration.
 - Theme selection previews should communicate surface and geometry differences as well as accent color. Preserve all 17 themes and their existing palette identities.
 - Mobile gameplay uses a single page-level scroll container below the persistent header. The bottom navigation and Advance action remain fixed, and the content scroll region reserves enough space for both so the final cards and controls are reachable.
+
+
+## Game-feel interaction polish (2026-11-17)
+- Improve the feel of the existing interface through tactile press feedback, clearer selected states, responsive card lift, soft focus-surface entrance motion, and a restrained pulse around the persistent Advance action.
+- Keep motion attached to existing gameplay surfaces and controls; do not introduce a new navigation model, oversized animated hero sections, or a separate visual framework.
+- Use motion to communicate hierarchy and state: selected event choices should read as selected, progress changes should feel continuous, and focal finance/event panels may enter with a short transition.
+- Keep ambient motion subtle and avoid making every card glow or animate continuously. Hover-only treatments are supplemental; touch feedback and keyboard focus remain first-class.
+- Respect `prefers-reduced-motion` by removing entrance, pulse, and transition effects while preserving all state and interaction cues.
+- Continue to preserve compact layouts, 44px primary touch targets, theme-specific palette identity, readable content, and stable mobile navigation/safe areas.
