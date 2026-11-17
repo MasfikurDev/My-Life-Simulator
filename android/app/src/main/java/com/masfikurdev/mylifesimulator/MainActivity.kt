@@ -2,6 +2,7 @@ package com.masfikurdev.mylifesimulator
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
@@ -17,6 +18,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -66,8 +68,6 @@ class MainActivity : Activity() {
         }
         splashArtwork = ImageView(this).apply {
             setImageResource(R.drawable.splash_art)
-            // Show the original, full-aspect-ratio artwork. Never substitute or crop it
-            // into Android's square launcher/splash-icon viewport.
             scaleType = ImageView.ScaleType.FIT_CENTER
             setBackgroundColor(Color.BLACK)
             contentDescription = null
@@ -122,8 +122,6 @@ class MainActivity : Activity() {
         content.addView(progress, FrameLayout.LayoutParams(-1, 5))
         content.addView(retry, FrameLayout.LayoutParams(-1, -2))
         root.addView(content, FrameLayout.LayoutParams(-1, -1))
-        // This independent top layer covers the entire display, including system-bar
-        // areas. FIT_CENTER preserves every edge of the source image.
         root.addView(splashArtwork, FrameLayout.LayoutParams(-1, -1))
         setContentView(root)
 
@@ -148,25 +146,70 @@ class MainActivity : Activity() {
         webView.clearCache(true)
         loadGame()
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
+        handleUpdaterIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleUpdaterIntent(intent)
+    }
+
+    private fun handleUpdaterIntent(intent: Intent?) {
+        if (intent == null) return
+        when (intent.action) {
+            BetaApkUpdater.ACTION_UPDATE_AVAILABLE -> {
+                val update = BetaUpdate(
+                    versionName = intent.getStringExtra(BetaApkUpdater.EXTRA_VERSION_NAME).orEmpty(),
+                    versionCode = intent.getLongExtra(BetaApkUpdater.EXTRA_VERSION_CODE, 0L),
+                    releaseUrl = intent.getStringExtra(BetaApkUpdater.EXTRA_RELEASE_URL).orEmpty(),
+                    apkUrl = intent.getStringExtra(BetaApkUpdater.EXTRA_APK_URL).orEmpty(),
+                    sha256 = intent.getStringExtra(BetaApkUpdater.EXTRA_SHA256).orEmpty(),
+                    changelog = intent.getStringExtra(BetaApkUpdater.EXTRA_CHANGELOG).orEmpty()
+                )
+                if (!update.isValid()) {
+                    Toast.makeText(this, "The beta update information is invalid.", Toast.LENGTH_LONG).show()
+                    return
+                }
+                val details = buildString {
+                    append("Version ").append(update.versionName)
+                    if (update.changelog.isNotBlank()) append("\n\n").append(update.changelog)
+                    append("\n\nThe APK will be verified before Android is asked to install it.")
+                }
+                AlertDialog.Builder(this)
+                    .setTitle("Beta update available")
+                    .setMessage(details)
+                    .setNegativeButton("Later", null)
+                    .setNeutralButton("Release notes") { _, _ ->
+                        runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(update.releaseUrl))) }
+                    }
+                    .setPositiveButton("Download") { _, _ ->
+                        runCatching { BetaApkUpdater.enqueue(this, update) }
+                            .onSuccess { Toast.makeText(this, "Download started. Android will show its progress.", Toast.LENGTH_LONG).show() }
+                            .onFailure { Toast.makeText(this, it.message ?: "Could not start the download.", Toast.LENGTH_LONG).show() }
+                    }
+                    .show()
+            }
+            BetaApkUpdater.ACTION_INSTALL_VERIFIED -> {
+                if (!BetaApkUpdater.installVerified(this)) {
+                    Toast.makeText(this, "Allow My Life Simulator to install updates, then reopen the update notification.", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     private fun dismissSplashArtwork() {
         if (!::splashArtwork.isInitialized || splashArtwork.visibility != View.VISIBLE) return
-        splashArtwork.animate()
-            .alpha(0f)
-            .setDuration(420L)
-            .withEndAction {
-                splashArtwork.visibility = View.GONE
-                splashArtwork.alpha = 1f
-            }
-            .start()
+        splashArtwork.animate().alpha(0f).setDuration(420L).withEndAction {
+            splashArtwork.visibility = View.GONE
+            splashArtwork.alpha = 1f
+        }.start()
     }
 
     private fun applyFullscreen(enabled: Boolean) {
         WindowInsetsControllerCompat(window, root).apply {
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            if (enabled) hide(WindowInsetsCompat.Type.systemBars())
-            else show(WindowInsetsCompat.Type.systemBars())
+            if (enabled) hide(WindowInsetsCompat.Type.systemBars()) else show(WindowInsetsCompat.Type.systemBars())
             isAppearanceLightStatusBars = false
             isAppearanceLightNavigationBars = false
         }
@@ -180,19 +223,11 @@ class MainActivity : Activity() {
     }
 
     private inner class GameBridge {
-        @JavascriptInterface
-        fun isFullscreen(): Boolean = preferences.getBoolean(KEY_FULLSCREEN, false)
-
-        @JavascriptInterface
-        fun setFullscreen(enabled: Boolean) {
-            runOnUiThread {
-                preferences.edit().putBoolean(KEY_FULLSCREEN, enabled).apply()
-                applyFullscreen(enabled)
-            }
+        @JavascriptInterface fun isFullscreen(): Boolean = preferences.getBoolean(KEY_FULLSCREEN, false)
+        @JavascriptInterface fun setFullscreen(enabled: Boolean) {
+            runOnUiThread { preferences.edit().putBoolean(KEY_FULLSCREEN, enabled).apply(); applyFullscreen(enabled) }
         }
-
-        @JavascriptInterface
-        fun copyToClipboard(text: String): Boolean {
+        @JavascriptInterface fun copyToClipboard(text: String): Boolean {
             val copied = AtomicBoolean(false)
             val completed = CountDownLatch(1)
             runOnUiThread {
@@ -200,38 +235,20 @@ class MainActivity : Activity() {
                     val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
                     clipboard.setPrimaryClip(ClipData.newPlainText("Gameplay snapshot", text))
                     copied.set(true)
-                } catch (_: Exception) {
-                    copied.set(false)
-                } finally {
-                    completed.countDown()
-                }
+                } catch (_: Exception) { copied.set(false) } finally { completed.countDown() }
             }
-            return try {
-                completed.await(3, TimeUnit.SECONDS) && copied.get()
-            } catch (_: InterruptedException) {
-                Thread.currentThread().interrupt()
-                false
-            }
+            return try { completed.await(3, TimeUnit.SECONDS) && copied.get() }
+            catch (_: InterruptedException) { Thread.currentThread().interrupt(); false }
         }
-
-        @JavascriptInterface
-        fun exitApp() {
-            runOnUiThread { this@MainActivity.finish() }
-        }
-
-        @JavascriptInterface
-        fun reloadLatest() {
-            runOnUiThread {
-                webView.clearCache(true)
-                loadGame(fresh = true)
-            }
+        @JavascriptInterface fun exitApp() { runOnUiThread { this@MainActivity.finish() } }
+        @JavascriptInterface fun reloadLatest() {
+            runOnUiThread { webView.clearCache(true); loadGame(fresh = true) }
         }
     }
 
     @Deprecated("Deprecated in Android API")
     override fun onBackPressed() {
-        if (::webView.isInitialized && webView.canGoBack()) webView.goBack()
-        else super.onBackPressed()
+        if (::webView.isInitialized && webView.canGoBack()) webView.goBack() else super.onBackPressed()
     }
 
     override fun onDestroy() {
@@ -243,7 +260,5 @@ class MainActivity : Activity() {
         super.onDestroy()
     }
 
-    companion object {
-        private const val KEY_FULLSCREEN = "immersive_fullscreen"
-    }
+    companion object { private const val KEY_FULLSCREEN = "immersive_fullscreen" }
 }
