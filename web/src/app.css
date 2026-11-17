@@ -1555,3 +1555,108 @@ body:has(.app-shell .main-layout){height:100dvh}
   .app-shell:has(.side-nav)>.footer{display:none}
   .advance-fab{z-index:24;bottom:calc(80px + env(safe-area-inset-bottom))}
 }
+
+
+/* Game-feel polish: tactile feedback and restrained motion on existing surfaces. */
+button:not(:disabled){-webkit-tap-highlight-color:transparent}
+button:not(:disabled):active{filter:brightness(.94)}
+.nav-item.active{box-shadow:inset 2px 0 0 var(--accent)}
+.stat-card,.activity-card,.game-event-choice,.weekly-finance-card,.money-focus,.ui-card.interactive{
+  transition:border-color .22s ease,background-color .22s ease,box-shadow .22s ease,transform .22s cubic-bezier(.2,.75,.25,1);
+}
+@media(hover:hover) and (pointer:fine){
+  .stat-card:hover{box-shadow:0 8px 22px color-mix(in srgb,var(--shadow-color) 24%,transparent),inset 0 1px color-mix(in srgb,var(--accent) 10%,transparent)}
+  .activity-card:not(:disabled):hover{box-shadow:0 10px 24px color-mix(in srgb,var(--shadow-color) 30%,transparent),0 0 0 1px color-mix(in srgb,var(--accent) 10%,transparent)}
+  .game-event-choice:not(:disabled):hover{transform:translateY(-1px);border-color:var(--accent);background:var(--accent-soft);box-shadow:0 6px 18px color-mix(in srgb,var(--shadow-color) 24%,transparent)}
+  .ui-card.interactive:hover{transform:translateY(-2px);box-shadow:var(--shadow-card)}
+}
+.game-event-choice.planned{box-shadow:inset 3px 0 0 var(--accent),0 0 0 1px color-mix(in srgb,var(--accent) 12%,transparent)}
+.game-event-panel,.year-recap,.weekly-finance-card,.money-focus{
+  animation:game-surface-arrive .42s cubic-bezier(.2,.75,.25,1) both;
+}
+.weekly-finance-card{position:relative;isolation:isolate}
+.weekly-finance-card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(112deg,transparent 28%,color-mix(in srgb,var(--accent) 7%,transparent) 48%,transparent 68%);
+  background-size:220% 100%;background-position:100% 0;opacity:0;transition:opacity .25s ease,background-position .7s ease;
+}
+@media(hover:hover) and (pointer:fine){
+  .weekly-finance-card:hover::after{opacity:1;background-position:0 0}
+}
+.advance-fab{isolation:isolate}
+.advance-fab::after{
+  content:"";position:absolute;inset:-5px;z-index:-1;border:1px solid color-mix(in srgb,var(--accent) 48%,transparent);
+  border-radius:inherit;pointer-events:none;animation:advance-fab-ring 3.6s ease-out infinite;
+}
+.meter span,.review-stamina-track span{transition:width .65s cubic-bezier(.2,.75,.25,1)}
+@keyframes game-surface-arrive{
+  from{opacity:0;transform:translateY(7px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes advance-fab-ring{
+  0%,100%{opacity:.42;transform:scale(1)}
+  55%{opacity:0;transform:scale(1.055)}
+}
+@media(max-width:620px){
+  .nav-item.active{box-shadow:inset 0 -2px 0 var(--accent)}
+}
+@media(prefers-reduced-motion:reduce){
+  .game-event-panel,.year-recap,.weekly-finance-card,.money-focus{animation:none}
+  .advance-fab::after{animation:none;opacity:0}
+  .weekly-finance-card::after{transition:none}
+  .meter span,.review-stamina-track span{transition:none}
+}
+
+
+/* Life-event choice cards: clear selection, readable costs, and tactile game feedback. */
+.game-event-choices{gap:8px}
+.game-event-choice{
+  position:relative;isolation:isolate;overflow:hidden;display:grid;
+  grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:10px;
+  min-height:60px;padding:10px 11px;border-radius:var(--control-radius,10px);
+  border-color:color-mix(in srgb,var(--accent) 15%,var(--line));
+  background:linear-gradient(135deg,color-mix(in srgb,var(--surface-raised) 94%,var(--accent-soft)),var(--surface-raised));
+  box-shadow:inset 0 1px color-mix(in srgb,var(--text) 4%,transparent);
+  transition:transform .2s,border-color .2s,background .2s,box-shadow .2s,filter .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.game-event-choice::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;
+  background:linear-gradient(108deg,transparent 18%,color-mix(in srgb,var(--accent) 12%,transparent) 50%,transparent 82%);
+  transform:translateX(-65%);transition:opacity .2s,transform .5s ease;
+}
+.game-event-choice::after{
+  content:"";position:absolute;left:0;top:12%;bottom:12%;width:3px;border-radius:0 4px 4px 0;
+  background:var(--accent);transform:scaleY(.25);opacity:0;transition:transform .2s,opacity .2s;
+}
+.game-event-choice:hover:not(:disabled){transform:translateY(-1px);border-color:var(--accent);box-shadow:0 5px 16px color-mix(in srgb,var(--accent) 10%,transparent)}
+.game-event-choice:hover:not(:disabled)::before{opacity:1;transform:translateX(65%)}
+.game-event-choice:active:not(:disabled){transform:scale(.99)}
+.game-event-choice.planned{border-color:color-mix(in srgb,var(--accent) 68%,var(--line));background:linear-gradient(115deg,var(--accent-soft),color-mix(in srgb,var(--surface-raised) 82%,var(--accent-soft)));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 12%,transparent),0 4px 14px color-mix(in srgb,var(--accent) 10%,transparent)}
+.game-event-choice.planned::after{opacity:1;transform:scaleY(1)}
+.game-event-choice:disabled{opacity:.42;filter:saturate(.45);cursor:not-allowed}
+.game-event-choice-mark{
+  display:grid;place-items:center;width:28px;height:28px;border:1px solid var(--line-strong);
+  border-radius:var(--icon-radius,9px);background:var(--surface);color:var(--muted);
+  font-size:15px;font-weight:800;line-height:1;transition:background .2s,border-color .2s,color .2s,transform .2s;
+}
+.game-event-choice.planned .game-event-choice-mark{background:var(--accent);border-color:var(--accent);color:var(--on-accent);transform:scale(1.04)}
+.game-event-choice-copy{display:grid;gap:4px;min-width:0}
+.game-event-choice-copy strong{font-size:11px;line-height:1.35;overflow-wrap:anywhere}
+.game-event-choice-copy small{font-size:9px;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.game-event-choice-cost{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:0;white-space:nowrap}
+.event-cost-chip{display:inline-flex;align-items:center;min-height:20px;padding:3px 6px;border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:999px;background:color-mix(in srgb,var(--accent-soft) 70%,var(--surface));color:var(--accent);font-size:8px;font-weight:800;line-height:1.2}
+.event-cost-chip.immediate{border-color:var(--line);background:var(--surface);color:var(--muted)}
+.game-event-footnote{margin-top:11px}
+@media(max-width:420px){
+  .game-event-choice{grid-template-columns:26px minmax(0,1fr) auto;gap:7px;padding:9px;min-height:56px}
+  .game-event-choice-mark{width:25px;height:25px;font-size:13px}
+  .game-event-choice-copy strong{font-size:10px}
+  .game-event-choice-copy small{font-size:8px}
+  .event-cost-chip{font-size:7px;padding-inline:5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .game-event-choice,.game-event-choice::before,.game-event-choice::after,.game-event-choice-mark{transition:none}
+  .game-event-choice:hover:not(:disabled),.game-event-choice:active:not(:disabled){transform:none}
+  .game-event-choice:hover:not(:disabled)::before{opacity:0}
+}
