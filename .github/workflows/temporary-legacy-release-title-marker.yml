@@ -20,7 +20,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          while read -r tag title; do
+          while IFS="|" read -r tag title; do
             gh release edit "$tag" --title "[LEGACY] $title"
             actual="$(gh release view "$tag" --json name --jq .name)"
             test "$actual" = "[LEGACY] $title"
