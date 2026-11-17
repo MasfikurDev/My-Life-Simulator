@@ -152,7 +152,7 @@ jobs:
           name: my-life-simulator-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 1
 
   publish-beta:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
