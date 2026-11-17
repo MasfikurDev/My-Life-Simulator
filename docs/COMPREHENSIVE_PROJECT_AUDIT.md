@@ -180,6 +180,18 @@ The best next step is not a rewrite. Preserve the existing TypeScript simulation
 
 **Revision:** Update each canonical document when its owning area is next changed. Keep historical validation counts explicitly dated; never present them as current CI results.
 
+## Documentation corrections included in this audit branch
+
+The audit branch also corrects the low-risk source-of-truth drift identified above:
+
+- `PROJECT_STATUS.md` now records save schema 7 rather than schema 6.
+- `TECHNICAL_ARCHITECTURE.md` points to the current 17-theme catalogue instead of listing only four themes.
+- `CURRENT_DIRECTION.md` records the +5 passive stamina review/recap behavior as covered by the existing regression test.
+- `SYSTEM_INVENTORY_AND_DEPENDENCY_MAP.md` no longer describes the remote Pages-loaded Android game as cold-start offline-capable and uses the current Lifestyle navigation names.
+- `README.md` links to this audit.
+
+These are documentation corrections only. No gameplay code, save shape, or runtime behavior is changed.
+
 ## CI, test, and release assessment
 
 - The normal web workflow runs locked dependency installation, Svelte checking, the regular Vitest suite, and the production Pages build. Check and test run concurrently.
