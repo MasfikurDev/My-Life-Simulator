@@ -21,9 +21,9 @@ Do not reintroduce a universal three-actions-per-week quota. Personal activities
 
 - Personal activities are selected with direct add/remove toggles in their owning workspaces and consume activity-specific stamina.
 - Education and employment progress automatically as background responsibilities; they no longer create calendar commitments.
-- Schema 6 stores a strict `weeklyPlan` of domain-specific actions with no dates, periods, durations, or commitment grid. Old schema versions are rejected without mutation; reset requires explicit confirmation.
+- Schema 7 stores a strict `weeklyPlan` of domain-specific actions with no dates, periods, durations, or commitment grid. Old schema versions are rejected without mutation; reset requires explicit confirmation.
 - The Advance dialog previews every selected activity's stamina/money cost, reward categories, deterministic projected stat changes, and wellbeing warnings using the same weekly resolver as actual advancement.
-- Current save baseline: schema 6, three independent device-local slots, strict validation, no backward migrations, and explicit reset for unsupported formats. The latest focused Banking/credit-score PR #97 validation passed: Svelte check 0 errors/0 warnings, 159 tests across 11 files, and Vite production build.
+- Current save baseline: schema 7, three independent device-local slots, strict validation, no backward migrations, and explicit reset for unsupported formats. The latest focused Banking/credit-score PR #97 validation passed: Svelte check 0 errors/0 warnings, 159 tests across 11 files, and Vite production build.
 
 ## Implementation snapshot
 

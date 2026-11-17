@@ -19,6 +19,7 @@ The canonical gameplay clock is:
 - [Gameplay design](docs/GAMEPLAY_DESIGN.md)
 - [Gameplay loop and acceptance criteria](docs/GAMEPLAY_LOOP.md)
 - [Current product and gameplay direction](docs/CURRENT_DIRECTION.md)
+- [Comprehensive project audit](docs/COMPREHENSIVE_PROJECT_AUDIT.md)
 - [Visual design](docs/VISUAL_DESIGN.md)
 - [Technical architecture](docs/TECHNICAL_ARCHITECTURE.md)
 - [CI and delivery](docs/CI_CD.md)

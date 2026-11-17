@@ -8,7 +8,7 @@ This document describes the repository as it exists on the audit date. It separa
 
 ## 1. Product and simulation model
 
-My Life Simulator is an Android-first, offline-capable, single-player life simulation. The web application contains the gameplay and pure TypeScript simulation engine; the Android application is a lightweight host for that web experience.
+My Life Simulator is an Android-first, single-player life simulation. The web application contains the gameplay and pure TypeScript simulation engine; the Android application is a lightweight host that loads the published web experience from GitHub Pages. A fresh Android launch currently requires network access; offline cold-start support is not implemented.
 
 The central time model is:
 
@@ -177,7 +177,7 @@ Status labels:
 
 **Maturity:** Foundation with initial interactions. Partnership lifecycle, separation, parenthood, adoption, dependants, caregiving, family events, future mortality, inheritance, and legacy are not complete.
 
-### 2.8 Lifestyle: Discover, My services, Home, and owned goods
+### 2.8 Lifestyle: Supermarket, Subscriptions, Owned, and household context
 
 **Owner:** `lifestyle.ts` for simulation behavior; UI in `LifestyleWorkspace.svelte`; household cost settings reuse `FinanceLivingCosts.svelte`.
 

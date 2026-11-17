@@ -93,9 +93,9 @@ Top-level Life contains the modular Lifestyle experience: **Supermarket, Subscri
 - Test both the local rule and integrated scenarios. Run Svelte checking, the full Vitest suite, and production build after gameplay changes.
 - Do not introduce Rust/WASM or other low-level complexity without profiling evidence and a bounded use case.
 
-## Current known follow-up
+## Verified passive stamina accounting
 
-- Verify and fix the automatic +5 stamina effect so it is represented in the unified activity accounting, state effects, and recap. Do not mark this complete until a regression test proves the recorded effect and prevents double application.
+- The automatic family-meal +5 stamina recovery is represented in the unified weekly activity review, included in the recap, and applied during weekly resolution. `web/src/lib/lifestyle.test.ts` covers the review reward, recap entry, and resulting stamina increase. Preserve this regression coverage and continue to ensure recovery is applied exactly once.
 
 ## Change-control rule
 
