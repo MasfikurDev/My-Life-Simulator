@@ -69,3 +69,12 @@ The build command is `gradle --no-daemon --build-cache --parallel --console=plai
 ## Android update behavior
 
 The APK is a lightweight wrapper. A fresh app launch clears the WebView disk cache, then normal HTTP caching is allowed during the session. The web client does not register a service worker. Keep this freshness behavior aligned with [Technical Architecture](TECHNICAL_ARCHITECTURE.md).
+
+
+## Provisional beta APK updater
+
+The native Android module contains a beta-only APK download and installation flow documented in [Beta APK updater](BETA_APK_UPDATER.md). It is deliberately provisional for active development and does not define stable-release behavior.
+
+The Android build now accepts `appVersionCode` and `appVersionName` Gradle properties. The existing Android workflow supplies the GitHub Actions run number as the monotonically increasing beta version code and `0.1.<run number>` as the beta version name. This is required for Android to recognize later beta APKs as upgrades. The release/publish job structure and existing artifact hand-off are unchanged.
+
+The downloader uses Android DownloadManager for its system-managed progress notification, verifies the downloaded APK checksum, package ID, version code and signing identity, then hands it to Android's package installer. The notification transport is not wired into this change; the documented intent contract is the integration boundary for a future beta-only notification provider.
