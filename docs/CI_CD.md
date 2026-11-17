@@ -55,16 +55,16 @@ Workflow: `.github/workflows/android.yml`
 - The signing-preparation step validates the selected keystore and extracts its certificate SHA-256 fingerprint. Gradle receives the keystore path, password, alias, and key password for the assemble step so `persistentDebug` is actually selected.
 - APK verification checks both cryptographic validity and that the APK signer fingerprint exactly matches the certificate extracted from the selected keystore. A main-branch push fails if persistent secrets are missing, the keystore is invalid, or the built APK uses any other signing identity. Manual dispatch on `main` also exercises persistent signing verification without publishing a release.
 - Treat the four persistent signing secrets as one immutable release identity. Rotating or replacing the keystore is an Android package-signing migration, not routine secret maintenance; verify the installed release certificate and plan an explicit user-data-preserving migration before changing it.
-- The APK artifact is retained for one day because the publish job consumes it immediately. The beta release asset remains the durable download.
+- The APK workflow artifact is retained for 14 days for debugging and recovery; the beta release asset remains the durable distribution download.
 - The separate publish job runs only on a push to `main`, downloads the exact APK artifact from that run, and receives `contents: write`.
 - **Beta version numbers are release-based, not workflow-run-based.** On a main push, the build reads existing published beta pre-releases with `beta-<version>-<attempt>` tags and assigns the next version number. The successful release uses that number for its APK `versionCode`, `versionName`, release title, and tag.
 - PR validation and manual workflow runs use a non-release version and do not upload a beta APK artifact. They therefore cannot consume a beta version number or produce an APK that could be mistaken for an installable beta upgrade.
 - The build reads published release metadata with its existing `contents: read` permission; only the separate publish job receives `contents: write`.
 - The existing single-build artifact hand-off remains in place. No second APK build is introduced for publishing.
 
-## CI cost and safety rules
+## Validation and workflow safety
 
-The validation policy is to run the full applicable checks on PR updates, including drafts. Public-repository standard GitHub-hosted runners do not create a reason to skip validation.
+Run the full applicable validation on every PR update, including drafts. Do not weaken coverage based on estimated runner costs; optimize only when it improves speed, reliability, or maintainability without removing meaningful checks.
 
 - Keep path filters so web-only changes do not trigger Android builds and Android-only changes do not trigger web validation/deployment.
 - Run Svelte checks, unit tests, and the production build on every applicable web PR update and main push, including draft PRs.
