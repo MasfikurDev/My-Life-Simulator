@@ -107,3 +107,11 @@ When a newer explicit decision conflicts with an older document, this file recor
 - Keep the bottom navigation fixed and visible. Reserve bottom scroll padding for both the navigation and the floating Advance action, including the device safe-area inset. The final content item must be fully reachable.
 - Decorative patterns are reserved for focal feature surfaces. Generic cards and product tiles stay visually quiet; theme identity is expressed through palette, geometry, surface finish, borders, shadows, and a limited signature pattern on focal panels.
 - All 17 themes must remain available. Pattern intensity and repetition must not obscure content or make every component in a theme look identical. Respect reduced-motion preferences.
+
+
+## Reusable UI framework direction (2026-11-17)
+- Build a small, in-repository, theme-aware Svelte UI framework to replace repeated manual CSS changes. It is a shared foundation, not a mandate for uniform-looking screens.
+- Use semantic theme tokens, configurable primitives, reusable domain components, and page-level composition. Each component must support meaningful variants for density, surface, hierarchy, layout, tone, and interaction while preserving domain-native identity.
+- Cards must size to content by default; Profile metadata cards use compact density. Avoid fixed heights and repetitive decoration.
+- Migrate incrementally, beginning with shared primitives and Profile details. Preserve gameplay behavior, save formats, offline operation, and the existing 17-theme palette.
+- Canonical implementation contract: docs/UI_FRAMEWORK.md.
