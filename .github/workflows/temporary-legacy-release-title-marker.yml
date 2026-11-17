@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   mark-legacy-releases:
@@ -42,3 +42,11 @@ jobs:
           beta-16-1|My Life Simulator Beta 16
           beta-14-1|My Life Simulator Beta 14
           RELEASES
+
+      - name: Close temporary PR and remove its branch
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr close "$PR_NUMBER" --delete-branch --repo "$GH_REPO" --comment "One-time legacy release title marking completed and verified. Closing temporary automation PR without merging."
