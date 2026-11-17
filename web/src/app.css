@@ -1555,3 +1555,54 @@ body:has(.app-shell .main-layout){height:100dvh}
   .app-shell:has(.side-nav)>.footer{display:none}
   .advance-fab{z-index:24;bottom:calc(80px + env(safe-area-inset-bottom))}
 }
+
+
+/* Game-feel polish: tactile feedback and restrained motion on existing surfaces. */
+button:not(:disabled){-webkit-tap-highlight-color:transparent}
+button:not(:disabled):active{filter:brightness(.94)}
+.nav-item.active{box-shadow:inset 2px 0 0 var(--accent)}
+.stat-card,.activity-card,.game-event-choice,.weekly-finance-card,.money-focus,.ui-card.interactive{
+  transition:border-color .22s ease,background-color .22s ease,box-shadow .22s ease,transform .22s cubic-bezier(.2,.75,.25,1);
+}
+@media(hover:hover) and (pointer:fine){
+  .stat-card:hover{box-shadow:0 8px 22px color-mix(in srgb,var(--shadow-color) 24%,transparent),inset 0 1px color-mix(in srgb,var(--accent) 10%,transparent)}
+  .activity-card:not(:disabled):hover{box-shadow:0 10px 24px color-mix(in srgb,var(--shadow-color) 30%,transparent),0 0 0 1px color-mix(in srgb,var(--accent) 10%,transparent)}
+  .game-event-choice:not(:disabled):hover{transform:translateY(-1px);border-color:var(--accent);background:var(--accent-soft);box-shadow:0 6px 18px color-mix(in srgb,var(--shadow-color) 24%,transparent)}
+  .ui-card.interactive:hover{transform:translateY(-2px);box-shadow:var(--shadow-card)}
+}
+.game-event-choice.planned{box-shadow:inset 3px 0 0 var(--accent),0 0 0 1px color-mix(in srgb,var(--accent) 12%,transparent)}
+.game-event-panel,.year-recap,.weekly-finance-card,.money-focus{
+  animation:game-surface-arrive .42s cubic-bezier(.2,.75,.25,1) both;
+}
+.weekly-finance-card{position:relative;isolation:isolate}
+.weekly-finance-card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(112deg,transparent 28%,color-mix(in srgb,var(--accent) 7%,transparent) 48%,transparent 68%);
+  background-size:220% 100%;background-position:100% 0;opacity:0;transition:opacity .25s ease,background-position .7s ease;
+}
+@media(hover:hover) and (pointer:fine){
+  .weekly-finance-card:hover::after{opacity:1;background-position:0 0}
+}
+.advance-fab{isolation:isolate}
+.advance-fab::after{
+  content:"";position:absolute;inset:-5px;z-index:-1;border:1px solid color-mix(in srgb,var(--accent) 48%,transparent);
+  border-radius:inherit;pointer-events:none;animation:advance-fab-ring 3.6s ease-out infinite;
+}
+.meter span,.review-stamina-track span{transition:width .65s cubic-bezier(.2,.75,.25,1)}
+@keyframes game-surface-arrive{
+  from{opacity:0;transform:translateY(7px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes advance-fab-ring{
+  0%,100%{opacity:.42;transform:scale(1)}
+  55%{opacity:0;transform:scale(1.055)}
+}
+@media(max-width:620px){
+  .nav-item.active{box-shadow:inset 0 -2px 0 var(--accent)}
+}
+@media(prefers-reduced-motion:reduce){
+  .game-event-panel,.year-recap,.weekly-finance-card,.money-focus{animation:none}
+  .advance-fab::after{animation:none;opacity:0}
+  .weekly-finance-card::after{transition:none}
+  .meter span,.review-stamina-track span{transition:none}
+}
