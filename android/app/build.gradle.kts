@@ -3,6 +3,13 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+// CI supplies release-specific values; local builds retain safe defaults.
+val appVersionCode = providers.gradleProperty("appVersionCode").orNull?.let { value ->
+    value.toIntOrNull() ?: error("appVersionCode must be a valid integer.")
+} ?: 1
+require(appVersionCode > 0) { "appVersionCode must be positive." }
+val appVersionName = providers.gradleProperty("appVersionName").orNull ?: "0.1.0"
+
 // CI supplies these values when the persistent beta key is available.
 // Local builds remain usable with Android's standard debug signing key.
 val persistentDebugSigning = listOf(
@@ -20,8 +27,8 @@ android {
         applicationId = "com.masfikurdev.mylifesimulator"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
     }
     signingConfigs {
         if (persistentDebugSigning != null) {
