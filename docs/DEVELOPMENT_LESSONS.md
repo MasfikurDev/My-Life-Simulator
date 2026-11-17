@@ -1,7 +1,7 @@
 # Development Lessons and Reliability Guardrails
 
 **Purpose:** Record recurring development failures, the remedies we have tried, how well they have worked, and the checks future changes must apply.
-**Reviewed:** 2026-11-10
+**Reviewed:** 2026-11-17
 
 This is a qualitative retrospective based on recurring development conversations and confirmed repository documentation. Effectiveness is not a measured percentage. A remedy is marked **proven** only where the repository or test history confirms it; workflow changes that have not yet been used repeatedly are marked **promising**.
 
@@ -67,3 +67,34 @@ Do not upgrade a remedy's rating merely because a rule was written. Revisit this
 - [Current Product and Gameplay Direction](CURRENT_DIRECTION.md)
 - [CI and Delivery](CI_CD.md)
 - [UI Engineering Skill](../.github/skills/ui-engineering/SKILL.md)
+
+
+## Closed-unmerged PR retrospective (reviewed 2026-11-17)
+
+A review of the 13 closed, unmerged PRs found recurring process lessons. The closure reason is stated only where the PR history supports it; absence of an explanation is not treated as evidence of intent.
+
+| PR | Subject | Verified outcome / lesson |
+|---|---|---|
+| [#133](https://github.com/MasfikurDev/My-Life-Simulator/pull/133) | Restore character reroll control | Closed without a recorded explanation. A small passing/limited change still needs an explicit disposition so future work knows whether it was superseded or abandoned. |
+| [#116](https://github.com/MasfikurDev/My-Life-Simulator/pull/116) | Age-aware stat development | Explicitly closed as stale (287 commits behind); the old implementation was incompatible. Preserve useful concepts as requirements to re-specify against current code, not as a patch to revive. |
+| [#112](https://github.com/MasfikurDev/My-Life-Simulator/pull/112) | Isolated long-simulation harness | Intentionally audit-only; the audit workflow already existed on `main` and could target a branch/commit. Experimental/reference work should be labeled and closed with its purpose recorded. |
+| [#108](https://github.com/MasfikurDev/My-Life-Simulator/pull/108) | Speed up web CI | Closed without a recorded explanation. A green validation result alone does not establish that a change was adopted or remains needed. |
+| [#98](https://github.com/MasfikurDev/My-Life-Simulator/pull/98) | Work and finance catalog overhaul | Closed without a recorded explanation; substantial overlap with work already merged. Check current implementation and overlapping PRs before continuing a broad feature branch. |
+| [#80](https://github.com/MasfikurDev/My-Life-Simulator/pull/80) | Topbar and planned activity choices | Explicitly superseded by newer main-branch UI and too far behind to merge safely (307 commits). Re-specify the remaining need instead of merging stale UI. |
+| [#63](https://github.com/MasfikurDev/My-Life-Simulator/pull/63) | Weekly career eligibility test fixture | Closed without a recorded explanation. Test-only PRs also need a recorded disposition and evidence of whether the fixture issue remains. |
+| [#61](https://github.com/MasfikurDev/My-Life-Simulator/pull/61) | University tuition integration test | Validation failed because the test character could not afford tuition. Set explicit starting resources and prerequisites in fixtures; do not let random starting conditions decide test outcomes. |
+| [#49](https://github.com/MasfikurDev/My-Life-Simulator/pull/49) | Time-based activity planning | Some Cloudflare preview builds failed and a later commit succeeded; validation and deployment outcomes differed. The PR has no recorded closure explanation, so the deployment history does not establish why it was closed. |
+| [#28](https://github.com/MasfikurDev/My-Life-Simulator/pull/28) and [#26](https://github.com/MasfikurDev/My-Life-Simulator/pull/26) | Inflation and economic cycles | Duplicate feature branches created minutes apart; neither was mergeable. Keep one canonical implementation PR and update it instead of creating parallel copies. |
+| [#15](https://github.com/MasfikurDev/My-Life-Simulator/pull/15) | Android launcher icon | Build passed, but the PR was closed unmerged without a recorded explanation. A successful build is not a merge decision. |
+| [#12](https://github.com/MasfikurDev/My-Life-Simulator/pull/12) | Age-specific progression and debug log | Validation passed, but the PR was closed unmerged without a recorded explanation. Record whether useful work was retained, superseded, or intentionally dropped. |
+
+### Process changes from this review
+
+- Before opening work, inspect current `main`, open PRs, and recent merged changes for overlap. Continue an existing branch when the work belongs there.
+- Use deterministic fixtures with explicit money, age, qualifications, health, and other prerequisites when those values affect the scenario.
+- Separate code/test validation from deployment and preview results; identify the failing job and step before assigning a cause.
+- Check branch freshness early. Re-specify useful ideas against current architecture when a branch is substantially stale.
+- Do not merge solely because CI passes; review scope, compatibility, overlap, current behavior, and the final diff.
+- Close unmerged PRs with the structured closure record in [Change and Decision Records](CHANGE_RECORDS.md). For historical PRs above, do not retroactively invent explanations where none were recorded.
+
+This review documents historical evidence; it does not imply that any closed PR should be reopened, cherry-picked, or implemented.
