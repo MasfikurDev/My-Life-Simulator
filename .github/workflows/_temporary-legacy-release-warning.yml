@@ -1,7 +1,8 @@
 name: Temporary legacy release warning updater
 
 on:
-  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
     paths:
       - ".github/workflows/_temporary-legacy-release-warning.yml"
 
@@ -10,6 +11,7 @@ permissions:
 
 jobs:
   update-legacy-release-notes:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Prepend compatibility warning to legacy beta releases
