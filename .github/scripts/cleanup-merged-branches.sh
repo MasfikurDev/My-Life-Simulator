@@ -23,7 +23,7 @@ merged_prs_json="$(gh pr list --state merged --limit 1000 --json headRefName,hea
 open_prs_json="$(gh pr list --state open --limit 1000 --json headRefName)"
 
 now_epoch="$(date -u +%s)"
-candidate_lines="$(jq -r \
+candidate_lines="$(jq -n -r \
   --arg owner "$GITHUB_REPOSITORY_OWNER" \
   --arg default "$DEFAULT_BRANCH" \
   --argjson min_age "$MINIMUM_AGE_DAYS" \
