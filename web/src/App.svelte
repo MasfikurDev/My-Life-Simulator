@@ -363,17 +363,17 @@
                 <div class="character-profile-copy"><div class="character-profile-heading"><h3>{character.name}</h3><span class="character-age">AGE {character.age}</span></div><p>{getLifeStage(character.age).label} · {character.country ?? character.nationality ?? 'Country not recorded'}</p><div class="character-profile-tags"><span>{character.gender ?? 'Gender not recorded'}</span><span>{character.nationality ?? 'Nationality not recorded'}</span></div></div>
               </div>
               <div class="overview-context profile-detail-grid">
-                <div class="overview-context-item"><span>BIRTHPLACE</span><strong>{character.birthplace ?? 'Not recorded'}</strong></div>
-                <div class="overview-context-item"><span>LANGUAGE</span><strong>{character.language ?? 'Not recorded'}</strong></div>
-                <div class="overview-context-item"><span>PERSONALITY</span><strong>{character.personality?.join(' · ') ?? 'Not recorded'}</strong></div>
-                <div class="overview-context-item"><span>UPBRINGING</span><strong>{character.familyBackground ?? 'Not recorded'}</strong></div>
+                <UiCard as="div" density="compact" surface="raised" radius="md" class="overview-context-item"><span>BIRTHPLACE</span><strong>{character.birthplace ?? 'Not recorded'}</strong></UiCard>
+                <UiCard as="div" density="compact" surface="raised" radius="md" class="overview-context-item"><span>LANGUAGE</span><strong>{character.language ?? 'Not recorded'}</strong></UiCard>
+                <UiCard as="div" density="compact" surface="raised" radius="md" class="overview-context-item"><span>PERSONALITY</span><strong>{character.personality?.join(' · ') ?? 'Not recorded'}</strong></UiCard>
+                <UiCard as="div" density="compact" surface="raised" radius="md" class="overview-context-item"><span>UPBRINGING</span><strong>{character.familyBackground ?? 'Not recorded'}</strong></UiCard>
               </div>
               {#if character.appearance}
                 <div class="overview-context profile-detail-grid">
-                  <div class="overview-context-item"><span>HEIGHT</span><strong>{character.appearance.height}</strong></div>
-                  <div class="overview-context-item"><span>BUILD</span><strong>{character.appearance.build}</strong></div>
-                  <div class="overview-context-item"><span>HAIR</span><strong>{character.appearance.hair}</strong></div>
-                  <div class="overview-context-item"><span>EYES</span><strong>{character.appearance.eyes}</strong></div>
+                  <UiCard as="div" density="compact" surface="raised" radius="md" class="overview-context-item"><span>HEIGHT</span><strong>{character.appearance.height}</strong></UiCard>
+                  <UiCard as="div" density="compact" surface="raised" radius="md" class="overview-context-item"><span>BUILD</span><strong>{character.appearance.build}</strong></UiCard>
+                  <UiCard as="div" density="compact" surface="raised" radius="md" class="overview-context-item"><span>HAIR</span><strong>{character.appearance.hair}</strong></UiCard>
+                  <UiCard as="div" density="compact" surface="raised" radius="md" class="overview-context-item"><span>EYES</span><strong>{character.appearance.eyes}</strong></UiCard>
                 </div>
               {/if}
             </section>
