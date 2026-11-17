@@ -44,7 +44,7 @@ class BetaDownloadReceiver : BroadcastReceiver() {
             Notification.Builder(context)
         }
         val notification = builder
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_update)
             .setContentTitle(title)
             .setContentText(message)
             .setStyle(Notification.BigTextStyle().bigText(message))
