@@ -1,6 +1,6 @@
 # CI and Delivery
 
-**Operational reference · Reviewed 2026-11-10**
+**Operational reference · Reviewed 2026-11-18**
 
 ## Delivery model
 
@@ -10,72 +10,60 @@
 - Web-only changes do not require rebuilding or reinstalling the APK; the wrapper receives the latest published web app on a fresh launch.
 - Android wrapper/workflow changes trigger an Android APK build.
 
-## Web workflow
+## Web validation and deployment
 
 Workflow: `.github/workflows/web.yml`
 
-- Triggers on pull requests and pushes to `main` when `web/**` or the workflow itself changes; also supports manual dispatch.
-- Uses Node.js 22 and locked dependencies via `npm ci`.
-- Runs Svelte checks and the regular Vitest regression suite concurrently, then builds the production site. The longer multi-week simulation stress suite is excluded from this fast path and runs in its dedicated audit workflow.
-- Uploads the Pages artifact outside pull-request runs.
-- Deploys to GitHub Pages only from `main`, after validation succeeds.
-- Uses read-only repository contents permission, scoped Pages deployment permissions, path filters, and concurrency cancellation.
-- Web build command is `npm run build:app`; validation commands are `npm run check` and `npm test`.
+- Triggers for web changes and workflow changes on PRs and pushes to `main`; manual dispatch remains available.
+- Draft PRs skip the validation job. Becoming ready for review triggers the full validation; subsequent commits validate normally. Converting a PR back to draft cancels an in-progress run.
+- Uses Node.js 22, locked dependencies via `npm ci`, and the existing npm cache.
+- Runs Svelte checking and the regular Vitest suite concurrently, then runs the production build.
+- Runs `npm run test:simulation` in the same job only when `web/src/lib/**`, the web package/lockfile, or the web workflow changes. Manual dispatch runs the long suite.
+- The simulation stress suite is still a separate test command, but no longer a separate workflow or dependency installation.
+- Uploads the Pages artifact only outside pull-request runs and deploys to GitHub Pages only from `main`, after validation succeeds.
+- Validation has read-only repository permissions. Pages write and OIDC permissions remain isolated to the deployment job.
+- Concurrency cancels obsolete runs for the same PR/ref.
+- Commands: `npm run check`, `npm test`, conditional `npm run test:simulation -- --reporter=dot`, and `npm run build:app`.
 
-## Pull request safeguards
+## Removed standalone workflows
 
-Workflow: `.github/workflows/pr-guardrails.yml`
+- `.github/workflows/pr-guardrails.yml` was removed. File deletions are reviewed through the mandatory full-diff PR checklist and normal code review; deletion-specific checkbox enforcement is no longer an automated status check.
+- `.github/workflows/simulation-audit.yml` was removed. Its long simulation test remains in `web/package.json` and is invoked conditionally by `web.yml`.
+- The now-unreferenced `.github/scripts/check-pr-deletions.sh` was removed.
+- This consolidation intentionally removes two workflow runs/status checks and one independent deletion-only job. It does not remove the simulation stress tests or ordinary PR diff review.
 
-- Runs on every pull request open, update, reopen, ready-for-review transition, and edit; it is independent of web/Android path filters.
-- Checks the full base-to-head diff for deleted tracked files.
-- A PR that deletes tracked files fails this guard unless its body contains the checked `Intentional file deletions reviewed` checklist item. Check it only after reviewing the removed behavior, tests, and documentation. Renames detected by Git are not treated as deletions.
-- The repository PR template requires scope/preservation review, focused regression tests, cross-domain validation, simulation audit where relevant, UI verification, documentation, and disclosure of intentional removals.
-- The guard does not decide whether a code-level behavior removal inside an edited file is safe. Full diff review and regression tests remain required.
-
-## Long simulation audit
-
-Workflow: `.github/workflows/simulation-audit.yml`
-
-- The dedicated `test:simulation` command runs the deterministic long-running scenarios in `web/src/lib/simulation-stress.test.ts`.
-- The suite covers 52-week runs, deterministic replay, annual settlement, birthday/life-stage transition, age-diverse stat and cash bounds, and a planned action through the normal weekly resolver.
-- It is intentionally separate from the fast default PR validation to keep ordinary feedback lean.
-- Run it manually for the relevant branch/commit. It also runs automatically on PRs that change `web/src/lib/**`, the web package scripts/lockfile, or the audit workflow itself.
-- The workflow checks out the exact PR head commit for pull-request runs. Its default manual ref is `main`.
-- A green long-simulation result is evidence for these scenarios only; it does not replace focused tests for the changed mechanic or broader integration review.
-
-## Android workflow
+## Android APK and beta publishing
 
 Workflow: `.github/workflows/android.yml`
 
-The intended hardened workflow separates building from publishing:
+- Android-only path filters remain; web-only changes do not build an APK.
+- Draft PRs skip Android builds. Ready-for-review transitions and subsequent commits build normally.
+- Uses Java 17 and Gradle 8.11.1 with the existing Gradle cache/build cache.
+- The build job remains read-only. Persistent signing secrets are injected only into the signing-preparation step and only for non-PR runs on `main`; Gradle and other build steps never receive the secret values.
+- The build verifies the persistent APK signature when signing is configured. A main-branch push fails if the persistent signing secrets are missing.
+- The APK artifact is retained for one day because the publish job consumes it immediately. The beta release asset remains the durable download.
+- The separate publish job runs only on a push to `main`, downloads the exact APK artifact from that run, and receives `contents: write`.
+- Beta tag format remains `beta-<run_number>-<run_attempt>`; APK version code/name Gradle properties remain supplied by the workflow.
 
-1. **Build job:** read-only `contents: read`; checkout, Java 17, Gradle 8.11.1, assemble the debug APK, and upload `my-life-simulator-debug-apk` for 14 days.
-2. **Publish job:** runs only for a push to `main`, depends on successful build, downloads that exact artifact, and publishes the beta pre-release. Only this job receives `contents: write`.
-3. Pull requests and manual builds can produce the APK artifact but cannot publish a release.
+## CI cost and safety rules
 
-The build command is `gradle --no-daemon --build-cache --parallel --console=plain assembleDebug`. The beta tag format is `beta-<run_number>-<run_attempt>`.
-
-**Rollout status:** this hardened split is proposed in [PR #111](https://github.com/MasfikurDev/My-Life-Simulator/pull/111). Treat it as pending until the PR is merged. The main-branch workflow remains the operational source of truth until then.
-
-## CI change rules
-
-- Preserve path filters so web-only changes do not trigger Android builds and Android-only changes do not trigger web deployment.
-- Keep repository permissions least-privilege. Grant write permissions only to the release job that needs them.
-- Release publication must depend on a successful APK build and must use the artifact produced by that run, not rebuild a second time.
-- Do not restore Cloudflare deployment jobs, Wrangler steps, or redundant deployment targets without an explicit product decision.
-- Avoid unnecessary CI parallelism or duplicated builds. Prefer one validation/build pass and artifact hand-off between jobs.
-- Never describe a workflow as passing until the corresponding GitHub Actions run is confirmed green.
+- Keep path filters so web-only changes do not trigger Android builds and Android-only changes do not trigger web validation/deployment.
+- Skip expensive work on draft PRs, but always validate when a PR becomes ready for review.
+- Keep Svelte checks, unit tests, and production build on every applicable non-draft web PR and main push.
+- Run the long simulation suite only for relevant simulation/library/package/workflow changes or explicit manual dispatch.
+- Preserve concurrency cancellation, npm/Gradle caches, least-privilege permissions, and single-build artifact hand-off.
+- Do not restore Cloudflare CI, Wrangler jobs, scheduled polling, or redundant deployment targets without an explicit product decision.
+- Never report checks or deployment as successful until the exact GitHub Actions run confirms it.
 
 ## Android update behavior
 
 The APK is a lightweight wrapper. A fresh app launch clears the WebView disk cache, then normal HTTP caching is allowed during the session. The web client does not register a service worker. Keep this freshness behavior aligned with [Technical Architecture](TECHNICAL_ARCHITECTURE.md).
 
-
 ## Provisional beta APK updater
 
 The native Android module contains a beta-only APK download and installation flow documented in [Beta APK updater](BETA_APK_UPDATER.md). It is deliberately provisional for active development and does not define stable-release behavior.
 
-The Android build now accepts `appVersionCode` and `appVersionName` Gradle properties. The existing Android workflow supplies the GitHub Actions run number as the monotonically increasing beta version code and `0.1.<run number>` as the beta version name. This is required for Android to recognize later beta APKs as upgrades. The release/publish job structure and existing artifact hand-off are unchanged.
+The Android build accepts `appVersionCode` and `appVersionName` Gradle properties. The workflow supplies the GitHub Actions run number as the monotonically increasing beta version code and `0.1.<run number>` as the beta version name. The release/publish job structure and existing artifact hand-off are preserved.
 
 The downloader uses Android DownloadManager for its system-managed progress notification, verifies the downloaded APK checksum, package ID, version code and signing identity, then hands it to Android's package installer. The notification transport is not wired into this change; the documented intent contract is the integration boundary for a future beta-only notification provider.
 
