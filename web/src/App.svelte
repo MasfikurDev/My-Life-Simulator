@@ -548,22 +548,24 @@
           {/if}
           {#if character.pendingGameEvent}
             {@const lifeEvent = character.pendingGameEvent}
-            <section class="game-event-panel" class:aurora-event-panel={selectedTheme === 'aurora'}>
-              <EventCardHeader active={selectedTheme === 'aurora'} category={lifeEvent.category} title={lifeEvent.title} description={lifeEvent.description} age={character.age} />
+            <section class="game-event-panel aurora-event-panel">
+              <EventCardHeader active={true} category={lifeEvent.category} title={lifeEvent.title} description={lifeEvent.description} age={character.age} />
               <div class="game-event-content">
-              <div class="game-event-choices">
-                {#each lifeEvent.choices as choice}
-                  <button class="game-event-choice" class:planned={!!eventChoicePlanned(choice.id)} disabled={!eventChoicePlanned(choice.id) && character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
-                    <span class="game-event-choice-copy"><strong>{choice.label}</strong><small>{choice.detail}</small></span>
-                    <span class="game-event-choice-cost">
-                      {#if choice.staminaCost > 0}<span>Stamina {choice.staminaCost}</span>{/if}
-                      {#if choice.moneyCost > 0}<span>{formatCharacterMoney(character, choice.moneyCost)}</span>{/if}
-                      {#if choice.staminaCost === 0 && choice.moneyCost === 0}<span>Immediate</span>{/if}
-                    </span>
-                  </button>
-                {/each}
-              </div>
-              <p class="game-event-footnote">Toggle a decision to include or remove it from this week. Non-immediate choices use stamina; you can also leave the situation unanswered.</p>
+                <div class="game-event-choices">
+                  {#each lifeEvent.choices as choice}
+                    {@const planned = !!eventChoicePlanned(choice.id)}
+                    <button class="game-event-choice" class:planned aria-pressed={planned} disabled={!planned && character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
+                      <span class="game-event-choice-mark" aria-hidden="true">{planned ? '✓' : '＋'}</span>
+                      <span class="game-event-choice-copy"><strong>{choice.label}</strong><small>{choice.detail}</small></span>
+                      <span class="game-event-choice-cost">
+                        {#if choice.staminaCost > 0}<span class="event-cost-chip">−{choice.staminaCost} stamina</span>{/if}
+                        {#if choice.moneyCost > 0}<span class="event-cost-chip">{formatCharacterMoney(character, choice.moneyCost)}</span>{/if}
+                        {#if choice.staminaCost === 0 && choice.moneyCost === 0}<span class="event-cost-chip immediate">Immediate</span>{/if}
+                      </span>
+                    </button>
+                  {/each}
+                </div>
+                <p class="game-event-footnote">Toggle a decision to include or remove it from this week. Non-immediate choices use stamina; you can also leave the situation unanswered.</p>
               </div>
             </section>
           {/if}
