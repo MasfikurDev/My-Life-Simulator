@@ -1,5 +1,12 @@
 ## Summary
-<!-- What changed and why? -->
+<!-- What changed, why, and which user-visible or internal outcome is intended? -->
+
+## Record of change
+- **Related issue / request:** <!-- Link issue, discussion, or write "Direct user request". -->
+- **Decision or requirement:** <!-- State the approved requirement; distinguish decisions from implementation suggestions. -->
+- **Affected behavior / systems:** <!-- Name the owning domains, screens, data, workflows, or docs. -->
+- **Compatibility / preservation:** <!-- What existing behavior, saved data, contracts, or workflows must remain unchanged? -->
+- **Follow-up / deferred work:** <!-- Link follow-up work or write "None". -->
 
 ## Scope and preservation
 - [ ] The change stays within the stated scope.
@@ -7,6 +14,7 @@
 - [ ] Existing approved behavior, features, navigation, save data, and tests are preserved unless explicitly listed below.
 - [ ] Intentional file deletions reviewed (check only when this PR deletes tracked files, and only after reviewing each deletion).
 - [ ] No unrelated refactor or cleanup is bundled into this PR.
+- [ ] I checked open PRs and recent merged work for overlap; any dependency or supersession is recorded above.
 
 ## Validation
 - [ ] Relevant focused tests were added or updated for the reported behavior.
@@ -20,4 +28,7 @@
 <!-- Explicitly list removals, save-format changes, behavior changes, or write "None". -->
 
 ## Evidence
-<!-- Add test results, screenshots, logs, or explain what could not be verified. -->
+<!-- Link exact Actions runs/checks, screenshots, logs, deployed result, or explain what could not be verified. Include the tested commit when useful. -->
+
+## Decision record
+<!-- For durable product, architecture, data, security, or workflow decisions only. Link a decision record in docs/decisions/ when this PR establishes or changes one. Otherwise write "No durable decision; implementation follows existing direction." -->
