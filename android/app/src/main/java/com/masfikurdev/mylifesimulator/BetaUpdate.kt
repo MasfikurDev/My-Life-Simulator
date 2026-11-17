@@ -54,7 +54,9 @@ object BetaApkUpdater {
     private const val KEY_EXPECTED_SHA = "expected_sha256"
     private const val KEY_VERSION_NAME = "version_name"
     private const val KEY_VERSION_CODE = "version_code"
+    private const val KEY_CREATED_AT = "created_at"
     private const val APK_NAME = "mls-beta-update.apk"
+    private const val STALE_AFTER_MS = 7L * 24 * 60 * 60 * 1000
 
     fun enqueue(context: Context, update: BetaUpdate): Long {
         require(update.isValid()) { "Invalid beta release metadata" }
@@ -66,7 +68,8 @@ object BetaApkUpdater {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val previousId = prefs.getLong(KEY_DOWNLOAD_ID, -1L)
         if (previousId >= 0L) manager.remove(previousId)
-        File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), APK_NAME).delete()
+        apkFile(context).delete()
+        clearMetadata(prefs)
 
         val request = DownloadManager.Request(Uri.parse(update.apkUrl))
             .setTitle("My Life Simulator Beta ${update.versionName}")
@@ -83,41 +86,50 @@ object BetaApkUpdater {
             .putString(KEY_EXPECTED_SHA, update.sha256.lowercase())
             .putString(KEY_VERSION_NAME, update.versionName)
             .putLong(KEY_VERSION_CODE, update.versionCode)
+            .putLong(KEY_CREATED_AT, System.currentTimeMillis())
             .apply()
         return id
     }
 
+    fun isManagedDownload(context: Context, completedId: Long): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getLong(KEY_DOWNLOAD_ID, -1L) == completedId
+
     fun handleDownloadComplete(context: Context, completedId: Long): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        if (prefs.getLong(KEY_DOWNLOAD_ID, -1L) != completedId) return false
+        if (!isManagedDownload(context, completedId)) return false
 
         val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val cursor = manager.query(DownloadManager.Query().setFilterById(completedId)) ?: return false
-        cursor.use {
-            if (!it.moveToFirst()) return false
-            val status = it.getInt(it.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-            if (status != DownloadManager.STATUS_SUCCESSFUL) {
-                prefs.edit().remove(KEY_DOWNLOAD_ID).apply()
-                return false
-            }
+        val successful = cursor.use {
+            it.moveToFirst() &&
+                it.getInt(it.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS)) ==
+                DownloadManager.STATUS_SUCCESSFUL
+        }
+        if (!successful) {
+            discardDownload(context, completedId)
+            return false
         }
 
-        val apk = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), APK_NAME)
-        val expectedSha = prefs.getString(KEY_EXPECTED_SHA, null) ?: return false
-        if (!apk.isFile || !verifySha256(apk, expectedSha) || !hasCompatibleSigningIdentity(context, apk)) {
-            apk.delete()
-            prefs.edit().remove(KEY_DOWNLOAD_ID).apply()
+        val apk = apkFile(context)
+        val expectedSha = prefs.getString(KEY_EXPECTED_SHA, null)
+        if (expectedSha.isNullOrBlank() || !apk.isFile ||
+            !verifySha256(apk, expectedSha) || !hasCompatibleSigningIdentity(context, apk)
+        ) {
+            discardDownload(context, completedId)
             return false
         }
         return true
     }
 
     fun installVerified(context: Context): Boolean {
-        val apk = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), APK_NAME)
+        val apk = apkFile(context)
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        val expectedSha = prefs.getString(KEY_EXPECTED_SHA, null) ?: return false
-        if (!apk.isFile || !verifySha256(apk, expectedSha) || !hasCompatibleSigningIdentity(context, apk)) {
-            apk.delete()
+        val expectedSha = prefs.getString(KEY_EXPECTED_SHA, null)
+        if (expectedSha.isNullOrBlank() || !apk.isFile ||
+            !verifySha256(apk, expectedSha) || !hasCompatibleSigningIdentity(context, apk)
+        ) {
+            discardDownload(context, prefs.getLong(KEY_DOWNLOAD_ID, -1L))
             return false
         }
 
@@ -142,7 +154,67 @@ object BetaApkUpdater {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(installIntent)
+        // Keep the APK until MY_PACKAGE_REPLACED: Android's installer may read it
+        // asynchronously, and the user may still cancel the installation.
         return true
+    }
+
+    /**
+     * Removes only updater-owned temporary artifacts. Game saves, WebView data,
+     * settings and all other app data are intentionally outside this cleanup.
+     */
+    fun cleanupStaleArtifacts(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val id = prefs.getLong(KEY_DOWNLOAD_ID, -1L)
+        val createdAt = prefs.getLong(KEY_CREATED_AT, 0L)
+        val apk = apkFile(context)
+        if (id < 0L) {
+            // An APK without matching updater metadata is an orphan, not a valid
+            // pending install. Do not touch any other app files.
+            if (apk.exists()) apk.delete()
+            clearMetadata(prefs)
+            return
+        }
+        if (createdAt <= 0L || System.currentTimeMillis() - createdAt > STALE_AFTER_MS) {
+            discardDownload(context, id)
+        }
+    }
+
+    /** Called only after Android reports that this package has been replaced. */
+    fun cleanupAfterPackageReplacement(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val id = prefs.getLong(KEY_DOWNLOAD_ID, -1L)
+        if (id >= 0L) {
+            val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            manager.remove(id)
+        }
+        apkFile(context).delete()
+        clearMetadata(prefs)
+    }
+
+    private fun discardDownload(context: Context, id: Long) {
+        if (id >= 0L) {
+            val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            manager.remove(id)
+        }
+        apkFile(context).delete()
+        clearMetadata(context.getSharedPreferences(PREFS, Context.MODE_PRIVATE))
+    }
+
+    private fun clearMetadata(prefs: android.content.SharedPreferences) {
+        prefs.edit()
+            .remove(KEY_DOWNLOAD_ID)
+            .remove(KEY_EXPECTED_SHA)
+            .remove(KEY_VERSION_NAME)
+            .remove(KEY_VERSION_CODE)
+            .remove(KEY_CREATED_AT)
+            .apply()
+    }
+
+    private fun apkFile(context: Context): File {
+        val directory = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            ?: File(context.filesDir, "beta-downloads").apply { mkdirs() }
+        return File(directory, APK_NAME)
     }
 
     @Suppress("DEPRECATION")
