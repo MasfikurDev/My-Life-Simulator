@@ -78,7 +78,8 @@ while IFS=$'\t' read -r branch expected_sha pr_number merged_at age_days; do
     continue
   fi
 
-  if gh pr list --state open --limit 1000 --json headRefName --jq '.[].headRefName' | grep -Fxq -- "$branch"; then
+  open_prs_now="$(gh pr list --state open --limit 1000 --json headRefName)"
+  if jq -e --arg branch "$branch" 'any(.[]; .headRefName == $branch)' <<< "$open_prs_now" >/dev/null; then
     echo "Skipping $branch: an open pull request now uses it."
     skipped_count=$((skipped_count + 1))
     continue
