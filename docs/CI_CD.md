@@ -76,15 +76,6 @@ Run the full applicable validation on every PR update, including drafts. Indepen
 - Never report checks or deployment as successful until the exact GitHub Actions run confirms it.
 
 
-
-- Keep path filters so web-only changes do not trigger Android builds and Android-only changes do not trigger web validation/deployment.
-- Run Svelte checks, unit tests, and the production build on every applicable web PR update and main push, including draft PRs.
-- Run the separate long simulation audit automatically for its relevant paths and by manual dispatch.
-- Keep the PR deletion safeguard active; deletions require the explicit reviewed checklist item.
-- Preserve concurrency cancellation, npm/Gradle caches, least-privilege permissions, and single-build artifact hand-off.
-- Do not restore Cloudflare CI, Wrangler jobs, scheduled polling, or redundant deployment targets without an explicit product decision.
-- Never report checks or deployment as successful until the exact GitHub Actions run confirms it.
-
 ## Android update behavior
 
 The APK is a lightweight wrapper. A fresh app launch clears the WebView disk cache, then normal HTTP caching is allowed during the session. The web client does not register a service worker. Keep this freshness behavior aligned with [Technical Architecture](TECHNICAL_ARCHITECTURE.md).
