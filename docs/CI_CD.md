@@ -68,7 +68,7 @@ The APK is a lightweight wrapper. A fresh app launch clears the WebView disk cac
 
 The native Android module contains a beta-only APK download and installation flow documented in [Beta APK updater](BETA_APK_UPDATER.md). It is deliberately provisional for active development and does not define stable-release behavior.
 
-The Android build accepts `appVersionCode` and `appVersionName` Gradle properties. For a main-branch beta build, the workflow derives the next version code from existing published beta pre-releases, then supplies that release version to Gradle. PR and manual validation builds use a non-release version and do not publish an APK artifact. Workflow run numbers and PR activity no longer affect beta numbering.
+The Android app module reads the `appVersionCode` and `appVersionName` Gradle properties, validates that the version code is a positive integer, and retains local-build defaults when no properties are supplied. For a main-branch beta build, the workflow derives the next version code from existing published beta pre-releases, then supplies that release version to Gradle. PR and manual validation builds use a non-release version and do not publish an APK artifact. Workflow run numbers and PR activity no longer affect beta numbering.
 
 The downloader uses Android DownloadManager for its system-managed progress notification, verifies the downloaded APK checksum, package ID, version code and signing identity, then hands it to Android's package installer. The notification transport is not wired into this change; the documented intent contract is the integration boundary for a future beta-only notification provider.
 
