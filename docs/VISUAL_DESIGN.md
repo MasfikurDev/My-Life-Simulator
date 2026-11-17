@@ -163,3 +163,11 @@ Do not render multiple controls or components for the same action or destination
 - Keep the interface compact and preserve existing information architecture, data, and gameplay behavior. Do not add extra dashboard sections merely to create visual activity.
 - Respect `prefers-reduced-motion` for every new animation.
 - Android system-bar and safe-area backgrounds must use the intended dark app surface. Remove temporary debug colors from both the decor view and root container before shipping.
+
+
+## Reusable UI framework (2026-11-17)
+- Use the in-repository Svelte UI framework documented in docs/UI_FRAMEWORK.md; do not add a third-party styling framework for routine UI work.
+- Shared semantic tokens define theme colors, spacing, radii, surfaces, control sizes, focus, and motion. Component styles consume tokens rather than hard-coded page palettes.
+- Build screens from customizable primitives (card, button, stack, grid) and domain components. Reuse the foundation without flattening distinct domain experiences into identical cards.
+- Cards are content-sized by default. Use explicit compact/comfortable/spacious density; compact is the default for metadata and profile detail grids. Never impose fixed heights on text-bearing cards without a content-driven reason.
+- Decoration and animation are opt-in, theme-aware, and focal. Nested informational cards should remain quiet unless they carry an independent interaction or hierarchy.
