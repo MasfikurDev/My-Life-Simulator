@@ -50,7 +50,7 @@ Then inspect relevant source, tests, recent history, current main, and open PRs.
 16. Never silently erase current saves. Persist an explicit schema version and validate the complete current format before reading or writing. Do not implement backward migrations. Reject unsupported formats without mutating their bytes; require explicit user confirmation before resetting them.
 17. Never claim work, tests, builds, deployments, or settings changes that did not actually happen.
 18. Do not create local-development prerequisites for the normal workflow. Expected path: GitHub, GitHub Actions, GitHub Pages, install/test APK on Android.
-19. Keep CI lean, event-driven, path-filtered, and non-duplicative. No emulator requirement for normal builds.
+19. Keep CI event-driven, path-filtered, and non-duplicative, but do not batch unrelated PRs or throttle validation to reduce perceived Actions usage. Independent PRs, including drafts, run their applicable full validation concurrently. Concurrency cancellation may supersede only an earlier run for the same PR/ref; never block or cancel an unrelated PR. No emulator requirement for normal builds.
 20. Do not publish a new APK for web-only changes.
 21. When an approved decision changes, update the relevant canonical doc and this rules file in the same change.
 22. Money is the primary dashboard focus; life stats are secondary. Lead the overview with the real financial state and decisions supported by the simulation. Never fabricate financial metrics or present planned finance systems as implemented.
@@ -73,6 +73,7 @@ For any change touching two or more gameplay domains, read `docs/SYSTEM_INTEGRAT
 These checks are implemented in GitHub Actions and the repository PR template; do not bypass them casually:
 
 - Every PR runs `.github/workflows/pr-guardrails.yml`. Tracked file deletions require the `Intentional file deletions reviewed` PR checklist item to be checked after the complete deletion and replacement behavior has been reviewed. A file deletion is not automatically wrong, but it must be deliberate.
+- Applicable validation runs on every PR update, including drafts. Independent PRs are not batched or placed behind repository-wide concurrency caps, scheduled delays, or cost-reduction queues. Workflow concurrency groups are scoped per PR/ref and cancel only superseded runs for that same PR/ref.
 - Inspect the complete base-to-head diff, including deletions, renames, generated files, and changes outside the stated scope. The deletion guard cannot detect behavior removed inside a file that remains.
 - Use the repository PR template. Explicitly list intended behavior removals, save-format changes, and risks; write "None" when there are none.
 - Web code changes must pass Svelte checking, the regular Vitest regression suite (`npm test`), and the production build. The separate long-running stress suite is run by `npm run test:simulation`. Add a focused regression test for the reported failure; do not rely on a broad suite alone.
