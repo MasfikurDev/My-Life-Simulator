@@ -4,7 +4,10 @@ plugins {
 }
 
 // CI supplies release-specific values; local builds retain safe defaults.
-val appVersionCode = providers.gradleProperty("appVersionCode").orNull?.toIntOrNull() ?: 1
+val appVersionCode = providers.gradleProperty("appVersionCode").orNull?.let { value ->
+    value.toIntOrNull() ?: error("appVersionCode must be a valid integer.")
+} ?: 1
+require(appVersionCode > 0) { "appVersionCode must be positive." }
 val appVersionName = providers.gradleProperty("appVersionName").orNull ?: "0.1.0"
 
 // CI supplies these values when the persistent beta key is available.
