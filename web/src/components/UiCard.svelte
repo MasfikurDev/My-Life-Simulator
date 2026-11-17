@@ -9,6 +9,6 @@
  }=$props();
  const resolvedDensity=$derived(density??(padded?'comfortable':'flush'));
 </script>
-<svelte:element this={as} class="ui-card ui-card--{resolvedDensity} ui-card--{surface} ui-card--{tone} ui-card--radius-{radius} ui-card--{elevation} {interactive?'ui-card--interactive':''} {className}">
+<svelte:element this={as} class="ui-card ui-card--{resolvedDensity} ui-card--{surface} ui-card--{tone} ui-card--radius-{radius} ui-card--{elevation} {interactive?'ui-card--interactive interactive':''} {className}">
  {@render children()}
 </svelte:element>
