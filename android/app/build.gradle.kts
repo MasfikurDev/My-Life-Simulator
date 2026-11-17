@@ -27,9 +27,9 @@ android {
         if (persistentDebugSigning != null) {
             create("persistentDebug") {
                 storeFile = file(persistentDebugSigning[0]!!)
-                storePassword = persistentDebugSigning[1]
-                keyAlias = persistentDebugSigning[2]
-                keyPassword = persistentDebugSigning[3]
+                storePassword = persistentDebugSigning[1]!!
+                keyAlias = persistentDebugSigning[2]!!
+                keyPassword = persistentDebugSigning[3]!!
             }
         }
     }
