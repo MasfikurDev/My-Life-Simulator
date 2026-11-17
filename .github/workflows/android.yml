@@ -1,6 +1,7 @@
 name: Android wrapper APK
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
     paths: ["android/**", ".github/workflows/android.yml"]
   push:
     branches: [main]
@@ -9,19 +10,15 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: android-wrapper-${{ github.ref }}
+  group: android-wrapper-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
   build:
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
       contents: read
-    env:
-      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -33,6 +30,11 @@ jobs:
           gradle-version: "8.11.1"
       - name: Prepare persistent beta signing key
         shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && secrets.ANDROID_KEYSTORE_BASE64 || '' }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && secrets.ANDROID_KEYSTORE_PASSWORD || '' }}
+          ANDROID_KEY_ALIAS: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && secrets.ANDROID_KEY_ALIAS || '' }}
+          ANDROID_KEY_PASSWORD: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && secrets.ANDROID_KEY_PASSWORD || '' }}
         run: |
           if [[ -z "$ANDROID_KEYSTORE_BASE64" || -z "$ANDROID_KEYSTORE_PASSWORD" || -z "$ANDROID_KEY_ALIAS" || -z "$ANDROID_KEY_PASSWORD" ]]; then
             if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
@@ -53,11 +55,11 @@ jobs:
           echo "ANDROID_KEYSTORE_PATH=$keystore_path" >> "$GITHUB_ENV"
       - name: Assemble debug APK
         working-directory: android
-        run: gradle --no-daemon --build-cache --parallel --console=plain assembleDebug
+        run: gradle --no-daemon --build-cache --parallel --console=plain -PappVersionCode="$GITHUB_RUN_NUMBER" -PappVersionName="0.1.$GITHUB_RUN_NUMBER" assembleDebug
       - name: Verify persistent APK signature
         shell: bash
         run: |
-          if [[ -z "$ANDROID_KEYSTORE_PATH" ]]; then
+          if [[ -z "${ANDROID_KEYSTORE_PATH:-}" ]]; then
             if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
               echo "::error::Refusing to publish an APK without the persistent signing key."
               exit 1
@@ -74,7 +76,7 @@ jobs:
           name: my-life-simulator-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 1
 
   publish-beta:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

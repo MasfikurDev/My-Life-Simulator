@@ -17,7 +17,7 @@ The PR is the primary record for an individual change. Its description must stay
 - State the request, approved requirement, intended outcome, affected systems, and scope.
 - Link the originating issue/discussion when one exists. For direct user requests, say so rather than inventing an issue.
 - Record dependencies, overlapping work, compatibility constraints, and behavior intentionally changed or removed.
-- Keep validation evidence tied to actual GitHub Actions runs and the commit that was tested. Distinguish code validation, simulation audits, deployment, and visual verification.
+- Keep validation evidence tied to actual GitHub Actions runs and the commit that was tested. Distinguish code validation, the conditional simulation stress suite, deployment, and visual verification.
 - Update the PR description when scope, behavior, risks, decisions, or validation results change. Do not rely on chat history as the only record.
 
 ## 3. Iterate while it is a draft
@@ -25,13 +25,13 @@ The PR is the primary record for an individual change. Its description must stay
 A draft PR is the normal place for unfinished work and last-minute changes:
 
 - Implement and refine the feature without implying it is merge-ready.
-- Run focused tests and relevant simulations as the work develops.
+- Run focused tests and relevant simulations as the work develops; manually dispatch the relevant workflow when full automated feedback is needed before the PR is ready.
 - Review UI behavior and screenshots where applicable.
 - Make requested or discovered corrections directly on the branch.
 - Keep changes focused; split unrelated work rather than letting one PR become a catch-all.
 - If a material requirement or approved decision changes, record the decision and its impact in the PR before proceeding.
 
-Draft status does **not** remove the need to run checks, communicate blockers, or keep the branch reasonably current.
+Draft status does **not** remove the need for focused testing, communicating blockers, or keeping the branch reasonably current. The automated web and Android workflows skip draft PRs to avoid paying for every intermediate push; use manual workflow dispatch when early full validation is needed. Full automated validation runs when the PR becomes ready for review.
 
 ## 4. Record durable decisions selectively
 

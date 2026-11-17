@@ -2,6 +2,7 @@ package com.masfikurdev.mylifesimulator
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
@@ -17,6 +18,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -36,11 +38,14 @@ class MainActivity : Activity() {
     private lateinit var splashArtwork: ImageView
     private val preferences by lazy { getSharedPreferences("display_settings", MODE_PRIVATE) }
     private val gameUrl = "https://masfikurdev.github.io/My-Life-Simulator/"
+    private var pendingBetaUpdate: BetaUpdate? = null
+    private var pendingInstallAfterPermission = false
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        BetaApkUpdater.cleanupStaleArtifacts(this)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
@@ -148,6 +153,84 @@ class MainActivity : Activity() {
         webView.clearCache(true)
         loadGame()
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
+        handleUpdaterIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleUpdaterIntent(intent)
+    }
+
+    private fun handleUpdaterIntent(intent: Intent?) {
+        if (intent == null) return
+        when (intent.action) {
+            BetaApkUpdater.ACTION_UPDATE_AVAILABLE -> {
+                val update = BetaUpdate(
+                    versionName = intent.getStringExtra(BetaApkUpdater.EXTRA_VERSION_NAME).orEmpty(),
+                    versionCode = intent.getLongExtra(BetaApkUpdater.EXTRA_VERSION_CODE, 0L),
+                    releaseUrl = intent.getStringExtra(BetaApkUpdater.EXTRA_RELEASE_URL).orEmpty(),
+                    apkUrl = intent.getStringExtra(BetaApkUpdater.EXTRA_APK_URL).orEmpty(),
+                    sha256 = intent.getStringExtra(BetaApkUpdater.EXTRA_SHA256).orEmpty(),
+                    changelog = intent.getStringExtra(BetaApkUpdater.EXTRA_CHANGELOG).orEmpty()
+                )
+                if (!update.isValid()) {
+                    Toast.makeText(this, "The beta update information is invalid.", Toast.LENGTH_LONG).show()
+                    return
+                }
+                pendingBetaUpdate = update
+                if (android.os.Build.VERSION.SDK_INT >= 33 &&
+                    checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED
+                ) {
+                    requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), REQUEST_BETA_NOTIFICATIONS)
+                } else showBetaUpdatePrompt(update)
+            }
+            BetaApkUpdater.ACTION_INSTALL_VERIFIED -> {
+                if (!BetaApkUpdater.installVerified(this)) {
+                    pendingInstallAfterPermission = android.os.Build.VERSION.SDK_INT >= 26 &&
+                        !packageManager.canRequestPackageInstalls()
+                    Toast.makeText(this, "Allow My Life Simulator to install updates, then return to the game.", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun showBetaUpdatePrompt(update: BetaUpdate) {
+        val details = buildString {
+            append("Version ").append(update.versionName)
+            if (update.changelog.isNotBlank()) append("\n\n").append(update.changelog)
+            append("\n\nThe APK will be verified before Android is asked to install it.")
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Beta update available")
+            .setMessage(details)
+            .setNegativeButton("Later", null)
+            .setNeutralButton("Release notes") { _, _ ->
+                runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(update.releaseUrl))) }
+            }
+            .setPositiveButton("Download") { _, _ ->
+                runCatching { BetaApkUpdater.enqueue(this, update) }
+                    .onSuccess { Toast.makeText(this, "Download started. Android will show its progress.", Toast.LENGTH_LONG).show() }
+                    .onFailure { Toast.makeText(this, it.message ?: "Could not start the download.", Toast.LENGTH_LONG).show() }
+            }
+            .show()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_BETA_NOTIFICATIONS) {
+            pendingBetaUpdate?.let(::showBetaUpdatePrompt)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (pendingInstallAfterPermission && android.os.Build.VERSION.SDK_INT >= 26 &&
+            packageManager.canRequestPackageInstalls()
+        ) {
+            pendingInstallAfterPermission = false
+            BetaApkUpdater.installVerified(this)
+        }
     }
 
     private fun dismissSplashArtwork() {
@@ -245,5 +328,6 @@ class MainActivity : Activity() {
 
     companion object {
         private const val KEY_FULLSCREEN = "immersive_fullscreen"
+        private const val REQUEST_BETA_NOTIFICATIONS = 4402
     }
 }
