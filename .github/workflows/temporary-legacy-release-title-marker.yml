@@ -1,0 +1,44 @@
+name: Temporary legacy release title marker
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  mark-legacy-releases:
+    if: startsWith(github.head_ref, 'temporary/legacy-release-title-marking')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prefix legacy release titles
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          while read -r tag title; do
+            gh release edit "$tag" --title "[LEGACY] $title"
+            actual="$(gh release view "$tag" --json name --jq .name)"
+            test "$actual" = "[LEGACY] $title"
+            echo "Updated $tag: $actual"
+          done <<'RELEASES'
+          beta-72-1|My Life Simulator Beta 72
+          beta-71-1|My Life Simulator Beta 71
+          beta-45-1|My Life Simulator Beta 45
+          beta-43-1|My Life Simulator Beta 43
+          beta-41-1|My Life Simulator Beta 41
+          beta-39-1|My Life Simulator Beta 39
+          beta-37-1|My Life Simulator Beta 37
+          beta-29-1|My Life Simulator Beta 29
+          beta-27-1|My Life Simulator Beta 27
+          beta-25-1|My Life Simulator Beta 25
+          beta-23-1|My Life Simulator Beta 23
+          beta-21-1|My Life Simulator Beta 21
+          beta-19-1|My Life Simulator Beta 19
+          beta-16-1|My Life Simulator Beta 16
+          beta-14-1|My Life Simulator Beta 14
+          RELEASES
