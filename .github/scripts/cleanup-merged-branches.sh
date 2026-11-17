@@ -6,14 +6,9 @@ set -euo pipefail
 : "${DEFAULT_BRANCH:?DEFAULT_BRANCH is required}"
 
 DRY_RUN="${DRY_RUN:-true}"
-MINIMUM_AGE_DAYS="${MINIMUM_AGE_DAYS:-7}"
 
 if [[ "$DRY_RUN" != "true" && "$DRY_RUN" != "false" ]]; then
   echo "::error::DRY_RUN must be true or false."
-  exit 1
-fi
-if ! [[ "$MINIMUM_AGE_DAYS" =~ ^[0-9]+$ ]] || (( MINIMUM_AGE_DAYS < 1 || MINIMUM_AGE_DAYS > 365 )); then
-  echo "::error::MINIMUM_AGE_DAYS must be an integer between 1 and 365."
   exit 1
 fi
 
@@ -26,7 +21,6 @@ now_epoch="$(date -u +%s)"
 candidate_lines="$(jq -n -r \
   --arg owner "$GITHUB_REPOSITORY_OWNER" \
   --arg default "$DEFAULT_BRANCH" \
-  --argjson min_age "$MINIMUM_AGE_DAYS" \
   --argjson now "$now_epoch" \
   --argjson branches "$branches_json" \
   --argjson merged "$merged_prs_json" \
@@ -47,7 +41,6 @@ candidate_lines="$(jq -n -r \
     | select(($matching_prs | length) > 0)
     | ($matching_prs | max_by(.mergedAt)) as $pr
     | ((($now - ($pr.mergedAt | fromdateiso8601)) / 86400) | floor) as $age_days
-    | select($age_days >= $min_age)
     | [$branch.name, $branch.commit.sha, ($pr.number | tostring), $pr.mergedAt, ($age_days | tostring)]
     | @tsv
   ')"
@@ -98,7 +91,7 @@ done <<< "$candidate_lines"
   else
     echo "- Mode: deletion"
   fi
-  echo "- Minimum age: $MINIMUM_AGE_DAYS days"
+  echo "- Minimum age: none"
   echo "- Eligible branches: $candidate_count"
   echo "- Deleted: $deleted_count"
   echo "- Skipped after final checks: $skipped_count"
