@@ -77,8 +77,8 @@ object BetaApkUpdater {
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             .setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, APK_NAME)
 
-        val id = (context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager).enqueue(request)
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+        val id = manager.enqueue(request)
+        prefs.edit()
             .putLong(KEY_DOWNLOAD_ID, id)
             .putString(KEY_EXPECTED_SHA, update.sha256.lowercase())
             .putString(KEY_VERSION_NAME, update.versionName)
@@ -173,6 +173,9 @@ object BetaApkUpdater {
         }
         val candidate = context.packageManager.getPackageArchiveInfo(apk.absolutePath, flags) ?: return false
         if (candidate.packageName != context.packageName) return false
+        val expectedVersion = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getLong(KEY_VERSION_CODE, -1L)
+        val candidateVersion = if (android.os.Build.VERSION.SDK_INT >= 28) candidate.longVersionCode else candidate.versionCode.toLong()
+        if (expectedVersion <= installedVersionCode(context) || candidateVersion != expectedVersion) return false
 
         val installed = context.packageManager.getPackageInfo(context.packageName, flags)
         val candidateSigners = if (android.os.Build.VERSION.SDK_INT >= 28) {
