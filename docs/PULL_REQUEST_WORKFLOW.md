@@ -31,7 +31,7 @@ A draft PR is the normal place for unfinished work and last-minute changes:
 - Keep changes focused; split unrelated work rather than letting one PR become a catch-all.
 - If a material requirement or approved decision changes, record the decision and its impact in the PR before proceeding.
 
-Draft status does **not** remove the need to run checks, communicate blockers, or keep the branch reasonably current. Applicable web and Android validation runs on every PR update, including drafts. The separate long simulation audit runs automatically for its relevant paths.
+Draft status does **not** remove the need to run checks, communicate blockers, or keep the branch reasonably current. Applicable web and Android validation runs on every PR update, including drafts. The separate long simulation audit runs automatically for its relevant paths. Independent PRs run their applicable validation concurrently; they are not batched or throttled behind other PRs. Do not add global concurrency caps, scheduled delays, or cost-reduction queues. Workflow cancellation may replace an older run only for the same PR/ref, never an unrelated PR.
 
 ## 4. Record durable decisions selectively
 
