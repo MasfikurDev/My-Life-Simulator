@@ -1,0 +1,20 @@
+/* Reusable UI framework layer. Semantic tokens; components own structure, not page-specific styling. */
+:root{
+ --ui-card-padding-compact:var(--space-3,12px);--ui-card-padding-comfortable:var(--space-4,16px);--ui-card-padding-spacious:var(--space-6,24px);
+ --ui-card-radius:var(--radius-lg,16px);--ui-motion-fast:140ms;--ui-motion-normal:220ms;--ui-motion-slow:360ms;
+ --ui-ease-standard:cubic-bezier(.2,.75,.25,1);--ui-surface-outline:1px solid var(--line);--ui-card-shadow:var(--shadow-card,none);
+}
+.ui-card{min-width:0;color:var(--text);border:var(--ui-surface-outline);border-radius:var(--ui-card-radius);background-color:var(--surface);box-shadow:var(--ui-card-shadow);transition:background-color var(--ui-motion-normal),border-color var(--ui-motion-normal),box-shadow var(--ui-motion-normal),transform var(--ui-motion-normal) var(--ui-ease-standard)}
+.ui-card--compact{padding:var(--ui-card-padding-compact)}.ui-card--comfortable{padding:var(--ui-card-padding-comfortable)}.ui-card--spacious{padding:var(--ui-card-padding-spacious)}.ui-card--flush{padding:0}
+.ui-card--flat,.ui-card--outlined{box-shadow:none}.ui-card--raised{background:var(--surface-raised)}.ui-card--tinted{background:color-mix(in srgb,var(--accent-soft) 52%,var(--surface));border-color:color-mix(in srgb,var(--accent) 22%,var(--line))}.ui-card--outlined{background:transparent}
+.ui-card--accent{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}.ui-card--success{border-color:color-mix(in srgb,var(--success) 40%,var(--line))}.ui-card--warning{border-color:color-mix(in srgb,var(--warning) 40%,var(--line))}.ui-card--danger{border-color:color-mix(in srgb,var(--danger) 40%,var(--line))}.ui-card--info{border-color:color-mix(in srgb,var(--info) 40%,var(--line))}
+.ui-card--radius-sm{border-radius:var(--radius-sm)}.ui-card--radius-md{border-radius:var(--radius-md)}.ui-card--radius-lg{border-radius:var(--radius-lg)}.ui-card--radius-xl{border-radius:22px}
+.ui-card--glow{box-shadow:0 0 26px color-mix(in srgb,var(--accent) 12%,transparent),var(--ui-card-shadow)}
+.ui-card--interactive{cursor:pointer;-webkit-tap-highlight-color:transparent}.ui-card--interactive:focus-within{outline:2px solid color-mix(in srgb,var(--accent) 60%,transparent);outline-offset:2px}
+@media(hover:hover) and (pointer:fine){.ui-card--interactive:hover{border-color:color-mix(in srgb,var(--accent) 38%,var(--line-strong));transform:translateY(-2px)}}
+.ui-stack{display:flex;min-width:0;gap:var(--ui-gap,12px)}.ui-stack--vertical{flex-direction:column}.ui-stack--horizontal{flex-direction:row}.ui-stack--wrap{flex-wrap:wrap}
+.ui-grid{display:grid;min-width:0;grid-template-columns:repeat(var(--ui-columns,auto-fit),minmax(0,1fr));gap:var(--ui-gap,12px)}.ui-grid--auto{grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ui-min-width,140px)),1fr))}.ui-grid>*{min-width:0}
+.ui-button--large{min-height:48px;padding-inline:18px;font-size:14px}.ui-button--full{width:100%}.ui-button--pill{border-radius:var(--radius-pill)}.ui-button--square{aspect-ratio:1;padding-inline:0}
+.profile-detail-grid .overview-context-item{min-height:0;padding:var(--ui-card-padding-compact);align-content:start;gap:var(--space-1,4px)}
+.profile-detail-grid .overview-context-item strong{line-height:1.35}
+@media(prefers-reduced-motion:reduce){.ui-card,.ui-stack,.ui-button{transition:none!important}.ui-card--interactive:hover{transform:none}}
