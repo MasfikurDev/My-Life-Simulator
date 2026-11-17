@@ -38,6 +38,8 @@ class MainActivity : Activity() {
     private lateinit var splashArtwork: ImageView
     private val preferences by lazy { getSharedPreferences("display_settings", MODE_PRIVATE) }
     private val gameUrl = "https://masfikurdev.github.io/My-Life-Simulator/"
+    private var pendingBetaUpdate: BetaUpdate? = null
+    private var pendingInstallAfterPermission = false
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -171,94 +173,49 @@ class MainActivity : Activity() {
                     Toast.makeText(this, "The beta update information is invalid.", Toast.LENGTH_LONG).show()
                     return
                 }
-                val details = buildString {
-                    append("Version ").append(update.versionName)
-                    if (update.changelog.isNotBlank()) append("\n\n").append(update.changelog)
-                    append("\n\nThe APK will be verified before Android is asked to install it.")
-                }
-                AlertDialog.Builder(this)
-                    .setTitle("Beta update available")
-                    .setMessage(details)
-                    .setNegativeButton("Later", null)
-                    .setNeutralButton("Release notes") { _, _ ->
-                        runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(update.releaseUrl))) }
-                    }
-                    .setPositiveButton("Download") { _, _ ->
-                        runCatching { BetaApkUpdater.enqueue(this, update) }
-                            .onSuccess { Toast.makeText(this, "Download started. Android will show its progress.", Toast.LENGTH_LONG).show() }
-                            .onFailure { Toast.makeText(this, it.message ?: "Could not start the download.", Toast.LENGTH_LONG).show() }
-                    }
-                    .show()
+                pendingBetaUpdate = update
+                if (android.os.Build.VERSION.SDK_INT >= 33 &&
+                    checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED
+                ) {
+                    requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), REQUEST_BETA_NOTIFICATIONS)
+                } else {
+                    showBetaUpdatePrompt(update)
+                }    private fun showBetaUpdatePrompt(update: BetaUpdate) {
+        val details = buildString {
+            append("Version ").append(update.versionName)
+            if (update.changelog.isNotBlank()) append("\n\n").append(update.changelog)
+            append("\n\nThe APK will be verified before Android is asked to install it.")
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Beta update available")
+            .setMessage(details)
+            .setNegativeButton("Later", null)
+            .setNeutralButton("Release notes") { _, _ ->
+                runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(update.releaseUrl))) }
             }
-            BetaApkUpdater.ACTION_INSTALL_VERIFIED -> {
-                if (!BetaApkUpdater.installVerified(this)) {
-                    Toast.makeText(this, "Allow My Life Simulator to install updates, then reopen the update notification.", Toast.LENGTH_LONG).show()
-                }
+            .setPositiveButton("Download") { _, _ ->
+                runCatching { BetaApkUpdater.enqueue(this, update) }
+                    .onSuccess { Toast.makeText(this, "Download started. Android will show its progress.", Toast.LENGTH_LONG).show() }
+                    .onFailure { Toast.makeText(this, it.message ?: "Could not start the download.", Toast.LENGTH_LONG).show() }
             }
+            .show()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_BETA_NOTIFICATIONS) {
+            pendingBetaUpdate?.let(::showBetaUpdatePrompt)
         }
     }
 
-    private fun dismissSplashArtwork() {
-        if (!::splashArtwork.isInitialized || splashArtwork.visibility != View.VISIBLE) return
-        splashArtwork.animate().alpha(0f).setDuration(420L).withEndAction {
-            splashArtwork.visibility = View.GONE
-            splashArtwork.alpha = 1f
-        }.start()
-    }
-
-    private fun applyFullscreen(enabled: Boolean) {
-        WindowInsetsControllerCompat(window, root).apply {
-            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            if (enabled) hide(WindowInsetsCompat.Type.systemBars()) else show(WindowInsetsCompat.Type.systemBars())
-            isAppearanceLightStatusBars = false
-            isAppearanceLightNavigationBars = false
-        }
-        ViewCompat.requestApplyInsets(content)
-    }
-
-    private fun loadGame(fresh: Boolean = false) {
-        retry.visibility = View.GONE
-        val url = if (fresh) "$gameUrl?update=${System.currentTimeMillis()}" else gameUrl
-        webView.loadUrl(url)
-    }
-
-    private inner class GameBridge {
-        @JavascriptInterface fun isFullscreen(): Boolean = preferences.getBoolean(KEY_FULLSCREEN, false)
-        @JavascriptInterface fun setFullscreen(enabled: Boolean) {
-            runOnUiThread { preferences.edit().putBoolean(KEY_FULLSCREEN, enabled).apply(); applyFullscreen(enabled) }
-        }
-        @JavascriptInterface fun copyToClipboard(text: String): Boolean {
-            val copied = AtomicBoolean(false)
-            val completed = CountDownLatch(1)
-            runOnUiThread {
-                try {
-                    val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-                    clipboard.setPrimaryClip(ClipData.newPlainText("Gameplay snapshot", text))
-                    copied.set(true)
-                } catch (_: Exception) { copied.set(false) } finally { completed.countDown() }
-            }
-            return try { completed.await(3, TimeUnit.SECONDS) && copied.get() }
-            catch (_: InterruptedException) { Thread.currentThread().interrupt(); false }
-        }
-        @JavascriptInterface fun exitApp() { runOnUiThread { this@MainActivity.finish() } }
-        @JavascriptInterface fun reloadLatest() {
-            runOnUiThread { webView.clearCache(true); loadGame(fresh = true) }
+    override fun onResume() {
+        super.onResume()
+        if (pendingInstallAfterPermission && android.os.Build.VERSION.SDK_INT >= 26 &&
+            packageManager.canRequestPackageInstalls()
+        ) {
+            pendingInstallAfterPermission = false
+            BetaApkUpdater.installVerified(this)
         }
     }
 
-    @Deprecated("Deprecated in Android API")
-    override fun onBackPressed() {
-        if (::webView.isInitialized && webView.canGoBack()) webView.goBack() else super.onBackPressed()
-    }
 
-    override fun onDestroy() {
-        if (::webView.isInitialized) {
-            webView.stopLoading()
-            webView.removeJavascriptInterface("AndroidApp")
-            webView.destroy()
-        }
-        super.onDestroy()
-    }
-
-    companion object { private const val KEY_FULLSCREEN = "immersive_fullscreen" }
-}
