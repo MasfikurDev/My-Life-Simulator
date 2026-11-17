@@ -15,17 +15,17 @@ The cost-reduction changes in PR #174 skipped web and Android validation on draf
 2. Keep web validation complete: dependency installation, Svelte checks, regular Vitest tests, and production build.
 3. Restore the separate long simulation audit workflow. It runs automatically for its relevant simulation/library/package paths and remains manually dispatchable.
 4. Restore the PR file-deletion safeguard and require the explicit reviewed-deletions checklist item when tracked files are deleted.
-5. Restore the Android workflow artifact retention to 14 days, reversing the one-day reduction introduced by PR #174.
-6. Preserve path filters, concurrency cancellation, caching, least-privilege permissions, production Pages deployment, Android signing verification, and the separate beta publishing job.
-7. Do not skip required validation solely to reduce runner usage. Optimize CI only when it improves speed, reliability, or maintainability without reducing meaningful coverage.
+5. Allow independent PRs to run their applicable validation concurrently. Do not batch unrelated PRs, impose repository-wide concurrency caps, add scheduled delays, or queue checks to reduce perceived Actions usage.
+6. Scope workflow concurrency groups to the individual PR/ref. A newer run may cancel only an older, superseded run for that same PR/ref; unrelated PRs must neither block nor cancel one another.
+7. Preserve path filters, per-PR concurrency cancellation, caching, least-privilege permissions, production Pages deployment, Android signing verification, and the separate beta publishing job.
+8. Do not skip or delay required validation to reduce runner usage. Optimize CI only when it improves speed, reliability, or maintainability without reducing meaningful coverage.
 
 ## Consequences
 
 - Draft PR updates receive the same applicable web and Android checks as other PR updates.
 - Relevant simulation changes receive a separate long-running simulation audit.
 - Tracked file deletions are gated by explicit review confirmation.
-- Some draft iterations produce more workflow runs, but this public repository's standard hosted-runner minutes are free.
-- The Android build artifact remains available for 14 days; the GitHub beta release remains the durable distribution channel.
+- Independent PRs can consume runner capacity at the same time; GitHub's normal scheduling handles available runner capacity without repository-imposed batching.
 - The beta APK updater, signing improvements, release versioning, and deployment behavior remain unchanged.
 
 ## References
