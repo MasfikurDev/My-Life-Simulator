@@ -63,16 +63,15 @@ jobs:
         run: |
           if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
             latest_version=0
-            tag_refs="$(gh api --paginate "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/beta-" --jq '.[].ref')"
-            while IFS= read -r tag_ref; do
-              tag="${tag_ref#refs/tags/}"
+            release_tags="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq '.[] | select(.prerelease == true and .draft == false) | .tag_name')"
+            while IFS= read -r tag; do
               if [[ "$tag" =~ ^beta-([0-9]+)-[0-9]+$ ]]; then
                 candidate="${BASH_REMATCH[1]}"
                 if (( candidate > latest_version )); then
                   latest_version="$candidate"
                 fi
               fi
-            done <<< "$tag_refs"
+            done <<< "$release_tags"
 
             version_code=$((latest_version + 1))
             version_name="0.1.$version_code"
