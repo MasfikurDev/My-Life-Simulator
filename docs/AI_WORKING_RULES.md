@@ -68,18 +68,15 @@ Then inspect relevant source, tests, recent history, current main, and open PRs.
 
 For any change touching two or more gameplay domains, read `docs/SYSTEM_INTEGRATION_REVIEW.md`. Use its ownership map and cross-domain contracts as review aids, then verify them against current code and tests. Treat findings and staged work as hypotheses/planning guidance, not automatic instructions to implement stale or deferred work.
 
-## Enforced reliability safeguards
+## Reliability and validation
 
-These checks are implemented in GitHub Actions and the repository PR template; do not bypass them casually:
-
-- Every PR runs `.github/workflows/pr-guardrails.yml`. Tracked file deletions require the `Intentional file deletions reviewed` PR checklist item to be checked after the complete deletion and replacement behavior has been reviewed. A file deletion is not automatically wrong, but it must be deliberate.
-- Inspect the complete base-to-head diff, including deletions, renames, generated files, and changes outside the stated scope. The deletion guard cannot detect behavior removed inside a file that remains.
+- Inspect the complete base-to-head diff, including deletions, renames, generated files, and changes outside the stated scope. Review intentional removals explicitly; deletion review is part of normal PR review, not a separate automated gate.
 - Use the repository PR template. Explicitly list intended behavior removals, save-format changes, and risks; write "None" when there are none.
-- Web code changes must pass Svelte checking, the regular Vitest regression suite (`npm test`), and the production build. The separate long-running stress suite is run by `npm run test:simulation`. Add a focused regression test for the reported failure; do not rely on a broad suite alone.
-- For changes to weekly resolution, stamina, progression, age gates, finance settlement, or cross-domain simulation, confirm the separate simulation audit workflow runs automatically for `web/src/lib/**` changes; manually dispatch `.github/workflows/simulation-audit.yml` against the exact branch/commit when the changed code falls outside those paths. The long suite is intentionally separate from normal PR checks.
+- Web code changes must pass Svelte checking, the regular Vitest regression suite (`npm test`), and the production build. The long-running suite remains available as `npm run test:simulation`.
+- The long simulation suite runs in `.github/workflows/web.yml` when `web/src/lib/**`, the web package scripts/lockfile, or the web workflow changes. Manual dispatch runs it explicitly. Draft PRs skip expensive validation; ready-for-review transitions trigger it.
 - Cross-domain changes still require reading `docs/SYSTEM_INTEGRATION_REVIEW.md` and testing the owning state, connected state, ledger, history, and persistence invariants.
 - UI changes require inspection of the actual affected screen and a narrow Android/mobile viewport; a passing type check does not establish visual correctness.
-- Never report a safeguard as passed until its current GitHub Actions run is confirmed successful. A green run on an earlier commit does not validate later changes.
+- Never report a check as passed until its current GitHub Actions run is confirmed successful. A green run on an earlier commit does not validate later changes.
 
 ## Conflict resolution
 Latest explicit user instruction wins for the changed requirement; preserve all other decisions. If ambiguity materially affects architecture, ask one focused question. Record approved changes and consequences in canonical docs/ADRs.
