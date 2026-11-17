@@ -39,8 +39,11 @@ Workflow: `.github/workflows/android.yml`
 - Android-only path filters remain; web-only changes do not build an APK.
 - Draft PRs skip Android builds. Ready-for-review transitions and subsequent commits build normally.
 - Uses Java 17 and Gradle 8.11.1 with the existing Gradle cache/build cache.
-- The build job remains read-only. Persistent signing secrets are injected only into the signing-preparation step and only for non-PR runs on `main`; Gradle and other build steps never receive the secret values.
-- The build verifies the persistent APK signature when signing is configured. A main-branch push fails if the persistent signing secrets are missing.
+- The build job remains read-only. Persistent signing secrets are available only to the signing-preparation step and the single Gradle assemble step, and only for non-PR runs on `main`; unrelated steps never receive the secret values.
+- Pull-request builds generate a throwaway CI keystore (no repository secrets) and pass its credentials to Gradle. This exercises the same `persistentDebug` signing path and signer verification without exposing the release key.
+- The signing-preparation step validates the selected keystore and extracts its certificate SHA-256 fingerprint. Gradle receives the keystore path, password, alias, and key password for the assemble step so `persistentDebug` is actually selected.
+- APK verification checks both cryptographic validity and that the APK signer fingerprint exactly matches the certificate extracted from the selected keystore. A main-branch push fails if persistent secrets are missing, the keystore is invalid, or the built APK uses any other signing identity. Manual dispatch on `main` also exercises persistent signing verification without publishing a release.
+- Treat the four persistent signing secrets as one immutable release identity. Rotating or replacing the keystore is an Android package-signing migration, not routine secret maintenance; verify the installed release certificate and plan an explicit user-data-preserving migration before changing it.
 - The APK artifact is retained for one day because the publish job consumes it immediately. The beta release asset remains the durable download.
 - The separate publish job runs only on a push to `main`, downloads the exact APK artifact from that run, and receives `contents: write`.
 - **Beta version numbers are release-based, not workflow-run-based.** On a main push, the build reads existing published beta pre-releases with `beta-<version>-<attempt>` tags and assigns the next version number. The successful release uses that number for its APK `versionCode`, `versionName`, release title, and tag.
