@@ -35,23 +35,37 @@ jobs:
         shell: bash
         env:
           ANDROID_KEYSTORE_BASE64: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && secrets.ANDROID_KEYSTORE_BASE64 || '' }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && secrets.ANDROID_KEYSTORE_PASSWORD || '' }}
-          ANDROID_KEY_ALIAS: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && secrets.ANDROID_KEY_ALIAS || '' }}
-          ANDROID_KEY_PASSWORD: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && secrets.ANDROID_KEY_PASSWORD || '' }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ github.event_name == 'pull_request' && 'ci-test-password' || (github.ref == 'refs/heads/main' && secrets.ANDROID_KEYSTORE_PASSWORD || '') }}
+          ANDROID_KEY_ALIAS: ${{ github.event_name == 'pull_request' && 'ci-test' || (github.ref == 'refs/heads/main' && secrets.ANDROID_KEY_ALIAS || '') }}
+          ANDROID_KEY_PASSWORD: ${{ github.event_name == 'pull_request' && 'ci-test-password' || (github.ref == 'refs/heads/main' && secrets.ANDROID_KEY_PASSWORD || '') }}
         run: |
+          signing_dir="$RUNNER_TEMP/my-life-simulator-signing"
+          mkdir -p "$signing_dir"
+          keystore_path="$signing_dir/my-life-simulator.jks"
+
           if [[ -z "$ANDROID_KEYSTORE_BASE64" || -z "$ANDROID_KEYSTORE_PASSWORD" || -z "$ANDROID_KEY_ALIAS" || -z "$ANDROID_KEY_PASSWORD" ]]; then
             if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
               echo "::error::Persistent Android signing secrets are required before publishing a beta APK."
               exit 1
             fi
-            echo "Persistent signing secrets are unavailable; this non-release validation build will use the standard debug key."
-            exit 0
+            if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+              # PRs have no access to repository signing secrets. Generate a throwaway
+              # key so CI still tests Gradle signing and APK-to-keystore fingerprint checks.
+              ANDROID_KEYSTORE_PASSWORD="ci-test-password"
+              ANDROID_KEY_ALIAS="ci-test"
+              ANDROID_KEY_PASSWORD="ci-test-password"
+              keytool -genkeypair -noprompt -keystore "$keystore_path" \
+                -storepass "$ANDROID_KEYSTORE_PASSWORD" -keypass "$ANDROID_KEY_PASSWORD" \
+                -alias "$ANDROID_KEY_ALIAS" -dname "CN=CI Test,O=My Life Simulator" \
+                -keyalg RSA -keysize 2048 -validity 2
+            else
+              echo "No signing key for this non-release manual run; using the standard debug key."
+              exit 0
+            fi
+          else
+            printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore_path"
           fi
 
-          signing_dir="$RUNNER_TEMP/my-life-simulator-signing"
-          mkdir -p "$signing_dir"
-          keystore_path="$signing_dir/my-life-simulator.jks"
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore_path"
           test -s "$keystore_path"
           keytool -list -keystore "$keystore_path" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null
           chmod 600 "$keystore_path"
