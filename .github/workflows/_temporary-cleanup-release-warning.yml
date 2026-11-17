@@ -1,0 +1,25 @@
+name: Temporary release warning cleanup
+
+on:
+  push:
+    paths:
+      - ".github/workflows/_temporary-cleanup-release-warning.yml"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close temporary PR and remove temporary branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh pr close 178 --repo "$GH_REPO" --comment "Temporary CI runner completed successfully. All 15 legacy beta release notes were updated and verified. Closing this temporary PR; no application source or APK assets were changed."
+          gh api -X DELETE "repos/$GH_REPO/git/refs/heads/temporary/legacy-release-warning-run"
+          echo "Temporary PR closed and branch deleted."
