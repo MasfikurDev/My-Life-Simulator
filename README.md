@@ -25,6 +25,7 @@ The canonical gameplay clock is:
 - [CI and delivery](docs/CI_CD.md)
 - [GitHub repository settings](docs/REPOSITORY_SETTINGS.md)
 - [Development lessons and reliability guardrails](docs/DEVELOPMENT_LESSONS.md)
+- [Change and decision records](docs/CHANGE_RECORDS.md)
 - [Roadmap](docs/ROADMAP.md)
 - [AI working rules](docs/AI_WORKING_RULES.md)
 - [Pull request workflow](docs/PULL_REQUEST_WORKFLOW.md)
