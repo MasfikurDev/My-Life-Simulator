@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -66,7 +66,7 @@ jobs:
           fi
 
           if [[ "$EVENT_NAME" == "pull_request" ]]; then
-            git fetch --no-tags --depth=1 origin "$PR_BASE_SHA" "$PR_HEAD_SHA"
+            # checkout fetch-depth: 2 includes the PR merge commit and both parents.
             changed_files="$(git diff --name-only "$PR_BASE_SHA" "$PR_HEAD_SHA")"
           elif [[ "$PUSH_BEFORE_SHA" =~ ^0+$ ]]; then
             changed_files="$(git ls-tree -r --name-only "$GITHUB_SHA")"
