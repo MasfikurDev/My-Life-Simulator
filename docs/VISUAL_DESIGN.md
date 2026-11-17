@@ -27,7 +27,7 @@ A modern, polished, mobile-first life simulation interface. It should feel like 
 - Comfortable touch targets; no hover-only interactions.
 - Avoid decorative scenery that competes with the character, current situation, and decisions.
 
-## Aurora theme and animated life-event headers
+## Theme-specific animated life-event headers
 - Aurora is an optional, selectable full-interface theme; it must never replace the AMOLED default or alter gameplay and save data.
 - Apply its atmospheric violet surfaces, mint highlights, subtle gradients, and restrained interactive accents consistently across navigation, cards, buttons, and overlays.
 - Every theme uses the shared animated category-specific life-event header when a decision is pending. Theme-specific gradients, patterns, and motion keep the header consistent in structure while giving each palette a distinct atmosphere.
