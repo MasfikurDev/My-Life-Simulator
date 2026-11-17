@@ -20,7 +20,7 @@
     transition:background .2s,border-color .2s,color .2s,box-shadow .22s,transform .18s,filter .18s;
     -webkit-tap-highlight-color:transparent;
   }
-  .ui-button-content{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:inherit}
+  .ui-button-content{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:8px}
   .ui-button::after{
     content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;
     background:linear-gradient(112deg,transparent 24%,color-mix(in srgb,white 18%,transparent) 48%,transparent 68%);
