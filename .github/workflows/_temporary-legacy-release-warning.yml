@@ -1,0 +1,53 @@
+name: Temporary legacy release warning updater
+
+on:
+  push:
+    paths:
+      - ".github/workflows/_temporary-legacy-release-warning.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  update-legacy-release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepend compatibility warning to legacy beta releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          warning=$(cat <<'EOF'
+          > **⚠️ LEGACY APK — ANDROID SIGNING COMPATIBILITY WARNING**
+          >
+          > This build was published during a period when Android signing was not consistently configured. It may use a different signing certificate from other beta builds, so Android may reject it as an update.
+          >
+          > **Beta 71 and Beta 72 are confirmed to have different signing certificates.** Other legacy beta builds may also be affected.
+          >
+          > If Android refuses an update, back up or export your game data before uninstalling the existing app. Uninstalling may erase locally stored saves.
+          EOF
+          )
+          tags=(
+            beta-72-1 beta-71-1 beta-45-1 beta-43-1 beta-41-1
+            beta-39-1 beta-37-1 beta-29-1 beta-27-1 beta-25-1
+            beta-23-1 beta-21-1 beta-19-1 beta-16-1 beta-14-1
+          )
+          tmp=$(mktemp)
+          trap 'rm -f "$tmp"' EXIT
+          for tag in "${tags[@]}"; do
+            body=$(gh release view "$tag" --repo "$GH_REPO" --json body --jq .body)
+            if [[ "$body" == *"LEGACY APK — ANDROID SIGNING COMPATIBILITY WARNING"* ]]; then
+              echo "Already marked: $tag"
+              continue
+            fi
+            {
+              printf '%s\n\n' "$warning"
+              printf '%s\n' "$body"
+            } > "$tmp"
+            gh release edit "$tag" --repo "$GH_REPO" --notes-file "$tmp"
+            updated=$(gh release view "$tag" --repo "$GH_REPO" --json body --jq .body)
+            [[ "$updated" == *"LEGACY APK — ANDROID SIGNING COMPATIBILITY WARNING"* ]]
+            echo "Updated and verified: $tag"
+          done
