@@ -2,7 +2,6 @@ package com.masfikurdev.mylifesimulator
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
@@ -18,7 +17,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -70,6 +68,8 @@ class MainActivity : Activity() {
         }
         splashArtwork = ImageView(this).apply {
             setImageResource(R.drawable.splash_art)
+            // Show the original, full-aspect-ratio artwork. Never substitute or crop it
+            // into Android's square launcher/splash-icon viewport.
             scaleType = ImageView.ScaleType.FIT_CENTER
             setBackgroundColor(Color.BLACK)
             contentDescription = null
@@ -124,6 +124,8 @@ class MainActivity : Activity() {
         content.addView(progress, FrameLayout.LayoutParams(-1, 5))
         content.addView(retry, FrameLayout.LayoutParams(-1, -2))
         root.addView(content, FrameLayout.LayoutParams(-1, -1))
+        // This independent top layer covers the entire display, including system-bar
+        // areas. FIT_CENTER preserves every edge of the source image.
         root.addView(splashArtwork, FrameLayout.LayoutParams(-1, -1))
         setContentView(root)
 
@@ -178,9 +180,19 @@ class MainActivity : Activity() {
                     checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED
                 ) {
                     requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), REQUEST_BETA_NOTIFICATIONS)
-                } else {
-                    showBetaUpdatePrompt(update)
-                }    private fun showBetaUpdatePrompt(update: BetaUpdate) {
+                } else showBetaUpdatePrompt(update)
+            }
+            BetaApkUpdater.ACTION_INSTALL_VERIFIED -> {
+                if (!BetaApkUpdater.installVerified(this)) {
+                    pendingInstallAfterPermission = android.os.Build.VERSION.SDK_INT >= 26 &&
+                        !packageManager.canRequestPackageInstalls()
+                    Toast.makeText(this, "Allow My Life Simulator to install updates, then return to the game.", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun showBetaUpdatePrompt(update: BetaUpdate) {
         val details = buildString {
             append("Version ").append(update.versionName)
             if (update.changelog.isNotBlank()) append("\n\n").append(update.changelog)
@@ -218,4 +230,101 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun dismissSplashArtwork() {
+        if (!::splashArtwork.isInitialized || splashArtwork.visibility != View.VISIBLE) return
+        splashArtwork.animate()
+            .alpha(0f)
+            .setDuration(420L)
+            .withEndAction {
+                splashArtwork.visibility = View.GONE
+                splashArtwork.alpha = 1f
+            }
+            .start()
+    }
 
+    private fun applyFullscreen(enabled: Boolean) {
+        WindowInsetsControllerCompat(window, root).apply {
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            if (enabled) hide(WindowInsetsCompat.Type.systemBars())
+            else show(WindowInsetsCompat.Type.systemBars())
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
+        }
+        ViewCompat.requestApplyInsets(content)
+    }
+
+    private fun loadGame(fresh: Boolean = false) {
+        retry.visibility = View.GONE
+        val url = if (fresh) "$gameUrl?update=${System.currentTimeMillis()}" else gameUrl
+        webView.loadUrl(url)
+    }
+
+    private inner class GameBridge {
+        @JavascriptInterface
+        fun isFullscreen(): Boolean = preferences.getBoolean(KEY_FULLSCREEN, false)
+
+        @JavascriptInterface
+        fun setFullscreen(enabled: Boolean) {
+            runOnUiThread {
+                preferences.edit().putBoolean(KEY_FULLSCREEN, enabled).apply()
+                applyFullscreen(enabled)
+            }
+        }
+
+        @JavascriptInterface
+        fun copyToClipboard(text: String): Boolean {
+            val copied = AtomicBoolean(false)
+            val completed = CountDownLatch(1)
+            runOnUiThread {
+                try {
+                    val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                    clipboard.setPrimaryClip(ClipData.newPlainText("Gameplay snapshot", text))
+                    copied.set(true)
+                } catch (_: Exception) {
+                    copied.set(false)
+                } finally {
+                    completed.countDown()
+                }
+            }
+            return try {
+                completed.await(3, TimeUnit.SECONDS) && copied.get()
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+                false
+            }
+        }
+
+        @JavascriptInterface
+        fun exitApp() {
+            runOnUiThread { this@MainActivity.finish() }
+        }
+
+        @JavascriptInterface
+        fun reloadLatest() {
+            runOnUiThread {
+                webView.clearCache(true)
+                loadGame(fresh = true)
+            }
+        }
+    }
+
+    @Deprecated("Deprecated in Android API")
+    override fun onBackPressed() {
+        if (::webView.isInitialized && webView.canGoBack()) webView.goBack()
+        else super.onBackPressed()
+    }
+
+    override fun onDestroy() {
+        if (::webView.isInitialized) {
+            webView.stopLoading()
+            webView.removeJavascriptInterface("AndroidApp")
+            webView.destroy()
+        }
+        super.onDestroy()
+    }
+
+    companion object {
+        private const val KEY_FULLSCREEN = "immersive_fullscreen"
+        private const val REQUEST_BETA_NOTIFICATIONS = 4402
+    }
+}
