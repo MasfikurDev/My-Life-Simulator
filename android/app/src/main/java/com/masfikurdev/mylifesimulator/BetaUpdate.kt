@@ -62,7 +62,7 @@ object BetaApkUpdater {
             "This beta is not newer than the installed version"
         }
 
-        val request = DownloadManager.Request(Uri.parse(update.apkUrl))
+        val manager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager\n        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)\n        val previousId = prefs.getLong(KEY_DOWNLOAD_ID, -1L)\n        if (previousId >= 0L) manager.remove(previousId)\n        File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), APK_NAME).delete()\n\n        val request = DownloadManager.Request(Uri.parse(update.apkUrl))
             .setTitle("My Life Simulator Beta ${update.versionName}")
             .setDescription("Downloading update")
             .setMimeType("application/vnd.android.package-archive")
@@ -139,9 +139,9 @@ object BetaApkUpdater {
         return true
     }
 
-    fun installedVersionCode(context: Context): Long {
+    @Suppress("DEPRECATION")\n    fun installedVersionCode(context: Context): Long {
         val info = context.packageManager.getPackageInfo(context.packageName, 0)
-        return if (android.os.Build.VERSION.SDK_INT >= 28) info.longVersionCode else @Suppress("DEPRECATION") info.versionCode.toLong()
+        return if (android.os.Build.VERSION.SDK_INT >= 28) info.longVersionCode else info.versionCode.toLong()
     }
 
     private fun verifySha256(file: File, expected: String): Boolean = runCatching {
