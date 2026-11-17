@@ -43,7 +43,7 @@ Workflow: `.github/workflows/android.yml`
 - The build verifies the persistent APK signature when signing is configured. A main-branch push fails if the persistent signing secrets are missing.
 - The APK artifact is retained for one day because the publish job consumes it immediately. The beta release asset remains the durable download.
 - The separate publish job runs only on a push to `main`, downloads the exact APK artifact from that run, and receives `contents: write`.
-- **Beta version numbers are release-based, not workflow-run-based.** On a main push, the build reads existing `beta-<version>-<attempt>` Git tags and assigns the next version number. The successful release uses that number for its APK `versionCode`, `versionName`, release title, and tag.
+- **Beta version numbers are release-based, not workflow-run-based.** On a main push, the build reads existing published beta pre-releases with `beta-<version>-<attempt>` tags and assigns the next version number. The successful release uses that number for its APK `versionCode`, `versionName`, release title, and tag.
 - PR validation and manual workflow runs use a non-release version and do not upload a beta APK artifact. They therefore cannot consume a beta version number or produce an APK that could be mistaken for an installable beta upgrade.
 - The build reads repository tags with its existing `contents: read` permission; only the separate publish job receives `contents: write`.
 - The existing single-build artifact hand-off remains in place. No second APK build is introduced for publishing.
@@ -68,7 +68,7 @@ The APK is a lightweight wrapper. A fresh app launch clears the WebView disk cac
 
 The native Android module contains a beta-only APK download and installation flow documented in [Beta APK updater](BETA_APK_UPDATER.md). It is deliberately provisional for active development and does not define stable-release behavior.
 
-The Android build accepts `appVersionCode` and `appVersionName` Gradle properties. For a main-branch beta build, the workflow derives the next version code from existing beta Git tags, then supplies that release version to Gradle. PR and manual validation builds use a non-release version and do not publish an APK artifact. Workflow run numbers and PR activity no longer affect beta numbering.
+The Android build accepts `appVersionCode` and `appVersionName` Gradle properties. For a main-branch beta build, the workflow derives the next version code from existing published beta pre-releases, then supplies that release version to Gradle. PR and manual validation builds use a non-release version and do not publish an APK artifact. Workflow run numbers and PR activity no longer affect beta numbering.
 
 The downloader uses Android DownloadManager for its system-managed progress notification, verifies the downloaded APK checksum, package ID, version code and signing identity, then hands it to Android's package installer. The notification transport is not wired into this change; the documented intent contract is the integration boundary for a future beta-only notification provider.
 
