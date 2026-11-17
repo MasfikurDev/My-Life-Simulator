@@ -19,7 +19,7 @@ fi
 
 echo "Loading repository branches and merged/open pull requests..."
 branches_json="$(gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/branches?per_page=100" | jq 'add')"
-merged_prs_json="$(gh pr list --state merged --limit 1000 --json headRefName,headRefOid,mergedAt,headRepositoryOwner)"
+merged_prs_json="$(gh pr list --state merged --limit 1000 --json number,headRefName,headRefOid,mergedAt,headRepositoryOwner)"
 open_prs_json="$(gh pr list --state open --limit 1000 --json headRefName)"
 
 now_epoch="$(date -u +%s)"
