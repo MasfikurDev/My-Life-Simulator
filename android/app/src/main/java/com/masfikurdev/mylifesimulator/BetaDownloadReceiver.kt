@@ -11,15 +11,29 @@ import android.os.Build
 
 class BetaDownloadReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE) return
-        val id = intent.getLongExtra(android.app.DownloadManager.EXTRA_DOWNLOAD_ID, -1L)
-        if (id < 0L) return
+        when (intent.action) {
+            android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE -> {
+                val id = intent.getLongExtra(android.app.DownloadManager.EXTRA_DOWNLOAD_ID, -1L)
+                if (id < 0L || !BetaApkUpdater.isManagedDownload(context, id)) return
 
-        if (!BetaApkUpdater.handleDownloadComplete(context, id)) {
-            notifyUser(context, "Beta update could not be verified", "The downloaded APK was rejected and will not be installed.", false)
-            return
+                if (!BetaApkUpdater.handleDownloadComplete(context, id)) {
+                    notifyUser(
+                        context,
+                        "Beta update could not be verified",
+                        "The download failed verification or did not complete. Its temporary APK was removed.",
+                        false
+                    )
+                    return
+                }
+                notifyUser(
+                    context,
+                    "Beta update downloaded",
+                    "The APK passed verification. Tap to continue to Android's installer.",
+                    true
+                )
+            }
+            Intent.ACTION_MY_PACKAGE_REPLACED -> BetaApkUpdater.cleanupAfterPackageReplacement(context)
         }
-        notifyUser(context, "Beta update downloaded", "The APK passed verification. Tap to continue to Android's installer.", true)
     }
 
     private fun notifyUser(context: Context, title: String, message: String, install: Boolean) {
