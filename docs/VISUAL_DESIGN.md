@@ -154,3 +154,12 @@ Do not render multiple controls or components for the same action or destination
 - Shared UiButton uses semantic primary, secondary, quiet, and danger variants with tactile press feedback, focus visibility, theme-aware geometry, and reduced-motion support.
 - Shared UiCard uses the theme's panel radius, wash, and shadow tokens. Interactive cards gain restrained lift on hover-capable devices and retain a visible focus-within state.
 - Preserve compact mobile layouts and avoid repeating one generic pattern across every card. Keep decorative motion confined to focal event surfaces and honor reduced-motion preferences.
+
+
+## Touch-first gameplay surfaces and Android safe areas (2026-11-17)
+- Apply visible, restrained ambient motion to the ordinary Overview and Profile screens, not only pending life-event dialogs. Prioritize the character identity/cash panel, weekly finance tiles, current-situation cards, activity feed, profile character panel, and attribute indicators.
+- Motion must be perceptible on touch devices without hover: use short press feedback, lightweight ambient pattern drift, metric highlights, and progress-ring entrance treatment. Hover remains optional enhancement only.
+- Give themes different pattern languages on focal surfaces; do not simply recolor one repeated texture. Keep decorative layers behind readable content and prevent them from intercepting taps.
+- Keep the interface compact and preserve existing information architecture, data, and gameplay behavior. Do not add extra dashboard sections merely to create visual activity.
+- Respect `prefers-reduced-motion` for every new animation.
+- Android system-bar and safe-area backgrounds must use the intended dark app surface. Remove temporary debug colors from both the decor view and root container before shipping.

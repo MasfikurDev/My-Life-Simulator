@@ -44,10 +44,10 @@ class MainActivity : Activity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
-        window.decorView.setBackgroundColor(Color.RED) // DEBUG: expose the native system safe-area region
+        window.decorView.setBackgroundColor(Color.rgb(18, 11, 13))
 
         root = FrameLayout(this).apply {
-            setBackgroundColor(Color.RED) // DEBUG: expose the native system safe-area region
+            setBackgroundColor(Color.rgb(18, 11, 13))
             clipToPadding = false
         }
         content = FrameLayout(this)
