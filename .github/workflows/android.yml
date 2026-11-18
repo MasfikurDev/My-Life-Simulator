@@ -1,7 +1,7 @@
 name: Android wrapper APK
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened]
     paths: ["android/**", ".github/workflows/android.yml"]
   push:
     branches: [main]
@@ -173,7 +173,7 @@ jobs:
           name: my-life-simulator-v${{ steps.beta-version.outputs.version_name }}-beta
           path: My-Life-Simulator-v${{ steps.beta-version.outputs.version_name }}-beta.apk
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 3
 
   publish-beta:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
