@@ -77,6 +77,10 @@ Install the latest successful `my-life-simulator-debug-apk` artifact from the An
 
 The wrapper clears its WebView disk cache at fresh launch, then permits normal HTTP caching during the session. The web client does not register a service worker. See [Technical Architecture](docs/TECHNICAL_ARCHITECTURE.md) for the freshness and save-compatibility policies.
 
+### Android release history
+
+The Releases page remains the canonical download source. For older builds, use the [Legacy Android Release Archive](docs/LEGACY_ANDROID_RELEASES.md). New beta builds follow the versioned naming convention documented in [Android Beta Releases](docs/ANDROID_BETA_RELEASES.md).
+
 ## Deployment boundary
 
 GitHub Pages is the only active web deployment target. Cloudflare Workers/Pages configuration and deployment automation were removed; do not reintroduce them unless the deployment decision is explicitly revisited.
