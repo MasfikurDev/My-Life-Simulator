@@ -10,9 +10,9 @@ val appVersionCode = providers.gradleProperty("appVersionCode").orNull?.let { va
 require(appVersionCode > 0) { "appVersionCode must be positive." }
 val appVersionName = providers.gradleProperty("appVersionName").orNull ?: "0.1.0"
 
-// CI supplies these values when the persistent beta key is available.
-// Local builds remain usable with Android's standard debug signing key.
-val persistentDebugSigning = listOf(
+// CI supplies these values for beta signing. Local beta builds use the local
+// debug key; published beta builds are required to use the persistent key.
+val persistentBetaSigning = listOf(
     providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull,
     providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").orNull,
     providers.environmentVariable("ANDROID_KEY_ALIAS").orNull,
@@ -31,26 +31,41 @@ android {
         versionName = appVersionName
     }
     signingConfigs {
-        if (persistentDebugSigning != null) {
-            create("persistentDebug") {
-                storeFile = file(persistentDebugSigning[0]!!)
-                storePassword = persistentDebugSigning[1]!!
-                keyAlias = persistentDebugSigning[2]!!
-                keyPassword = persistentDebugSigning[3]!!
+        if (persistentBetaSigning != null) {
+            create("persistentBeta") {
+                storeFile = file(persistentBetaSigning[0]!!)
+                storePassword = persistentBetaSigning[1]!!
+                keyAlias = persistentBetaSigning[2]!!
+                keyPassword = persistentBetaSigning[3]!!
             }
         }
     }
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
-            if (persistentDebugSigning != null) {
-                signingConfig = signingConfigs.getByName("persistentDebug")
-            }
+            // Developer installs are separate from the installed beta app.
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
         }
         release {
             isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        create("beta") {
+            // Beta behaves like release while retaining the existing beta identity.
+            initWith(getByName("release"))
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-beta"
+            isDebuggable = false
+            isMinifyEnabled = true
+            signingConfig = if (persistentBetaSigning != null) {
+                signingConfigs.getByName("persistentBeta")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+            matchingFallbacks += listOf("release")
         }
     }
     compileOptions {

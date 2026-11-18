@@ -29,7 +29,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.11.1"
-      - name: Prepare persistent beta signing key
+      - name: Prepare beta signing key
         id: signing
         shell: bash
         env:
@@ -49,7 +49,7 @@ jobs:
             fi
             if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
               # PRs have no access to repository signing secrets. Generate a throwaway
-              # key so CI still tests Gradle signing and APK-to-keystore fingerprint checks.
+              # key so CI still tests beta signing and APK-to-keystore fingerprint checks.
               ANDROID_KEYSTORE_PASSWORD="ci-test-password"
               ANDROID_KEY_ALIAS="ci-test"
               ANDROID_KEY_PASSWORD="ci-test-password"
@@ -58,7 +58,7 @@ jobs:
                 -alias "$ANDROID_KEY_ALIAS" -dname "CN=CI Test,O=My Life Simulator" \
                 -keyalg RSA -keysize 2048 -validity 2
             else
-              echo "No signing key for this non-release manual run; using the standard debug key."
+              echo "No beta signing key for this non-release manual run; local debug signing will be used."
               exit 0
             fi
           else
@@ -68,11 +68,9 @@ jobs:
           test -s "$keystore_path"
           keytool -list -keystore "$keystore_path" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null
           chmod 600 "$keystore_path"
-          # Capture the certificate from the supplied keystore so the APK can be
-          # checked against the exact key Gradle is expected to use.
           certificate_sha256="$(keytool -list -v -keystore "$keystore_path" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" | awk -F': ' '/SHA256:/{gsub(/:/, "", $2); print tolower($2); exit}')"
           if [[ ! "$certificate_sha256" =~ ^[0-9a-f]{64}$ ]]; then
-            echo "::error::Could not extract a valid SHA-256 certificate fingerprint from the persistent keystore."
+            echo "::error::Could not extract a valid SHA-256 certificate fingerprint from the beta keystore."
             exit 1
           fi
           echo "keystore_path=$keystore_path" >> "$GITHUB_OUTPUT"
@@ -107,52 +105,64 @@ jobs:
             echo "version_code=$version_code" >> "$GITHUB_OUTPUT"
           fi
           echo "version_name=$version_name" >> "$GITHUB_OUTPUT"
-      - name: Assemble debug APK
+      - name: Assemble Android variants
         working-directory: android
         env:
-          # Secrets are scoped to this one Gradle step; Gradle needs them to
-          # configure the persistent signingConfig in build.gradle.kts.
+          # Gradle receives signing secrets only for this build step.
           ANDROID_KEYSTORE_PATH: ${{ steps.signing.outputs.keystore_path }}
           ANDROID_KEYSTORE_PASSWORD: ${{ github.event_name == 'pull_request' && 'ci-test-password' || (github.ref == 'refs/heads/main' && secrets.ANDROID_KEYSTORE_PASSWORD || '') }}
           ANDROID_KEY_ALIAS: ${{ github.event_name == 'pull_request' && 'ci-test' || (github.ref == 'refs/heads/main' && secrets.ANDROID_KEY_ALIAS || '') }}
           ANDROID_KEY_PASSWORD: ${{ github.event_name == 'pull_request' && 'ci-test-password' || (github.ref == 'refs/heads/main' && secrets.ANDROID_KEY_PASSWORD || '') }}
-        run: gradle --no-daemon --build-cache --parallel --console=plain -PappVersionCode="${{ steps.beta-version.outputs.version_code }}" -PappVersionName="${{ steps.beta-version.outputs.version_name }}" assembleDebug
-      - name: Verify persistent APK signature
+        run: |
+          gradle_args=(--no-daemon --build-cache --parallel --console=plain
+            -PappVersionCode="${{ steps.beta-version.outputs.version_code }}"
+            -PappVersionName="${{ steps.beta-version.outputs.version_name }}")
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
+            gradle "${gradle_args[@]}" assembleBeta
+          else
+            # Compile both the developer build and the release-like beta variant.
+            gradle "${gradle_args[@]}" assembleDebug assembleBeta
+          fi
+      - name: Verify beta APK signature
         shell: bash
         env:
           ANDROID_KEYSTORE_PATH: ${{ steps.signing.outputs.keystore_path }}
         run: |
           if [[ -z "${ANDROID_KEYSTORE_PATH:-}" ]]; then
             if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
-              echo "::error::Refusing to publish an APK without the persistent signing key."
+              echo "::error::Refusing to publish a beta APK without the persistent signing key."
               exit 1
             fi
-            echo "No persistent key on this non-release run; skipping certificate verification."
+            echo "No beta signing key on this non-release run; skipping certificate verification."
             exit 0
           fi
           apksigner="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
           test -n "$apksigner"
-          apk="android/app/build/outputs/apk/debug/app-debug.apk"
+          apk="android/app/build/outputs/apk/beta/app-beta.apk"
           signer_output="$("$apksigner" verify --verbose --print-certs "$apk")"
           printf '%s\n' "$signer_output"
           expected="${{ steps.signing.outputs.certificate_sha256 }}"
           actual="$(printf '%s\n' "$signer_output" | awk '/certificate SHA-256 digest:/ {sub(/^.*certificate SHA-256 digest: /, ""); gsub(/:/, ""); print tolower($0); exit}')"
           if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
-            echo "::error::Persistent signing certificate fingerprint is missing or invalid."
+            echo "::error::Beta signing certificate fingerprint is missing or invalid."
             exit 1
           fi
           if [[ "$actual" != "$expected" ]]; then
-            echo "::error::APK signer does not match the persistent keystore certificate."
+            echo "::error::Beta APK signer does not match the configured keystore certificate."
             echo "Expected: $expected"
             echo "Actual:   $actual"
             exit 1
           fi
-          echo "Verified APK signer matches the persistent keystore: $actual"
+          echo "Verified beta APK signer matches the configured keystore: $actual"
+      - name: Name beta APK clearly
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: cp android/app/build/outputs/apk/beta/app-beta.apk "My-Life-Simulator-Beta-${{ steps.beta-version.outputs.version_code }}.apk"
       - uses: actions/upload-artifact@v4
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
-          name: my-life-simulator-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: my-life-simulator-beta-apk
+          path: My-Life-Simulator-Beta-${{ steps.beta-version.outputs.version_code }}.apk
           if-no-files-found: error
           retention-days: 1
 
@@ -166,7 +176,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: my-life-simulator-debug-apk
+          name: my-life-simulator-beta-apk
           path: release
       - name: Publish beta pre-release
         uses: softprops/action-gh-release@v2
@@ -176,4 +186,4 @@ jobs:
           prerelease: true
           generate_release_notes: true
           fail_on_unmatched_files: true
-          files: release/app-debug.apk
+          files: release/My-Life-Simulator-Beta-${{ needs.build.outputs.beta_version }}.apk
