@@ -50,7 +50,7 @@
   {:else if activeView === 'property'}
     <FinanceAssets {character} {onChange} view="property" />
   {:else if activeView === 'stocks' || activeView === 'crypto'}
-    <MarketsWorkspace {character} {onChange} initialMarket={activeView === 'crypto' ? 'crypto' : 'stocks'} onOpenBanking={() => openView('banking')} />
+    {#key activeView}<MarketsWorkspace {character} {onChange} initialMarket={activeView === 'crypto' ? 'crypto' : 'stocks'} onOpenBanking={() => openView('banking')} />{/key}
   {:else if activeView === 'investments'}
     <FinanceAssets {character} {onChange} view="investments" />
   {:else if activeView === 'business'}
