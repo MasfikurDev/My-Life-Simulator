@@ -11,7 +11,7 @@
     "test:simulation": "vitest run src/lib/simulation-stress.test.ts"
   },
   "dependencies": {
-    "svelte": "5.25.6"
+    "svelte": "5.58.0"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "5.0.3",
