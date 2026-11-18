@@ -4,7 +4,7 @@ import { isValidWeeklyPlan } from './weekly-plan';
 
 const KEY = 'my-life-simulator.save';
 const SETTINGS_KEY = 'my-life-simulator.settings';
-export const CURRENT_SCHEMA = 8;
+export const CURRENT_SCHEMA = 7;
 const SLOT_IDS: SaveSlotId[] = ['slot-1', 'slot-2', 'slot-3'];
 const emptySlots = (): SaveSlot[] => SLOT_IDS.map((id) => ({ id, character: null, updatedAt: null }));
 
