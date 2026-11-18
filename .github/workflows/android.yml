@@ -136,7 +136,7 @@ jobs:
           signer_output="$("$apksigner" verify --verbose --print-certs "$apk")"
           printf '%s\n' "$signer_output"
           expected="${{ steps.signing.outputs.certificate_sha256 }}"
-          actual="$(printf '%s\n' "$signer_output" | awk -F': ' '/certificate SHA-256 digest:/ {gsub(/:/, "", $2); print tolower($2); exit}')"
+          actual="$(printf '%s\n' "$signer_output" | awk '/certificate SHA-256 digest:/ {sub(/^.*certificate SHA-256 digest: /, ""); gsub(/:/, ""); print tolower(); exit}')"
           if [[ ! "$expected" =~ ^[0-9a-f]{64}$ ]]; then
             echo "::error::Persistent signing certificate fingerprint is missing or invalid."
             exit 1
