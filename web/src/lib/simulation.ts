@@ -1,3 +1,4 @@
+import { MARKET_ASSETS } from './markets';
 import type { ActivityId, PlannedAction, PlannedActivity, OwnedLifestyleItem, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
 import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
 import { awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabel } from './skills';
@@ -184,6 +185,8 @@ export function getNetWorth(character: Character): number {
 
 export function getMarketPrice(character: Character, type: InvestmentType): number {
   const scale = character.currencyScale ?? 1;
+  const listedAsset = MARKET_ASSETS.find((asset) => asset.type === type);
+  if (listedAsset) return Math.max(1, Math.round(character.marketPrices?.assets?.[type] ?? listedAsset.basePrice * scale));
   const prices = character.marketPrices;
   const value = type === 'gold' ? prices?.gold ?? 150 * scale
     : type === 'technology-stock' ? prices?.technology ?? 125 * scale
@@ -348,7 +351,16 @@ function settleAnnualAssets(character: Character): Character {
   const energyMovement = Math.max(-0.4, Math.min(0.35, economy.growthRate * 0.8 - economy.inflationRate * 0.1 + energyNoise));
   const bondMovement = Math.max(-0.08, Math.min(0.08, (0.035 - economy.baseInterestRate) * 0.35 + bondNoise));
   const oldPrices = next.marketPrices ?? { stocks: 100 * scale, gold: 150 * scale, lastUpdatedYear: next.year - 1 };
+  const listedPrices = Object.fromEntries(MARKET_ASSETS.map((asset) => {
+    const old = oldPrices.assets?.[asset.type] ?? asset.basePrice * scale;
+    const symbolSeed = asset.symbol.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    const noise = Math.sin(next.year * (1.17 + symbolSeed * 0.0007) + next.age * 0.83) * asset.volatility * 0.42;
+    const drift = economy.growthRate * (asset.market === 'crypto' ? 1.25 : 0.95);
+    const movement = Math.max(asset.market === 'crypto' ? -0.62 : -0.42, Math.min(asset.market === 'crypto' ? 0.72 : 0.48, drift + noise));
+    return [asset.type, Math.max(1, Math.round(old * (1 + movement)))];
+  })) as Partial<Record<InvestmentType, number>>;
   const marketPrices = {
+    assets: listedPrices,
     stocks: Math.max(1, Math.round(oldPrices.stocks * (1 + stockMovement))),
     technology: Math.max(1, Math.round((oldPrices.technology ?? 125 * scale) * (1 + technologyMovement))),
     energy: Math.max(1, Math.round((oldPrices.energy ?? 85 * scale) * (1 + energyMovement))),
