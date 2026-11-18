@@ -4,6 +4,8 @@ updates:
     directory: /web
     schedule:
       interval: weekly
+    labels:
+      - dependencies
     groups:
       npm-minor-patch:
         applies-to: version-updates
@@ -17,6 +19,8 @@ updates:
     directory: /android
     schedule:
       interval: weekly
+    labels:
+      - dependencies
     groups:
       gradle-minor-patch:
         applies-to: version-updates
@@ -30,6 +34,8 @@ updates:
     directory: /.github/workflows
     schedule:
       interval: weekly
+    labels:
+      - dependencies
     groups:
       github-actions-minor-patch:
         applies-to: version-updates
