@@ -6,7 +6,7 @@
   let { character, onChange, view = 'all' }: { character: Character; onChange: (next: Character) => void; view?: 'all' | 'property' | 'investments' | 'business' } = $props();
   const scale = $derived(character.currencyScale ?? 1);
   const properties = $derived(character.properties ?? []);
-  const holdings = $derived(character.investments ?? []);
+  const holdings = $derived((character.investments ?? []).filter((holding) => ['stock-index', 'technology-stock', 'energy-stock', 'government-bond', 'gold'].includes(holding.type)));
   const businesses = $derived(character.businesses ?? []);
   const economy = $derived(getEconomicConditions(character));
   const tradingInstruments: { type: InvestmentType; name: string; category: string; risk: string; description: string }[] = [
