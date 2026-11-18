@@ -73,7 +73,7 @@ Published game: https://masfikurdev.github.io/My-Life-Simulator/
 
 ## Android installation and updates
 
-Install the latest successful `my-life-simulator-debug-apk` artifact from the Android wrapper workflow, or use the beta pre-release on GitHub Releases. The APK is a lightweight wrapper: normal web-game updates arrive from GitHub Pages on a fresh app launch, so web-only changes do not require reinstalling the APK.
+Install the latest versioned beta APK from the [GitHub Releases page](https://github.com/MasfikurDev/My-Life-Simulator/releases), or download the matching `my-life-simulator-v0.1.N-beta` workflow artifact from its successful Android wrapper run. The developer `debug` variant is a separate build and is not the public beta download. The APK is a lightweight wrapper: normal web-game updates arrive from GitHub Pages on a fresh app launch, so web-only changes do not require reinstalling the APK.
 
 The wrapper clears its WebView disk cache at fresh launch, then permits normal HTTP caching during the session. The web client does not register a service worker. See [Technical Architecture](docs/TECHNICAL_ARCHITECTURE.md) for the freshness and save-compatibility policies.
 
