@@ -119,6 +119,8 @@ jobs:
         run: gradle --no-daemon --build-cache --parallel --console=plain -PappVersionCode="${{ steps.beta-version.outputs.version_code }}" -PappVersionName="${{ steps.beta-version.outputs.version_name }}" assembleDebug
       - name: Verify persistent APK signature
         shell: bash
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ steps.signing.outputs.keystore_path }}
         run: |
           if [[ -z "${ANDROID_KEYSTORE_PATH:-}" ]]; then
             if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
