@@ -84,6 +84,14 @@ Top-level Life contains the modular Lifestyle experience: **Supermarket, Subscri
 - **Full Custom Starting** is a separate, compact game-style scenario builder for life stage/exact age, starting circumstances, identity, and origin—not a generic settings form.
 - Presets and Full Custom Starting remain non-achievement gameplay modes; never award achievements from their saves.
 
+## Simulated investment markets
+
+- Finance has separate Stocks and Crypto destinations with searchable market lists, holdings, gainers/losers/trending filters, persistent watchlists, and individual asset detail views.
+- Markets use local simulated assets and deterministic annual price updates tied to the in-game economy. They never display real-time quotes or imply real-money trading.
+- Stocks and crypto share the existing investment holdings, cash balance, brokerage fees, capital-gains tax, and financial ledger. Banking remains the source of available cash.
+- Market charts are illustrative until persisted weekly/daily price history is implemented. Do not describe chart ranges as real historical candles.
+- See [Simulated Investment Markets](INVESTMENT_MARKETS.md) for the asset catalogue, trading rules, and explicit follow-up boundaries.
+
 ## Architecture, saves, and quality
 
 - Keep simulation rules in pure TypeScript modules, independent of Svelte/browser APIs. UI collects choices and renders simulation-returned effects.
