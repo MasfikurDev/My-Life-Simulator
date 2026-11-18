@@ -42,7 +42,7 @@ The release counter remains continuous during the naming transition: the workflo
 The workflows use current supported first-party action majors: checkout v7, setup-java v6, setup-node v7, Gradle setup v6, upload/download-artifact v7, and deploy-pages v5. Gradle setup explicitly uses the open-source `basic` cache provider.
 
 - Pull requests affecting `android/**` or this workflow compile both `assembleDebug` and `assembleBeta`; they do not publish a release.
-- A successful push to `main` builds and verifies `assembleBeta`, uploads the versioned APK artifact (retained for 14 days), and publishes a GitHub prerelease.
+- A successful push to `main` builds and verifies `assembleBeta`, uploads the versioned APK artifact (retained for 3 days as a short-lived build-to-publish hand-off), and publishes a GitHub prerelease.
 - The published APK uses the exact same version string as the Git tag and release title.
 - Manual workflow runs do not publish beta releases, upload public beta artifacts, or consume release numbers.
 - Generated release notes are retained; historical releases are not retroactively renamed.
