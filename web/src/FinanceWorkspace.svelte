@@ -1,6 +1,7 @@
 <script lang="ts">
   import FinanceAccounts from './FinanceAccounts.svelte';
   import FinanceAssets from './FinanceAssets.svelte';
+  import MarketsWorkspace from './MarketsWorkspace.svelte';
   import FinanceTaxes from './FinanceTaxes.svelte';
   import { formatCharacterMoney, getNetWorth, getMarketPrice } from './lib/simulation';
   import type { Character } from './lib/types';
@@ -11,7 +12,9 @@
     { id: 'banking', label: 'Banking', available: character.age >= 16 },
     { id: 'business', label: 'Business', available: character.age >= 18 },
     { id: 'property', label: 'Property', available: character.age >= 18 },
-    { id: 'investments', label: 'Investments', available: character.age >= 18 },
+    { id: 'stocks', label: 'Stocks', available: character.age >= 18 },
+    { id: 'crypto', label: 'Crypto', available: character.age >= 18 },
+    { id: 'investments', label: 'Other assets', available: character.age >= 18 },
     { id: 'taxes', label: 'Taxes', available: character.age >= 18 }
   ]);
   const title = $derived(views.find((item) => item.id === activeView)?.label ?? 'Overview');
@@ -46,6 +49,8 @@
     <FinanceTaxes {character} />
   {:else if activeView === 'property'}
     <FinanceAssets {character} {onChange} view="property" />
+  {:else if activeView === 'stocks' || activeView === 'crypto'}
+    <MarketsWorkspace {character} {onChange} initialMarket={activeView === 'crypto' ? 'crypto' : 'stocks'} onOpenBanking={() => openView('banking')} />
   {:else if activeView === 'investments'}
     <FinanceAssets {character} {onChange} view="investments" />
   {:else if activeView === 'business'}
