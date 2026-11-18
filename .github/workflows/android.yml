@@ -19,17 +19,17 @@ jobs:
     permissions:
       contents: read
     outputs:
-      beta_version: ${{ steps.beta-version.outputs.version_code }}
       beta_version_name: ${{ steps.beta-version.outputs.version_name }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "17"
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: "8.11.1"
+          cache-provider: basic
       - name: Prepare beta signing key
         id: signing
         shell: bash
@@ -165,13 +165,13 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
         run: cp android/app/build/outputs/apk/beta/app-beta.apk "My-Life-Simulator-v${{ steps.beta-version.outputs.version_name }}-beta.apk"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
           name: my-life-simulator-v${{ steps.beta-version.outputs.version_name }}-beta
           path: My-Life-Simulator-v${{ steps.beta-version.outputs.version_name }}-beta.apk
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 14
 
   publish-beta:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -181,7 +181,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: my-life-simulator-v${{ needs.build.outputs.beta_version_name }}-beta
           path: release
