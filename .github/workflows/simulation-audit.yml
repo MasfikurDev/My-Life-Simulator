@@ -8,7 +8,7 @@ on:
         required: true
         default: main
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened]
     paths:
       - "web/src/lib/**"
       - "web/package.json"
