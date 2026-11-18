@@ -148,11 +148,15 @@ jobs:
             exit 1
           fi
           echo "Verified APK signer matches the persistent keystore: $actual"
+      - name: Name beta APK clearly
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk "My-Life-Simulator-Beta-Debug-${{ steps.beta-version.outputs.version_code }}.apk"
       - uses: actions/upload-artifact@v4
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
-          name: my-life-simulator-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: my-life-simulator-beta-debug-apk
+          path: My-Life-Simulator-Beta-Debug-${{ steps.beta-version.outputs.version_code }}.apk
           if-no-files-found: error
           retention-days: 1
 
@@ -166,7 +170,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: my-life-simulator-debug-apk
+          name: my-life-simulator-beta-debug-apk
           path: release
       - name: Publish beta pre-release
         uses: softprops/action-gh-release@v2
@@ -176,4 +180,4 @@ jobs:
           prerelease: true
           generate_release_notes: true
           fail_on_unmatched_files: true
-          files: release/app-debug.apk
+          files: release/My-Life-Simulator-Beta-Debug-${{ needs.build.outputs.beta_version }}.apk
