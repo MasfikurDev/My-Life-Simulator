@@ -186,7 +186,7 @@ export function getNetWorth(character: Character): number {
 export function getMarketPrice(character: Character, type: InvestmentType): number {
   const scale = character.currencyScale ?? 1;
   const listedAsset = MARKET_ASSETS.find((asset) => asset.type === type);
-  if (listedAsset) return Math.max(1, Math.round(character.marketPrices?.assets?.[type] ?? listedAsset.basePrice * scale));
+  if (listedAsset) return Math.max(0.01, Math.round((character.marketPrices?.assets?.[type] ?? listedAsset.basePrice * scale) * 100) / 100);
   const prices = character.marketPrices;
   const value = type === 'gold' ? prices?.gold ?? 150 * scale
     : type === 'technology-stock' ? prices?.technology ?? 125 * scale
@@ -199,8 +199,8 @@ export function tradeInvestment(character: Character, type: InvestmentType, acti
   const quantity = Math.floor(units);
   if (character.age < 18 || !Number.isSafeInteger(quantity) || quantity <= 0 || quantity > 1000000) return character;
   const price = getMarketPrice(character, type);
-  const gross = price * quantity;
-  if (!Number.isSafeInteger(gross)) return character;
+  const gross = Math.round(price * quantity);
+  if (!Number.isSafeInteger(gross) || gross < 1) return character;
   const fee = Math.ceil(gross * 0.005);
   const holdings = [...(character.investments ?? [])];
   const index = holdings.findIndex((holding) => holding.type === type);
@@ -357,7 +357,7 @@ function settleAnnualAssets(character: Character): Character {
     const noise = Math.sin(next.year * (1.17 + symbolSeed * 0.0007) + next.age * 0.83) * asset.volatility * 0.42;
     const drift = economy.growthRate * (asset.market === 'crypto' ? 1.25 : 0.95);
     const movement = Math.max(asset.market === 'crypto' ? -0.62 : -0.42, Math.min(asset.market === 'crypto' ? 0.72 : 0.48, drift + noise));
-    return [asset.type, Math.max(1, Math.round(old * (1 + movement)))];
+    return [asset.type, Math.max(0.01, Math.round(old * (1 + movement) * 100) / 100)];
   })) as Partial<Record<InvestmentType, number>>;
   const marketPrices = {
     assets: listedPrices,
