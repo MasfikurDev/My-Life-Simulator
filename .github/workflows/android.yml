@@ -1,7 +1,7 @@
 name: Android wrapper APK
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened]
     paths: ["android/**", ".github/workflows/android.yml"]
   push:
     branches: [main]
