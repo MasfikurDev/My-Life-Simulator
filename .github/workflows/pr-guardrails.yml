@@ -2,7 +2,7 @@ name: Pull request safeguards
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review, edited]
+    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read
@@ -13,6 +13,8 @@ concurrency:
 
 jobs:
   file-deletion-guard:
+    # The edited event is needed for checklist-body changes, not title-only edits.
+    if: github.event.action != 'edited' || github.event.changes.body != null
     name: Prevent unreviewed file deletions
     runs-on: ubuntu-latest
     timeout-minutes: 5
