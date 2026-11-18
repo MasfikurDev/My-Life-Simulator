@@ -2,8 +2,8 @@
   import { formatCharacterMoney, getMarketPrice, tradeInvestment } from './lib/simulation';
   import { MARKET_ASSETS, type MarketAsset } from './lib/markets';
   import type { Character, InvestmentType } from './lib/types';
-  let { character, onChange, onOpenBanking }: { character: Character; onChange: (next: Character) => void; onOpenBanking: () => void } = $props();
-  let market = $state<'stocks' | 'crypto'>('stocks');
+  let { character, onChange, onOpenBanking, initialMarket = 'stocks' }: { character: Character; onChange: (next: Character) => void; onOpenBanking: () => void; initialMarket?: 'stocks' | 'crypto' } = $props();
+  let market = $state<'stocks' | 'crypto'>(initialMarket);
   let filter = $state('all');
   let query = $state('');
   let selected = $state<InvestmentType | null>(null);
@@ -58,7 +58,7 @@
     onChange(next); notice = action === 'buy' ? 'Purchase completed.' : 'Sale completed.';
   }
   function openAsset(asset: MarketAsset) { selected = asset.type; range = '1Y'; notice = ''; }
-  function formatPrice(value: number) { return formatCharacterMoney(character, value); }
+  function formatPrice(value: number) { return new Intl.NumberFormat(undefined, { style: 'currency', currency: character.currency || 'USD', maximumFractionDigits: 2 }).format(value); }
 </script>
 
 <section class="markets">
@@ -75,7 +75,7 @@
     <div class="asset-price">{formatPrice(currentPrice)}</div>
     <div class:positive={change(current)>=0} class:negative={change(current)<0} class="asset-change">{change(current)>=0?'↗':'↘'} {change(current)>0?'+':''}{change(current).toFixed(2)}% · {range}</div>
     <div class="chart-wrap">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label={current.name + ' simulated price history'}>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label={current.name + ' illustrative simulated price trend'}>
         <defs><linearGradient id="market-fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".24"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
         <path d={chartPath(chart) + ' L100 100 L0 100 Z'} fill="url(#market-fill)"/>
         <path d={chartPath(chart)} fill="none" stroke="var(--accent)" stroke-width="1.7" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>
@@ -83,7 +83,7 @@
     </div>
     <div class="range-row">{#each ['1H','1D','1W','1M','1Y','ALL'] as item}<button class:active={range===item} onclick={() => range=item}>{item}</button>{/each}</div>
     <div class="key-grid"><article><small>Market category</small><strong>{current.category}</strong></article><article><small>Risk profile</small><strong>{current.volatility >= .65 ? 'High' : current.volatility >= .35 ? 'Moderate–high' : 'Moderate'}</strong></article><article><small>Owned units</small><strong>{holdings.find((item) => item.type===current.type)?.units ?? 0}</strong></article><article><small>Position value</small><strong>{formatPrice((holdings.find((item) => item.type===current.type)?.units ?? 0)*currentPrice)}</strong></article></div>
-    <p class="asset-description">{current.description} Prices are simulated and change with the in-game economy.</p>
+    <p class="asset-description">{current.description} Prices are simulated and update with the in-game economy at annual settlement. The chart illustrates simulated movement, not live market data.</p>
     <div class="trade-box"><label>Quantity<input type="number" min="1" max="1000000" bind:value={quantity}/></label><div class="trade-actions"><button class="primary" onclick={() => trade('buy')}>Buy</button><button onclick={() => trade('sell')} disabled={(holdings.find((item)=>item.type===current.type)?.units ?? 0) < 1}>Sell</button></div></div>
     {#if notice}<p class="notice" role="status">{notice}</p>{/if}
   {:else}
