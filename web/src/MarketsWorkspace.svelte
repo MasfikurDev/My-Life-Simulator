@@ -4,10 +4,10 @@
   import type { Character, InvestmentType } from './lib/types';
   let { character, onChange, onOpenBanking, initialMarket = 'stocks' }: { character: Character; onChange: (next: Character) => void; onOpenBanking: () => void; initialMarket?: 'stocks' | 'crypto' } = $props();
   let market = $state<'stocks' | 'crypto'>(initialMarket);
-  $effect(() => { market = initialMarket; selected = null; filter = 'all'; });
   let filter = $state('all');
   let query = $state('');
   let selected = $state<InvestmentType | null>(null);
+  $effect(() => { market = initialMarket; selected = null; filter = 'all'; });
   let range = $state('1Y');
   let quantity = $state('1');
   let notice = $state('');
