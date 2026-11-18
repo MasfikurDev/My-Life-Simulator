@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out PR merge and base commits
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 2
       - name: Require explicit approval for deleted files
