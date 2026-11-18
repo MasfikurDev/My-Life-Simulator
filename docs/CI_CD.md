@@ -15,7 +15,8 @@
 Workflow: `.github/workflows/web.yml`
 
 - Triggers on pull requests and pushes to `main` when `web/**` or the workflow itself changes; also supports manual dispatch.
-- Every applicable PR update is validated, including draft PRs. Becoming ready for review also triggers validation.
+- Every applicable PR is validated when opened, on each new commit, and when reopened, including while it is Draft.
+- Marking an already-validated commit ready for review does not launch another full validation run; the successful checks remain attached to that exact commit. Any subsequent commit triggers fresh validation.
 - Uses `actions/checkout@v7` and `actions/setup-node@v7`; the project runtime remains Node.js 22 and dependencies are installed from the lockfile via `npm ci`.
 - Runs Svelte checks and the regular Vitest regression suite concurrently, then builds the production site.
 - Uploads the Pages artifact outside pull-request runs.
@@ -27,7 +28,7 @@ Workflow: `.github/workflows/web.yml`
 
 Workflow: `.github/workflows/pr-guardrails.yml`
 
-- Runs on every pull request open, update, reopen, ready-for-review transition, and edit; it is independent of web/Android path filters.
+- Runs on every pull request open, commit update, and reopen; it also responds to PR body edits so the deletion-review checklist is re-evaluated. Title-only edits do not execute the guard job. It is independent of web/Android path filters.
 - Checks the full base-to-head diff for deleted tracked files.
 - A PR that deletes tracked files fails this guard unless its body contains the checked `Intentional file deletions reviewed` checklist item. Check it only after reviewing the removed behavior, tests, and documentation. Renames detected by Git are not treated as deletions.
 - The repository PR template requires scope/preservation review, focused regression tests, cross-domain validation, simulation audit where relevant, UI verification, documentation, and disclosure of intentional removals.
@@ -48,14 +49,14 @@ Workflow: `.github/workflows/simulation-audit.yml`
 Workflow: `.github/workflows/android.yml`
 
 - Android-only path filters remain; web-only changes do not build an APK.
-- Every applicable Android PR update is built and validated, including draft PRs.
+- Every applicable Android PR is built and validated when opened, on each new commit, and when reopened, including draft PRs. Marking the same validated commit ready does not rebuild it.
 - Uses `actions/checkout@v7`, `actions/setup-java@v6` with Java 17, and `gradle/actions/setup-gradle@v6` with its open-source `basic` cache provider and Gradle 8.11.1.
 - The build job remains read-only. Persistent signing secrets are available only to the signing-preparation step and the single Gradle assemble step, and only for non-PR runs on `main`; unrelated steps never receive the secret values.
 - Pull-request builds generate a throwaway CI keystore (no repository secrets) and pass its credentials to Gradle. This exercises the same `persistentDebug` signing path and signer verification without exposing the release key.
 - The signing-preparation step validates the selected keystore and extracts its certificate SHA-256 fingerprint. Gradle receives the keystore path, password, alias, and key password for the assemble step so `persistentDebug` is actually selected.
 - APK verification checks both cryptographic validity and that the APK signer fingerprint exactly matches the certificate extracted from the selected keystore. A main-branch push fails if persistent secrets are missing, the keystore is invalid, or the built APK uses any other signing identity. Manual dispatch on `main` also exercises persistent signing verification without publishing a release.
 - Treat the four persistent signing secrets as one immutable release identity. Rotating or replacing the keystore is an Android package-signing migration, not routine secret maintenance; verify the installed release certificate and plan an explicit user-data-preserving migration before changing it.
-- The versioned APK workflow artifact is retained for 14 days for convenient recovery and inspection. The GitHub Release asset remains the durable download.
+- The versioned APK workflow artifact is retained for 3 days as a short-lived hand-off between build and publish jobs. The GitHub Release asset remains the durable user download; artifact expiry does not affect it.
 - The separate publish job runs only on a push to `main`, downloads the exact APK artifact from that run, and receives `contents: write`.
 - **Beta version numbers are release-based, not workflow-run-based.** On a main push, the build reads published beta prerelease tags in both the historical `beta-<number>-<attempt>` format and the current `v0.1.<number>-beta` format, then assigns the next number. The new release uses that number consistently for Android `versionCode`, Android `versionName` (`0.1.<number>-beta` after the Gradle suffix), Git tag (`v0.1.<number>-beta`), GitHub release title, APK filename, and artifact name.
 - PR validation and manual workflow runs use a non-release version and do not upload a beta APK artifact. They therefore cannot consume a beta version number or produce an APK that could be mistaken for an installable beta upgrade.
@@ -78,6 +79,8 @@ The validation policy is to run the full applicable checks on PR updates, includ
 - Run the separate long simulation audit automatically for its relevant paths and by manual dispatch.
 - Keep the PR deletion safeguard active; deletions require the explicit reviewed checklist item.
 - Preserve concurrency cancellation, npm/Gradle caches, least-privilege permissions, and single-build artifact hand-off.
+- Draft PRs receive relevant validation early. Do not repeat full validation solely because a PR becomes ready for review when the exact head commit already has passing checks. New commits always require fresh checks.
+- Avoid unnecessary safeguard execution for title-only PR edits while continuing to re-check the deletion-review body checklist.
 - Do not restore Cloudflare CI, Wrangler jobs, scheduled polling, or redundant deployment targets without an explicit product decision.
 - Never report checks or deployment as successful until the exact GitHub Actions run confirms it.
 
