@@ -39,7 +39,7 @@
       const t = index / Math.max(1, count - 1);
       const wave = Math.sin((index + character.year * 3 + asset.symbol.length) * 0.71) * asset.volatility * 0.09;
       const drift = (t - 0.5) * change(asset) / 100;
-      return Math.max(0.01, now * (1 + wave + drift));
+      return index === count - 1 ? now : Math.max(0.01, now * (1 + wave + drift));
     });
   }
   const chartPath = (values: number[]) => {
@@ -84,7 +84,7 @@
     <div class="trade-box"><label>Quantity<input type="number" min="1" max="1000000" bind:value={quantity}/></label><div class="trade-actions"><button class="primary" onclick={() => trade('buy')}>Buy</button><button onclick={() => trade('sell')} disabled={(holdings.find((item)=>item.type===current.type)?.units ?? 0) < 1}>Sell</button></div></div>
     {#if notice}<p class="notice" role="status">{notice}</p>{/if}
   {:else}
-    <div class="portfolio-card"><small>{market === 'stocks' ? 'STOCK PORTFOLIO VALUE' : 'CRYPTO PORTFOLIO VALUE'}</small><strong>{formatPrice(portfolioValue)}</strong><span>Combined value across both markets</span></div>
+    <div class="portfolio-card"><small>{market === 'stocks' ? 'STOCK PORTFOLIO VALUE' : 'CRYPTO PORTFOLIO VALUE'}</small><strong>{formatPrice(portfolioValue)}</strong><span>{market === 'stocks' ? 'Your stock holdings at current simulated prices' : 'Your crypto holdings at current simulated prices'}</span></div>
     <button class="cash-card" onclick={onOpenBanking}><span>Available cash</span><strong>{formatCharacterMoney(character)}</strong><small>Manage funds in Banking →</small></button>
     <div class="market-tabs">
       {#each [{id:'all',label:'Market overview'},{id:'holdings',label:'My holdings'},{id:'trending',label:'Trending'},{id:'gainers',label:'Top gainers'},{id:'losers',label:'Top losers'}] as item}<button class:active={filter===item.id} onclick={() => filter=item.id}>{item.label}</button>{/each}
