@@ -50,7 +50,7 @@ jobs:
         env:
           VITE_BASE_PATH: /My-Life-Simulator/
         run: npm run build:app
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:
           path: web/dist
