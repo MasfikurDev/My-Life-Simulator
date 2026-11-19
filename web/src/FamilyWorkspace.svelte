@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { Character } from './lib/types';
   import { establishFamilyBackground, getFamilyConnections, validateFamilyState } from './lib/family';
-  import { getValueColor } from './lib/progression';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
   import UiProgress from './components/UiProgress.svelte';
   import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, planSocialInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
