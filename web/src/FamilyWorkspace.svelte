@@ -230,7 +230,7 @@
   
   .support-row{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
   .support-row label{display:grid;gap:4px;font-size:10px;color:var(--muted);flex:1;min-width:120px}
-  .support-row input{width:100%;min-height:38px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised);color:var(--text);padding:0 9px}
+  .support-row input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised);color:var(--text);padding:0 9px}
   .primary-action{margin-top:10px;background:var(--accent-soft);border-color:var(--line-strong);color:var(--accent)}
   .family-timeline{display:grid;gap:10px;margin-top:12px}
   .family-timeline article{border-left:2px solid var(--line-strong);padding:2px 0 2px 10px}
