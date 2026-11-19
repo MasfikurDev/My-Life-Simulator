@@ -3,14 +3,14 @@
   import UiProgress from './components/UiProgress.svelte';
   import { getLifeStage, getValueTone } from './lib/progression';
 
-  let { character }: { character: Character } = $props();
+  let { character, projectedCharacter = character }: { character: Character; projectedCharacter?: Character } = $props();
   const stats = $derived([
-    { label: 'Health', value: character.health, inverse: false },
-    { label: 'Stamina', value: character.stamina ?? 50, inverse: false },
-    { label: 'Intelligence', value: character.intelligence, inverse: false },
-    { label: 'Fitness', value: character.fitness, inverse: false },
-    { label: 'Happiness', value: character.happiness, inverse: false },
-    { label: 'Stress', value: character.stress ?? 30, inverse: true }
+    { label: 'Health', value: character.health, projectedValue: projectedCharacter.health, inverse: false },
+    { label: 'Stamina', value: character.stamina ?? 50, projectedValue: projectedCharacter.stamina ?? 50, inverse: false },
+    { label: 'Intelligence', value: character.intelligence, projectedValue: projectedCharacter.intelligence, inverse: false },
+    { label: 'Fitness', value: character.fitness, projectedValue: projectedCharacter.fitness, inverse: false },
+    { label: 'Happiness', value: character.happiness, projectedValue: projectedCharacter.happiness, inverse: false },
+    { label: 'Stress', value: character.stress ?? 30, projectedValue: projectedCharacter.stress ?? 30, inverse: true }
   ]);
   const household = $derived(character.householdArrangement === 'family-supported' ? 'Family home'
     : character.householdArrangement === 'shared' ? 'Shared home'
@@ -47,8 +47,8 @@
   <div class="life-overview-stat-grid">
     {#each stats as stat}
       <div class="life-overview-stat">
-        <div><span>{stat.label}</span><strong>{Math.round(stat.value)}%</strong></div>
-        <UiProgress label={stat.label} value={stat.value} tone={getValueTone(stat.value, stat.inverse)} size="small" showLabel={false} />
+        <div><span>{stat.label}</span><strong>{Math.round(stat.value)}%{#if stat.projectedValue !== stat.value} → {Math.round(stat.projectedValue)}%{/if}</strong></div>
+        <UiProgress label={stat.label} value={stat.value} previewValue={stat.projectedValue} previewTone={stat.inverse ? stat.projectedValue < stat.value ? 'success' : 'danger' : stat.projectedValue > stat.value ? 'success' : 'danger'} tone={getValueTone(stat.value, stat.inverse)} size="small" showLabel={false} />
       </div>
     {/each}
   </div>
