@@ -153,7 +153,7 @@
     {#if character.savingsGoalMonths}
       <div class="vault-balance"><small>TARGET · {character.savingsGoalMonths} MONTHS</small><strong>{formatCharacterMoney(character,savingsGoalTarget)}</strong><small>Cash balance · {formatCharacterMoney(character)}</small></div>
       <UiProgress label="Savings goal progress" value={character.money} previewValue={projectedCharacter.money} previewTone={projectedCharacter.money >= character.money ? 'success' : 'danger'} max={Math.max(1, savingsGoalTarget)} tone="accent" showLabel={false} showValue valueText={`${formatCharacterMoney(character)} → ${formatCharacterMoney(character, projectedCharacter.money)}`} />
-      <small class="hint">{Math.min(100,Math.round(character.money/Math.max(1,savingsGoalTarget)*100))}% of your target.</small>
+      <small class="hint">{Math.min(100,Math.round(character.money/Math.max(1,savingsGoalTarget)*100))}%{projectedCharacter.money !== character.money ? ' → ' + Math.min(100,Math.max(0,Math.round(projectedCharacter.money/Math.max(1,savingsGoalTarget)*100))) + '%' : ''} of your target.</small>
     {/if}
   </details>
   <details open={view !== 'all'}><summary>Personal safe / vault</summary>
