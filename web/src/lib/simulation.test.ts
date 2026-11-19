@@ -21,13 +21,13 @@ describe('life simulation', () => {
     expect(passive.map((item) => item.id)).toContain('passive-family-meals');
     expect(passive.map((item) => item.id)).toContain('passive-stable-home');
     const review = getWeeklyActivityReview(supported);
-    const meals = review.passiveActivities.find((item) => item.id === 'passive-family-meals');
-    expect(meals?.effects).toEqual(expect.arrayContaining([
+    const everydayLife = review.passiveActivities.find((item) => item.id === 'passive-everyday-life');
+    expect(everydayLife?.effects).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'health', delta: 1, tone: 'success' }),
       expect.objectContaining({ key: 'happiness', delta: 2, tone: 'success' }),
       expect.objectContaining({ key: 'comfort', delta: 2, tone: 'success' })
     ]));
-    expect(meals?.staminaRecovery).toBeGreaterThan(0);
+    expect(everydayLife?.staminaRecovery).toBeGreaterThan(0);
   });
 
   it('resolves passive background life and natural development during direct year advancement', () => {
