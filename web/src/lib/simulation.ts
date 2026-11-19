@@ -228,6 +228,78 @@ export function tradeInvestment(character: Character, type: InvestmentType, acti
   if (capitalGainsTax > 0) next.financialTransactions = financeRecord(next, 'tax', capitalGainsTax, 'Capital-gains tax on sale of ' + type + '.', 'Cash', 'Tax authority');
   return next;
 }
+export function depositMarketFunds(character: Character, amount: number): Character {
+  const value = Math.floor(amount);
+  if (character.age < 18 || !Number.isSafeInteger(value) || value <= 0 || value > character.money) return character;
+  const next = { ...character, money: character.money - value, marketCash: (character.marketCash ?? 0) + value, history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'transfer', value, 'Added funds to the investment wallet.', 'Cash', 'Investment wallet');
+  return next;
+}
+
+export function moveMarketFunds(character: Character, amount: number): Character {
+  const value = Math.floor(amount);
+  const available = character.marketCash ?? 0;
+  if (character.age < 18 || !Number.isSafeInteger(value) || value <= 0 || value > available) return character;
+  const next = { ...character, money: character.money + value, marketCash: available - value, history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'transfer', value, 'Moved funds out of the investment wallet.', 'Investment wallet', 'Cash');
+  return next;
+}
+
+export function tradeMarketAsset(character: Character, type: InvestmentType, action: 'buy' | 'sell', units: number): Character {
+  if (!MARKET_ASSETS.some((asset) => asset.type === type)) return character;
+  const quantity = Math.floor(units);
+  if (character.age < 18 || !Number.isSafeInteger(quantity) || quantity <= 0 || quantity > 1000000) return character;
+  const price = getMarketPrice(character, type);
+  const gross = Math.round(price * quantity);
+  if (!Number.isSafeInteger(gross) || gross < 1) return character;
+  const fee = Math.ceil(gross * 0.005);
+  const cash = character.marketCash ?? 0;
+  const holdings = [...(character.investments ?? [])];
+  const index = holdings.findIndex((holding) => holding.type === type);
+  const holding = index >= 0 ? holdings[index] : { type, units: 0, averageCost: 0 };
+  if (action === 'buy') {
+    const cost = gross + fee;
+    if (cash < cost) return character;
+    const nextHolding = { type, units: holding.units + quantity, averageCost: Math.round(((holding.units * holding.averageCost) + cost) / (holding.units + quantity)) };
+    if (index >= 0) holdings[index] = nextHolding; else holdings.push(nextHolding);
+    const next = { ...character, marketCash: cash - cost, investments: holdings, history: [...character.history] };
+    next.financialTransactions = financeRecord(next, 'investment-buy', gross, 'Bought ' + quantity + ' units of ' + type + '.', 'Investment wallet', type);
+    next.financialTransactions = financeRecord(next, 'fee', fee, 'Brokerage fee on purchase of ' + type + '.', 'Investment wallet', 'Broker');
+    return next;
+  }
+  if (holding.units < quantity) return character;
+  const capitalGain = Math.max(0, (price - holding.averageCost) * quantity);
+  const capitalGainsTax = Math.round(capitalGain * 0.1);
+  const netProceeds = gross - fee - capitalGainsTax;
+  if (netProceeds < 0) return character;
+  const remaining = holding.units - quantity;
+  if (remaining === 0) holdings.splice(index, 1); else holdings[index] = { ...holding, units: remaining };
+  const next = { ...character, marketCash: cash + netProceeds, investments: holdings, history: [...character.history] };
+  next.financialTransactions = financeRecord(next, 'investment-sell', gross, 'Sold ' + quantity + ' units of ' + type + '.', type, 'Investment wallet');
+  next.financialTransactions = financeRecord(next, 'fee', fee, 'Brokerage fee on sale of ' + type + '.', 'Investment wallet', 'Broker');
+  if (capitalGainsTax > 0) next.financialTransactions = financeRecord(next, 'tax', capitalGainsTax, 'Capital-gains tax on sale of ' + type + '.', 'Investment wallet', 'Tax authority');
+  return next;
+}
+
+export function convertMarketAsset(character: Character, fromType: InvestmentType, toType: InvestmentType, units: number): Character {
+  if (fromType === toType || !MARKET_ASSETS.some((asset) => asset.type === fromType) || !MARKET_ASSETS.some((asset) => asset.type === toType)) return character;
+  const sold = tradeMarketAsset(character, fromType, 'sell', units);
+  if (sold === character) return character;
+  const available = sold.marketCash ?? 0;
+  const price = getMarketPrice(sold, toType);
+  let low = 0, high = 1000000;
+  while (low < high) {
+    const middle = Math.ceil((low + high) / 2);
+    const gross = Math.round(price * middle);
+    const cost = gross + Math.ceil(gross * 0.005);
+    if (Number.isSafeInteger(cost) && cost <= available) low = middle;
+    else high = middle - 1;
+  }
+  if (low < 1) return character;
+  const bought = tradeMarketAsset(sold, toType, 'buy', low);
+  return bought === sold ? character : bought;
+}
+
 export function buyProperty(character: Character, type: PropertyType, name: string, price: number, downPayment: number, annualRate = 0.07, termYears = 20, primaryResidence = false, marketProfile?: { expectedGrowthRate: number; marketVolatility: number }): Character {
   const value = Math.floor(price), down = Math.floor(downPayment);
   const purchaseFee = Math.ceil(value * 0.01);
