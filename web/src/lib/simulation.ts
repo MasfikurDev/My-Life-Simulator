@@ -1249,6 +1249,7 @@ export interface WeeklyResolutionResult {
   issue: 'invalid-plan' | 'already-resolved' | 'unresolvable-action' | 'insufficient-stamina' | null;
   recap: string[];
   activityOutcomes?: Array<{ id: string; effects: WeeklyActivityOutcomeEffect[] }>;
+  passiveEffects?: WeeklyActivityOutcomeEffect[];
   staminaDrift?: number;
 }
 
@@ -1348,7 +1349,9 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   const wellbeing = resolveWeeklyWellbeing(next, weeklyWorkload, weekStart, false);
   next = wellbeing.character;
   recap.push(...wellbeing.recap);
+  const passiveBefore = next;
   next = resolvePassiveLifestyleActivities(next, passiveActivities);
+  const passiveEffects = getActivityOutcomeEffects(passiveBefore, next);
   for (const activity of passiveActivities) {
     const staminaNote = activity.staminaRecovery > 0 ? ' Stamina +' + activity.staminaRecovery + '.' : '';
     recap.push(activity.title + ': ' + activity.detail + '.' + staminaNote);
@@ -1434,7 +1437,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     next = applyAgeTransition(next, previousAge, nextAge);
     next = { ...next, year: nextYear };
   }
-  return { character: next, issue: null, recap, activityOutcomes, staminaDrift };
+  return { character: next, issue: null, recap, activityOutcomes, passiveEffects, staminaDrift };
 }
 
 export interface WeeklyActivityReviewItem {
@@ -1534,22 +1537,16 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     addChange('business-' + businessId, businessName + ' performance', before?.performance, after?.performance);
   }
   addChange('appearance', 'Clothing presentation', getClothingPresentationScore(character), getClothingPresentationScore(projected));
-  const passiveEffects = (item: PassiveLifestyleActivity): WeeklyActivityOutcomeEffect[] => {
-    const metrics: Array<[keyof PassiveLifestyleActivity, string]> = [
-      ['health', 'Health'], ['happiness', 'Happiness'], ['fitness', 'Fitness'],
-      ['comfort', 'Comfort'], ['discipline', 'Discipline'], ['stress', 'Stress']
-    ];
-    return metrics.flatMap(([key, label]) => {
-      const delta = Number(item[key] ?? 0);
-      return delta ? [{ key: String(key), label, delta, tone: delta > 0 ? 'success' as const : 'danger' as const, kind: 'stat' as const }] : [];
-    });
-  };
-  const passiveActivities = getPassiveLifestyleActivities(character).map((item) => ({
-    id: item.id, title: item.title, source: item.source, detail: item.detail,
-    staminaRecovery: item.staminaRecovery,
-    effects: passiveEffects(item)
-  }));
+  const passiveActivities = getPassiveLifestyleActivities(character);
   const passiveStaminaRecovery = passiveActivities.reduce((total, item) => total + item.staminaRecovery, 0);
+  const passiveReview = passiveActivities.length ? [{
+    id: 'passive-everyday-life',
+    title: 'Everyday life',
+    source: [...new Set(passiveActivities.map((item) => item.source))].join(' · '),
+    detail: passiveActivities.map((item) => item.title).join(' · '),
+    staminaRecovery: passiveStaminaRecovery,
+    effects: preview.passiveEffects ?? []
+  }] : [];
   const activities = schedule.activities.map((item) => ({
     id: item.id,
     title: getPlannedActivityTitle(character, item),
@@ -1579,7 +1576,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     weekStart,
     weekEnd: addCalendarDays(weekStart, 6),
     activities,
-    passiveActivities,
+    passiveActivities: passiveReview,
     currentStamina,
     staminaCost: activities.reduce((total, item) => total + item.staminaCost, 0),
     staminaRecovery: schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0) + passiveStaminaRecovery,
