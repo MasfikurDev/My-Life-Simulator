@@ -1,0 +1,12 @@
+/// Apply a consistent focus outline without hard-coding a theme palette.
+@mixin focus-outline($color: var(--accent), $offset: 2px) {
+  outline: 2px solid $color;
+  outline-offset: $offset;
+}
+
+/// Keep component motion respectful of the user's system preference.
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
