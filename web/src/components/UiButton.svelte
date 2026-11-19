@@ -1,6 +1,6 @@
 <script lang="ts">
  type Variant='primary'|'secondary'|'quiet'|'danger';type Size='small'|'medium'|'large';type Shape='standard'|'pill'|'square';
- let {variant='secondary',size='medium',shape='standard',width='auto',disabled=false,type='button',onclick,class:className='',children}:{
+ let {variant='secondary',size='medium',shape='standard',width='auto',disabled=false,loading=false,ariaLabel,type='button',onclick,class:className='',children}:{
   variant?:Variant;size?:Size;shape?:Shape;width?:'auto'|'full';disabled?:boolean;loading?:boolean;ariaLabel?:string;type?:'button'|'submit'|'reset';
   onclick?:(event:MouseEvent)=>void;class?:string;children:import('svelte').Snippet;
  }=$props();
