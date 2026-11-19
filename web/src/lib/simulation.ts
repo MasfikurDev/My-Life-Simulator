@@ -1437,6 +1437,9 @@ export interface WeeklyActivityReviewItem {
   moneyCost: number;
   reward: string;
   effects: WeeklyActivityOutcomeEffect[];
+  items: Array<{ name: string; quantity: number }>;
+  itemCount: number;
+  sourceIds?: string[];
 }
 export interface WeeklyActivityReviewChange {
   key: string;
@@ -1546,7 +1549,9 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     staminaRecovery: getPlannedActivityStaminaRecovery(item),
     moneyCost: getPlannedActivityCost(character, item),
     reward: getPlannedActivityReward(character, item),
-    effects: preview.activityOutcomes?.find((outcome) => outcome.id === item.id)?.effects ?? []
+    effects: preview.activityOutcomes?.find((outcome) => outcome.id === item.id)?.effects ?? [],
+    items: item.action?.kind === 'food' ? [{ name: item.action.name, quantity: item.action.quantity }] : [],
+    itemCount: item.action?.kind === 'food' ? item.action.quantity : 0
   }));
   const warnings: string[] = [];
   const currentStamina = character.stamina ?? 50;
