@@ -90,10 +90,15 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 
 ## Simulated investment markets
 
-- [x] Add dedicated Stocks and Crypto destinations with searchable listings, holdings, market filters, watchlists, asset details, and simulated charts.
-- [x] Add per-asset annual price updates tied to the in-game economic cycle, using higher volatility bounds for crypto.
-- [ ] Add persisted weekly/daily price candles and meaningful 1H/1D/1W/1M/1Y/ALL history ranges.
-- [ ] Add market capitalization/supply rankings, dividends, corporate actions, market events, and portfolio-specific cash transfers.
+- [x] Add separate Stocks, Crypto, and Other assets destinations within the existing Investments workspace.
+- [x] Add searchable company/token listings, holdings, market-cap/trending/mover filters, watchlists, asset detail views, and Buy/Sell/Convert/Deposit controls.
+- [x] Add an investment wallet with explicit cash-to-wallet deposits and wallet-to-cash transfers through the shared ledger.
+- [x] Add deterministic weekly price updates and persist weekly closing history for 1M/1Y/ALL chart ranges; label 1H/1D and interpolated 1W paths accurately.
+- [x] Add simulated supply, market-cap, and volume profiles without implying live exchange data.
+- [ ] Add real modeled company earnings, dividends, corporate actions, and ratings before presenting those mechanics as implemented.
+- [ ] Add token issuance/burns, staking, network fees, and dynamic supply before presenting those mechanics as implemented.
+- [ ] Add market-wide events and fundamentals that create meaningful gameplay choices.
+
 
 ## Milestone 3 — Replace annual actions with the weekly gameplay cycle (core transition complete)
 
