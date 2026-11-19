@@ -171,3 +171,11 @@ Do not render multiple controls or components for the same action or destination
 - Build screens from customizable primitives (card, button, stack, grid) and domain components. Reuse the foundation without flattening distinct domain experiences into identical cards.
 - Cards are content-sized by default. Use explicit compact/comfortable/spacious density; compact is the default for metadata and profile detail grids. Never impose fixed heights on text-bearing cards without a content-driven reason.
 - Decoration and animation are opt-in, theme-aware, and focal. Nested informational cards should remain quiet unless they carry an independent interaction or hierarchy.
+
+
+## Semantic badges (2026-11-19)
+- Use the shared `UiBadge` primitive for compact status and metadata labels instead of one-off pill CSS.
+- Keep meaning stable across all 17 themes: success, informational, special/featured, warning, risk, danger, and neutral. Theme palettes adjust the treatment while preserving readable semantic contrast.
+- Prefer subtle tinted surfaces and thin semantic borders. Status must remain understandable from its text; never rely on color alone.
+- Badges are static by default. Use an entrance animation only when a meaningful status is newly introduced; do not pulse or continuously animate routine labels. Respect `prefers-reduced-motion`.
+- Keep profile metadata tags neutral. Reserve stronger tones for states that communicate a meaningful outcome, eligibility, risk, or change.
