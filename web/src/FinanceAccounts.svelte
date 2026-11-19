@@ -117,9 +117,9 @@
   {:else if activeBankingView === 'cards'}
     <FinanceProducts {character} {projectedCharacter} {onChange} view="cards" />
   {:else if activeBankingView === 'loans'}
-    <FinanceProducts {character} {onChange} view="loans" />
+    <FinanceProducts {character} {projectedCharacter} {onChange} view="loans" />
   {:else}
-    <FinanceProducts {character} {onChange} view="savings" />
+    <FinanceProducts {character} {projectedCharacter} {onChange} view="savings" />
   {/if}
 </section>
 <style lang="scss">
