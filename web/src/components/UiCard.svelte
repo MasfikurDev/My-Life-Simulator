@@ -9,7 +9,7 @@
  }=$props();
  const resolvedDensity=$derived(density??(padded?'comfortable':'inherit'));
 </script>
-<svelte:element this={as} class="ui-card ui-card--{resolvedDensity} ui-card--{surface} ui-card--{tone} ui-card--radius-{radius} ui-card--{elevation} {interactive?'ui-card--interactive interactive':''} {className}">
+<svelte:element this={as} class="ui-card ui-card--{resolvedDensity} ui-card--{surface} ui-card--{tone} ui-card--radius-{radius} ui-card--elevation-{elevation} {interactive?'ui-card--interactive interactive':''} {className}">
  {@render children()}
 </svelte:element>
 <style>
@@ -26,7 +26,7 @@
  .ui-card--warning{border-color:color-mix(in srgb,var(--warning) 38%,var(--line))}
  .ui-card--danger{border-color:color-mix(in srgb,var(--danger) 38%,var(--line))}
  .ui-card--info{border-color:color-mix(in srgb,var(--info) 34%,var(--line))}
- .ui-card--flat{box-shadow:none}.ui-card--default{box-shadow:var(--elevation-1)}.ui-card--raised{box-shadow:var(--elevation-2)}.ui-card--floating{box-shadow:var(--elevation-3)}.ui-card--glow{box-shadow:var(--elevation-accent)}
+ .ui-card--elevation-flat{box-shadow:none}.ui-card--elevation-default{box-shadow:var(--elevation-1)}.ui-card--elevation-raised{box-shadow:var(--elevation-2)}.ui-card--elevation-floating{box-shadow:var(--elevation-3)}.ui-card--elevation-glow{box-shadow:var(--elevation-accent)}
  .ui-card--interactive{cursor:pointer;-webkit-tap-highlight-color:transparent}
  .ui-card--interactive:focus-within{outline:2px solid var(--accent);outline-offset:2px}
  @media(hover:hover) and (pointer:fine){.ui-card--interactive:hover{transform:translateY(-2px);border-color:var(--line-strong);box-shadow:var(--elevation-2)}}
