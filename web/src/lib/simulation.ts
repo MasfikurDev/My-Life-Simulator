@@ -1497,13 +1497,13 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   }
   addChange('appearance', 'Clothing presentation', getClothingPresentationScore(character), getClothingPresentationScore(projected));
   const passiveEffects = (item: PassiveLifestyleActivity): WeeklyActivityOutcomeEffect[] => {
-    const metrics: Array<[keyof PassiveLifestyleActivity, string, boolean]> = [
-      ['health', 'Health', false], ['happiness', 'Happiness', false], ['fitness', 'Fitness', false],
-      ['comfort', 'Comfort', false], ['discipline', 'Discipline', false], ['stress', 'Stress', true]
+    const metrics: Array<[keyof PassiveLifestyleActivity, string]> = [
+      ['health', 'Health'], ['happiness', 'Happiness'], ['fitness', 'Fitness'],
+      ['comfort', 'Comfort'], ['discipline', 'Discipline'], ['stress', 'Stress']
     ];
-    return metrics.flatMap(([key, label, inverse]) => {
+    return metrics.flatMap(([key, label]) => {
       const delta = Number(item[key] ?? 0);
-      return delta ? [{ key: String(key), label, delta, tone: (inverse ? delta > 0 : delta > 0) ? 'success' as const : 'danger' as const, kind: 'stat' as const }] : [];
+      return delta ? [{ key: String(key), label, delta, tone: delta > 0 ? 'success' as const : 'danger' as const, kind: 'stat' as const }] : [];
     });
   };
   const passiveActivities = getPassiveLifestyleActivities(character).map((item) => ({
