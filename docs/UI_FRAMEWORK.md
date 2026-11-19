@@ -88,3 +88,18 @@ This is a gameplay interaction primitive, not a new simulation subsystem or save
 - Charts remain domain-owned because investment and financial visualizations have different data and interaction requirements. Consume the shared `--chart-*` semantic tokens for series, grid, gain, loss, and neutral values rather than adding palette literals.
 - Form controls, progress fills, dialogs, toast surfaces, and chart series must resolve from the active theme. All 17 themes must remain supported, including Paper's light contrast.
 - Keep transitions tied to state changes, not continuous decoration. Honor `prefers-reduced-motion` and maintain visible keyboard focus and mobile touch targets.
+
+
+## Flexible primitive APIs (2026-11-19)
+
+The shared primitives expose configuration for common differences without requiring one-off CSS:
+
+- **UiBadge:** semantic tone (including accent), tiny/small/medium size, pill/rounded/square shape, optional prefix or status dot, wrapping, custom class for exceptional composition, and opt-in entrance motion. Keep text labels; prefixes are decorative and hidden from assistive technology.
+- **ActivityStatusSeal:** compatibility/domain wrapper around UiBadge. It maps activity states to shared semantic tones and preserves the status role. Do not add a second status color system.
+- **UiButton:** semantic variant, size, shape, width, disabled state, optional accessible label, and loading state. Loading prevents duplicate activation and announces busy state. Keep the default touch target.
+- **UiProgress:** determinate or indeterminate mode, semantic tone, size, optional heading/value visibility, and caller-provided value text. Keep the real accessible label; do not use progress bars for charts or arbitrary decoration.
+- **UiField:** stacked or inline layout, compact or medium density, helper/error text, required marker, and custom class. The owning form still controls the native input and its validation/value.
+- **UiCard:** use its existing as, density, surface, tone, radius, elevation, and interactive presentation options. Content determines height; do not add fixed-height variants for ordinary cards.
+- **UiGrid / UiStack:** use configurable columns/minimum width, direction, alignment, wrapping, and gap. These are layout primitives, not card or content components.
+
+Add a new prop only when it represents a repeated semantic need. Prefer CSS custom properties for continuous visual values; do not expose arbitrary palette overrides that bypass theme tokens. Existing call sites must remain valid when optional props are added.
