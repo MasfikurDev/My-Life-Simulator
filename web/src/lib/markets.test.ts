@@ -38,14 +38,15 @@ describe('simulated investment markets', () => {
     expect(tradeMarketAsset(minor, 'crypto-btc', 'buy', 1)).toBe(minor);
   });
 
-  it('updates listed asset prices deterministically at annual settlement', () => {
-    const base = { ...createCharacter('Long-term investor', 30), currencyScale: 1, year: 2030 };
-    const first = advanceYear(base);
-    const second = advanceYear(base);
+  it('updates listed prices weekly and preserves them through annual settlement', () => {
+    const base = { ...createCharacter('Long-term investor', 30), currencyScale: 1 };
+    const first = advanceWeek(base).character;
+    const repeated = advanceWeek(base).character;
     expect(first.marketPrices?.assets?.['stock-apple']).toBeGreaterThan(0);
     expect(first.marketPrices?.assets?.['crypto-btc']).toBeGreaterThan(0);
-    expect(first.marketPrices?.assets).toEqual(second.marketPrices?.assets);
-    expect(first.marketPrices?.lastUpdatedYear).toBe(first.year);
+    expect(first.marketPrices?.assets).toEqual(repeated.marketPrices?.assets);
+    const annual = advanceYear(first);
+    expect(annual.marketPrices?.assets).toEqual(first.marketPrices?.assets);
   });
 
   it('converts a holding atomically into another listed asset', () => {
