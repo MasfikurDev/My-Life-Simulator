@@ -15,7 +15,8 @@ describe('simulated investment markets', () => {
     const base = { ...createCharacter('Market trader', 30), currencyScale: 1, money: 100000 };
     const funded = depositMarketFunds(base, 50000);
     expect(funded.money).toBe(50000);
-    expect(funded.marketCash).toBe(50000);\n    expect(getNetWorth(funded)).toBe(getNetWorth(base));
+    expect(funded.marketCash).toBe(50000);
+    expect(getNetWorth(funded)).toBe(getNetWorth(base));
     const boughtStock = tradeMarketAsset(funded, 'stock-apple', 'buy', 2);
     expect(boughtStock).not.toBe(base);
     expect(boughtStock.investments?.find((item) => item.type === 'stock-apple')?.units).toBe(2);
