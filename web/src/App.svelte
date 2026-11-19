@@ -14,6 +14,7 @@
   import WorkWorkspace from './WorkWorkspace.svelte';
   import EducationWorkspace from './EducationWorkspace.svelte';
   import ThemeOption from './components/ThemeOption.svelte';
+  import UiBadge from './components/UiBadge.svelte';
   import EmptyState from './components/EmptyState.svelte';
   import UiCard from './components/UiCard.svelte';
   import GameplayDialog from './components/GameplayDialog.svelte';
@@ -372,7 +373,7 @@
               <div class="settings-section-heading"><span class="section-index">01</span><div><h2>Character</h2></div></div>
               <div class="character-profile-card">
                 <div class="character-avatar" aria-hidden="true">{character.name.trim().split(/\\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</div>
-                <div class="character-profile-copy"><div class="character-profile-heading"><h3>{character.name}</h3><span class="character-age">AGE {character.age}</span></div><p>{getLifeStage(character.age).label} · {character.country ?? character.nationality ?? 'Country not recorded'}</p><div class="character-profile-tags"><span>{character.gender ?? 'Gender not recorded'}</span><span>{character.nationality ?? 'Nationality not recorded'}</span></div></div>
+                <div class="character-profile-copy"><div class="character-profile-heading"><h3>{character.name}</h3><span class="character-age">AGE {character.age}</span></div><p>{getLifeStage(character.age).label} · {character.country ?? character.nationality ?? 'Country not recorded'}</p><div class="character-profile-tags"><UiBadge>{character.gender ?? 'Gender not recorded'}</UiBadge><UiBadge>{character.nationality ?? 'Nationality not recorded'}</UiBadge></div></div>
               </div>
               <div class="overview-context profile-detail-grid">
                 <UiCard as="div" density="compact" surface="raised" radius="md" class="overview-context-item"><span>BIRTHPLACE</span><strong>{character.birthplace ?? 'Not recorded'}</strong></UiCard>
@@ -530,7 +531,7 @@
             <div class="character-profile-copy">
               <div class="character-profile-heading"><h2>{character.name}</h2><span class="character-age">AGE {character.age}</span></div>
               <p>{character.gender ?? 'Gender not recorded'} <span>·</span> {character.country ?? character.nationality ?? 'Country not recorded'}</p>
-              <div class="character-profile-tags"><span>{character.employment?.title ?? 'Not employed'}</span><span>{character.educationEnrollment?.institution ?? (character.educationLevel ? character.educationLevel.replaceAll('-', ' ') : getEducationStage(character.age))}</span></div>
+              <div class="character-profile-tags"><UiBadge>{character.employment?.title ?? 'Not employed'}</UiBadge><UiBadge>{character.educationEnrollment?.institution ?? (character.educationLevel ? character.educationLevel.replaceAll('-', ' ') : getEducationStage(character.age))}</UiBadge></div>
             </div>
             <div class="character-cash-summary"><small>AVAILABLE CASH</small><strong>{formatCharacterMoney(character)}</strong></div>
             <button class="character-profile-weekly character-profile-weekly-trigger" aria-label="Open weekly income and expense breakdown" onclick={() => weeklyFinanceOpen = true}>
