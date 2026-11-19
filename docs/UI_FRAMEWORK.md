@@ -144,3 +144,20 @@ The following patterns were found during the wider source search and are not mig
 - **Event header and bank-card artwork:** fixed expressive colors are intentional illustration/art direction, not ordinary theme-surface styling. Preserve them unless a separate design decision calls for artwork changes.
 - **Career performance meter:** the matching selector currently appears only in stylesheet search results, with no confirmed active markup usage. Do not create component adoption work for unused styling.
 - **Domain cards and action buttons:** retain local composition where a shared card/button would flatten hierarchy, change touch sizing, or impose its hover/gradient treatment. Revisit only when a shared variant demonstrably improves the screen.
+
+
+## Layered elevation foundation (2026-11-19)
+
+The shared theme tokens now define one elevation ladder consumed by components rather than hard-coded per-screen shadows:
+
+- `--elevation-1`: resting information surface, with a fine top-edge highlight.
+- `--elevation-2`: raised cards and interactive surfaces.
+- `--elevation-3`: floating overlays and high-priority surfaces.
+- `--elevation-accent`: focal accent lift, reserved for selected/featured elements.
+- `--surface-edge`: theme-aware edge separation.
+
+`UiCard` implements its existing surface, tone, density, radius, interaction, and elevation API: `flat`, `default`, `raised`, `floating`, and `glow`. The default remains restrained; elevation is chosen by hierarchy, not applied to every nested card. `surface="raised"` creates a stronger plane, `surface="tinted"` adds a theme-accent wash, and `surface="outlined"` remains intentionally flat.
+
+All elevation values derive from the active theme's shadow, text, line, and accent tokens. Paper has a dedicated soft neutral shadow ladder to retain natural light-surface depth. AMOLED keeps its black canvas and uses edge highlights and tonal separation rather than broad bright glows. No theme-specific component forks are required.
+
+Use raised/floating levels only where the content hierarchy justifies them. Avoid nested shadow stacking, avoid glow on routine status labels, and keep interactive lift available on touch via press feedback. Reduced-motion disables lift transitions without removing focus or selected-state cues.
