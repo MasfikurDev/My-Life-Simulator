@@ -134,3 +134,13 @@ A shared component is not automatically an upgrade over an existing screen imple
 - Compare the old and new presentation in representative themes and narrow Android layouts before treating the migration as complete.
 
 If the shared component cannot meet the existing implementation's quality, keep the local implementation and improve the primitive first. Do not migrate solely to increase component adoption or reduce CSS line count. Expressive artwork and genuinely domain-specific compositions may remain bespoke.
+
+## Reviewed patterns intentionally left bespoke (2026-11-19)
+
+The following patterns were found during the wider source search and are not migration targets yet:
+
+- **Weekly stamina forecast:** the compact accent-only track in the weekly review has a different visual role and density from the current `UiProgress`. Keep it until the shared primitive can reproduce that treatment without adding unnecessary border/gradient weight or changing its compact footprint.
+- **Section navigation:** Finance, Life, Education, and Work use related horizontal navigation patterns, but differ in active treatment, disabled/locked items, and spacing. `UiButton` is not a navigation replacement. A dedicated, variant-aware navigation primitive may be worthwhile, but do not migrate until it can preserve these differences and improve keyboard/mobile behavior.
+- **Event header and bank-card artwork:** fixed expressive colors are intentional illustration/art direction, not ordinary theme-surface styling. Preserve them unless a separate design decision calls for artwork changes.
+- **Career performance meter:** the matching selector currently appears only in stylesheet search results, with no confirmed active markup usage. Do not create component adoption work for unused styling.
+- **Domain cards and action buttons:** retain local composition where a shared card/button would flatten hierarchy, change touch sizing, or impose its hover/gradient treatment. Revisit only when a shared variant demonstrably improves the screen.
