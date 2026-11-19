@@ -188,3 +188,16 @@ Do not render multiple controls or components for the same action or destination
 - Prefer subtle tinted surfaces and thin semantic borders. Status must remain understandable from its text; never rely on color alone.
 - Badges are static by default. Use an entrance animation only when a meaningful status is newly introduced; do not pulse or continuously animate routine labels. Respect `prefers-reduced-motion`.
 - Keep profile metadata tags neutral. Reserve stronger tones for states that communicate a meaningful outcome, eligibility, risk, or change.
+
+
+## Dimensional surface direction (2026-11-19)
+
+The interface should feel layered and tactile without becoming a generic neon dashboard. Theme identity comes from the combined behavior of surface tint, edge light, shadow character, and restrained accent treatment—not accent color alone.
+
+- Use the shared elevation ladder: resting surfaces at level 1, raised cards at level 2, floating overlays at level 3, and accent elevation only for a small number of focal/selected surfaces.
+- Keep the page canvas visually distinct from standard cards; standard cards distinct from nested raised content; and dialogs/menus clearly above the page.
+- Use a subtle top-edge highlight and tonal gradient to make card planes legible. Do not outline every nested container or add shadows to every element.
+- Preserve each theme's existing palette identity. Dark themes derive shadow depth from their own shadow color; Paper uses soft neutral ambient shadows and light top-edge highlights. Techno/Cyberpunk may use restrained accent light; other themes must not inherit neon glow by default.
+- Keep content hierarchy and compact density unchanged. Elevation must not add vertical spacing or fixed card heights.
+- Interactive cards gain a small lift on hover-capable devices and a short press response on touch. Keyboard focus remains explicit. All motion respects `prefers-reduced-motion`.
+- The default card treatment remains restrained. Choose raised/floating/glow only when the screen hierarchy benefits; never apply the strongest treatment to every card.
