@@ -131,7 +131,7 @@ The focused correctness implementation adds calendar alignment for direct annual
 
 ## Validation results — PR #225
 
-All required GitHub Actions checks passed for head commit `9f19382ae26578df6c27c933201530d4226fc330`:
+The implementation commit `9f19382ae26578df6c27c933201530d4226fc330` passed the required GitHub Actions checks. The later documentation-only commit updates this review and does not change the validated web source:
 
 - [Web validation and Pages deployment](https://github.com/MasfikurDev/My-Life-Simulator/actions/runs/44638209328): 15 test files passed, 205 tests passed, Svelte check reported 0 errors and 11 warnings, and the production Vite build completed successfully. The Pages deployment step was correctly skipped for a pull request.
 - [Long simulation audit](https://github.com/MasfikurDev/My-Life-Simulator/actions/runs/44638209320): passed.
