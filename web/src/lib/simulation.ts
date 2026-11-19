@@ -1465,25 +1465,35 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     if (after !== before) changes.push({ key, label, before, after, delta: after - before });
   };
   addChange('education-grade', 'Education grade', character.educationEnrollment?.grade, projected.educationEnrollment?.grade);
+  addChange('education-attendance', 'Education attendance', character.educationEnrollment?.attendance, projected.educationEnrollment?.attendance);
+  addChange('education-weeks', 'Course weeks completed', character.educationEnrollment?.weeksCompleted, projected.educationEnrollment?.weeksCompleted);
+  const subjectIds = new Set([...(character.educationEnrollment?.subjects ?? []).map((subject) => subject.name), ...(projected.educationEnrollment?.subjects ?? []).map((subject) => subject.name)]);
+  for (const subjectId of subjectIds) {
+    const before = character.educationEnrollment?.subjects.find((subject) => subject.name === subjectId)?.grade;
+    const after = projected.educationEnrollment?.subjects.find((subject) => subject.name === subjectId)?.grade;
+    addChange('education-subject-' + subjectId, subjectId + ' grade', before, after);
+  }
   addChange('work-performance', 'Work performance', character.employment?.performance, projected.employment?.performance);
+  addChange('role-experience', 'Role experience', character.employment?.experienceYears, projected.employment?.experienceYears);
+  addChange('career-experience', 'Career experience', character.careerExperienceYears, projected.careerExperienceYears);
   const skillIds = new Set([...Object.keys(character.skills ?? {}), ...Object.keys(projected.skills ?? {})]);
   for (const skillId of skillIds) addChange('skill-' + skillId, getSkillLabel(skillId), character.skills?.[skillId] ?? 0, projected.skills?.[skillId] ?? 0);
-  const averageBond = (value: Character) => {
-    const bonds = value.family?.bonds ?? [];
-    return bonds.length ? bonds.reduce((total, bond) => total + bond.closeness, 0) / bonds.length : undefined;
-  };
-  addChange('family-closeness', 'Average family closeness', averageBond(character), averageBond(projected));
-  const averageBondMetric = (value: Character, key: 'trust' | 'tension') => {
-    const bonds = value.family?.bonds ?? [];
-    return bonds.length ? bonds.reduce((total, bond) => total + bond[key], 0) / bonds.length : undefined;
-  };
-  addChange('family-trust', 'Average family trust', averageBondMetric(character, 'trust'), averageBondMetric(projected, 'trust'));
-  addChange('family-tension', 'Average family tension', averageBondMetric(character, 'tension'), averageBondMetric(projected, 'tension'));
-  const averageBusiness = (value: Character) => {
-    const businesses = value.businesses ?? [];
-    return businesses.length ? businesses.reduce((total, business) => total + business.performance, 0) / businesses.length : undefined;
-  };
-  addChange('business-performance', 'Average business performance', averageBusiness(character), averageBusiness(projected));
+  const bondIds = new Set([...(character.family?.bonds ?? []).map((bond) => bond.personId), ...(projected.family?.bonds ?? []).map((bond) => bond.personId)]);
+  for (const personId of bondIds) {
+    const before = character.family?.bonds.find((bond) => bond.personId === personId);
+    const after = projected.family?.bonds.find((bond) => bond.personId === personId);
+    const personName = character.family?.people.find((person) => person.id === personId)?.name ?? projected.family?.people.find((person) => person.id === personId)?.name ?? 'Family member';
+    addChange('family-' + personId + '-closeness', personName + ' · closeness', before?.closeness, after?.closeness);
+    addChange('family-' + personId + '-trust', personName + ' · trust', before?.trust, after?.trust);
+    addChange('family-' + personId + '-tension', personName + ' · tension', before?.tension, after?.tension);
+  }
+  const businessIds = new Set([...(character.businesses ?? []).map((business) => business.id), ...(projected.businesses ?? []).map((business) => business.id)]);
+  for (const businessId of businessIds) {
+    const before = character.businesses?.find((business) => business.id === businessId);
+    const after = projected.businesses?.find((business) => business.id === businessId);
+    const businessName = before?.name ?? after?.name ?? 'Business';
+    addChange('business-' + businessId, businessName + ' performance', before?.performance, after?.performance);
+  }
   addChange('appearance', 'Clothing presentation', getClothingPresentationScore(character), getClothingPresentationScore(projected));
   const passiveActivities = getPassiveLifestyleActivities(character).map((item) => ({
     id: item.id, title: item.title, source: item.source, detail: item.detail,
