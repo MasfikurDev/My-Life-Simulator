@@ -30,7 +30,7 @@
   <span class="theme-option-copy"><strong>{title}</strong><small>{description}</small></span>
   <span class="theme-check" aria-hidden="true">{selected ? '✓' : ''}</span>
 </button>
-<style>
+<style lang="scss">
   .theme-option{position:relative;display:flex;align-items:center;gap:10px;min-width:0;min-height:70px;padding:10px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--surface);color:var(--text);text-align:left;cursor:pointer;overflow:hidden;isolation:isolate;transition:border-color .2s,background .2s,box-shadow .2s,transform .2s}
   .theme-option::before{content:"";position:absolute;inset:0;z-index:-1;opacity:0;background:linear-gradient(105deg,transparent, color-mix(in srgb,var(--accent) 10%,transparent),transparent);transform:translateX(-100%);transition:transform .55s,opacity .25s}
   .theme-option:hover{background:var(--surface-hover);border-color:var(--line-strong);transform:translateY(-1px)}

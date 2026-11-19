@@ -345,7 +345,7 @@ Status labels:
 
 ### 2.16 UI, navigation, themes, and reusable components
 
-**Owner:** Svelte workspaces and shared components; semantic tokens/themes in `web/src/styles/`; global CSS in `app.css`.
+**Owner:** Svelte workspaces and shared components; semantic tokens/themes in `web/src/styles/`; global SCSS in `app.scss`.
 
 **Current behavior**
 - Top-level Overview, Education, age-gated Work and Finance, Life, and Profile/Settings navigation.

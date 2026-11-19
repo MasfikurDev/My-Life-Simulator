@@ -288,7 +288,7 @@ Detailed domain rules: [FAMILY_SYSTEM.md](FAMILY_SYSTEM.md).
 
 The Svelte UI uses a small in-repository design system rather than a third-party component framework.
 
-- Semantic design tokens and theme palettes live in `web/src/styles/`; global layout and legacy domain styling remain in `web/src/app.css` while they are migrated to tokens.
+- Semantic design tokens and theme palettes live in `web/src/styles/*.scss`; global layout and domain-level composition live in `web/src/app.scss`. All Svelte component-scoped styles use SCSS as well.
 - Reusable presentation primitives live in `web/src/components/` (buttons, panels, section headers, theme option controls). Domain-specific behavior and simulation rules stay in their existing workspaces and pure TypeScript modules.
 - Theme preference is an app-level local setting stored in the existing `my-life-simulator.settings` key, not in Character or SaveData. Theme changes do not alter saves or require a save schema migration.
 - The default and invalid-preference fallback is `amoled`. The current theme catalogue contains 17 themes, defined by `web/src/lib/theme.ts`; AMOLED remains the default. Keep this list sourced from the code rather than maintaining a second, partial list here.
@@ -297,4 +297,4 @@ The Svelte UI uses a small in-repository design system rather than a third-party
 - Do not add an external UI framework for routine styling. Migrate repeated patterns incrementally and test both dark and light palettes.
 
 
-The legacy UI color migration is complete: all shared app and workspace CSS color declarations consume semantic tokens from `web/src/styles/tokens.css` and `web/src/styles/themes.css`. Preserve this contract when adding styles; avoid hard-coded palette colors outside intentional artwork or theme-preview swatches.
+The legacy UI color migration is complete: all shared app and workspace CSS color declarations consume semantic tokens from `web/src/styles/tokens.scss` and `web/src/styles/themes.scss`. Preserve this contract when adding styles; avoid hard-coded palette colors outside intentional artwork or theme-preview swatches.

@@ -61,7 +61,7 @@
   </div>
 </section>
 
-<style>
+<style lang="scss">
   .creation-experience{margin:0}
   .creation-heading-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
   .identity-country,.identity-currency,.character-gender{display:flex;align-items:center;gap:7px}

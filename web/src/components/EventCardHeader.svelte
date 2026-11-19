@@ -40,7 +40,7 @@
   <h2>{title}</h2><p class="game-event-description">{description}</p>
 {/if}
 
-<style>
+<style lang="scss">
   .event-card-header{--event-a:#7048c7;--event-b:#a044a5;--event-glow:rgba(220,190,255,.34);position:relative;isolation:isolate;overflow:hidden;min-height:132px;padding:18px 16px;color:#fff;background:linear-gradient(112deg,var(--event-a),var(--event-b))}
   .event-art,.event-header-main{position:relative;z-index:1}.event-art{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
   .event-orb{position:absolute;display:block;border-radius:50%;background:var(--event-glow);filter:blur(1px);mix-blend-mode:screen}

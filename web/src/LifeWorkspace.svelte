@@ -103,7 +103,7 @@
   {/if}
 </section>
 
-<style>
+<style lang="scss">
   .life-workspace {
     display:grid;
     gap:10px;

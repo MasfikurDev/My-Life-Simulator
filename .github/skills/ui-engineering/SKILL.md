@@ -17,7 +17,7 @@ Before changing UI:
 
 Current implementation:
 - Svelte 5 + TypeScript + Vite.
-- Shared global CSS in `web/src/app.css`.
+- Shared global SCSS in `web/src/app.scss`; theme tokens and framework styles live in `web/src/styles/*.scss`.
 - No Tailwind, Bootstrap, Material Web, or established external component library.
 - Do not add a styling framework or UI dependency for routine layout work.
 
@@ -34,7 +34,7 @@ Current implementation:
 
 ## Spacing and density
 - Follow a consistent 4px rhythm: 4, 8, 12, 16, 20, 24, 32, 40, 48px.
-- Prefer nearby existing patterns. Put any new shared spacing tokens centrally in `:root` in `web/src/app.css`; do not scatter a second spacing system.
+- Prefer nearby existing patterns. Put any new shared spacing tokens centrally in `:root` in `web/src/app.scss`; do not scatter a second spacing system.
 - Use tighter spacing inside controls, moderate spacing for related content, and larger spacing between distinct sections.
 - Do not use child margins/padding to compensate for a broken parent layout. Fix the parent constraint.
 - Prefer `gap` over stacked adjacent margins when it describes the relationship.

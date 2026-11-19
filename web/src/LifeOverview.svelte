@@ -54,7 +54,7 @@
   </div>
 </section>
 
-<style>
+<style lang="scss">
   .life-overview-heading{align-items:center}
   .life-overview-age{display:grid;justify-items:center;gap:2px;min-width:76px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
   .life-overview-age strong{font-size:25px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums}

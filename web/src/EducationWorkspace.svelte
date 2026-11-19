@@ -105,7 +105,7 @@
 
 {/if}
 
-<style>
+<style lang="scss">
   .education-nav {
     display:flex;
     align-items:center;

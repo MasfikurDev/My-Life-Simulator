@@ -25,7 +25,7 @@ Do not install a generic dashboard or catalog design system over the existing vi
 #### 1. Fresh-install main menu visually emphasizes a disabled action
 
 - **Rule:** `rule/no-generic-dashboard-frame` (primary user moment should own the strongest first-view hierarchy).
-- **Evidence:** `web/src/MainMenu.svelte:13-14`; `web/src/app.css:827-836`.
+- **Evidence:** `web/src/MainMenu.svelte:13-14`; `web/src/app.scss:827-836`.
 - **Classification:** Derived from source and confirmed in the live main menu.
 - **Finding:** Continue always receives `title-menu-primary`, but is disabled when there are no saved lives. New Game remains visually equivalent to the secondary menu actions. On a fresh install, the strongest visual emphasis therefore belongs to an unavailable action.
 - **Recommendation:** Make New Game the primary visual action when no save exists; make Continue primary when at least one saved life exists. Keep the other menu destinations and the current game-menu structure.
