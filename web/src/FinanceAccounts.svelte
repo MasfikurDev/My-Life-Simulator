@@ -6,7 +6,7 @@
   import GameChoice from './GameChoice.svelte';
   import UiProgress from './components/UiProgress.svelte';
   import UiField from './components/UiField.svelte';
-  let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
+  let { character, projectedCharacter = character, onChange }: { character: Character; projectedCharacter?: Character; onChange: (next: Character) => void } = $props();
   let accountType = $state<BankAccountType>('checking');
   let fixedTermYears = $state('1');
   let accountName = $state('');
@@ -115,11 +115,11 @@
   <div class="transactions"><h3>Recent money activity</h3>{#if transactions.length === 0}<EmptyState title="No money activity recorded" description="Deposits, withdrawals, transfers, income and interest appear here." />{:else}{#each transactions as transaction}<div class="transaction"><div><strong>{transaction.description}</strong><small>Age {transaction.age} · {transaction.year} · {transaction.from} → {transaction.to}</small></div><b>{transaction.amount ? formatCharacterMoney(character, transaction.amount) : '—'}</b></div>{/each}{/if}</div>
   <small class="hint">*Net worth includes cash, bank accounts, vault cash, property, investments and business value, less loans and credit-card balances. Values are simplified estimates.</small>
   {:else if activeBankingView === 'cards'}
-    <FinanceProducts {character} {onChange} view="cards" />
+    <FinanceProducts {character} {projectedCharacter} {onChange} view="cards" />
   {:else if activeBankingView === 'loans'}
-    <FinanceProducts {character} {onChange} view="loans" />
+    <FinanceProducts {character} {projectedCharacter} {onChange} view="loans" />
   {:else}
-    <FinanceProducts {character} {onChange} view="savings" />
+    <FinanceProducts {character} {projectedCharacter} {onChange} view="savings" />
   {/if}
 </section>
 <style lang="scss">

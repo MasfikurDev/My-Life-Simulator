@@ -2,20 +2,21 @@
   import type { Character, EducationTaskType } from './lib/types';
   import GameChoice from './GameChoice.svelte';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
-  import ActivityEffectBadges from './components/ActivityEffectBadges.svelte';
   import UiProgress from './components/UiProgress.svelte';
   import { enrollInEducation, getAvailableEducationPrograms, resumeEducation } from './lib/education';
   import EducationRecordsWorkspace from './EducationRecordsWorkspace.svelte';
-  import { formatCharacterMoney, getWeeklyActivityReview, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import { formatCharacterMoney, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getActivityStaminaCost, getValueTone } from './lib/progression';
-  let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
+  let { character, projectedCharacter = character, onChange, onNotify }: { character: Character; projectedCharacter?: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   let subpage = $state<'education' | 'records'>('education');
   let selectedProgramId = $state('');
   let selectedField = $state('');
   const programs = $derived(getAvailableEducationPrograms(character));
   const selectedProgram = $derived(programs.find((item) => item.id === selectedProgramId) ?? programs[0]);
   const enrollment = $derived(character.educationEnrollment ?? null);
+  const projectedEnrollment = $derived(projectedCharacter.educationEnrollment ?? enrollment);
   const progress = $derived(enrollment ? Math.min(100, Math.round(enrollment.weeksCompleted / enrollment.totalWeeks * 100)) : 0);
+  const projectedProgress = $derived(projectedEnrollment ? Math.min(100, Math.round(projectedEnrollment.weeksCompleted / projectedEnrollment.totalWeeks * 100)) : progress);
   const plannedTasks = $derived(character.weeklyPlan?.activities.filter((item) => item.action?.kind === 'education') ?? []);
   function enroll() {
     if (!selectedProgram) return;
@@ -37,14 +38,6 @@
     onChange(result.character); onNotify('Academic task added to this week.');
   }
   function taskPlanned(task: EducationTaskType) { return plannedTasks.some((item) => item.action?.kind === 'education' && item.action.taskType === task); }
-  function taskPreview(task: EducationTaskType) {
-    const existing = plannedTasks.find((item) => item.action?.kind === 'education' && item.action.taskType === task);
-    const planned = existing ? { character, plannedActivity: existing, issue: null } : planEducationTaskInNextFreeTime(character, task);
-    const target = existing?.id ?? planned.plannedActivity?.id;
-    if (!target || planned.issue) return null;
-    return getWeeklyActivityReview(planned.character).activities.find((item) => item.id === target) ?? null;
-  }
-  const taskPreviews = $derived({ assignment: taskPreview('assignment'), exam: taskPreview('exam') });
   function gradeLabel(value: number) { if (enrollment?.level === 'early-learning') return value >= 75 ? 'Developing well' : value >= 50 ? 'On track' : 'Needs more support'; return value >= 85 ? 'Excellent' : value >= 70 ? 'Good' : value >= 60 ? 'Pass' : value >= 45 ? 'At risk' : 'Critical'; }
 </script>
 
@@ -60,14 +53,14 @@
   <section class="education-hero domain-panel">
     <div class="education-hero-top"><div><div class="eyebrow">CURRENT ENROLLMENT · {enrollment.institution.toUpperCase()}</div><h2>{enrollment.level === 'bachelor' ? "Bachelor's degree" : enrollment.level === 'master' ? "Master's degree" : enrollment.level === 'doctorate' ? 'Doctoral programme' : enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">{enrollment.status === 'paused' ? 'ON HOLD' : 'ENROLLED'}</span></div>
     <div class="education-metrics">
-      <div><span>{enrollment.level === 'early-learning' ? 'DEVELOPMENT' : 'OVERALL GRADE'}</span><strong>{Math.round(enrollment.grade)}%</strong><small>{gradeLabel(enrollment.grade)}</small></div>
-      <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%</strong><small>Present / scheduled</small></div>
-      <div><span>COURSE PROGRESS</span><strong>{progress}%</strong><small>{enrollment.weeksCompleted}/{enrollment.totalWeeks} weeks</small></div>
+      <div><span>{enrollment.level === 'early-learning' ? 'DEVELOPMENT' : 'OVERALL GRADE'}</span><strong>{Math.round(enrollment.grade)}%{#if projectedEnrollment && projectedEnrollment.grade !== enrollment.grade} → {Math.round(projectedEnrollment.grade)}%{/if}</strong><small>{gradeLabel(enrollment.grade)}</small></div>
+      <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%{#if projectedEnrollment && projectedEnrollment.attendance !== enrollment.attendance} → {Math.round(projectedEnrollment.attendance)}%{/if}</strong><small>Present / scheduled</small></div>
+      <div><span>COURSE PROGRESS</span><strong>{progress}%{#if projectedProgress !== progress} → {projectedProgress}%{/if}</strong><small>{enrollment.weeksCompleted}/{enrollment.totalWeeks} weeks</small></div>
     </div>
-    <UiProgress label="Course progress" value={progress} tone={getValueTone(progress)} showLabel={false} />
+    <UiProgress label="Course progress" value={progress} previewValue={projectedProgress} previewTone={projectedProgress >= progress ? 'success' : 'danger'} tone={getValueTone(progress)} showLabel={false} showValue valueText={`${progress}% → ${projectedProgress}%`} />
     <div class="education-subjects">
       {#each enrollment.subjects as subject}
-        <div class="education-subject"><span>{subject.name}</span><strong>{Math.round(subject.grade)}%</strong><UiProgress label={`${subject.name} grade`} value={subject.grade} tone={getValueTone(subject.grade)} size="small" showLabel={false} /></div>
+        <div class="education-subject"><span>{subject.name}</span><strong>{Math.round(subject.grade)}%</strong><UiProgress label={`${subject.name} grade`} value={subject.grade} previewValue={projectedEnrollment?.subjects.find((item) => item.name === subject.name)?.grade ?? subject.grade} previewTone={(projectedEnrollment?.subjects.find((item) => item.name === subject.name)?.grade ?? subject.grade) >= subject.grade ? 'success' : 'danger'} tone={getValueTone(subject.grade)} size="small" showLabel={false} showValue valueText={`${Math.round(subject.grade)}% → ${Math.round(projectedEnrollment?.subjects.find((item) => item.name === subject.name)?.grade ?? subject.grade)}%`} /></div>
       {/each}
     </div>
     <div class="education-footnote">{#if enrollment.status === 'paused'}Progress retained{:else}{enrollment.weeklyStudyTarget} study points required each week{/if}</div>
@@ -79,8 +72,8 @@
     <div class="section-heading"><div><span class="section-index">01</span><h3>This Week's Academic Work</h3></div><span class="section-hint">{plannedTasks.length} tasks selected</span></div>
 
         <div class="education-task-grid">
-      <button class="education-task-card" class:planned={taskPlanned('assignment')} onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>{enrollment.level === 'early-learning' ? 'Story time' : 'Assignment'}</strong><ActivityStatusSeal status={taskPlanned('assignment') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Build language and communication with shared stories' : 'Complete coursework and practical exercises'}</small><ActivityEffectBadges effects={taskPreviews.assignment?.effects ?? []} staminaCost={taskPreviews.assignment?.staminaCost ?? getActivityStaminaCost('study')} staminaRecovery={taskPreviews.assignment?.staminaRecovery ?? 0} moneyCost={taskPreviews.assignment?.moneyCost ?? 0} formatMoney={(amount) => formatCharacterMoney(character, amount)} /><b>{taskPlanned('assignment') ? 'REMOVE FROM WEEK' : 'ADD ASSIGNMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
-      <button class="education-task-card" class:planned={taskPlanned('exam')} onclick={() => planTask('exam')}><span class="education-task-icon">✓</span><strong>{enrollment.level === 'early-learning' ? 'Discovery activity' : 'Quiz / exam prep'}</strong><ActivityStatusSeal status={taskPlanned('exam') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Explore objects, sounds and movement with a caregiver' : 'Prepare for an assessment or sit a weekly quiz'}</small><ActivityEffectBadges effects={taskPreviews.exam?.effects ?? []} staminaCost={taskPreviews.exam?.staminaCost ?? getActivityStaminaCost('study')} staminaRecovery={taskPreviews.exam?.staminaRecovery ?? 0} moneyCost={taskPreviews.exam?.moneyCost ?? 0} formatMoney={(amount) => formatCharacterMoney(character, amount)} /><b>{taskPlanned('exam') ? 'REMOVE FROM WEEK' : 'ADD ASSESSMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
+      <button class="education-task-card" class:planned={taskPlanned('assignment')} onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>{enrollment.level === 'early-learning' ? 'Story time' : 'Assignment'}</strong><ActivityStatusSeal status={taskPlanned('assignment') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Build language and communication with shared stories' : 'Complete coursework and practical exercises'}</small><b>{taskPlanned('assignment') ? 'REMOVE FROM WEEK' : 'ADD ASSIGNMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
+      <button class="education-task-card" class:planned={taskPlanned('exam')} onclick={() => planTask('exam')}><span class="education-task-icon">✓</span><strong>{enrollment.level === 'early-learning' ? 'Discovery activity' : 'Quiz / exam prep'}</strong><ActivityStatusSeal status={taskPlanned('exam') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Explore objects, sounds and movement with a caregiver' : 'Prepare for an assessment or sit a weekly quiz'}</small><b>{taskPlanned('exam') ? 'REMOVE FROM WEEK' : 'ADD ASSESSMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
     </div>
     <div class="education-footnote">Each task uses stamina. Attendance is handled automatically as part of your education programme.</div>
   </section>

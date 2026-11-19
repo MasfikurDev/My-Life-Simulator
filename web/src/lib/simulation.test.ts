@@ -185,6 +185,7 @@ describe('life simulation', () => {
       expect.objectContaining({ key: 'fitness', tone: 'success', kind: 'stat' })
     ]));
     const resolved = advanceWeek(planned.character);
+    expect(review.projectedCharacter).toEqual(resolved.character);
     expect(review.projectedStamina).toBe(resolved.character.stamina);
     expect(review.staminaDrift).toBe(resolved.staminaDrift);
     expect(resolved.recap.some((entry) => entry.includes('Natural weekly recovery'))).toBe(true);
