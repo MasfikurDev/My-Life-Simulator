@@ -275,7 +275,7 @@
   }
   function restart() {
     const keepAchievementEligibility = character?.achievementEligible === true;
-    clearSave(activeSlotId); slots = getSaveSlots(); character = null;
+    clearSave(activeSlotId); slots = getSaveSlots(); character = null; eventDialogOpen = false;
     showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.');
     pendingSlotId = activeSlotId; pendingAchievementEligible = keepAchievementEligibility;
   }
@@ -685,6 +685,7 @@
       event={character.pendingGameEvent}
       age={character.age}
       money={character.money}
+      formatMoney={(amount) => formatCharacterMoney(character!, amount)}
       plannedChoiceIds={plannedEventChoiceIds}
       onToggleChoice={chooseLifeEvent}
       onClose={() => eventDialogOpen = false}
