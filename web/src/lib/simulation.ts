@@ -1276,18 +1276,41 @@ export interface WeeklyActivityOutcomeEffect {
 }
 
 function getActivityOutcomeEffects(before: Character, after: Character): WeeklyActivityOutcomeEffect[] {
+  const effects: WeeklyActivityOutcomeEffect[] = [];
+  const add = (key: string, label: string, beforeValue: number | undefined, afterValue: number | undefined, inverse = false) => {
+    const delta = Number(afterValue ?? 0) - Number(beforeValue ?? 0);
+    if (!delta) return;
+    effects.push({ key, label, delta, tone: (inverse ? delta < 0 : delta > 0) ? 'success' : 'danger', kind: 'stat' });
+  };
   const fields: Array<[keyof Character, string, boolean]> = [
     ['health', 'Health', false], ['happiness', 'Happiness', false], ['intelligence', 'Intelligence', false],
-    ['fitness', 'Fitness', false], ['stress', 'Stress', true],
-    ['focus', 'Focus', false], ['confidence', 'Confidence', false], ['comfort', 'Comfort', false],
-    ['discipline', 'Discipline', false], ['creativity', 'Creativity', false], ['socialSkills', 'Social skills', false]
+    ['fitness', 'Fitness', false], ['stress', 'Stress', true], ['focus', 'Focus', false],
+    ['confidence', 'Confidence', false], ['comfort', 'Comfort', false], ['discipline', 'Discipline', false],
+    ['creativity', 'Creativity', false], ['socialSkills', 'Social skills', false]
   ];
-  const effects: WeeklyActivityOutcomeEffect[] = [];
   for (const [key, label, inverse] of fields) {
-    const fallback = key === 'stress' ? 30 : key === 'stamina' || key === 'comfort' ? 50 : 0;
-    const delta = Number(after[key] ?? fallback) - Number(before[key] ?? fallback);
-    if (!delta) continue;
-    effects.push({ key: String(key), label, delta, tone: (inverse ? delta < 0 : delta > 0) ? 'success' : 'danger', kind: 'stat' });
+    const fallback = key === 'stress' ? 30 : key === 'comfort' ? 50 : 0;
+    add(String(key), label, Number(before[key] ?? fallback), Number(after[key] ?? fallback), inverse);
+  }
+  add('education-grade', 'Education grade', before.educationEnrollment?.grade, after.educationEnrollment?.grade);
+  add('work-performance', 'Work performance', before.employment?.performance, after.employment?.performance);
+  add('career-experience', 'Career experience', before.careerExperienceYears, after.careerExperienceYears);
+  const skillIds = new Set([...Object.keys(before.skills ?? {}), ...Object.keys(after.skills ?? {})]);
+  for (const skillId of skillIds) add('skill-' + skillId, getSkillLabel(skillId), before.skills?.[skillId], after.skills?.[skillId]);
+  const bondIds = new Set([...(before.family?.bonds ?? []).map((bond) => bond.personId), ...(after.family?.bonds ?? []).map((bond) => bond.personId)]);
+  for (const personId of bondIds) {
+    const prior = before.family?.bonds.find((bond) => bond.personId === personId);
+    const nextBond = after.family?.bonds.find((bond) => bond.personId === personId);
+    const name = before.family?.people.find((person) => person.id === personId)?.name ?? after.family?.people.find((person) => person.id === personId)?.name ?? 'Family member';
+    add('family-' + personId + '-closeness', name + ' closeness', prior?.closeness, nextBond?.closeness);
+    add('family-' + personId + '-trust', name + ' trust', prior?.trust, nextBond?.trust);
+    add('family-' + personId + '-tension', name + ' tension', prior?.tension, nextBond?.tension, true);
+  }
+  const businessIds = new Set([...(before.businesses ?? []).map((business) => business.id), ...(after.businesses ?? []).map((business) => business.id)]);
+  for (const businessId of businessIds) {
+    const prior = before.businesses?.find((business) => business.id === businessId);
+    const nextBusiness = after.businesses?.find((business) => business.id === businessId);
+    add('business-' + businessId, (prior?.name ?? nextBusiness?.name ?? 'Business') + ' performance', prior?.performance, nextBusiness?.performance);
   }
   const moneyDelta = after.money - before.money;
   if (moneyDelta) effects.push({ key: 'money', label: 'Cash', delta: moneyDelta, tone: moneyDelta > 0 ? 'success' : 'danger', kind: 'money' });
