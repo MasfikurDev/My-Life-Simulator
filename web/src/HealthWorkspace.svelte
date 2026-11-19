@@ -2,11 +2,10 @@
   import type { CareActionType, Character } from './lib/types';
   import EmptyState from './components/EmptyState.svelte';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
-  import ActivityEffectBadges from './components/ActivityEffectBadges.svelte';
   import UiProgress from './components/UiProgress.svelte';
-  import { formatCharacterMoney, getWeeklyActivityReview, planActivityInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import { formatCharacterMoney, planActivityInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getActivityStaminaCost, getValueTone } from './lib/progression';
-  let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
+  let { character, projectedCharacter = character, onChange, onNotify }: { character: Character; projectedCharacter?: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   const medical = $derived(character.medicalState ?? { conditions: [], medications: [], highStressWeeks: 0 });
   const schedule = $derived(character.weeklyPlan);
   const plannedCare = $derived(schedule.activities.filter((item) => item.action?.kind === 'care'));
@@ -19,24 +18,6 @@
     onNotify('Added to this week. Toggle it again to remove it.');
   }
   function isPlanned(type: CareActionType) { return plannedCare.some((item) => item.action?.kind === 'care' && item.action.careType === type); }
-  function previewAction(type: CareActionType | 'exercise' | 'socialize') {
-    const existing = schedule.activities.find((item) =>
-      type === 'exercise' || type === 'socialize'
-        ? item.activityId === type && item.action?.kind === 'activity'
-        : item.action?.kind === 'care' && item.action.careType === type
-    );
-    const planned = existing ? { character, plannedActivity: existing, issue: null } :
-      type === 'exercise' || type === 'socialize'
-        ? planActivityInNextFreeTime(character, type)
-        : planCareActionInNextFreeTime(character, type);
-    if (planned.issue || !planned.plannedActivity) return null;
-    return getWeeklyActivityReview(planned.character).activities.find((item) => item.id === planned.plannedActivity!.id) ?? null;
-  }
-  const carePreviews = $derived({
-    rest: previewAction('rest'), mindfulness: previewAction('mindfulness'),
-    counselling: previewAction('counselling'), medical: previewAction('medical-checkup'),
-    exercise: previewAction('exercise'), socialize: previewAction('socialize')
-  });
   function isPersonalActivityPlanned(type: 'exercise' | 'socialize') { return schedule.activities.some((item) => item.activityId === type && item.action?.kind === 'activity'); }
   function togglePersonalActivity(type: 'exercise' | 'socialize') {
     const existing = schedule.activities.find((item) => item.activityId === type && item.action?.kind === 'activity');
@@ -46,12 +27,12 @@
     onChange(result.character); onNotify('Added to this week.');
   }
   const stats = $derived([
-    { label: 'Physical health', value: character.health, tone: 'health', inverse: false },
-    { label: 'Fitness', value: character.fitness, tone: 'fitness', inverse: false },
-    { label: 'Stamina', value: character.stamina ?? 50, tone: 'stamina', inverse: false },
-    { label: 'Happiness', value: character.happiness, tone: 'happiness', inverse: false },
-    { label: 'Comfort', value: character.comfort ?? 50, tone: 'comfort', inverse: false },
-    { label: 'Stress', value: character.stress ?? 30, tone: 'stress', inverse: true }
+    { label: 'Physical health', value: character.health, projectedValue: projectedCharacter.health, inverse: false },
+    { label: 'Fitness', value: character.fitness, projectedValue: projectedCharacter.fitness, inverse: false },
+    { label: 'Stamina', value: character.stamina ?? 50, projectedValue: projectedCharacter.stamina ?? 50, inverse: false },
+    { label: 'Happiness', value: character.happiness, projectedValue: projectedCharacter.happiness, inverse: false },
+    { label: 'Comfort', value: character.comfort ?? 50, projectedValue: projectedCharacter.comfort ?? 50, inverse: false },
+    { label: 'Stress', value: character.stress ?? 30, projectedValue: projectedCharacter.stress ?? 30, inverse: true }
   ]);
 </script>
 
@@ -60,7 +41,7 @@
   <div class="health-overview-head"><div><div class="eyebrow">WELLBEING SNAPSHOT</div><h2>Health and recovery</h2><p>Your current physical and mental wellbeing, including energy and pressure.</p></div><span class="domain-status">{(character.stress ?? 30) >= 82 ? 'HIGH PRESSURE' : (character.stress ?? 30) >= 60 ? 'ELEVATED' : 'MANAGEABLE'}</span></div>
   <div class="health-stat-grid">
     {#each stats as stat}
-      <div class="health-stat"><div><span>{stat.label}</span><strong>{Math.round(stat.value)}%</strong></div><UiProgress label={stat.label} value={stat.value} tone={getValueTone(stat.value, stat.inverse)} size="small" showLabel={false} /><small>{stat.inverse ? stat.value >= 80 ? 'Critical pressure' : stat.value >= 60 ? 'Elevated pressure' : 'Manageable' : stat.value < 25 ? 'Critical' : stat.value < 45 ? 'Low' : stat.value < 70 ? 'Fair' : 'Strong'}</small></div>
+      <div class="health-stat"><div><span>{stat.label}</span><strong>{Math.round(stat.value)}%{#if stat.projectedValue !== stat.value} → {Math.round(stat.projectedValue)}%{/if}</strong></div><UiProgress label={stat.label} value={stat.value} previewValue={stat.projectedValue} previewTone={stat.inverse ? stat.projectedValue < stat.value ? 'success' : 'danger' : stat.projectedValue > stat.value ? 'success' : 'danger'} tone={getValueTone(stat.value, stat.inverse)} size="small" showLabel={false} /><small>{stat.inverse ? stat.value >= 80 ? 'Critical pressure' : stat.value >= 60 ? 'Elevated pressure' : 'Manageable' : stat.value < 25 ? 'Critical' : stat.value < 45 ? 'Low' : stat.value < 70 ? 'Fair' : 'Strong'}</small></div>
     {/each}
   </div>
   {#if (character.stress ?? 30) >= 70 || character.health < 30}
