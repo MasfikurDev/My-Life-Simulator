@@ -113,6 +113,7 @@ The flexible primitives are now used in real domain screens, not only defined:
   - Finance Products: loan repayment and savings goal.
   - Education: overall course progress and subject grades.
   - Life Overview: health, stamina, intelligence, fitness, happiness, and inverse stress meters.
+  - Character Creation: generated health, happiness, intelligence, fitness, stamina, focus, confidence, discipline, creativity, and social-skill meters.
   - Family: relationship closeness, trust, and tension.
   - Health: wellbeing stats and medical-condition severity.
 - **UiField**
