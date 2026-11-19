@@ -7,7 +7,7 @@
   import HealthWorkspace from './HealthWorkspace.svelte';
   import LifeOverview from './LifeOverview.svelte';
   type LifeView = 'overview' | 'health' | 'supermarket' | 'subscriptions' | 'owned' | 'family' | 'tree' | 'history';
-  let { character, onChange, onNotify, initialView = 'overview' }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifeView } = $props();
+  let { character, projectedCharacter = character, onChange, onNotify, initialView = 'overview' }: { character: Character; projectedCharacter?: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifeView } = $props();
   let activeView = $state<LifeView>(initialView);
   const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
@@ -54,11 +54,11 @@
     {/each}
   </nav>
   {#if activeView === 'overview'}
-    <LifeOverview {character} />
+    <LifeOverview {character} {projectedCharacter} />
   {:else if activeView === 'health'}
-    <HealthWorkspace {character} {onChange} {onNotify} />
+    <HealthWorkspace {character} {projectedCharacter} {onChange} {onNotify} />
   {:else if activeView === 'family'}
-    <FamilyWorkspace {character} {onChange} />
+    <FamilyWorkspace {character} {projectedCharacter} {onChange} />
   {:else if activeView === 'tree'}
     <LifeTreeWorkspace {character} />
   {:else if activeView === 'supermarket' || activeView === 'subscriptions' || activeView === 'owned'}
