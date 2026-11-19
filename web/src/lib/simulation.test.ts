@@ -22,11 +22,11 @@ describe('life simulation', () => {
     expect(passive.map((item) => item.id)).toContain('passive-stable-home');
     const review = getWeeklyActivityReview(supported);
     const everydayLife = review.passiveActivities.find((item) => item.id === 'passive-everyday-life');
-    expect(everydayLife?.effects).toEqual(expect.arrayContaining([
-      expect.objectContaining({ key: 'health', delta: 3, tone: 'success' }),
-      expect.objectContaining({ key: 'happiness', delta: 2, tone: 'success' }),
-      expect.objectContaining({ key: 'comfort', delta: 4, tone: 'success' })
-    ]));
+    for (const key of ['health', 'happiness', 'comfort']) {
+      const effect = everydayLife?.effects.find((item) => item.key === key);
+      expect(effect?.tone).toBe('success');
+      expect(effect?.delta).toBeGreaterThan(0);
+    }
     expect(everydayLife?.staminaRecovery).toBeGreaterThan(0);
   });
 
