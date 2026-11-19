@@ -152,7 +152,7 @@
     {#if character.age<18}<small class="hint">Emergency savings targets unlock at age 18.</small>{/if}
     {#if character.savingsGoalMonths}
       <div class="vault-balance"><small>TARGET · {character.savingsGoalMonths} MONTHS</small><strong>{formatCharacterMoney(character,savingsGoalTarget)}</strong><small>Cash balance · {formatCharacterMoney(character)}</small></div>
-      <UiProgress label="Savings goal progress" value={character.money} max={Math.max(1, savingsGoalTarget)} tone="success" showLabel={false} />
+      <UiProgress label="Savings goal progress" value={character.money} max={Math.max(1, savingsGoalTarget)} tone="accent" showLabel={false} />
       <small class="hint">{Math.min(100,Math.round(character.money/Math.max(1,savingsGoalTarget)*100))}% of your target.</small>
     {/if}
   </details>
