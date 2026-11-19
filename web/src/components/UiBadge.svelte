@@ -1,11 +1,16 @@
 <script lang="ts">
   type Tone = 'success' | 'info' | 'special' | 'warning' | 'risk' | 'danger' | 'neutral';
-  type Size = 'small' | 'medium';
+  type Size = 'tiny' | 'small' | 'medium';
+  type Shape = 'pill' | 'rounded' | 'square';
 
   let {
     tone = 'neutral',
     size = 'small',
+    shape = 'pill',
     dot = false,
+    wrap = false,
+    prefix,
+    class: className = '',
     animateOnEnter = false,
     title,
     ariaLabel,
@@ -13,7 +18,11 @@
   }: {
     tone?: Tone;
     size?: Size;
+    shape?: Shape;
     dot?: boolean;
+    wrap?: boolean;
+    prefix?: string;
+    class?: string;
     animateOnEnter?: boolean;
     title?: string;
     ariaLabel?: string;
@@ -24,13 +33,16 @@
     'ui-badge',
     `ui-badge--${tone}`,
     `ui-badge--${size}`,
+    `ui-badge--${shape}`,
+    wrap ? 'ui-badge--wrap' : '',
+    className,
     dot ? 'ui-badge--dot' : '',
     animateOnEnter ? 'ui-badge--animate' : ''
   ].filter(Boolean).join(' '));
 </script>
 
 <span class={classes} {title} aria-label={ariaLabel}>
-  {#if dot}<span class="ui-badge-dot" aria-hidden="true"></span>{/if}
+  {#if prefix}<span class="ui-badge-prefix" aria-hidden="true">{prefix}</span>{:else if dot}<span class="ui-badge-dot" aria-hidden="true"></span>{/if}
   <span class="ui-badge-label">{@render children()}</span>
 </span>
 
@@ -68,9 +80,18 @@
     background: currentColor;
   }
 
+  .ui-badge--tiny { min-height: 18px; padding: 2px 6px; font-size: 9px; letter-spacing: .035em; }
   .ui-badge--small { min-height: 22px; padding: 3px 8px; font-size: 10px; }
   .ui-badge--medium { min-height: 26px; padding: 4px 10px; font-size: 11px; }
 
+  .ui-badge--pill { border-radius: var(--radius-pill); }
+  .ui-badge--rounded { border-radius: var(--radius-sm); }
+  .ui-badge--square { border-radius: 5px; }
+  .ui-badge--wrap { white-space: normal; }
+  .ui-badge--wrap .ui-badge-label { overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+  .ui-badge-prefix { flex: none; font-size: 1.05em; line-height: 1; }
+
+  .ui-badge--accent { color: var(--accent); background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 34%, var(--line)); }
   .ui-badge--success {
     color: var(--success);
     background: var(--success-soft);
