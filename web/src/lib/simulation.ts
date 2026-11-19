@@ -1,5 +1,5 @@
 import { MARKET_ASSETS } from './markets';
-import type { ActivityId, PlannedAction, PlannedActivity, OwnedLifestyleItem, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
+import type { ActivityId, PlannedAction, PlannedActivity, OwnedLifestyleItem, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, MarketHistoryPoint, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
 import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
 import { awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabel } from './skills';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
@@ -336,6 +336,49 @@ function advanceEconomicConditions(character: Character): Character {
     properties: (character.properties ?? []).map((property) => ({ ...property, annualRentalIncome: property.rentedOut ? Math.max(1, Math.round(property.annualRentalIncome * inflationFactor)) : property.annualRentalIncome }))
   };
 }
+function updateListedMarketsForWeek(character: Character, date: string): Character {
+  const scale = character.currencyScale ?? 1;
+  const economy = getEconomicConditions(character);
+  const previousDate = addCalendarDays(date, -7);
+  const previousPrices = { ...(character.marketPrices?.assets ?? {}) };
+  const history = [...(character.marketHistory ?? [])];
+  if (history.length === 0) {
+    const openingPrices = Object.fromEntries(MARKET_ASSETS.map((asset) => [
+      asset.type,
+      previousPrices[asset.type] ?? asset.basePrice * scale
+    ])) as Partial<Record<InvestmentType, number>>;
+    history.push({ date: previousDate, prices: openingPrices });
+  }
+  const prices = Object.fromEntries(MARKET_ASSETS.map((asset) => {
+    const old = previousPrices[asset.type] ?? asset.basePrice * scale;
+    const symbolSeed = asset.symbol.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    const dateSeed = Number(date.replaceAll('-', ''));
+    const noise = Math.sin(dateSeed * 0.00013 + symbolSeed * 0.37) * asset.volatility * (asset.market === 'crypto' ? 0.12 : 0.055);
+    const drift = economy.growthRate / 52 * (asset.market === 'crypto' ? 1.2 : 0.9);
+    const movement = Math.max(asset.market === 'crypto' ? -0.3 : -0.15, Math.min(asset.market === 'crypto' ? 0.35 : 0.15, drift + noise));
+    const raw = Math.max(0.000001, old * (1 + movement));
+    const precision = raw < 1 ? 6 : raw < 10 ? 4 : 2;
+    return [asset.type, Math.round(raw * 10 ** precision) / 10 ** precision];
+  })) as Partial<Record<InvestmentType, number>>;
+  const point: MarketHistoryPoint = { date, prices };
+  const last = history[history.length - 1];
+  if (last?.date === date) history[history.length - 1] = point;
+  else history.push(point);
+  return {
+    ...character,
+    marketPrices: {
+      stocks: character.marketPrices?.stocks ?? 100 * scale,
+      technology: character.marketPrices?.technology,
+      energy: character.marketPrices?.energy,
+      bonds: character.marketPrices?.bonds,
+      gold: character.marketPrices?.gold ?? 150 * scale,
+      assets: prices,
+      lastUpdatedYear: character.year
+    },
+    marketHistory: history
+  };
+}
+
 function settleAnnualAssets(character: Character): Character {
   let next = character;
   const scale = next.currencyScale ?? 1;
@@ -351,14 +394,6 @@ function settleAnnualAssets(character: Character): Character {
   const energyMovement = Math.max(-0.4, Math.min(0.35, economy.growthRate * 0.8 - economy.inflationRate * 0.1 + energyNoise));
   const bondMovement = Math.max(-0.08, Math.min(0.08, (0.035 - economy.baseInterestRate) * 0.35 + bondNoise));
   const oldPrices = next.marketPrices ?? { stocks: 100 * scale, gold: 150 * scale, lastUpdatedYear: next.year - 1 };
-  const listedPrices = Object.fromEntries(MARKET_ASSETS.map((asset) => {
-    const old = oldPrices.assets?.[asset.type] ?? asset.basePrice * scale;
-    const symbolSeed = asset.symbol.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-    const noise = Math.sin(next.year * (1.17 + symbolSeed * 0.0007) + next.age * 0.83) * asset.volatility * 0.42;
-    const drift = economy.growthRate * (asset.market === 'crypto' ? 1.25 : 0.95);
-    const movement = Math.max(asset.market === 'crypto' ? -0.62 : -0.42, Math.min(asset.market === 'crypto' ? 0.72 : 0.48, drift + noise));
-    return [asset.type, Math.max(0.01, Math.round(old * (1 + movement) * 100) / 100)];
-  })) as Partial<Record<InvestmentType, number>>;
   const marketPrices = {
     assets: listedPrices,
     stocks: Math.max(1, Math.round(oldPrices.stocks * (1 + stockMovement))),
@@ -1248,6 +1283,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   const nextAge = getAgeAtDate(birthDate, nextDate);
   const previousAge = next.age;
   next = { ...next, calendar: { ...(next.calendar ?? createGameCalendar(next.age, next.year)), currentDate: nextDate } };
+  next = updateListedMarketsForWeek(next, nextDate);
   next = expireWorkOffers(next, nextDate);
   if (nextYear > character.year) {
     next = settleCalendarYear(next, nextYear, nextAge, previousAge);
