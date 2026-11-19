@@ -79,6 +79,28 @@ describe('current save format', () => {
     expect(values.has('my-life-simulator.save')).toBe(false);
   });
 
+  it('persists valid market wallet and weekly history fields', () => {
+    installStorage();
+    const base = createCharacter('Market saver', 30);
+    const funded = { ...base, marketCash: 2500, marketWatchlist: ['stock-apple' as const], marketHistory: [
+      { date: '2026-01-01', prices: { 'stock-apple': 350 } },
+      { date: '2026-01-08', prices: { 'stock-apple': 355 } }
+    ] };
+    saveCharacter(funded, 'slot-1');
+    expect(loadSave('slot-1')?.marketCash).toBe(2500);
+    expect(loadSave('slot-1')?.marketHistory).toEqual(funded.marketHistory);
+  });
+
+  it('rejects invalid market cash and malformed or unordered price history', () => {
+    installStorage();
+    const base = createCharacter('Invalid market save', 30);
+    expect(() => saveCharacter({ ...base, marketCash: -1 }, 'slot-1')).toThrow('current save format');
+    expect(() => saveCharacter({ ...base, marketHistory: [
+      { date: '2026-01-08', prices: { 'stock-apple': 355 } },
+      { date: '2026-01-01', prices: { 'stock-apple': 350 } }
+    ] }, 'slot-1')).toThrow('current save format');
+  });
+
   it('rejects malformed current-schema characters instead of partially loading them', () => {
     const values = installStorage();
     values.set('my-life-simulator.save', JSON.stringify({ schemaVersion: CURRENT_SCHEMA, activeSlotId: 'slot-1', slots: [

@@ -88,6 +88,18 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 - [ ] Expand work into a complete age-appropriate path spanning part-time work, internships, apprenticeships, skilled occupations, professional careers, management and flexible later-life work; connect it to real education and credential records.
 - [ ] Add richer workplace interactions, employer structures, layoffs/job security, and persistent vacancies; do not display placeholder stages.
 
+## Simulated investment markets
+
+- [x] Add separate Stocks, Crypto, and Other assets destinations within the existing Investments workspace.
+- [x] Add searchable company/token listings, holdings, market-cap/trending/mover filters, watchlists, asset detail views, and Buy/Sell/Convert/Deposit controls.
+- [x] Add an investment wallet with explicit cash-to-wallet deposits and wallet-to-cash transfers through the shared ledger.
+- [x] Add deterministic weekly price updates and persist weekly closing history for 1M/1Y/ALL chart ranges; label 1H/1D and interpolated 1W paths accurately.
+- [x] Add simulated supply, market-cap, and volume profiles without implying live exchange data.
+- [ ] Add real modeled company earnings, dividends, corporate actions, and ratings before presenting those mechanics as implemented.
+- [ ] Add token issuance/burns, staking, network fees, and dynamic supply before presenting those mechanics as implemented.
+- [ ] Add market-wide events and fundamentals that create meaningful gameplay choices.
+
+
 ## Milestone 3 — Replace annual actions with the weekly gameplay cycle (core transition complete)
 
 **Design decision:** weekly is the live playable time unit; monthly is the intended financial/reporting unit; yearly is the life-progression and current annual-settlement unit. Personal activities use a stamina budget; school/work are automatic background responsibilities and do not reserve calendar periods. Weekly review is simulation-backed and deterministic. Remaining work is listed separately below.

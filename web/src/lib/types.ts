@@ -20,12 +20,13 @@ export type FinancialTransactionType = 'family-support' | 'account-opened' | 'de
 export type CardType = 'debit' | 'credit' | 'prepaid';
 export type LoanType = 'personal' | 'mortgage' | 'business';
 export type PropertyType = 'house' | 'apartment';
-export type InvestmentType = 'stock-index' | 'technology-stock' | 'energy-stock' | 'government-bond' | 'gold';
+export type InvestmentType = 'stock-index' | 'technology-stock' | 'energy-stock' | 'government-bond' | 'gold' | 'stock-apple' | 'stock-microsoft' | 'stock-nvidia' | 'stock-alphabet' | 'stock-amazon' | 'stock-tesla' | 'stock-samsung' | 'stock-hynix' | 'stock-coca-cola' | 'stock-jpmorgan' | 'crypto-btc' | 'crypto-eth' | 'crypto-bnb' | 'crypto-xrp' | 'crypto-sol' | 'crypto-trx' | 'crypto-doge' | 'crypto-ada';
 export type BusinessType = 'retail' | 'online' | 'cafe';
 export interface PropertyAsset { id: string; name: string; type: PropertyType; marketValue: number; purchasePrice: number; annualMaintenance: number; mortgageLoanId?: string; rentedOut: boolean; annualRentalIncome: number; expectedGrowthRate?: number; marketVolatility?: number; }
 export interface RentalHome { type: PropertyType; annualRent: number; }
 export interface InvestmentHolding { type: InvestmentType; units: number; averageCost: number; }
-export interface MarketPrices { stocks: number; technology?: number; energy?: number; bonds?: number; gold: number; lastUpdatedYear: number; }
+export interface MarketPrices { stocks: number; technology?: number; energy?: number; bonds?: number; gold: number; assets?: Partial<Record<InvestmentType, number>>; lastUpdatedYear: number; }
+export interface MarketHistoryPoint { date: string; prices: Partial<Record<InvestmentType, number>>; }
 export type EconomicCycle = 'expansion' | 'stable' | 'recession';
 export interface EconomicConditions { inflationRate: number; growthRate: number; baseInterestRate: number; cycle: EconomicCycle; costOfLivingIndex: number; lastUpdatedYear: number; }
 export interface OwnedBusiness { id: string; name: string; type: BusinessType; investedCapital: number; valuation: number; performance: number; }
@@ -271,6 +272,9 @@ export interface Character {
   rentalHome?: RentalHome | null;
   investments?: InvestmentHolding[];
   marketPrices?: MarketPrices;
+  marketWatchlist?: InvestmentType[];
+  marketCash?: number;
+  marketHistory?: MarketHistoryPoint[];
   economy?: EconomicConditions;
   businesses?: OwnedBusiness[];
   appearance?: { height: string; build: string; hair: string; eyes: string };

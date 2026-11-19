@@ -34,6 +34,7 @@ System specifications:
 - [Family system](docs/FAMILY_SYSTEM.md)
 - [Career progression](docs/CAREER_PROGRESSION.md)
 - [Personal Technology](docs/PERSONAL_TECHNOLOGY.md)
+- [Simulated Investment Markets](docs/INVESTMENT_MARKETS.md)
 - [Lifestyle economy](docs/LIFESTYLE_ECONOMY.md)
 
 **The repository is the source of truth.** Contributors and AI agents must read the canonical documents before changing product direction or implementation, inspect current code/tests, distinguish implemented from planned behavior, and update affected documentation in the same change.
@@ -48,7 +49,7 @@ System specifications:
 - Domain workspaces for School, Work, Life, Finance, Lifestyle, and Business.
 - A persistent family graph with targeted interactions and auditable financial support.
 - Job listings, applications, interviews, expiring offers, employment changes, career previews, promotion offers, and resignation.
-- Financial accounts, cards, loans, savings, recurring payments, property, investments, business ownership, taxation, and a shared transaction history.
+- Financial accounts, cards, loans, savings, recurring payments, property, a simulated Stocks and Crypto market, other investments, business ownership, taxation, and a shared transaction history.
 - Overview activity history grouped by week, with the current week expanded by default; Life History is reserved for major achievements and life-stage milestones.
 - Responsive dark mobile-first interface and a native Android WebView shell.
 

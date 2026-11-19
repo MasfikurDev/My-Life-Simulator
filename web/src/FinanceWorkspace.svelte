@@ -1,6 +1,7 @@
 <script lang="ts">
   import FinanceAccounts from './FinanceAccounts.svelte';
   import FinanceAssets from './FinanceAssets.svelte';
+  import InvestmentWorkspace from './InvestmentWorkspace.svelte';
   import FinanceTaxes from './FinanceTaxes.svelte';
   import { formatCharacterMoney, getNetWorth, getMarketPrice } from './lib/simulation';
   import type { Character } from './lib/types';
@@ -36,7 +37,7 @@
       <div class="finance-networth-card"><small>ESTIMATED NET WORTH</small><strong>{formatCharacterMoney(character,getNetWorth(character))}</strong><span>Assets − liabilities</span></div>
     </div>
     <section class="finance-insights" aria-label="Financial portfolio overview">
-      <article class="finance-insight"><div><small>INVESTMENTS</small><strong>{formatCharacterMoney(character,(character.investments ?? []).reduce((sum,h)=>sum+h.units*getMarketPrice(character,h.type),0))}</strong></div><p>{(character.investments ?? []).reduce((sum,h)=>sum+h.units,0)} units across five market instruments</p><div class="insight-breakdown">{#each (['stock-index','technology-stock','energy-stock','government-bond','gold'] as const) as type}<span>{type === 'stock-index' ? 'Market index' : type === 'technology-stock' ? 'Technology' : type === 'energy-stock' ? 'Energy' : type === 'government-bond' ? 'Government bonds' : 'Gold'} · {(character.investments ?? []).find(h=>h.type===type)?.units ?? 0} units</span>{/each}</div></article>
+      <article class="finance-insight"><div><small>INVESTMENTS</small><strong>{formatCharacterMoney(character,(character.investments ?? []).reduce((sum,h)=>sum+h.units*getMarketPrice(character,h.type),0))}</strong></div><p>{(character.investments ?? []).length} open positions across stocks, crypto and other assets</p></article>
       <article class="finance-insight"><div><small>BUSINESSES</small><strong>{(character.businesses ?? []).length} / 3</strong></div><p>{formatCharacterMoney(character,(character.businesses ?? []).reduce((sum,b)=>sum+b.valuation,0))} estimated business value</p>{#if (character.businesses ?? []).length}<div class="insight-breakdown">{#each character.businesses ?? [] as business}<span>{business.name} · {business.performance}/100 performance</span>{/each}</div>{:else}<span class="insight-empty">No businesses owned yet</span>{/if}</article>
       <article class="finance-insight finance-debt"><div><small>OUTSTANDING DEBT</small><strong>{formatCharacterMoney(character,(character.loans ?? []).filter(l=>l.active).reduce((sum,l)=>sum+l.balance,0)+(character.cards ?? []).filter(c=>c.active&&c.type==='credit').reduce((sum,c)=>sum+c.balance,0))}</strong></div><p>Active loans and credit-card balances</p></article>
     </section>
@@ -47,7 +48,7 @@
   {:else if activeView === 'property'}
     <FinanceAssets {character} {onChange} view="property" />
   {:else if activeView === 'investments'}
-    <FinanceAssets {character} {onChange} view="investments" />
+    <InvestmentWorkspace {character} {onChange} onOpenBanking={() => openView('banking')} />
   {:else if activeView === 'business'}
     <FinanceAssets {character} {onChange} view="business" />
   {/if}
