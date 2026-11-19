@@ -27,5 +27,5 @@
 </section>
 
 <style lang="scss">
-.investment-workspace{display:grid;gap:12px;min-width:0}.investment-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 4px}.investment-tabs button{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:9px 15px;background:var(--surface);color:var(--muted);font-size:12px}.investment-tabs button.active{background:var(--text);border-color:var(--text);color:var(--surface)}
+.investment-workspace{display:grid;gap:12px;min-width:0}.investment-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 4px}.investment-tabs button{flex:0 0 auto;min-height:44px;border:1px solid var(--line);border-radius:999px;padding:9px 15px;background:var(--surface);color:var(--muted);font-size:12px}.investment-tabs button.active{background:var(--text);border-color:var(--text);color:var(--surface)}
 </style>
