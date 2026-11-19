@@ -1532,7 +1532,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     ];
     return metrics.flatMap(([key, label]) => {
       const delta = Number(item[key] ?? 0);
-      return delta ? [{ key: String(key), label, delta, tone: (key === 'stress' ? delta > 0 : delta > 0) ? 'success' as const : 'danger' as const, kind: 'stat' as const }] : [];
+      return delta ? [{ key: String(key), label, delta, tone: delta > 0 ? 'success' as const : 'danger' as const, kind: 'stat' as const }] : [];
     });
   };
   const passiveActivities = getPassiveLifestyleActivities(character).map((item) => ({
