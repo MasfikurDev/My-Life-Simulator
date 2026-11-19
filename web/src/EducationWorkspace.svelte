@@ -2,10 +2,11 @@
   import type { Character, EducationTaskType } from './lib/types';
   import GameChoice from './GameChoice.svelte';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
+  import ActivityEffectBadges from './components/ActivityEffectBadges.svelte';
   import UiProgress from './components/UiProgress.svelte';
   import { enrollInEducation, getAvailableEducationPrograms, resumeEducation } from './lib/education';
   import EducationRecordsWorkspace from './EducationRecordsWorkspace.svelte';
-  import { formatCharacterMoney, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import { formatCharacterMoney, getWeeklyActivityReview, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getActivityStaminaCost, getValueTone } from './lib/progression';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   let subpage = $state<'education' | 'records'>('education');
@@ -36,6 +37,13 @@
     onChange(result.character); onNotify('Academic task added to this week.');
   }
   function taskPlanned(task: EducationTaskType) { return plannedTasks.some((item) => item.action?.kind === 'education' && item.action.taskType === task); }
+  function taskPreview(task: EducationTaskType) {
+    const existing = plannedTasks.find((item) => item.action?.kind === 'education' && item.action.taskType === task);
+    const planned = existing ? character : planEducationTaskInNextFreeTime(character, task);
+    const target = existing?.id ?? planned.plannedActivity?.id;
+    if (!target || planned.issue) return null;
+    return getWeeklyActivityReview(planned.character).activities.find((item) => item.id === target) ?? null;
+  }
   function gradeLabel(value: number) { if (enrollment?.level === 'early-learning') return value >= 75 ? 'Developing well' : value >= 50 ? 'On track' : 'Needs more support'; return value >= 85 ? 'Excellent' : value >= 70 ? 'Good' : value >= 60 ? 'Pass' : value >= 45 ? 'At risk' : 'Critical'; }
 </script>
 
@@ -70,8 +78,8 @@
     <div class="section-heading"><div><span class="section-index">01</span><h3>This Week's Academic Work</h3></div><span class="section-hint">{plannedTasks.length} tasks selected</span></div>
 
         <div class="education-task-grid">
-      <button class="education-task-card" class:planned={taskPlanned('assignment')}  onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>{enrollment.level === 'early-learning' ? 'Story time' : 'Assignment'}</strong><ActivityStatusSeal status={taskPlanned('assignment') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Build language and communication with shared stories' : 'Complete coursework and practical exercises'}</small><b>{taskPlanned('assignment') ? 'REMOVE FROM WEEK' : 'ADD ASSIGNMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
-      <button class="education-task-card" class:planned={taskPlanned('exam')}  onclick={() => planTask('exam')}><span class="education-task-icon">✓</span><strong>{enrollment.level === 'early-learning' ? 'Discovery activity' : 'Quiz / exam prep'}</strong><ActivityStatusSeal status={taskPlanned('exam') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Explore objects, sounds and movement with a caregiver' : 'Prepare for an assessment or sit a weekly quiz'}</small><b>{taskPlanned('exam') ? 'REMOVE FROM WEEK' : 'ADD ASSESSMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
+      <button class="education-task-card" class:planned={taskPlanned('assignment')} onclick={() => planTask('assignment')}><span class="education-task-icon">▤</span><strong>{enrollment.level === 'early-learning' ? 'Story time' : 'Assignment'}</strong><ActivityStatusSeal status={taskPlanned('assignment') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Build language and communication with shared stories' : 'Complete coursework and practical exercises'}</small>{@const preview = taskPreview('assignment')}<ActivityEffectBadges effects={preview?.effects ?? []} staminaCost={preview?.staminaCost ?? getActivityStaminaCost('study')} staminaRecovery={preview?.staminaRecovery ?? 0} moneyCost={preview?.moneyCost ?? 0} formatMoney={(amount) => formatCharacterMoney(character, amount)} /><b>{taskPlanned('assignment') ? 'REMOVE FROM WEEK' : 'ADD ASSIGNMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
+      <button class="education-task-card" class:planned={taskPlanned('exam')} onclick={() => planTask('exam')}><span class="education-task-icon">✓</span><strong>{enrollment.level === 'early-learning' ? 'Discovery activity' : 'Quiz / exam prep'}</strong><ActivityStatusSeal status={taskPlanned('exam') ? 'planned' : 'available'} /><small>{enrollment.level === 'early-learning' ? 'Explore objects, sounds and movement with a caregiver' : 'Prepare for an assessment or sit a weekly quiz'}</small>{@const preview = taskPreview('exam')}<ActivityEffectBadges effects={preview?.effects ?? []} staminaCost={preview?.staminaCost ?? getActivityStaminaCost('study')} staminaRecovery={preview?.staminaRecovery ?? 0} moneyCost={preview?.moneyCost ?? 0} formatMoney={(amount) => formatCharacterMoney(character, amount)} /><b>{taskPlanned('exam') ? 'REMOVE FROM WEEK' : 'ADD ASSESSMENT · ' + getActivityStaminaCost('study') + ' STAMINA'}</b></button>
     </div>
     <div class="education-footnote">Each task uses stamina. Attendance is handled automatically as part of your education programme.</div>
   </section>
