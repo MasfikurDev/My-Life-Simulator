@@ -204,14 +204,14 @@
   .family-culture-note strong{font-size:10px;text-transform:capitalize}
   .family-culture-note span{font-size:9px;line-height:1.4;color:var(--muted)}
   .social-add-row{display:grid;grid-template-columns:1.2fr 1fr;gap:8px;margin-top:12px}
-  .social-add-row>input,.social-add-row>select{min-width:0;min-height:38px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised);color:var(--text);padding:0 9px;font-size:11px}
+  .social-add-row>input,.social-add-row>select{min-width:0;min-height:44px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised);color:var(--text);padding:0 9px;font-size:11px}
   .social-add-row>label,.social-list label{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted)}
   .social-add-row button{grid-column:2}
   .social-list{display:grid;gap:7px;margin-top:12px}
   .social-list article{display:flex;align-items:center;gap:10px;padding:9px;border-radius:9px;background:var(--surface-raised)}
   .social-list article>div{flex:1;min-width:0;display:grid;gap:3px}
   .social-list strong{font-size:11px}.social-list small{font-size:9px;color:var(--muted);text-transform:capitalize}
-  .social-list button{border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--muted);padding:6px 8px;font-size:9px}
+  .social-list button{min-height:44px;border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--muted);padding:6px 8px;font-size:9px}
   .social-panel>p{margin-top:5px}
   .relative-card{display:grid;gap:12px}
   .relative-head h3{font-size:15px}
@@ -225,7 +225,7 @@
   .bond-grid span{font-size:10px;color:var(--muted)}.bond-grid strong{font-size:11px}
   .last-contact,.support-note{font-size:10px!important}
   .relative-actions{display:flex;flex-wrap:wrap;gap:7px}
-  .relative-actions button,.support-row button,.primary-action{min-height:38px;border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:var(--surface-raised);color:var(--text);font-size:11px;font-weight:700}
+  .relative-actions button,.support-row button,.primary-action{min-height:44px;border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:var(--surface-raised);color:var(--text);font-size:11px;font-weight:700}
   .relative-actions button:disabled,.support-row button:disabled{opacity:.4}
   
   .support-row{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
