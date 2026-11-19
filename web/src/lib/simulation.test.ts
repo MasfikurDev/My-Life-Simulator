@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { enrollInEducation, resolveEducationWeek } from './education';
 import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, getPlannedActivityStaminaRecovery, planBoughtFoodInNextFreeTime, addOwnedLifestyleItem, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditProfile, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
-import { getActivityDefinition, getActivityStaminaCost, getAvailableActivityIds, getLifeStage, getValueColor } from './progression';
+import { getActivityDefinition, getActivityStaminaCost, getAvailableActivityIds, getLifeStage, getValueColor, getValueTone } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, redeemCardRewards, repayLoan, rejectLoanApplication, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
 import { createGameDebugSnapshot } from './debug-export';
@@ -74,6 +74,13 @@ describe('life simulation', () => {
     expect(getValueColor(85)).toBe('var(--success)');
     expect(getValueColor(85, true)).toBe('var(--coral)');
     expect(getValueColor(20, true)).toBe('var(--success)');
+    expect(getValueTone(10)).toBe('danger');
+    expect(getValueTone(20)).toBe('coral');
+    expect(getValueTone(40)).toBe('warning');
+    expect(getValueTone(60)).toBe('info');
+    expect(getValueTone(85)).toBe('success');
+    expect(getValueTone(85, true)).toBe('coral');
+    expect(getValueTone(20, true)).toBe('success');
     expect(getActivityStaminaCost('exercise')).toBe(10);
   });
   it('defines stamina costs without timetable metadata', () => {
