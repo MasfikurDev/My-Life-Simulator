@@ -7,6 +7,7 @@ This document turns the gameplay audit into a staged, implementation-ready direc
 ## Current implementation status · 2026-11-10
 The weekly gameplay foundation and the annual-action-to-weekly-turn transition are implemented in the web simulation:
 - Contextual events are selected using character/year context and age/health eligibility.
+- Pending contextual situations are presented through a reusable, accessible gameplay dialog. The dialog owns presentation only; event eligibility, affordability validation, immediate resolution, weekly planning, consequences, and persistence remain simulation-owned. Closing the dialog leaves the situation pending and available to reopen from Overview.
 - Pending events and choices persist in the character save; the simulation validates choice requirements and costs.
 - Personal activities, family interactions, social-circle interactions, business management, job applications, interviews, and time-consuming event choices are selected as weekly actions, consume stamina where appropriate, and resolve in deterministic order.
 - Passive lifestyle activities are derived from household/family culture, explicitly recorded social connections, and the current residence. They appear in the same unified activity list as player-planned activities, visually distinguished as automatic/unremovable. They do not consume player-planned stamina effort, but are included in activity counts and combined outcome accounting. Effects are bounded and applied during deterministic weekly resolution.
@@ -427,6 +428,8 @@ The weekly preview is intentionally partial. It does not claim to predict tax, r
 ## 4. Event and consequence system
 
 An event is a gameplay object, not just a paragraph with buttons.
+
+**Presentation contract (implemented first slice):** unresolved player-facing situations open in the shared `GameplayDialog` component rather than being embedded as large event cards in Overview. The dialog shows the situation context, age/category, available choices, known stamina and cash costs, and whether a time-consuming choice is already planned. Immediate zero-stamina decisions continue to resolve through the existing simulation path; time-consuming decisions are added to the weekly plan and resolve only when the week advances. The player may close the dialog and return later; a compact Overview entry reopens it. The component must never apply effects, mutate saves, or bypass simulation validation. Future event variants (information, transaction, multi-step conversations) should extend this shared interaction foundation only when a real gameplay flow needs them.
 
 Each event definition should support:
 - Stable event ID and content version.
