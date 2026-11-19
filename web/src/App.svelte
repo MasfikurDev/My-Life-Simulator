@@ -799,7 +799,7 @@
   .review-item-details{font-size:9px;color:var(--muted)}
   .review-item-details summary{width:max-content;cursor:pointer;color:var(--accent);font-weight:700}
   .review-item-details ul{display:grid;gap:3px;margin:5px 0 0;padding-left:16px;line-height:1.4}
-  .review-activity-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+  .review-activity-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;min-width:0}
   .review-stamina-summary{display:grid;gap:7px;margin-top:9px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
   .review-stamina-summary>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--muted)}
   .review-stamina-summary strong{color:var(--text);font-variant-numeric:tabular-nums}
