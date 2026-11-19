@@ -1037,9 +1037,11 @@ describe('life simulation', () => {
     const budget = getHouseholdBudget(owner);
     expect(budget.housing).toBe(1200);
     const settled = advanceYear(owner);
-    expect(settled.lastYearExpenses).toBe(budget.total);
+    const settledBudget = getHouseholdBudget(settled);
+    expect(settledBudget.housing).toBe(1200);
+    expect(settled.lastYearExpenses).toBe(settledBudget.total);
     expect(settled.financialTransactions?.filter((item) => item.type === 'expense' && item.description === 'Annual household expenses paid.')).toHaveLength(1);
-    expect(settled.financialTransactions?.find((item) => item.type === 'expense' && item.description === 'Annual household expenses paid.')?.amount).toBe(budget.total);
+    expect(settled.financialTransactions?.find((item) => item.type === 'expense' && item.description === 'Annual household expenses paid.')?.amount).toBe(settledBudget.total);
   });
 
   it('locks fixed deposits until maturity and credits their higher interest', () => {
