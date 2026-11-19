@@ -1,5 +1,6 @@
 import { isGameTheme, type GameTheme } from './theme';
 import type { Character, SaveData, SaveSlot, SaveSlotId } from './types';
+import { MARKET_ASSETS } from './markets';
 import { isValidWeeklyPlan } from './weekly-plan';
 
 const KEY = 'my-life-simulator.save';
@@ -16,8 +17,10 @@ function isCurrentCharacter(value: unknown): value is Character {
   if (!c.calendar || !/^\d{4}-\d{2}-\d{2}$/.test(c.calendar.currentDate) || !/^\d{4}-\d{2}-\d{2}$/.test(c.calendar.birthDate)) return false;
   if (![c.stamina, c.focus, c.confidence, c.discipline, c.creativity, c.socialSkills, c.stress].every((value) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100)) return false;
   if (!isValidWeeklyPlan(c.weeklyPlan)) return false;
-  if (c.marketWatchlist !== undefined && (!Array.isArray(c.marketWatchlist) || c.marketWatchlist.length > 100 || c.marketWatchlist.some((item) => typeof item !== 'string'))) return false;
-  if (c.marketPrices?.assets !== undefined && (!c.marketPrices.assets || typeof c.marketPrices.assets !== 'object' || Object.values(c.marketPrices.assets).some((price) => !Number.isFinite(price) || (price as number) <= 0))) return false;
+  if (c.marketWatchlist !== undefined && (!Array.isArray(c.marketWatchlist) || c.marketWatchlist.length > MARKET_ASSETS.length || new Set(c.marketWatchlist).size !== c.marketWatchlist.length || c.marketWatchlist.some((item) => !MARKET_ASSETS.some((asset) => asset.type === item)))) return false;
+  if (c.marketCash !== undefined && (!Number.isSafeInteger(c.marketCash) || c.marketCash < 0)) return false;
+  if (c.marketPrices?.assets !== undefined && (!c.marketPrices.assets || typeof c.marketPrices.assets !== 'object' || Object.entries(c.marketPrices.assets).some(([type, price]) => !MARKET_ASSETS.some((asset) => asset.type === type) || !Number.isFinite(price) || (price as number) <= 0))) return false;
+  if (c.marketHistory !== undefined && (!Array.isArray(c.marketHistory) || c.marketHistory.length > 5200 || c.marketHistory.some((point, index) => !point || !/^\\d{4}-\\d{2}-\\d{2}$/.test(point.date) || (index > 0 && point.date <= c.marketHistory![index - 1].date) || !point.prices || Object.entries(point.prices).length === 0 || Object.entries(point.prices).some(([type, price]) => !MARKET_ASSETS.some((asset) => asset.type === type) || !Number.isFinite(price) || (price as number) <= 0)))) return false;
   if (c.comfort !== undefined && (!Number.isFinite(c.comfort) || c.comfort < 0 || c.comfort > 100)) return false;
   if (c.familyCulture !== undefined && !['supportive', 'structured', 'strained', 'neglectful'].includes(c.familyCulture)) return false;
   if (c.socialConnections !== undefined && (!Array.isArray(c.socialConnections) || c.socialConnections.length > 30 || c.socialConnections.some((item) => !item || typeof item.id !== 'string' || typeof item.name !== 'string' || !item.name.trim() || !['friend', 'partner', 'child', 'extended-family'].includes(item.type) || !Number.isInteger(item.closeness) || item.closeness < 0 || item.closeness > 100 || typeof item.active !== 'boolean' || typeof item.livesWithPlayer !== 'boolean' || !['occasional', 'regular', 'strong'].includes(item.supportLevel)))) return false;
