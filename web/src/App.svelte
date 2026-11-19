@@ -620,10 +620,10 @@
                 <button class="modal-close" onclick={closeAdvanceReview} aria-label="Close weekly review">×</button>
                 <div class="eyebrow">WEEKLY SIMULATION · AGE {character.age}</div>
                 <h2 id="week-review-title">Review this week</h2>
-                <p class="game-event-description">{weeklyReview.weekStart} – {weeklyReview.weekEnd}. Review the effort, expected rewards and combined effects before resolving the week.</p>
+                <p class="game-event-description">{weeklyReview.weekStart} – {weeklyReview.weekEnd}. Review the effort and expected outcomes before resolving the week.</p>
 
                 <section class="review-section">
-                  <div class="review-section-heading"><h3>Weekly stat forecast</h3><span>Changes expected this week</span></div>
+                  <div class="review-section-heading"><h3>Weekly Stat Forecast</h3><span>Changes expected this week</span></div>
                   {#if weeklyReview.changes.length}
                     <div class="review-change-grid">
                       {#each weeklyReview.changes.filter((change) => change.key !== 'stamina') as change}
