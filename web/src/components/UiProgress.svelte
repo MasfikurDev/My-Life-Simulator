@@ -50,7 +50,7 @@
     aria-valuemin="0"
     aria-valuemax={safeMax}
     aria-valuenow={indeterminate ? undefined : safePreview}
-    aria-valuetext={valueText}
+    aria-valuetext={valueText ?? (hasPreview ? `${safeValue} to ${safePreview}` : undefined)}
   >
     <span class="ui-progress-fill" class:ui-progress-fill--indeterminate={indeterminate} style:width={indeterminate ? '38%' : `${percent}%`}></span>
     {#if hasPreview && !indeterminate}
