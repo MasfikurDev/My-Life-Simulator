@@ -65,6 +65,7 @@ Top-level Life contains the modular Lifestyle experience: **Supermarket, Subscri
 - Avoid duplicate information, duplicate summaries, generic motivational copy, and unnecessary navigation destinations.
 - Use clear, distinguishable states for available, selected/planned, locked, and unmet-requirement actions.
 - Keep actions in their owning domain. The weekly review is the unified summary/confirmation surface, not a replacement for domain-native selection.
+- Present contextual situations and consequential player decisions through the reusable gameplay dialog. The dialog owns presentation; simulation rules, immediate outcomes, weekly planning, and persistence remain in their owning systems. Closing a dialog leaves an unresolved situation available to reopen.
 - Overview activity history is grouped by expandable week; the current week is expanded by default. Major achievements and life-stage milestones belong in Life History, not a duplicate Overview milestone panel.
 - Preserve the established visual identity and semantic theme system. Do not redesign the app or copy another game's identity when implementing a focused change.
 
