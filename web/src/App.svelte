@@ -3,7 +3,7 @@
   import { advanceWeek, formatCharacterMoney, getWeeklyActivityReview, planEventChoiceInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import type { WeeklyActivityOutcomeEffect, WeeklyActivityReviewItem } from './lib/simulation';
   import { addCalendarDays, getWeekStart } from './lib/calendar';
-  import { getEducationStage, getLifeStage } from './lib/progression';
+  import { getEducationStage, getLifeStage, getValueTone } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
   import CharacterCreation from './CharacterCreation.svelte';
@@ -16,6 +16,7 @@
   import EducationWorkspace from './EducationWorkspace.svelte';
   import ThemeOption from './components/ThemeOption.svelte';
   import UiBadge from './components/UiBadge.svelte';
+  import UiProgress from './components/UiProgress.svelte';
   import ActivityEffectBadges from './components/ActivityEffectBadges.svelte';
   import EmptyState from './components/EmptyState.svelte';
   import UiCard from './components/UiCard.svelte';
@@ -51,6 +52,7 @@
   let eventDialogOpen = $state(false);
   let weeklyFinanceOpen = $state(false);
   const weeklyReview = $derived(character ? getWeeklyActivityReview(character) : null);
+  const CHARACTER_STAT_KEYS = new Set(['health', 'happiness', 'intelligence', 'fitness', 'stress', 'focus', 'confidence', 'comfort', 'discipline', 'creativity', 'socialSkills']);
   function groupReviewedActivities(items: WeeklyActivityReviewItem[]): WeeklyActivityReviewItem[] {
     const purchases = items.filter((item) => item.seal === 'BOUGHT' && item.moneyCost > 0);
     if (purchases.length < 2) return items;
@@ -624,20 +626,23 @@
 
                 <section class="review-section">
                   <div class="review-section-heading"><h3>Weekly Stat Forecast</h3><span>Changes expected this week</span></div>
-                  {#if weeklyReview.changes.length}
+                  {@const characterChanges = weeklyReview.changes.filter((change) => CHARACTER_STAT_KEYS.has(change.key))}
+                  {#if characterChanges.length}
                     <div class="review-change-grid">
-                      {#each weeklyReview.changes.filter((change) => change.key !== 'stamina') as change}
+                      {#each characterChanges as change}
                         <div class="review-change-row">
-                          <span>{change.label}</span>
-                          <strong class:positive={change.key === 'stress' || change.key.endsWith('-tension') ? change.delta < 0 : change.delta > 0} class:negative={change.key === 'stress' || change.key.endsWith('-tension') ? change.delta > 0 : change.delta < 0}>
-                            {Number(change.before.toFixed(1))} → {Number(change.after.toFixed(1))}
-                            <small>({change.delta > 0 ? '+' : ''}{Number(change.delta.toFixed(1))})</small>
-                          </strong>
+                          <div class="review-change-heading">
+                            <span>{change.label}</span>
+                            <strong class:positive={change.key === 'stress' ? change.delta < 0 : change.delta > 0} class:negative={change.key === 'stress' ? change.delta > 0 : change.delta < 0}>
+                              {Number(change.before.toFixed(1))} → {Number(change.after.toFixed(1))}
+                            </strong>
+                          </div>
+                          <UiProgress label={change.label} value={change.before} previewValue={change.after} previewTone={change.key === 'stress' ? change.delta < 0 ? 'success' : 'danger' : change.delta > 0 ? 'success' : 'danger'} tone={getValueTone(change.before, change.key === 'stress')} size="small" showLabel={false} />
                         </div>
                       {/each}
                     </div>
                   {:else}
-                    <p class="review-empty">No tracked stats are expected to change.</p>
+                    <p class="review-empty">No character stats are expected to change this week.</p>
                   {/if}
                   <div class="review-stamina-summary">
                     <div><span>Stamina</span><strong>{Math.round(weeklyReview.currentStamina)}% → {Math.round(weeklyReview.projectedStamina)}%</strong></div>
@@ -716,12 +721,12 @@
             {/if}
           </section>
         {:else if character && activeTab==='education'}
-          <EducationWorkspace {character} onChange={persist} onNotify={notify} />
+          <EducationWorkspace {character} projectedCharacter={weeklyReview?.projectedCharacter ?? character} onChange={persist} onNotify={notify} />
                 {:else if character && activeTab==='work' && character.age >= 16}
-          <WorkWorkspace {character} onChange={persist} onNotify={notify} />
+          <WorkWorkspace {character} projectedCharacter={weeklyReview?.projectedCharacter ?? character} onChange={persist} onNotify={notify} />
 
         {:else if character && activeTab==='life'}
-          <LifeWorkspace {character} onChange={persist} onNotify={notify} />
+          <LifeWorkspace {character} projectedCharacter={weeklyReview?.projectedCharacter ?? character} onChange={persist} onNotify={notify} />
         {:else if character && activeTab==='finances'}
           <FinanceWorkspace {character} onChange={persist} />
         {/if}
