@@ -26,6 +26,7 @@ export interface PropertyAsset { id: string; name: string; type: PropertyType; m
 export interface RentalHome { type: PropertyType; annualRent: number; }
 export interface InvestmentHolding { type: InvestmentType; units: number; averageCost: number; }
 export interface MarketPrices { stocks: number; technology?: number; energy?: number; bonds?: number; gold: number; assets?: Partial<Record<InvestmentType, number>>; lastUpdatedYear: number; }
+export interface MarketHistoryPoint { date: string; prices: Partial<Record<InvestmentType, number>>; }
 export type EconomicCycle = 'expansion' | 'stable' | 'recession';
 export interface EconomicConditions { inflationRate: number; growthRate: number; baseInterestRate: number; cycle: EconomicCycle; costOfLivingIndex: number; lastUpdatedYear: number; }
 export interface OwnedBusiness { id: string; name: string; type: BusinessType; investedCapital: number; valuation: number; performance: number; }
@@ -272,6 +273,8 @@ export interface Character {
   investments?: InvestmentHolding[];
   marketPrices?: MarketPrices;
   marketWatchlist?: InvestmentType[];
+  marketCash?: number;
+  marketHistory?: MarketHistoryPoint[];
   economy?: EconomicConditions;
   businesses?: OwnedBusiness[];
   appearance?: { height: string; build: string; hair: string; eyes: string };
