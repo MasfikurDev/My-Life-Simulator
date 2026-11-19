@@ -29,15 +29,15 @@ The direct `advanceYear()` path calls `settleCalendarYear()`, which updates the 
 
 **Required correction:** Make the direct annual path and canonical calendar date agree. Add a regression test that advances a year directly and then advances a week, asserting monotonic date, year, and age. Preserve the intended coarse annual behavior: do not replay 52 player-selected weekly plans or duplicate annual settlement.
 
-### SIM-02 — Property maintenance is stored but not settled
+### SIM-02 — Property maintenance is included in annual household settlement
 
-**Priority:** High  
+**Priority:** Resolved by existing behavior; regression coverage added  
 **Area:** Property and household finance  
 **Locations:** `web/src/lib/simulation.ts`, `web/src/lib/types.ts`
 
-Property purchase creates an asset with an `annualMaintenance` amount (currently derived as 1% of property value). Annual asset settlement does not charge that amount.
+Property purchase stores `annualMaintenance` (currently 1% of value). The initial review missed that `getHouseholdBudget()` already adds maintenance for every owned property to annual housing costs, and `settleCalendarYear()` pays that budget through the existing household-expense ledger entry. Charging it again during asset settlement would double-charge the player.
 
-**Required correction:** Decide and document the intended maintenance cadence and payer, then apply it through the existing financial ledger exactly once. Cover owned, newly purchased, and sold properties, plus insufficient-cash behavior. Do not silently introduce a new monthly cadence in this correction.
+**Correction:** Preserve the single annual household-budget charge and add a regression test proving maintenance is included once in the settled annual expense. The current ledger keeps it grouped with household expenses rather than creating a separate maintenance transaction.
 
 ### SIM-03 — Rental income is classified as an expense in financial flow summaries
 
@@ -119,11 +119,15 @@ The annual household affordability calculation uses cash and employment income; 
 
 ## Recommended implementation order
 
-1. **Correctness PR:** SIM-01 through SIM-05. Keep this focused on calendar consistency, maintenance accounting, rental classification, business profit/tax consistency, and family planner agreement.
+1. **Correctness PR:** SIM-01, SIM-03, SIM-04, and SIM-05, with regression coverage confirming the existing SIM-02 maintenance charge is applied once. Keep this focused on calendar consistency, rental classification, business profit/tax consistency, and family planner agreement.
 2. **Finance contract PR:** Resolve SIM-09 payment-source behavior and add balance/ledger invariants before changing household settlement.
 3. **Monthly finance milestone:** Implement SIM-08 only after due-date and shortfall semantics are specified.
 4. **Family lifecycle milestone:** Address SIM-06 and SIM-07 through a cohesive family/life-stage design, then implement in small vertical slices.
 5. **Integrated regression coverage:** Add multi-week and multi-year scenarios spanning household, family, career, property, business, and finance. Keep long stress tests separate from the fast PR path when appropriate.
+
+## Implementation follow-up
+
+The focused correctness implementation adds calendar alignment for direct annual advancement, clears stale weekly plans when that coarse annual turn is used, centralizes financial-flow classification, shares one business operating-result calculation between settlement and tax estimation, and makes Family workspace actions follow the same one-interaction-per-person rule enforced by the planner. SIM-02 is retained as a regression guard rather than adding a second charge.
 
 ## Validation still required
 
