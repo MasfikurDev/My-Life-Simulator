@@ -5,6 +5,7 @@
     event,
     age,
     money,
+    formatMoney,
     plannedChoiceIds,
     onToggleChoice,
     onClose
@@ -12,23 +13,20 @@
     event: PendingGameEvent;
     age: number;
     money: number;
+    formatMoney: (amount: number) => string;
     plannedChoiceIds: string[];
     onToggleChoice: (choiceId: string) => void;
     onClose: () => void;
   } = $props();
-
-  function closeFromBackdrop(click: MouseEvent) {
-    if (click.target === click.currentTarget) onClose();
-  }
 </script>
 
-<div class="gameplay-dialog-backdrop" role="presentation" onclick={closeFromBackdrop}>
-  <dialog open class="gameplay-dialog" aria-modal="true" aria-labelledby="gameplay-dialog-title" onkeydown={(keyEvent) => keyEvent.key === 'Escape' && onClose()} onclick={(click) => click.stopPropagation()}>
+<div class="gameplay-dialog-backdrop" role="presentation">
+  <dialog open class="gameplay-dialog" aria-modal="true" aria-labelledby="gameplay-dialog-title" onkeydown={(keyEvent) => keyEvent.key === 'Escape' && onClose()}>
     <div class="dialog-topline">
       <span class="dialog-category">{event.category}</span>
       <span class="dialog-age">AGE {age}</span>
     </div>
-    <button class="dialog-close" type="button" onclick={onClose} aria-label="Close situation">×</button>
+    <button class="dialog-close" type="button" onclick={onClose} aria-label="Close situation" autofocus>×</button>
 
     <div class="dialog-heading">
       <span class="dialog-kicker">A SITUATION HAS COME UP</span>
@@ -58,7 +56,7 @@
               <small>{choice.detail}</small>
               <span class="choice-costs">
                 {#if choice.staminaCost > 0}<span>−{choice.staminaCost} stamina</span>{/if}
-                {#if choice.moneyCost > 0}<span>Cost · {choice.moneyCost.toLocaleString('en-US')}</span>{/if}
+                {#if choice.moneyCost > 0}<span>Cost · {formatMoney(choice.moneyCost)}</span>{/if}
                 {#if choice.staminaCost === 0 && choice.moneyCost === 0}<span class="cost-immediate">Immediate decision</span>{/if}
               </span>
             </span>
