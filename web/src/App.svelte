@@ -728,7 +728,7 @@
         {:else if character && activeTab==='life'}
           <LifeWorkspace {character} projectedCharacter={weeklyReview?.projectedCharacter ?? character} onChange={persist} onNotify={notify} />
         {:else if character && activeTab==='finances'}
-          <FinanceWorkspace {character} onChange={persist} />
+          <FinanceWorkspace {character} projectedCharacter={weeklyReview?.projectedCharacter ?? character} onChange={persist} />
         {/if}
       </section>
     </main>
