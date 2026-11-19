@@ -68,6 +68,21 @@ Then inspect relevant source, tests, recent history, current main, and open PRs.
 
 For any change touching two or more gameplay domains, read `docs/SYSTEM_INTEGRATION_REVIEW.md`. Use its ownership map and cross-domain contracts as review aids, then verify them against current code and tests. Treat findings and staged work as hypotheses/planning guidance, not automatic instructions to implement stale or deferred work.
 
+## GitHub operation verification (mandatory)
+
+This rule operationalizes rule 17 for repository work by every AI agent and automation: **an attempted mutation is not proof of a completed change.**
+
+After any GitHub create, update, or delete operation, read the affected resource from GitHub and verify the exact state the task required before reporting success. Check the relevant fields, not merely that the resource exists. If no authoritative read-back is available, report the result as **unverified** and state what remains unchecked.
+
+Treat related outcomes as separate claims and verify each independently:
+- A saved commit or file does not prove its CI checks passed.
+- An existing PR does not prove its body, labels, or draft state are correct.
+- CI must apply to the exact commit being reported, not an earlier head.
+- A merge does not prove deployment; deployment does not prove the intended artifact is live.
+- A release must be checked independently from its build and deployment.
+
+Keep completed, failed, and pending work distinct. For the PR-specific read-back procedure, follow [Pull Request Workflow](PULL_REQUEST_WORKFLOW.md).
+
 ## Enforced reliability safeguards
 
 These checks are implemented in GitHub Actions and the repository PR template; do not bypass them casually:

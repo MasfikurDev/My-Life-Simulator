@@ -98,3 +98,12 @@ A review of the 13 closed, unmerged PRs found recurring process lessons. The clo
 - Close unmerged PRs with the structured closure record in [Change and Decision Records](CHANGE_RECORDS.md). For historical PRs above, do not retroactively invent explanations where none were recorded.
 
 This review documents historical evidence; it does not imply that any closed PR should be reopened, cherry-picked, or implemented.
+
+
+## Lesson: verify persisted GitHub state (2026-11-19)
+
+PR [#211](https://github.com/MasfikurDev/My-Life-Simulator/pull/211) was initially opened without the intended description, although the chat response implied that the description was present. The mistake was treating intended content and the create operation as proof of saved GitHub state. The description was subsequently added and read back from GitHub.
+
+**Corrective action:** the normative rule now lives in [AI Working Rules](AI_WORKING_RULES.md), with the PR-specific procedure in [Pull Request Workflow](PULL_REQUEST_WORKFLOW.md). Future agents must follow those documents rather than maintaining separate copies of the same checklist here.
+
+This incident is evidence for the need for read-back; it is not evidence that documenting the rule alone guarantees future compliance.
