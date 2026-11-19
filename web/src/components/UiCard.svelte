@@ -18,7 +18,7 @@
  .ui-card--compact{padding:var(--space-2,8px)}.ui-card--comfortable{padding:var(--space-4,16px)}.ui-card--spacious{padding:var(--space-6,24px)}.ui-card--flush,.ui-card--inherit{padding:0}
  .ui-card--radius-sm{border-radius:var(--radius-sm,8px)}.ui-card--radius-md{border-radius:var(--radius-md,12px)}.ui-card--radius-lg{border-radius:var(--radius-lg,16px)}.ui-card--radius-xl{border-radius:22px}
  .ui-card--surface{background:linear-gradient(155deg,color-mix(in srgb,var(--surface-raised,var(--surface)) 32%,var(--surface)),var(--surface))}
- .ui-card--raised{background:linear-gradient(145deg,var(--surface-raised,var(--surface)),color-mix(in srgb,var(--surface) 78%,var(--surface-raised,var(--surface))));border-color:var(--surface-edge,var(--line));box-shadow:var(--elevation-2)}
+ .ui-card--raised{background:linear-gradient(145deg,var(--surface-raised,var(--surface)),color-mix(in srgb,var(--surface) 78%,var(--surface-raised,var(--surface))));border-color:var(--surface-edge,var(--line))}
  .ui-card--tinted{background:linear-gradient(145deg,color-mix(in srgb,var(--accent-soft) 82%,var(--surface-raised)),var(--surface-raised));border-color:color-mix(in srgb,var(--accent) 24%,var(--line))}
  .ui-card--outlined{background:transparent;box-shadow:none}
  .ui-card--accent{border-color:color-mix(in srgb,var(--accent) 36%,var(--line))}
