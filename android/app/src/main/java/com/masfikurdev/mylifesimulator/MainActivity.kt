@@ -8,6 +8,8 @@ import android.content.ClipboardManager
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
@@ -30,6 +32,17 @@ import androidx.core.view.WindowInsetsControllerCompat
 
 class MainActivity : Activity() {
     private var pageReady = false
+    private var mainFrameErrorMessage: String? = null
+    private val startupTimeoutHandler = Handler(Looper.getMainLooper())
+    private val startupTimeout = Runnable {
+        if (!pageReady) {
+            pageReady = true
+            retry.text = "The game is taking too long to load. Check your connection and tap here to retry."
+            retry.visibility = View.VISIBLE
+            progress.visibility = View.GONE
+            dismissSplashArtwork()
+        }
+    }
     private lateinit var webView: WebView
     private lateinit var progress: ProgressBar
     private lateinit var retry: TextView
@@ -103,6 +116,21 @@ class MainActivity : Activity() {
             override fun onReceivedError(view: WebView, request: WebResourceRequest, error: android.webkit.WebResourceError) {
                 if (request.isForMainFrame) {
                     pageReady = true
+                    mainFrameErrorMessage = "The game could not be reached. Check your connection and tap here to retry."
+                    startupTimeoutHandler.removeCallbacks(startupTimeout)
+                    retry.text = mainFrameErrorMessage
+                    retry.visibility = View.VISIBLE
+                    progress.visibility = View.GONE
+                    dismissSplashArtwork()
+                }
+            }
+
+            override fun onReceivedHttpError(view: WebView, request: WebResourceRequest, response: android.webkit.WebResourceResponse) {
+                if (request.isForMainFrame && response.statusCode >= 400) {
+                    pageReady = true
+                    mainFrameErrorMessage = "The game server returned an error (${response.statusCode}). Tap here to retry."
+                    startupTimeoutHandler.removeCallbacks(startupTimeout)
+                    retry.text = mainFrameErrorMessage
                     retry.visibility = View.VISIBLE
                     progress.visibility = View.GONE
                     dismissSplashArtwork()
@@ -111,7 +139,9 @@ class MainActivity : Activity() {
 
             override fun onPageFinished(view: WebView, url: String) {
                 pageReady = true
-                retry.visibility = View.GONE
+                startupTimeoutHandler.removeCallbacks(startupTimeout)
+                retry.text = mainFrameErrorMessage ?: retry.text
+                retry.visibility = if (mainFrameErrorMessage == null) View.GONE else View.VISIBLE
                 progress.visibility = View.GONE
                 dismissSplashArtwork()
             }
@@ -150,7 +180,6 @@ class MainActivity : Activity() {
             insets
         }
         applyFullscreen(preferences.getBoolean(KEY_FULLSCREEN, false))
-        webView.clearCache(true)
         loadGame()
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
         handleUpdaterIntent(intent)
@@ -257,7 +286,13 @@ class MainActivity : Activity() {
     }
 
     private fun loadGame(fresh: Boolean = false) {
+        pageReady = false
+        mainFrameErrorMessage = null
+        startupTimeoutHandler.removeCallbacks(startupTimeout)
         retry.visibility = View.GONE
+        progress.visibility = View.VISIBLE
+        progress.progress = 0
+        startupTimeoutHandler.postDelayed(startupTimeout, STARTUP_TIMEOUT_MS)
         val url = if (fresh) "$gameUrl?update=${System.currentTimeMillis()}" else gameUrl
         webView.loadUrl(url)
     }
@@ -318,6 +353,7 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        startupTimeoutHandler.removeCallbacks(startupTimeout)
         if (::webView.isInitialized) {
             webView.stopLoading()
             webView.removeJavascriptInterface("AndroidApp")
@@ -328,6 +364,7 @@ class MainActivity : Activity() {
 
     companion object {
         private const val KEY_FULLSCREEN = "immersive_fullscreen"
+        private const val STARTUP_TIMEOUT_MS = 20_000L
         private const val REQUEST_BETA_NOTIFICATIONS = 4402
     }
 }
