@@ -1658,7 +1658,6 @@ button:not(:disabled):active{filter:brightness(.94)}
 
 /* Mobile game-feel pass: visible ambient motion and tactile feedback, not hover-only. */
 .character-profile-card,
-.overview-context-item,
 .overview-activity-feed,
 .profile-character-section,
 .profile-attributes-section {
@@ -1667,7 +1666,6 @@ button:not(:disabled):active{filter:brightness(.94)}
   overflow:hidden;
 }
 .character-profile-card::before,
-.overview-context-item::before,
 .overview-activity-feed::before,
 .profile-character-section::before,
 .profile-attributes-section::before {
@@ -1752,9 +1750,9 @@ button:not(:disabled):active{filter:brightness(.94)}
   pointer-events:none;
 }
 .overview-context-item {
-  border-radius:17px;
-  background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--accent) 7%,var(--surface)));
-  box-shadow:inset 0 1px color-mix(in srgb,var(--text) 6%,transparent);
+   border-radius:14px;
+   background:var(--surface-raised);
+   box-shadow:inset 0 1px color-mix(in srgb,var(--text) 5%,transparent);
   transition:transform .22s ease,border-color .22s,box-shadow .22s;
 }
 .overview-context-item:active {
@@ -1781,9 +1779,10 @@ button:not(:disabled):active{filter:brightness(.94)}
   box-shadow:0 12px 34px color-mix(in srgb,var(--shadow-color) 24%,transparent),inset 0 1px color-mix(in srgb,var(--text) 6%,transparent);
 }
 .profile-detail-grid .overview-context-item {
-  min-height:82px;
-  align-content:center;
-  background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--accent) 6%,var(--surface)));
+   min-height:0;
+   align-content:start;
+   padding:10px 12px;
+   background:var(--surface-raised);
 }
 .character-stat-ring {
   position:relative;
