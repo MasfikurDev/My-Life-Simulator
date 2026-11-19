@@ -72,3 +72,16 @@ Money changes the quality of available choices, not only the size of a balance. 
 10. Weekly Review planned activities are collapsed into a compact expandable summary by default; expanding shows each selected action and a working remove control.
 11. Removing an action updates the plan and all derived weekly forecast values immediately, without advancing time or applying activity effects.
 12. Activity status seals distinguish player-planned actions from available, locked, unmet-requirement, completed, and unavailable states. Seals remain legible and do not block the underlying player action.
+
+
+## Weekly outcome presentation update · 2026-11-20
+
+**Implemented on `feat/weekly-activity-outcome-ui`; validation pending.**
+
+- The Weekly Review now presents the full changed-stat forecast returned by the deterministic weekly preview, including tracked character stats, education grade, work performance, skills, family relationship averages, business performance, and clothing presentation. Unchanged metrics are omitted.
+- Stamina is shown once as a compact current-to-projected allocation summary, with effort and recovery totals. It is not treated as the only weekly stat forecast.
+- The duplicate Combined Character Impact section has been removed. Projected cash remains separate inside the forecast section.
+- Planned activity rows use compact semantic badges for resolver-observed scalar stat and cash deltas, plus stamina cost/recovery. Planned activities have a compact × removal control; automatic activities remain unremovable.
+- Per-activity outcomes are captured around the actual deterministic resolver step. The preview remains read-only and does not infer outcomes from descriptive reward copy. Stress uses inverse semantic tone. Application outcomes are not assigned invented career progression.
+- Domain-workspace activity-card badge integration and contextual multi-item detail disclosure remain outstanding; the current weekly plan data does not yet provide a verified multi-item activity detail contract. These should be added only where the owning domain can expose authoritative outcomes and item data.
+- Automated checks and responsive visual review have not yet been verified; see the associated Draft pull request checks before treating this work as ready.
