@@ -285,7 +285,7 @@ export function convertMarketAsset(character: Character, fromType: InvestmentTyp
   if (fromType === toType || !MARKET_ASSETS.some((asset) => asset.type === fromType) || !MARKET_ASSETS.some((asset) => asset.type === toType)) return character;
   const sold = tradeMarketAsset(character, fromType, 'sell', units);
   if (sold === character) return character;
-  const available = sold.marketCash ?? 0;
+  const available = Math.max(0, (sold.marketCash ?? 0) - (character.marketCash ?? 0));
   const price = getMarketPrice(sold, toType);
   let low = 0, high = 1000000;
   while (low < high) {
