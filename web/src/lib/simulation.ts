@@ -1294,7 +1294,16 @@ function getActivityOutcomeEffects(before: Character, after: Character): WeeklyA
     add(String(key), label, Number(before[key] ?? fallback), Number(after[key] ?? fallback), inverse);
   }
   add('education-grade', 'Education grade', before.educationEnrollment?.grade, after.educationEnrollment?.grade);
+  add('education-attendance', 'Education attendance', before.educationEnrollment?.attendance, after.educationEnrollment?.attendance);
+  add('education-weeks', 'Course weeks', before.educationEnrollment?.weeksCompleted, after.educationEnrollment?.weeksCompleted);
+  const subjectIds = new Set([...(before.educationEnrollment?.subjects ?? []).map((subject) => subject.name), ...(after.educationEnrollment?.subjects ?? []).map((subject) => subject.name)]);
+  for (const subjectId of subjectIds) {
+    const prior = before.educationEnrollment?.subjects.find((subject) => subject.name === subjectId);
+    const nextSubject = after.educationEnrollment?.subjects.find((subject) => subject.name === subjectId);
+    add('education-subject-' + subjectId, subjectId + ' grade', prior?.grade, nextSubject?.grade);
+  }
   add('work-performance', 'Work performance', before.employment?.performance, after.employment?.performance);
+  add('role-experience', 'Role experience', before.employment?.experienceYears, after.employment?.experienceYears);
   add('career-experience', 'Career experience', before.careerExperienceYears, after.careerExperienceYears);
   const skillIds = new Set([...Object.keys(before.skills ?? {}), ...Object.keys(after.skills ?? {})]);
   for (const skillId of skillIds) add('skill-' + skillId, getSkillLabel(skillId), before.skills?.[skillId], after.skills?.[skillId]);
