@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { acceptJobOffer, acceptPromotionOffer, declineJobOffer, declinePromotionOffer, formatCharacterMoney, getWeeklyActivityReview, planActivityInNextFreeTime, planWorkActionInNextFreeTime, removePlannedActivity, resignFromJob } from './lib/simulation';
+  import { acceptJobOffer, acceptPromotionOffer, declineJobOffer, declinePromotionOffer, formatCharacterMoney, planActivityInNextFreeTime, planWorkActionInNextFreeTime, removePlannedActivity, resignFromJob } from './lib/simulation';
   import { getCareerPath, getCareerRequirements, getCareerRole, getJobListings, getPromotionReadiness, isEligibleForRole } from './lib/work';
   import type { CareerPathId, Character } from './lib/types';
   import GameChoice from './GameChoice.svelte';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
-  import ActivityEffectBadges from './components/ActivityEffectBadges.svelte';
   import { getActivityStaminaCost } from './lib/progression';
 
-  let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
+  let { character, projectedCharacter = character, onChange, onNotify }: { character: Character; projectedCharacter?: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   type WorkView = 'jobs' | 'extra' | 'career' | 'history';
   let activeView = $state<WorkView>('jobs');
   let selectedPath = $state<CareerPathId>(character.careerPathId ?? 'operations');
@@ -23,15 +22,6 @@
   function plannedWorkAction(workAction: 'apply' | 'interview', jobId: string) { return plannedActivities.find((item) => item.action?.kind === 'work' && item.action.workAction === workAction && item.action.jobId === jobId); }
   const developmentPlan = $derived(plannedActivities.find((item) => item.activityId === 'career' && item.action?.kind === 'activity'));
   const extraWorkPlan = $derived(plannedActivities.find((item) => item.activityId === 'work' && item.action?.kind === 'activity'));
-  function previewActivity(activityId: 'work' | 'career') {
-    const existing = plannedActivities.find((item) => item.activityId === activityId && item.action?.kind === 'activity');
-    const planned = existing ? { character, plannedActivity: existing, issue: null } : planActivityInNextFreeTime(character, activityId);
-    if (planned.issue || !planned.plannedActivity) return null;
-    return getWeeklyActivityReview(planned.character).activities.find((item) => item.id === planned.plannedActivity!.id) ?? null;
-  }
-  const extraWorkPreview = $derived(previewActivity('work'));
-  const careerDevelopmentPreview = $derived(previewActivity('career'));
-
   function planWork(workAction: 'apply' | 'interview', jobId: string) {
     const existing = plannedWorkAction(workAction, jobId);
     if (existing) { onChange(removePlannedActivity(character, existing.id)); onNotify('Removed from this week.'); return; }
@@ -94,12 +84,11 @@
         <div class="work-panel-heading"><div><h2>{character.employment.title}</h2><p>{character.employment.employer ?? 'Employer not recorded'} · {character.employment.type === 'part-time' ? 'Part-time' : character.employment.type === 'flexible' ? 'Flexible' : 'Full-time'}</p></div><span class="work-status">EMPLOYED</span></div>
         <div class="work-metrics">
           <div><span>Annual base pay</span><strong>{formatCharacterMoney(character, character.employment.annualSalary)}</strong></div>
-          <div><span>Performance</span><strong>{character.employment.performance}/100</strong></div>
+          <div><span>Performance</span><strong>{character.employment.performance}{projectedCharacter.employment?.performance !== character.employment.performance ? ' → ' + projectedCharacter.employment?.performance : ''}/100</strong></div>
           <div><span>Role experience</span><strong>{character.employment.experienceYears} years</strong></div>
           <div><span>Career experience</span><strong>{character.careerExperienceYears ?? character.employment.experienceYears} years</strong></div>
         </div>
         <p class="work-note">Payroll: annual settlement · Monthly pay and benefits: not implemented</p>
-        <ActivityEffectBadges effects={careerDevelopmentPreview?.effects ?? []} staminaCost={careerDevelopmentPreview?.staminaCost ?? getActivityStaminaCost('career')} staminaRecovery={careerDevelopmentPreview?.staminaRecovery ?? 0} moneyCost={careerDevelopmentPreview?.moneyCost ?? 0} formatMoney={(amount) => formatCharacterMoney(character, amount)} />
         <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · ' + getActivityStaminaCost('career') + ' stamina'} <ActivityStatusSeal status={developmentPlan ? 'planned' : 'available'} /></button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
         {#if confirmResignation}<div class="resign-confirm"><strong>Leave {character.employment.title}?</strong><p>You will become unemployed. Your career experience and history will be kept.</p><div><button class="work-primary" onclick={confirmLeaveJob}>Confirm resignation</button><button class="work-secondary" onclick={() => confirmResignation = false}>Keep job</button></div></div>{/if}
       </section>
@@ -167,7 +156,6 @@
       <div class="eyebrow">EXTRA EARNINGS</div><h2>{character.employment ? 'Additional shift' : 'Casual work'}</h2>
       <p>Take an additional shift or casual assignment for extra income. Pay reflects your employment, role level, performance and current workload. High stress reduces earnings.</p>
       <div class="work-metrics"><div><span>Weekly stamina cost</span><strong>{getActivityStaminaCost('work')}</strong></div><div><span>Estimated shift pay</span><strong>{formatCharacterMoney(character, Math.round(Math.max(180 * (character.currencyScale ?? 1), (character.employment?.annualSalary ?? 0) / 52 * 0.5) * (character.employment ? 0.75 + character.employment.performance / 200 : 1) * ((character.stress ?? 30) >= 85 ? 0.6 : (character.stress ?? 30) >= 70 ? 0.8 : 1)))}</strong></div></div>
-      <ActivityEffectBadges effects={extraWorkPreview?.effects ?? []} staminaCost={extraWorkPreview?.staminaCost ?? getActivityStaminaCost('work')} staminaRecovery={extraWorkPreview?.staminaRecovery ?? 0} moneyCost={extraWorkPreview?.moneyCost ?? 0} formatMoney={(amount) => formatCharacterMoney(character, amount)} />
       <button class="work-secondary" onclick={planExtraWork}>{extraWorkPlan ? 'Remove from this week' : (character.employment ? 'Add extra shift' : 'Find casual work') + ' · ' + getActivityStaminaCost('work') + ' stamina'} <ActivityStatusSeal status={extraWorkPlan ? 'planned' : 'available'} /></button>
     </section>
   {:else if activeView === 'career'}
