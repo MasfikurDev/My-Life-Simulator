@@ -12,6 +12,7 @@ My Life Simulator uses a small, in-repository Svelte UI framework rather than ha
 ## Customization contract
 - Cards expose semantic surface, tone, density, radius, elevation, and interaction. Content determines height; text-bearing cards must not get fixed heights by default.
 - Buttons expose semantic variant, size, width, and shape. Primary actions retain comfortable touch targets.
+- `UiBadge` exposes semantic tones (`success`, `info`, `special`, `warning`, `risk`, `danger`, `neutral`) and compact sizes. Theme tokens control its colors; optional dots and entrance motion are opt-in. Use labels as well as color, and keep routine badges static.
 - Stack and Grid expose direction/columns, alignment, wrapping, and gap so layout changes are configuration, not one-off CSS.
 - Components may accept a class for exceptional composition, but class overrides must not become the normal styling API.
 - Variants represent meaningful design decisions, not every possible CSS property. Use CSS custom properties for continuous values such as gap and custom layout dimensions.
