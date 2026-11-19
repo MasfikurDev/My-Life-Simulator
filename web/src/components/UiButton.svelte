@@ -8,7 +8,8 @@
 <button class="ui-button ui-button--{variant} ui-button--{size} ui-button--{shape} ui-button--{width} {className}" {type} disabled={disabled || loading} aria-busy={loading} aria-label={ariaLabel} {onclick}>
  <span class="ui-button-content">{#if loading}<span class="ui-button-spinner" aria-hidden="true"></span>{/if}{@render children()}</span>
 </button>
-<style>
+<style lang="scss">
+ @use '../styles/mixins' as mixins;
  .ui-button{position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--control-height,44px);padding:0 14px;border:1px solid var(--line);border-radius:var(--ui-button-radius,var(--control-radius,var(--radius-md)));background:linear-gradient(180deg,color-mix(in srgb,var(--text) 3%,transparent),transparent 70%),var(--surface-raised);color:var(--text);font:inherit;font-weight:700;cursor:pointer;box-shadow:var(--elevation-1);transition:background .2s,border-color .2s,color .2s,box-shadow .22s,transform .18s,filter .18s;-webkit-tap-highlight-color:transparent}
  .ui-button-spinner{width:13px;height:13px;flex:none;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:ui-button-spin .7s linear infinite}
  @keyframes ui-button-spin{to{transform:rotate(360deg)}}
@@ -24,5 +25,5 @@
  .ui-button--small{min-height:36px;padding-inline:10px;font-size:12px}.ui-button--large{min-height:48px;padding-inline:18px;font-size:14px}
  .ui-button--full{width:100%}.ui-button--pill{border-radius:var(--radius-pill)}.ui-button--square{aspect-ratio:1;padding-inline:0}
  @media(hover:none){.ui-button:hover:not(:disabled){transform:none}.ui-button:hover:not(:disabled)::after{opacity:0}}
- @media(prefers-reduced-motion:reduce){.ui-button,.ui-button::after{transition:none}.ui-button-spinner{animation:none;border-right-color:currentColor}.ui-button:hover:not(:disabled),.ui-button:active:not(:disabled){transform:none}}
+ @include mixins.reduced-motion{.ui-button,.ui-button::after{transition:none}.ui-button-spinner{animation:none;border-right-color:currentColor}.ui-button:hover:not(:disabled),.ui-button:active:not(:disabled){transform:none}}
 </style>
