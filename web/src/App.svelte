@@ -622,7 +622,7 @@
                           <article class="review-activity-row review-passive-row">
                             <div class="review-activity-copy">
                               <div class="review-activity-heading"><strong>{activity.title}</strong><UiBadge size="tiny">AUTOMATIC</UiBadge></div>
-                              <div class="review-effect-badges">{#if activity.staminaRecovery > 0}<UiBadge tone="success" size="tiny">+{activity.staminaRecovery} stamina</UiBadge>{:else}<UiBadge size="tiny">Background effect</UiBadge>{/if}</div>
+                              <ActivityEffectBadges effects={activity.effects} staminaRecovery={activity.staminaRecovery} />
                             </div>
                           </article>
                         {/each}
