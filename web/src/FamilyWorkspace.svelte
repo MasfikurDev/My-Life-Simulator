@@ -4,7 +4,7 @@
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
   import { getValueTone } from './lib/progression';
   import UiProgress from './components/UiProgress.svelte';
-  import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, planSocialInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import { formatCharacterMoney, getPlannedFamilyInteraction, planFamilyInteractionInNextFreeTime, planSocialInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { addSocialConnection, removeSocialConnection, setSocialConnectionHousehold } from './lib/lifestyle';
 
   let { character, projectedCharacter = character, onChange }: { character: Character; projectedCharacter?: Character; onChange: (next: Character) => void } = $props();
@@ -50,10 +50,14 @@
     onChange(setSocialConnectionHousehold(character, id, livesWithPlayer));
   }
   function interactionPlanned(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
-    return (character.weeklyPlan?.activities ?? []).some((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
+    const planned = getPlannedFamilyInteraction(character, personId);
+    return planned?.action?.kind === 'family' && planned.action.interaction === action;
+  }
+  function interactionBlocked(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
+    return !!getPlannedFamilyInteraction(character, personId) && !interactionPlanned(personId, action);
   }
   function interact(personId: string, action: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support') {
-    const existing = (character.weeklyPlan?.activities ?? []).find((item) => item.action?.kind === 'family' && item.action.personId === personId && item.action.interaction === action);
+    const existing = getPlannedFamilyInteraction(character, personId);
     if (existing) { onChange(removePlannedActivity(character, existing.id)); feedback = 'Interaction removed from this week.'; return; }
     const planned = planFamilyInteractionInNextFreeTime(character, personId, action, supportAmount);
     if (planned.issue) { feedback = planned.message ?? 'That interaction could not be added.'; return; }
@@ -123,16 +127,16 @@
               {/if}
               {#if connection.living}
                 <div class="relative-actions">
-                  <button onclick={() => interact(connection.person.id, 'spend-time')}>{interactionPlanned(connection.person.id, 'spend-time') ? 'Cancel plan' : 'Spend time · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'spend-time') ? 'planned' : 'available'} /></button>
-                  {#if character.age >= 10}<button onclick={() => interact(connection.person.id, 'reach-out')}>{interactionPlanned(connection.person.id, 'reach-out') ? 'Cancel plan' : 'Reach out · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'reach-out') ? 'planned' : 'available'} /></button>{/if}
-                  {#if character.age >= 13 && connection.bond.tension >= 15}<button onclick={() => interact(connection.person.id, 'reconcile')}>{interactionPlanned(connection.person.id, 'reconcile') ? 'Remove plan' : 'Work through conflict · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'reconcile') ? 'planned' : 'available'} /></button>{/if}
+                  <button disabled={interactionBlocked(connection.person.id, 'spend-time')} onclick={() => interact(connection.person.id, 'spend-time')}>{interactionPlanned(connection.person.id, 'spend-time') ? 'Cancel plan' : 'Spend time · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'spend-time') ? 'planned' : 'available'} /></button>
+                  {#if character.age >= 10}<button disabled={interactionBlocked(connection.person.id, 'reach-out')} onclick={() => interact(connection.person.id, 'reach-out')}>{interactionPlanned(connection.person.id, 'reach-out') ? 'Cancel plan' : 'Reach out · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'reach-out') ? 'planned' : 'available'} /></button>{/if}
+                  {#if character.age >= 13 && connection.bond.tension >= 15}<button disabled={interactionBlocked(connection.person.id, 'reconcile')} onclick={() => interact(connection.person.id, 'reconcile')}>{interactionPlanned(connection.person.id, 'reconcile') ? 'Remove plan' : 'Work through conflict · 6 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'reconcile') ? 'planned' : 'available'} /></button>{/if}
                 </div>
                 {#if character.age >= 18}
                   <div class="support-row">
                     <label>Amount to send
                       <input type="number" min="1" step="1" bind:value={supportAmount} />
                     </label>
-                    <button disabled={!interactionPlanned(connection.person.id, 'provide-support') && (!Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money)} onclick={() => interact(connection.person.id, 'provide-support')}>{interactionPlanned(connection.person.id, 'provide-support') ? 'Cancel plan' : 'Send money · 3 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'provide-support') ? 'planned' : 'available'} /></button>
+                    <button disabled={interactionBlocked(connection.person.id, 'provide-support') || (!interactionPlanned(connection.person.id, 'provide-support') && (!Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money))} onclick={() => interact(connection.person.id, 'provide-support')}>{interactionPlanned(connection.person.id, 'provide-support') ? 'Cancel plan' : 'Send money · 3 stamina'} <ActivityStatusSeal status={interactionPlanned(connection.person.id, 'provide-support') ? 'planned' : 'available'} /></button>
                   </div>
                   <p class="support-note">Cash available: {formatCharacterMoney(character)}. This gift will appear in your finances.</p>
                 {/if}
