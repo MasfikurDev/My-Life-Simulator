@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { Character } from './lib/types';
   import { establishFamilyBackground, getFamilyConnections, validateFamilyState } from './lib/family';
-  import { getValueColor } from './lib/progression';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
+  import { getValueTone } from './lib/progression';
+  import UiProgress from './components/UiProgress.svelte';
   import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, planSocialInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { addSocialConnection, removeSocialConnection, setSocialConnectionHousehold } from './lib/lifestyle';
 
@@ -104,13 +105,13 @@
             </div>
             {#if connection.bond}
               <div class="bond-grid bond-grid-primary">
-                <div><span>Closeness</span><strong>{connection.bond.closeness}/100</strong><div class="bond-meter"><i style="width:{connection.bond.closeness}%;background:{getValueColor(connection.bond.closeness)}"></i></div></div>
+                <div><span>Closeness</span><strong>{connection.bond.closeness}/100</strong><UiProgress label="Relationship closeness" value={connection.bond.closeness} tone={getValueTone(connection.bond.closeness)} size="small" showLabel={false} /></div>
               </div>
               <details class="relative-bond-details">
                 <summary>Trust &amp; tension</summary>
                 <div class="bond-grid">
-                  <div><span>Trust</span><strong>{connection.bond.trust}/100</strong><div class="bond-meter"><i style="width:{connection.bond.trust}%;background:{getValueColor(connection.bond.trust)}"></i></div></div>
-                  <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><div class="bond-meter tension"><i style="width:{connection.bond.tension}%;background:{getValueColor(connection.bond.tension, true)}"></i></div></div>
+                  <div><span>Trust</span><strong>{connection.bond.trust}/100</strong><UiProgress label="Relationship trust" value={connection.bond.trust} tone={getValueTone(connection.bond.trust)} size="small" showLabel={false} /></div>
+                  <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><UiProgress label="Relationship tension" value={connection.bond.tension} tone={getValueTone(connection.bond.tension, true)} size="small" showLabel={false} /></div>
                 </div>
               </details>
               {#if connection.bond.lastInteractionYear !== null}
@@ -222,9 +223,6 @@
   .relative-bond-details>summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
   .bond-grid>div{display:grid;grid-template-columns:1fr auto;gap:5px;align-items:center}
   .bond-grid span{font-size:10px;color:var(--muted)}.bond-grid strong{font-size:11px}
-  .bond-meter{grid-column:1/-1;height:5px;border-radius:8px;background:var(--surface-raised);overflow:hidden}
-  .bond-meter i{display:block;height:100%;border-radius:8px;background:var(--accent)}
-  .bond-meter.tension i{background:var(--warning)}
   .last-contact,.support-note{font-size:10px!important}
   .relative-actions{display:flex;flex-wrap:wrap;gap:7px}
   .relative-actions button,.support-row button,.primary-action{min-height:38px;border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:var(--surface-raised);color:var(--text);font-size:11px;font-weight:700}

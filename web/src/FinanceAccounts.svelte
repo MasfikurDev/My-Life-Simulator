@@ -4,6 +4,8 @@
   import FinanceProducts from './FinanceProducts.svelte';
   import EmptyState from './components/EmptyState.svelte';
   import GameChoice from './GameChoice.svelte';
+  import UiProgress from './components/UiProgress.svelte';
+  import UiField from './components/UiField.svelte';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   let accountType = $state<BankAccountType>('checking');
   let fixedTermYears = $state('1');
@@ -47,7 +49,7 @@
         <span><small>CREDIT HEALTH</small><strong>Credit score · {creditProfile.score} / 850</strong><em>{creditProfile.rating}</em></span>
         <span class="credit-summary-hint">View breakdown</span>
       </summary>
-      <div class="credit-score-track" role="meter" aria-label="Credit score" aria-valuemin="300" aria-valuemax="850" aria-valuenow={creditProfile.score}><span style={'width:' + ((creditProfile.score - 300) / 550 * 100) + '%'}></span></div>
+      <UiProgress label="Credit score" value={creditProfile.score - 300} max={550} tone={creditProfile.score >= 740 ? "success" : creditProfile.score >= 670 ? "info" : creditProfile.score >= 580 ? "warning" : "danger"} showLabel={false} showValue valueText={`${creditProfile.score} / 850`} />
       <div class="credit-score-scale"><span>300 · Poor</span><span>850 · Excellent</span></div>
       <div class="credit-factors">
         <div><small>Payment record</small><strong>{creditProfile.successfulPayments} on time · {creditProfile.missedPayments} missed</strong></div>
@@ -84,7 +86,7 @@
     <dialog open class="account-dialog" aria-label={selected.name + ' account'}>
       <div class="account-dialog-heading"><div><small>ACCOUNT DETAILS</small><h3>{selected.name}</h3><strong>{formatCharacterMoney(character, selected.balance)}</strong></div><button class="quiet" onclick={() => accountDialogOpen = false}>Close</button></div>
       <p class="hint">{selected.type === 'fixed-deposit' && character.year < (selected.maturesAtYear ?? Number.MAX_SAFE_INTEGER) ? 'Fixed deposits are locked until maturity. Withdrawals and outgoing payments become available after maturity.' : selected.type === 'fixed-deposit' ? 'This fixed deposit has matured. Withdrawals and outgoing payments are now available.' : selected.type === 'savings' ? 'Savings account · 2% annual interest. Transfers and withdrawals are available.' : 'Everyday account · instant access for transfers, withdrawals and recurring payments.'}</p>
-      <label>Amount<input type="number" min="1" step="1" bind:value={amount} inputmode="numeric" /></label>
+      <UiField label="Amount" controlId="bank-transaction-amount"><input id="bank-transaction-amount" type="number" min="1" step="1" bind:value={amount} inputmode="numeric" /></UiField>
       <button class="primary" onclick={deposit}>Deposit cash</button>
       {#if selected.type !== 'fixed-deposit' || character.year >= (selected.maturesAtYear ?? Number.MAX_SAFE_INTEGER)}
         <button onclick={withdraw}>Withdraw cash</button>
@@ -125,8 +127,6 @@
 
 .credit-profile{display:grid;gap:10px;padding:13px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .credit-profile summary{list-style:none;cursor:pointer}.credit-profile summary::-webkit-details-marker{display:none}.credit-summary{display:flex;align-items:center;justify-content:space-between;gap:10px}.credit-summary>span:first-child{display:grid;gap:3px}.credit-summary strong{font-size:14px}.credit-summary em{font-size:10px;font-style:normal;color:var(--success)}.credit-summary-hint{font-size:10px;color:var(--muted)}
-.credit-score-track{height:8px;border-radius:99px;background:var(--surface-raised);overflow:hidden}
-.credit-score-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--danger),var(--warning),var(--success));transition:width .2s ease}
 .credit-score-scale{display:flex;justify-content:space-between;color:var(--muted);font-size:9px}
 .credit-factors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .credit-factors>div{display:grid;gap:3px;padding:9px;border-radius:9px;background:var(--surface-raised);min-width:0}

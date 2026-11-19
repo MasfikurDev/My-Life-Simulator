@@ -144,4 +144,12 @@ When a newer explicit decision conflicts with an older document, this file recor
 - Use semantic theme tokens, configurable primitives, reusable domain components, and page-level composition. Each component must support meaningful variants for density, surface, hierarchy, layout, tone, and interaction while preserving domain-native identity.
 - Cards must size to content by default; Profile metadata cards use compact density. Avoid fixed heights and repetitive decoration.
 - Migrate incrementally, beginning with shared primitives and Profile details. Preserve gameplay behavior, save formats, offline operation, and the existing 17-theme palette.
+- Shared primitives must be flexible enough for repeated semantic differences (tone, density, shape, surface, layout, and interaction) through backward-compatible props. `ActivityStatusSeal` reuses `UiBadge` semantics rather than maintaining a duplicate status palette. This is foundation work; screen adoption remains incremental and domain-native.
 - Canonical implementation contract: docs/UI_FRAMEWORK.md.
+
+## Shared UI adoption update (2026-11-19)
+- `UiProgress` is now adopted for Finance Accounts credit score progress, Finance Products loan/savings progress, Character Creation and Life Overview stat meters, Education course/subject progress, Family relationship metrics, and Health wellbeing/condition meters.
+- `UiField` is adopted for bank transaction amount and extra loan repayment amount fields.
+- `ActivityStatusSeal` delegates semantic status styling to `UiBadge`. Continue migrating repeated patterns incrementally; do not force domain-specific layouts into generic components.
+
+- Progress-component adoption must preserve the existing semantic bands exactly, including the intermediate coral band and inverse thresholds for stress/severity. `getValueTone` is the shared source for mapping stat values to `UiProgress` tones; do not simplify thresholds during UI migration.

@@ -62,10 +62,16 @@ export function isActivityAvailable(age: number, activity: ActivityId, employmen
 }
 
 /** Shared semantic bands for all 0–100 progress meters. Stress uses inverse scoring. */
-export function getValueColor(value: number, inverse = false): string {
+export type ValueTone = 'danger' | 'coral' | 'warning' | 'info' | 'success';
+
+export function getValueTone(value: number, inverse = false): ValueTone {
   const safe = Math.max(0, Math.min(100, value));
-  if (inverse) return safe >= 90 ? 'var(--danger)' : safe >= 75 ? 'var(--coral)' : safe >= 55 ? 'var(--warning)' : safe >= 30 ? 'var(--info)' : 'var(--success)';
-  return safe < 15 ? 'var(--danger)' : safe < 30 ? 'var(--coral)' : safe < 50 ? 'var(--warning)' : safe < 70 ? 'var(--info)' : 'var(--success)';
+  if (inverse) return safe >= 90 ? 'danger' : safe >= 75 ? 'coral' : safe >= 55 ? 'warning' : safe >= 30 ? 'info' : 'success';
+  return safe < 15 ? 'danger' : safe < 30 ? 'coral' : safe < 50 ? 'warning' : safe < 70 ? 'info' : 'success';
+}
+
+export function getValueColor(value: number, inverse = false): string {
+  return `var(--${getValueTone(value, inverse)})`;
 }
 
 export function getAvailableActivityIds(age: number, employment?: Employment | null): ActivityId[] {

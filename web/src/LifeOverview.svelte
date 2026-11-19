@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Character } from './lib/types';
-  import { getLifeStage, getValueColor } from './lib/progression';
+  import UiProgress from './components/UiProgress.svelte';
+  import { getLifeStage, getValueTone } from './lib/progression';
 
   let { character }: { character: Character } = $props();
   const stats = $derived([
@@ -47,7 +48,7 @@
     {#each stats as stat}
       <div class="life-overview-stat">
         <div><span>{stat.label}</span><strong>{Math.round(stat.value)}%</strong></div>
-        <div class="meter"><span style="width:{stat.value}%;background:{getValueColor(stat.value, stat.inverse)}"></span></div>
+        <UiProgress label={stat.label} value={stat.value} tone={getValueTone(stat.value, stat.inverse)} size="small" showLabel={false} />
       </div>
     {/each}
   </div>
@@ -71,7 +72,5 @@
   .life-overview-stat>div:first-child{display:flex;justify-content:space-between;gap:8px}
   .life-overview-stat span{font-size:11px;color:var(--muted)}
   .life-overview-stat strong{font-size:12px;font-variant-numeric:tabular-nums}
-  .life-overview-stat .meter{height:6px;overflow:hidden;border-radius:99px;background:var(--surface-raised,var(--surface))}
-  .life-overview-stat .meter span{display:block;height:100%;border-radius:inherit}
   @media(max-width:560px){.life-overview-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.life-overview-panel,.life-overview-stats{padding:12px}.life-overview-stat-grid{gap:12px}}
 </style>

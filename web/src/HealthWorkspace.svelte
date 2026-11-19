@@ -2,8 +2,9 @@
   import type { CareActionType, Character } from './lib/types';
   import EmptyState from './components/EmptyState.svelte';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
+  import UiProgress from './components/UiProgress.svelte';
   import { formatCharacterMoney, planActivityInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
-  import { getActivityStaminaCost, getValueColor } from './lib/progression';
+  import { getActivityStaminaCost, getValueTone } from './lib/progression';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   const medical = $derived(character.medicalState ?? { conditions: [], medications: [], highStressWeeks: 0 });
   const schedule = $derived(character.weeklyPlan);
@@ -40,7 +41,7 @@
   <div class="health-overview-head"><div><div class="eyebrow">WELLBEING SNAPSHOT</div><h2>Health and recovery</h2><p>Your current physical and mental wellbeing, including energy and pressure.</p></div><span class="domain-status">{(character.stress ?? 30) >= 82 ? 'HIGH PRESSURE' : (character.stress ?? 30) >= 60 ? 'ELEVATED' : 'MANAGEABLE'}</span></div>
   <div class="health-stat-grid">
     {#each stats as stat}
-      <div class="health-stat"><div><span>{stat.label}</span><strong>{Math.round(stat.value)}%</strong></div><div class="meter"><span class:blue={stat.tone !== 'stress'} class:stress-meter={stat.tone === 'stress'} style="width:{stat.value}%;background:{getValueColor(stat.value, stat.inverse)}"></span></div><small>{stat.inverse ? stat.value >= 80 ? 'Critical pressure' : stat.value >= 60 ? 'Elevated pressure' : 'Manageable' : stat.value < 25 ? 'Critical' : stat.value < 45 ? 'Low' : stat.value < 70 ? 'Fair' : 'Strong'}</small></div>
+      <div class="health-stat"><div><span>{stat.label}</span><strong>{Math.round(stat.value)}%</strong></div><UiProgress label={stat.label} value={stat.value} tone={getValueTone(stat.value, stat.inverse)} size="small" showLabel={false} /><small>{stat.inverse ? stat.value >= 80 ? 'Critical pressure' : stat.value >= 60 ? 'Elevated pressure' : 'Manageable' : stat.value < 25 ? 'Critical' : stat.value < 45 ? 'Low' : stat.value < 70 ? 'Fair' : 'Strong'}</small></div>
     {/each}
   </div>
   {#if (character.stress ?? 30) >= 70 || character.health < 30}
@@ -64,7 +65,7 @@
   <div class="section-heading"><div><span class="section-index">02</span><h3>Medical record</h3></div><span class="section-hint">{medical.conditions.length} active conditions</span></div>
   {#if medical.conditions.length}
     {#each medical.conditions as condition}
-      <div class="health-condition-row"><div><strong>{condition.name}</strong><small>{condition.diagnosed ? 'Diagnosed' : 'Not yet assessed'} · {condition.weeksActive} weeks active · {condition.treatment ? 'Treatment: ' + condition.treatment.replaceAll('-', ' ') : 'No treatment plan'}</small></div><div class="health-condition-severity"><strong>{Math.round(condition.severity)}%</strong><div class="meter"><span class="stress-meter" style="width:{condition.severity}%;background:{getValueColor(condition.severity, true)}"></span></div></div></div>
+      <div class="health-condition-row"><div><strong>{condition.name}</strong><small>{condition.diagnosed ? 'Diagnosed' : 'Not yet assessed'} · {condition.weeksActive} weeks active · {condition.treatment ? 'Treatment: ' + condition.treatment.replaceAll('-', ' ') : 'No treatment plan'}</small></div><div class="health-condition-severity"><strong>{Math.round(condition.severity)}%</strong><UiProgress label={`${condition.name} severity`} value={condition.severity} tone={getValueTone(condition.severity, true)} size="small" showLabel={false} /></div></div>
     {/each}
   {:else}
     <EmptyState title="No active medical conditions" />

@@ -12,7 +12,7 @@ My Life Simulator uses a small, in-repository Svelte UI framework rather than ha
 ## Customization contract
 - Cards expose semantic surface, tone, density, radius, elevation, and interaction. Content determines height; text-bearing cards must not get fixed heights by default.
 - Buttons expose semantic variant, size, width, and shape. Primary actions retain comfortable touch targets.
-- `UiBadge` exposes semantic tones (`success`, `info`, `special`, `warning`, `risk`, `danger`, `neutral`) and compact sizes. Theme tokens control its colors; optional dots and entrance motion are opt-in. Use labels as well as color, and keep routine badges static.
+- `UiBadge` exposes semantic tones (`accent`, `success`, `info`, `special`, `warning`, `risk`, `danger`, `neutral`) and compact sizes. Theme tokens control its colors; optional dots and entrance motion are opt-in. Use labels as well as color, and keep routine badges static.
 - Stack and Grid expose direction/columns, alignment, wrapping, and gap so layout changes are configuration, not one-off CSS.
 - Components may accept a class for exceptional composition, but class overrides must not become the normal styling API.
 - Variants represent meaningful design decisions, not every possible CSS property. Use CSS custom properties for continuous values such as gap and custom layout dimensions.
@@ -88,3 +88,59 @@ This is a gameplay interaction primitive, not a new simulation subsystem or save
 - Charts remain domain-owned because investment and financial visualizations have different data and interaction requirements. Consume the shared `--chart-*` semantic tokens for series, grid, gain, loss, and neutral values rather than adding palette literals.
 - Form controls, progress fills, dialogs, toast surfaces, and chart series must resolve from the active theme. All 17 themes must remain supported, including Paper's light contrast.
 - Keep transitions tied to state changes, not continuous decoration. Honor `prefers-reduced-motion` and maintain visible keyboard focus and mobile touch targets.
+
+
+## Flexible primitive APIs (2026-11-19)
+
+The shared primitives expose configuration for common differences without requiring one-off CSS:
+
+- **UiBadge:** semantic tone (including accent), tiny/small/medium size, pill/rounded/square shape, optional prefix or status dot, wrapping, custom class for exceptional composition, and opt-in entrance motion. Keep text labels; prefixes are decorative and hidden from assistive technology.
+- **ActivityStatusSeal:** compatibility/domain wrapper around UiBadge. It maps activity states to shared semantic tones and preserves the status role. Do not add a second status color system.
+- **UiButton:** semantic variant, size, shape, width, disabled state, optional accessible label, and loading state. Loading prevents duplicate activation and announces busy state. Keep the default touch target.
+- **UiProgress:** determinate or indeterminate mode, semantic tone (`accent`, `success`, `info`, `coral`, `warning`, `danger`), size, optional heading/value visibility, and caller-provided value text. Use `getValueTone` for stat meters so the existing normal/inverse thresholds are preserved exactly. Keep the real accessible label; do not use progress bars for charts or arbitrary decoration.
+- **UiField:** stacked or inline layout, compact or medium density, helper/error text, required marker, and custom class. The owning form still controls the native input and its validation/value.
+- **UiCard:** use its existing as, density, surface, tone, radius, elevation, and interactive presentation options. Content determines height; do not add fixed-height variants for ordinary cards.
+- **UiGrid / UiStack:** use configurable columns/minimum width, direction, alignment, wrapping, and gap. These are layout primitives, not card or content components.
+
+Add a new prop only when it represents a repeated semantic need. Prefer CSS custom properties for continuous visual values; do not expose arbitrary palette overrides that bypass theme tokens. Existing call sites must remain valid when optional props are added.
+
+## Initial screen adoption (2026-11-19)
+
+The flexible primitives are now used in real domain screens, not only defined:
+
+- **UiProgress**
+  - Finance Accounts: credit score.
+  - Finance Products: loan repayment and savings goal.
+  - Education: overall course progress and subject grades.
+  - Life Overview: health, stamina, intelligence, fitness, happiness, and inverse stress meters.
+  - Character Creation: generated health, happiness, intelligence, fitness, stamina, focus, confidence, discipline, creativity, and social-skill meters.
+  - Family: relationship closeness, trust, and tension.
+  - Health: wellbeing stats and medical-condition severity.
+- **UiField**
+  - Finance Accounts: bank transaction amount.
+  - Finance Products: extra loan repayment amount.
+- **UiBadge**
+  - Used by `ActivityStatusSeal` across Health, Education, Family, Work, and Finance Assets; the wrapper maps domain statuses to shared semantic tones.
+
+The original screen-specific meters and CSS were removed where the shared progress component replaced them. Domain-specific layouts, labels, and data calculations remain in their owning screens. Stat meters use the shared `getValueTone` thresholds (including the coral band and inverse stress/severity bands), avoiding flattened or reinterpreted status colors. This is a targeted first adoption pass, not a claim that every screen has migrated.
+
+## Component migration quality gate (2026-11-19)
+
+A shared component is not automatically an upgrade over an existing screen implementation. Replace local UI only when the shared version is demonstrably better overall:
+
+- Preserve or improve the screen's visual hierarchy, density, responsive behavior, and interaction feedback.
+- Preserve domain semantics exactly, including thresholds, inverse metrics, labels, locked/disabled states, and accessible meaning.
+- Improve theme consistency, accessibility, reuse, or maintainability without forcing generic-looking layouts.
+- Compare the old and new presentation in representative themes and narrow Android layouts before treating the migration as complete.
+
+If the shared component cannot meet the existing implementation's quality, keep the local implementation and improve the primitive first. Do not migrate solely to increase component adoption or reduce CSS line count. Expressive artwork and genuinely domain-specific compositions may remain bespoke.
+
+## Reviewed patterns intentionally left bespoke (2026-11-19)
+
+The following patterns were found during the wider source search and are not migration targets yet:
+
+- **Weekly stamina forecast:** the compact accent-only track in the weekly review has a different visual role and density from the current `UiProgress`. Keep it until the shared primitive can reproduce that treatment without adding unnecessary border/gradient weight or changing its compact footprint.
+- **Section navigation:** Finance, Life, Education, and Work use related horizontal navigation patterns, but differ in active treatment, disabled/locked items, and spacing. `UiButton` is not a navigation replacement. A dedicated, variant-aware navigation primitive may be worthwhile, but do not migrate until it can preserve these differences and improve keyboard/mobile behavior.
+- **Event header and bank-card artwork:** fixed expressive colors are intentional illustration/art direction, not ordinary theme-surface styling. Preserve them unless a separate design decision calls for artwork changes.
+- **Career performance meter:** the matching selector currently appears only in stylesheet search results, with no confirmed active markup usage. Do not create component adoption work for unused styling.
+- **Domain cards and action buttons:** retain local composition where a shared card/button would flatten hierarchy, change touch sizing, or impose its hover/gradient treatment. Revisit only when a shared variant demonstrably improves the screen.
