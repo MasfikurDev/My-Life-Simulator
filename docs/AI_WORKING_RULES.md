@@ -68,6 +68,21 @@ Then inspect relevant source, tests, recent history, current main, and open PRs.
 
 For any change touching two or more gameplay domains, read `docs/SYSTEM_INTEGRATION_REVIEW.md`. Use its ownership map and cross-domain contracts as review aids, then verify them against current code and tests. Treat findings and staged work as hypotheses/planning guidance, not automatic instructions to implement stale or deferred work.
 
+## GitHub operation verification (mandatory)
+
+Never report a repository/GitHub operation as completed based only on intent, an attempted tool call, or an optimistic mutation response. A successful write response proves only that the write endpoint returned; it does not prove the intended state is visible and persisted.
+
+For every create/update/mutation, read the affected resource again and verify the actual saved state and relevant fields before reporting success. This includes PR descriptions/bodies, labels, comments, branches, files, settings, releases, and other GitHub resources. Do not assume a supplied description was saved merely because it was drafted or included in a create request.
+
+Verify distinct outcomes independently and tie evidence to the exact commit/run:
+- A commit or file-write response does not prove CI passed.
+- An open PR does not prove its description, labels, or draft state are correct.
+- A green check on an earlier commit does not validate a later PR head.
+- A merge does not prove deployment or release succeeded.
+- A deployment job completing does not by itself prove the deployed artifact/source is the intended one.
+
+After each operation, fetch the resource or inspect the authoritative status endpoint. If read-back or evidence is unavailable, report the result as **unverified**, explain what could not be checked, and do not imply completion. Keep completed, failed, and pending work distinct. This rule applies to all AI agents and automation operating in this repository.
+
 ## Enforced reliability safeguards
 
 These checks are implemented in GitHub Actions and the repository PR template; do not bypass them casually:
