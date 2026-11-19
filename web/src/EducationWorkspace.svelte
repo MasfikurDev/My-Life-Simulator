@@ -6,7 +6,7 @@
   import { enrollInEducation, getAvailableEducationPrograms, resumeEducation } from './lib/education';
   import EducationRecordsWorkspace from './EducationRecordsWorkspace.svelte';
   import { formatCharacterMoney, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
-  import { getActivityStaminaCost, getValueColor } from './lib/progression';
+  import { getActivityStaminaCost } from './lib/progression';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   let subpage = $state<'education' | 'records'>('education');
   let selectedProgramId = $state('');
