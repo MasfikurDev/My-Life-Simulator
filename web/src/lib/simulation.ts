@@ -1284,7 +1284,7 @@ function getActivityOutcomeEffects(before: Character, after: Character): WeeklyA
     effects.push({ key, label, delta, tone: (inverse ? delta < 0 : delta > 0) ? 'success' : 'danger', kind: 'stat' });
   };
   const fields: Array<[keyof Character, string, boolean]> = [
-    ['health', 'Health', false], ['happiness', 'Happiness', false], ['intelligence', 'Intelligence', false],
+    ['health', 'Health', false], ['happiness', 'Happiness', false], ['intelligence', 'Intelligence', false], ['educationProgress', 'Self-study progress', false],
     ['fitness', 'Fitness', false], ['stress', 'Stress', true], ['focus', 'Focus', false],
     ['confidence', 'Confidence', false], ['comfort', 'Comfort', false], ['discipline', 'Discipline', false],
     ['creativity', 'Creativity', false], ['socialSkills', 'Social skills', false]
@@ -1479,7 +1479,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   const preview = advanceWeek(character);
   const projected = preview.issue ? character : preview.character;
   const fields: Array<[keyof Character, string]> = [
-    ['health', 'Health'], ['happiness', 'Happiness'], ['intelligence', 'Intelligence'], ['fitness', 'Fitness'],
+    ['health', 'Health'], ['happiness', 'Happiness'], ['intelligence', 'Intelligence'], ['educationProgress', 'Self-study progress'], ['fitness', 'Fitness'],
     ['stamina', 'Stamina'], ['stress', 'Stress'], ['focus', 'Focus'], ['confidence', 'Confidence'], ['comfort', 'Comfort'],
     ['discipline', 'Discipline'], ['creativity', 'Creativity'], ['socialSkills', 'Social skills']
   ];
