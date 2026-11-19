@@ -9,6 +9,7 @@ import { getWeeklyPlan } from './weekly-plan';
 import { resolveEducationWeek } from './education';
 import { resolveCareAction, resolveWeeklyWellbeing } from './wellbeing';
 import { applyWeeklyClothingWear, getClothingPresentationScore, getPassiveLifestyleActivities, interactWithSocialConnection, resolvePassiveLifestyleActivities } from './lifestyle';
+import type { PassiveLifestyleActivity } from './lifestyle';
 import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPromotionOfferState, createPromotionOffer, declineJobOffer as declineJobOfferState, declinePromotionOffer as declinePromotionOfferState, expireWorkOffers, getJobListings, getCareerRole, isEligibleForRole, resolveJobApplication, resolveJobInterview, resignFromJob as resignFromJobState } from './work';
 
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
@@ -1424,7 +1425,7 @@ export interface WeeklyActivityReview {
   weekStart: string;
   weekEnd: string;
   activities: WeeklyActivityReviewItem[];
-  passiveActivities: Array<{ id: string; title: string; source: string; detail: string; staminaRecovery: number; reward: string }>;
+  passiveActivities: Array<{ id: string; title: string; source: string; detail: string; staminaRecovery: number; effects: WeeklyActivityOutcomeEffect[] }>;
   currentStamina: number;
   staminaCost: number;
   staminaRecovery: number;
@@ -1495,17 +1496,20 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     addChange('business-' + businessId, businessName + ' performance', before?.performance, after?.performance);
   }
   addChange('appearance', 'Clothing presentation', getClothingPresentationScore(character), getClothingPresentationScore(projected));
+  const passiveEffects = (item: PassiveLifestyleActivity): WeeklyActivityOutcomeEffect[] => {
+    const metrics: Array<[keyof PassiveLifestyleActivity, string, boolean]> = [
+      ['health', 'Health', false], ['happiness', 'Happiness', false], ['fitness', 'Fitness', false],
+      ['comfort', 'Comfort', false], ['discipline', 'Discipline', false], ['stress', 'Stress', true]
+    ];
+    return metrics.flatMap(([key, label, inverse]) => {
+      const delta = Number(item[key] ?? 0);
+      return delta ? [{ key: String(key), label, delta, tone: (inverse ? delta > 0 : delta > 0) ? 'success' as const : 'danger' as const, kind: 'stat' as const }] : [];
+    });
+  };
   const passiveActivities = getPassiveLifestyleActivities(character).map((item) => ({
     id: item.id, title: item.title, source: item.source, detail: item.detail,
     staminaRecovery: item.staminaRecovery,
-    reward: [
-      item.staminaRecovery ? 'Stamina +' + item.staminaRecovery : '',
-      item.health ? 'Health ' + (item.health > 0 ? '+' : '−') + Math.abs(item.health) : '',
-      item.happiness ? 'Happiness ' + (item.happiness > 0 ? '+' : '−') + Math.abs(item.happiness) : '',
-      item.comfort ? 'Comfort ' + (item.comfort > 0 ? '+' : '−') + Math.abs(item.comfort) : '',
-      item.discipline ? 'Discipline ' + (item.discipline > 0 ? '+' : '−') + Math.abs(item.discipline) : '',
-      item.stress ? 'Stress ' + (item.stress > 0 ? '−' : '+') + Math.abs(item.stress) : ''
-    ].filter(Boolean).join(' · ') || 'Background support'
+    effects: passiveEffects(item)
   }));
   const passiveStaminaRecovery = passiveActivities.reduce((total, item) => total + item.staminaRecovery, 0);
   const activities = schedule.activities.map((item) => ({
