@@ -70,18 +70,18 @@ For any change touching two or more gameplay domains, read `docs/SYSTEM_INTEGRAT
 
 ## GitHub operation verification (mandatory)
 
-Never report a repository/GitHub operation as completed based only on intent, an attempted tool call, or an optimistic mutation response. A successful write response proves only that the write endpoint returned; it does not prove the intended state is visible and persisted.
+This rule operationalizes rule 17 for repository work by every AI agent and automation: **an attempted mutation is not proof of a completed change.**
 
-For every create/update/mutation, read the affected resource again and verify the actual saved state and relevant fields before reporting success. This includes PR descriptions/bodies, labels, comments, branches, files, settings, releases, and other GitHub resources. Do not assume a supplied description was saved merely because it was drafted or included in a create request.
+After any GitHub create, update, or delete operation, read the affected resource from GitHub and verify the exact state the task required before reporting success. Check the relevant fields, not merely that the resource exists. If no authoritative read-back is available, report the result as **unverified** and state what remains unchecked.
 
-Verify distinct outcomes independently and tie evidence to the exact commit/run:
-- A commit or file-write response does not prove CI passed.
-- An open PR does not prove its description, labels, or draft state are correct.
-- A green check on an earlier commit does not validate a later PR head.
-- A merge does not prove deployment or release succeeded.
-- A deployment job completing does not by itself prove the deployed artifact/source is the intended one.
+Treat related outcomes as separate claims and verify each independently:
+- A saved commit or file does not prove its CI checks passed.
+- An existing PR does not prove its body, labels, or draft state are correct.
+- CI must apply to the exact commit being reported, not an earlier head.
+- A merge does not prove deployment; deployment does not prove the intended artifact is live.
+- A release must be checked independently from its build and deployment.
 
-After each operation, fetch the resource or inspect the authoritative status endpoint. If read-back or evidence is unavailable, report the result as **unverified**, explain what could not be checked, and do not imply completion. Keep completed, failed, and pending work distinct. This rule applies to all AI agents and automation operating in this repository.
+Keep completed, failed, and pending work distinct. For the PR-specific read-back procedure, follow [Pull Request Workflow](PULL_REQUEST_WORKFLOW.md).
 
 ## Enforced reliability safeguards
 
