@@ -395,7 +395,7 @@ function settleAnnualAssets(character: Character): Character {
   const bondMovement = Math.max(-0.08, Math.min(0.08, (0.035 - economy.baseInterestRate) * 0.35 + bondNoise));
   const oldPrices = next.marketPrices ?? { stocks: 100 * scale, gold: 150 * scale, lastUpdatedYear: next.year - 1 };
   const marketPrices = {
-    assets: listedPrices,
+    ...oldPrices,
     stocks: Math.max(1, Math.round(oldPrices.stocks * (1 + stockMovement))),
     technology: Math.max(1, Math.round((oldPrices.technology ?? 125 * scale) * (1 + technologyMovement))),
     energy: Math.max(1, Math.round((oldPrices.energy ?? 85 * scale) * (1 + energyMovement))),
