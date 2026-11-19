@@ -612,7 +612,7 @@
                           <article class="review-activity-row">
                             <div class="review-activity-copy">
                               <div class="review-activity-heading"><strong>{activity.title}</strong><UiBadge tone="accent" size="tiny">PLANNED</UiBadge>{#if activity.seal}<UiBadge size="tiny">{activity.seal}</UiBadge>{/if}</div>
-                              <ActivityEffectBadges effects={activity.effects} staminaCost={activity.staminaCost} staminaRecovery={activity.staminaRecovery} formatMoney={(amount) => formatCharacterMoney(character, amount)} />
+                              <ActivityEffectBadges effects={activity.effects} staminaCost={activity.staminaCost} staminaRecovery={activity.staminaRecovery} moneyCost={activity.moneyCost} formatMoney={(amount) => formatCharacterMoney(character, amount)} />
                               {#if activity.effects.length === 0 && activity.staminaCost === 0 && activity.staminaRecovery === 0}<UiBadge size="tiny">No tracked stat change</UiBadge>{/if}
                             </div>
                             <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => removeReviewedActivity(activity.id)}>×</button>
