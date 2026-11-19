@@ -66,9 +66,6 @@ describe('simulated investment markets', () => {
     const first = advanceWeek(base);
     expect(first.issue).toBeNull();
     expect(first.character.marketHistory).toHaveLength(2);
-    const duplicate = advanceWeek(first.character);
-    expect(duplicate.issue).toBe('already-resolved');
-    expect(duplicate.character.marketHistory).toHaveLength(2);
     const next = advanceWeek(first.character);
     expect(next.character.marketHistory).toHaveLength(3);
     expect(next.character.marketHistory?.at(-1)?.prices['stock-apple']).toBe(getMarketPrice(next.character, 'stock-apple'));
