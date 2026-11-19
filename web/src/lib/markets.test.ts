@@ -13,7 +13,10 @@ describe('simulated investment markets', () => {
 
   it('supports deposits, withdrawals, stock and crypto trades through the investment wallet', () => {
     const base = { ...createCharacter('Market trader', 30), currencyScale: 1, money: 100000 };
-    const funded = depositMarketFunds(base, 50000);\n    expect(funded.money).toBe(50000);\n    expect(funded.marketCash).toBe(50000);\n    const boughtStock = tradeMarketAsset(funded, 'stock-apple', 'buy', 2);
+    const funded = depositMarketFunds(base, 50000);
+    expect(funded.money).toBe(50000);
+    expect(funded.marketCash).toBe(50000);
+    const boughtStock = tradeMarketAsset(funded, 'stock-apple', 'buy', 2);
     expect(boughtStock).not.toBe(base);
     expect(boughtStock.investments?.find((item) => item.type === 'stock-apple')?.units).toBe(2);
     expect(boughtStock.financialTransactions?.some((item) => item.type === 'investment-buy')).toBe(true);
@@ -22,7 +25,10 @@ describe('simulated investment markets', () => {
     expect(boughtCrypto.investments?.find((item) => item.type === 'crypto-xrp')?.units).toBe(10);
     const sold = tradeMarketAsset(boughtCrypto, 'crypto-xrp', 'sell', 5);
     expect(sold.investments?.find((item) => item.type === 'crypto-xrp')?.units).toBe(5);
-    expect(sold.financialTransactions?.some((item) => item.type === 'investment-sell')).toBe(true);\n    const moved = moveMarketFunds(sold, 100);\n    expect(moved.marketCash).toBe((sold.marketCash ?? 0) - 100);\n    expect(moved.money).toBe(50100);
+    expect(sold.financialTransactions?.some((item) => item.type === 'investment-sell')).toBe(true);
+    const moved = moveMarketFunds(sold, 100);
+    expect(moved.marketCash).toBe((sold.marketCash ?? 0) - 100);
+    expect(moved.money).toBe(50100);
   });
 
   it('rejects unaffordable and underage market orders without mutating state', () => {
@@ -42,7 +48,35 @@ describe('simulated investment markets', () => {
     expect(first.marketPrices?.lastUpdatedYear).toBe(first.year);
   });
 
-  it('converts a holding atomically into another listed asset', () => {\n    const base = { ...createCharacter('Market trader', 30), currencyScale: 1, money: 100000 };\n    const funded = depositMarketFunds(base, 50000);\n    const bought = tradeMarketAsset(funded, 'stock-apple', 'buy', 2);\n    const converted = convertMarketAsset(bought, 'stock-apple', 'crypto-xrp', 1);\n    expect(converted).not.toBe(bought);\n    expect(converted.investments?.find((item) => item.type === 'stock-apple')?.units).toBe(1);\n    expect((converted.investments?.find((item) => item.type === 'crypto-xrp')?.units ?? 0)).toBeGreaterThan(0);\n    expect(convertMarketAsset(converted, 'crypto-xrp', 'crypto-xrp', 1)).toBe(converted);\n  });\n\n  it('records a weekly price point once and keeps the full selected-range history', () => {\n    const base = { ...createCharacter('Long-term investor', 30), currencyScale: 1 };\n    const first = advanceWeek(base);\n    expect(first.issue).toBeNull();\n    expect(first.character.marketHistory).toHaveLength(2);\n    const duplicate = advanceWeek(first.character);\n    expect(duplicate.issue).toBe('already-resolved');\n    expect(duplicate.character.marketHistory).toHaveLength(2);\n    const next = advanceWeek(first.character);\n    expect(next.character.marketHistory).toHaveLength(3);\n    expect(next.character.marketHistory?.at(-1)?.prices['stock-apple']).toBe(getMarketPrice(next.character, 'stock-apple'));\n    expect(next.character.marketHistory?.at(-1)?.prices['crypto-btc']).toBeGreaterThan(0);\n    expect(next.character.marketPrices?.assets?.['stock-apple']).toBeGreaterThan(0);\n    const deterministic = advanceWeek(first.character);\n    expect(deterministic.character.marketHistory).toEqual(next.character.marketHistory);\n  });\n\n  it('returns the catalogue quote before the first market settlement', () => {
+  it('converts a holding atomically into another listed asset', () => {
+    const base = { ...createCharacter('Market trader', 30), currencyScale: 1, money: 100000 };
+    const funded = depositMarketFunds(base, 50000);
+    const bought = tradeMarketAsset(funded, 'stock-apple', 'buy', 2);
+    const converted = convertMarketAsset(bought, 'stock-apple', 'crypto-xrp', 1);
+    expect(converted).not.toBe(bought);
+    expect(converted.investments?.find((item) => item.type === 'stock-apple')?.units).toBe(1);
+    expect((converted.investments?.find((item) => item.type === 'crypto-xrp')?.units ?? 0)).toBeGreaterThan(0);
+    expect(convertMarketAsset(converted, 'crypto-xrp', 'crypto-xrp', 1)).toBe(converted);
+  });
+
+  it('records a weekly price point once and keeps the full selected-range history', () => {
+    const base = { ...createCharacter('Long-term investor', 30), currencyScale: 1 };
+    const first = advanceWeek(base);
+    expect(first.issue).toBeNull();
+    expect(first.character.marketHistory).toHaveLength(2);
+    const duplicate = advanceWeek(first.character);
+    expect(duplicate.issue).toBe('already-resolved');
+    expect(duplicate.character.marketHistory).toHaveLength(2);
+    const next = advanceWeek(first.character);
+    expect(next.character.marketHistory).toHaveLength(3);
+    expect(next.character.marketHistory?.at(-1)?.prices['stock-apple']).toBe(getMarketPrice(next.character, 'stock-apple'));
+    expect(next.character.marketHistory?.at(-1)?.prices['crypto-btc']).toBeGreaterThan(0);
+    expect(next.character.marketPrices?.assets?.['stock-apple']).toBeGreaterThan(0);
+    const deterministic = advanceWeek(first.character);
+    expect(deterministic.character.marketHistory).toEqual(next.character.marketHistory);
+  });
+
+  it('returns the catalogue quote before the first market settlement', () => {
     const character = { ...createCharacter('New investor', 30), currencyScale: 1 };
     expect(getMarketPrice(character, 'stock-apple')).toBe(352);
     expect(getMarketPrice(character, 'crypto-xrp')).toBe(0.97);
