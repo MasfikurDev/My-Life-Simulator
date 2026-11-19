@@ -100,10 +100,10 @@ These checks are implemented in GitHub Actions and the repository PR template; d
 
 201. All shared and domain-owned UI must follow one cross-component consistency contract: typography hierarchy, spacing/density tokens, surface/elevation scale, distinct interaction states (default, hover where available, pressed, focus, selected, disabled, loading, invalid), and consistent state-driven motion. Semantic meaning stays stable across all 17 themes while palette treatment adapts; never rely on color alone. Honor reduced motion, mobile touch behavior, and Paper's light-theme contrast. Do not impose identical layouts across domains.
 
-203. All application-authored stylesheets and Svelte component style blocks in `web/src` use SCSS. Keep Vite/Svelte preprocessing enabled, use `@use` for shared Sass modules, and preserve CSS custom properties in `tokens.scss` and `themes.scss` as the only runtime theme palette source. Do not add new `.css` stylesheets or plain Svelte `<style>` blocks; do not change visual behavior solely to restructure selectors.
-
 202. Migrate shared patterns incrementally by reuse and player impact. Prioritize navigation/selection, transaction and record rows, stat presentation, and loading feedback; adopt menus/popovers, timelines, and notification indicators when real repeated use cases exist. Do not mass-redesign screens or create components merely to complete a checklist.
 
+
+203. All application-authored stylesheets and Svelte component style blocks in `web/src` use SCSS. Keep Vite/Svelte preprocessing enabled, use `@use` for shared Sass modules, and preserve CSS custom properties in `tokens.scss` and `themes.scss` as the only runtime theme palette source. Do not add new `.css` stylesheets or plain Svelte `<style>` blocks; do not change visual behavior solely to restructure selectors.
 
 ## Conflict resolution
 Latest explicit user instruction wins for the changed requirement; preserve all other decisions. If ambiguity materially affects architecture, ask one focused question. Record approved changes and consequences in canonical docs/ADRs.
