@@ -587,7 +587,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
  .game-event-panel h2,.year-recap h2{font-size:15px}
  .game-event-choice{padding:10px;gap:8px}
  .game-event-choice-copy strong{font-size:10px}
- .game-event-choice-copy small{font-size:8px}
+ .game-event-choice-copy small{font-size:9px}
  .game-event-choice-cost{font-size:8px}
 }
 
@@ -987,7 +987,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .character-profile-copy>p span{color:var(--subtle);padding:0 3px}
 .character-profile-tags{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
 .character-cash-summary{align-self:stretch;min-width:145px;padding:10px 0 10px 17px;border-left:1px solid color-mix(in srgb,var(--line-strong) 9.4%, transparent);display:flex;flex-direction:column;justify-content:center;gap:7px}
-.character-cash-summary small,.character-stat small{font-size:8px;letter-spacing:1px;font-weight:800;color:var(--subtle)}
+.character-cash-summary small,.character-stat small{font-size:9px;letter-spacing:1px;font-weight:800;color:var(--subtle)}
 .character-cash-summary strong{font:750 19px Inter,ui-sans-serif,system-ui;color:var(--accent);font-variant-numeric:tabular-nums}
 .character-stats-section{margin:0 0 27px}
 .character-stats-section>.page-heading{margin-bottom:15px}
@@ -997,7 +997,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .character-stat-ring:before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--surface);z-index:-1}
 .character-stat-ring strong{font:750 17px Inter,ui-sans-serif,system-ui;color:var(--text);font-variant-numeric:tabular-nums}
 .character-stat>span{font-size:10px;font-weight:700;color:var(--muted);overflow-wrap:anywhere}
-.character-stat small{font-size:7px;letter-spacing:.2px;color:var(--coral);margin-top:-4px}
+.character-stat small{font-size:9px;letter-spacing:.2px;color:var(--coral);margin-top:-4px}
 .character-stat-ring.stress-stat{background:conic-gradient(var(--coral) var(--stat-value),var(--surface) 0)}
 .life-milestones-section{margin:0 0 28px}
 .life-milestones-section>.page-heading{margin-bottom:14px}
@@ -1007,13 +1007,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .life-milestone-group>summary::-webkit-details-marker{display:none}
 .life-milestone-group>summary>span{display:flex;align-items:center;gap:12px;min-width:0}
 .life-milestone-group>summary strong{font:750 14px Inter,ui-sans-serif,system-ui;color:var(--text)}
-.life-milestone-group>summary small{font-size:8px;letter-spacing:.8px;color:var(--subtle);font-weight:700}
+.life-milestone-group>summary small{font-size:9px;letter-spacing:.8px;color:var(--subtle);font-weight:700}
 .life-milestone-group>summary i{width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .18s;flex:none;margin:0 4px 4px}
 .life-milestone-group[open]>summary i{transform:rotate(225deg);margin-top:7px}
 .life-milestone-content{padding:0 17px 17px}
 .life-milestone-finance{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 15px}
 .life-milestone-finance>div{min-width:0;padding:11px;background:var(--surface-raised);border:1px solid var(--line);border-radius:8px}
-.life-milestone-finance small{display:block;font-size:8px;letter-spacing:.8px;font-weight:800;color:var(--subtle);margin-bottom:6px}
+.life-milestone-finance small{display:block;font-size:9px;letter-spacing:.8px;font-weight:800;color:var(--subtle);margin-bottom:6px}
 .life-milestone-finance strong{display:block;font-size:12px;color:var(--text);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .milestone-income{color:var(--green)!important}.milestone-expense{color:var(--coral)!important}
 .life-milestone-event{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid color-mix(in srgb,var(--line-strong) 4.3%, transparent)}
@@ -1028,7 +1028,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .life-milestone-transactions>div{display:flex;justify-content:space-between;gap:15px;padding:9px 0;border-bottom:1px solid color-mix(in srgb,var(--line-strong) 3.9%, transparent)}
 .life-milestone-transactions>div span{min-width:0}
 .life-milestone-transactions>div strong,.life-milestone-transactions>div b{font-size:10px;color:var(--text)}
-.life-milestone-transactions>div small{display:block;color:var(--subtle);font-size:8px;margin-top:3px}
+.life-milestone-transactions>div small{display:block;color:var(--subtle);font-size:9px;margin-top:3px}
 .life-milestone-transactions>div b{white-space:nowrap;font-variant-numeric:tabular-nums}
 .life-milestones-empty{font-size:11px;color:var(--muted);padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
 @media(max-width:760px){
@@ -1054,7 +1054,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .character-profile-card{grid-template-columns:76px minmax(0,1fr) auto;align-items:center}
 .character-profile-weekly{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;align-items:center;gap:10px;padding-top:14px;border-top:1px solid color-mix(in srgb,var(--line-strong) 9.4%, transparent)}
 .character-profile-weekly>div{min-width:0;display:flex;flex-direction:column;gap:5px}
-.character-profile-weekly small{font-size:8px;letter-spacing:.8px;font-weight:800;color:var(--muted)}
+.character-profile-weekly small{font-size:9px;letter-spacing:.8px;font-weight:800;color:var(--muted)}
 .character-profile-weekly strong{font-size:13px;font-weight:750;font-variant-numeric:tabular-nums;color:var(--accent);overflow-wrap:anywhere}
 .character-profile-breakdown,.character-profile-toggle{border:1px solid color-mix(in srgb,var(--line-strong) 14.5%, transparent);border-radius:8px;background:color-mix(in srgb,var(--surface-raised) 3.9%, transparent);color:var(--accent);font-size:10px;font-weight:700;padding:9px 12px;cursor:pointer;white-space:nowrap}
 .character-profile-breakdown:hover,.character-profile-toggle:hover{background:color-mix(in srgb,var(--surface-raised) 8.2%, transparent)}
@@ -1078,7 +1078,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 button.character-profile-flow{cursor:pointer}
 button.character-profile-flow:hover{background:color-mix(in srgb,var(--surface-raised) 4.3%, transparent);border-color:color-mix(in srgb,var(--line-strong) 12.5%, transparent)}
 button.character-profile-flow:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.character-profile-flow small{font-size:8px;letter-spacing:.8px;font-weight:800;color:var(--muted)}
+.character-profile-flow small{font-size:9px;letter-spacing:.8px;font-weight:800;color:var(--muted)}
 .character-profile-flow strong{font-size:13px;font-weight:750;font-variant-numeric:tabular-nums;color:var(--accent);overflow-wrap:anywhere}
 @media(max-width:760px){.character-profile-weekly{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.character-profile-flow{padding:5px 3px}.character-profile-flow strong{font-size:11px}}
 @media(max-width:380px){.character-profile-weekly{grid-template-columns:repeat(2,minmax(0,1fr))}.character-profile-flow:last-child{grid-column:1/-1}}
@@ -1116,11 +1116,11 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
 .education-task-icon,.health-care-icon{width:25px;height:25px;border-radius:7px;font-size:14px;margin:0}
 .education-task-card strong,.health-care-card strong{font-size:11px;line-height:1.25}
 .education-task-card small,.health-care-card p{font-size:9px;line-height:1.35;margin:0;min-height:0;flex:1}
-.education-task-card b,.health-care-card b{font-size:8px;letter-spacing:.65px;color:var(--accent);margin-top:2px}
+.education-task-card b,.health-care-card b{font-size:9px;letter-spacing:.65px;color:var(--accent);margin-top:2px}
 .health-care-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:11px}
 .health-care-card{display:flex;flex-direction:column;width:100%;font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);cursor:pointer;transition:border-color .15s,background .15s}
 .health-care-card:hover:not(:disabled){border-color:var(--line-strong);background:var(--surface-hover)}
-.health-care-card small{font-size:8px;color:var(--subtle);line-height:1.3}
+.health-care-card small{font-size:9px;color:var(--subtle);line-height:1.3}
 .education-task-card:disabled,.health-care-card:disabled{opacity:1;color:var(--muted);cursor:not-allowed}
 .education-task-card:disabled .education-task-icon,.health-care-card:disabled .health-care-icon{background:var(--surface);border-color:var(--line);color:var(--muted)}
 .education-task-card:disabled strong,.health-care-card:disabled strong{color:var(--muted)}
@@ -1131,7 +1131,7 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
 /* Explicit inline seals replace the old full-button overlay across every workspace. */
 .work-primary .activity-status-seal,.work-secondary .activity-status-seal,.relative-actions button .activity-status-seal,.asset-actions button .activity-status-seal{vertical-align:middle;margin-left:5px}
 
-@media(max-width:620px){.education-task-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.health-care-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.education-task-card,.health-care-card{padding:9px}.education-task-card strong,.health-care-card strong{font-size:10px}.education-task-card small,.health-care-card p{font-size:8px}}
+@media(max-width:620px){.education-task-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.health-care-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.education-task-card,.health-care-card{padding:9px}.education-task-card strong,.health-care-card strong{font-size:10px}.education-task-card small,.health-care-card p{font-size:9px}}
 @media(max-width:360px){.education-task-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 
@@ -1348,15 +1348,15 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
 .health-stat-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:13px}
 .health-stat{min-width:0;padding:8px 7px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 .health-stat>div:first-child{display:flex;align-items:baseline;justify-content:space-between;gap:3px}
-.health-stat>div:first-child span{min-width:0;font-size:8px;line-height:1.2;color:var(--muted);overflow-wrap:anywhere}
+.health-stat>div:first-child span{min-width:0;font-size:9px;line-height:1.2;color:var(--muted);overflow-wrap:anywhere}
 .health-stat>div:first-child strong{flex:none;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
 .health-stat .meter{height:3px;margin:6px 0 4px}
-.health-stat>small{display:block;font-size:7px;line-height:1.2;color:var(--subtle)}
+.health-stat>small{display:block;font-size:9px;line-height:1.2;color:var(--subtle)}
 .education-metrics{gap:7px;margin:12px 0 9px}
 .education-metrics>div{min-width:0;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);gap:3px}
-.education-metrics>div>span{font-size:8px;letter-spacing:.55px;line-height:1.2}
+.education-metrics>div>span{font-size:9px;letter-spacing:.55px;line-height:1.2}
 .education-metrics>div>strong{font-size:19px;line-height:1.1}
-.education-metrics>div>small{font-size:8px;line-height:1.2}
+.education-metrics>div>small{font-size:9px;line-height:1.2}
 .education-subjects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 12px;margin-top:10px}
 .education-subject{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 7px;min-width:0}
 .education-subject>span{font-size:9px;min-width:0;overflow-wrap:anywhere}
@@ -1364,21 +1364,21 @@ button.character-profile-weekly-trigger .character-profile-flow:last-child{grid-
 .education-subject>.meter{grid-column:1/-1;height:3px}
 .education-hero{padding:14px}
 .education-hero-top{gap:9px}
-.education-footnote{font-size:8px;margin-top:8px}
+.education-footnote{font-size:9px;margin-top:8px}
 @media(max-width:620px){
  .health-overview{padding:11px}
  .health-stat-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:10px}
  .health-stat{padding:7px 4px;border-radius:7px}
  .health-stat>div:first-child{display:block}
- .health-stat>div:first-child span{display:block;min-height:19px;font-size:7px;line-height:1.15}
+ .health-stat>div:first-child span{display:block;min-height:19px;font-size:9px;line-height:1.15}
  .health-stat>div:first-child strong{display:block;font-size:11px;margin-top:2px}
  .health-stat .meter{margin:5px 0 3px}
  .health-stat>small{font-size:6.5px}
  .education-metrics{gap:5px}
  .education-metrics>div{padding:8px 6px}
- .education-metrics>div>span{font-size:7px}
+ .education-metrics>div>span{font-size:9px}
  .education-metrics>div>strong{font-size:17px}
- .education-metrics>div>small{font-size:7px}
+ .education-metrics>div>small{font-size:9px}
  .education-subjects{gap:7px 9px}
 }
 @media(max-width:360px){
@@ -1639,7 +1639,7 @@ button:not(:disabled):active{filter:brightness(.94)}
 .game-event-choice-copy strong{font-size:11px;line-height:1.35;overflow-wrap:anywhere}
 .game-event-choice-copy small{font-size:9px;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
 .game-event-choice-cost{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:0;white-space:nowrap}
-.event-cost-chip{display:inline-flex;align-items:center;min-height:20px;padding:3px 6px;border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:999px;background:color-mix(in srgb,var(--accent-soft) 70%,var(--surface));color:var(--accent);font-size:8px;font-weight:800;line-height:1.2}
+.event-cost-chip{display:inline-flex;align-items:center;min-height:20px;padding:3px 6px;border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:999px;background:color-mix(in srgb,var(--accent-soft) 70%,var(--surface));color:var(--accent);font-size:9px;font-weight:800;line-height:1.2}
 .event-cost-chip.immediate{border-color:var(--line);background:var(--surface);color:var(--muted)}
 .game-event-footnote{margin-top:11px}
 @media(max-width:420px){
@@ -1647,7 +1647,7 @@ button:not(:disabled):active{filter:brightness(.94)}
   .game-event-choice-mark{width:25px;height:25px;font-size:13px}
   .game-event-choice-copy strong{font-size:10px}
   .game-event-choice-copy small{font-size:8px}
-  .event-cost-chip{font-size:7px;padding-inline:5px}
+  .event-cost-chip{font-size:9px;padding-inline:5px}
 }
 @media(prefers-reduced-motion:reduce){
   .game-event-choice,.game-event-choice::before,.game-event-choice::after,.game-event-choice-mark{transition:none}
