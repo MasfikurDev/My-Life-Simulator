@@ -16,7 +16,7 @@
   import ThemeOption from './components/ThemeOption.svelte';
   import EmptyState from './components/EmptyState.svelte';
   import UiCard from './components/UiCard.svelte';
-  import EventCardHeader from './components/EventCardHeader.svelte';
+  import GameplayDialog from './components/GameplayDialog.svelte';
   import type { GameTheme } from './lib/theme';
   import { clearSave, getActiveSlotId, getSaveFormatIssue, getSaveSlots, resetSaveData, getSoundEnabled, getThemePreference, loadSave, saveCharacter, setActiveSlotId, setSoundEnabled, setThemePreference } from './lib/storage';
   import type { Character, FinancialTransaction, SaveSlot, SaveSlotId } from './lib/types';
@@ -45,13 +45,16 @@
   let pendingAchievementEligible = $state(false);
   let debugCopying = $state(false);
   let advanceReviewOpen = $state(false);
+  let eventDialogOpen = $state(false);
   let weeklyFinanceOpen = $state(false);
   const weeklyReview = $derived(character ? getWeeklyActivityReview(character) : null);
+  const plannedEventChoiceIds = $derived((character?.weeklyPlan?.activities ?? []).flatMap((item) => item.action?.kind === 'event' ? [item.action.choiceId] : []));
   onMount(() => {
     saveFormatIssue = getSaveFormatIssue();
     slots = getSaveSlots();
     activeSlotId = getActiveSlotId();
     character = loadSave(activeSlotId);
+    eventDialogOpen = !!character?.pendingGameEvent;
     activeTab = character ? 'home' : 'menu';
     soundEnabled = getSoundEnabled();
     selectedTheme = getThemePreference();
@@ -138,7 +141,14 @@
   }
   function notify(message: string) { toast = message; window.setTimeout(() => { if (toast === message) toast = ''; }, 2200); }
   function navigateTab(tab: string) { activeTab = tab; }
-  function persist(next: Character) { character = next; saveCharacter(next, activeSlotId); slots = getSaveSlots(); }
+  function persist(next: Character) {
+    const previousEventId = character?.pendingGameEvent?.id ?? null;
+    character = next;
+    if (!next.pendingGameEvent) eventDialogOpen = false;
+    else if (next.pendingGameEvent.id !== previousEventId) eventDialogOpen = true;
+    saveCharacter(next, activeSlotId);
+    slots = getSaveSlots();
+  }
   function startLife(nextCharacter: Character) {
     if (saveFormatIssue) { notify('Reset the unsupported old saves before starting a new life.'); return; }
     activeSlotId = pendingSlotId ?? activeSlotId; setActiveSlotId(activeSlotId);
@@ -194,11 +204,12 @@
   function loadSlot(slot: SaveSlot) {
     if (!slot.character) return;
     activeSlotId = slot.id; setActiveSlotId(slot.id); character = slot.character;
+    eventDialogOpen = !!slot.character.pendingGameEvent;
     activeTab = 'home'; notify('Save loaded.');
   }
   function deleteSlot(slotId: SaveSlotId) {
     clearSave(slotId); slots = getSaveSlots(); slotToDelete = null;
-    if (slotId === activeSlotId) character = null;
+    if (slotId === activeSlotId) { character = null; eventDialogOpen = false; }
     notify('Save slot deleted.');
   }
   function toggleSounds(enabled: boolean) { soundEnabled = enabled; setSoundEnabled(enabled); }
@@ -230,6 +241,7 @@
       oscillator.onended = () => { void context.close(); };
     } catch { /* Audio is optional and may be unavailable in a WebView. */ }
   }
+  function openPendingEventDialog() { if (character?.pendingGameEvent) eventDialogOpen = true; }
   function eventChoicePlanned(choiceId: string) {
     return (character?.weeklyPlan?.activities ?? []).find((item) => item.action?.kind === 'event' && item.action.choiceId === choiceId);
   }
@@ -263,7 +275,7 @@
   }
   function restart() {
     const keepAchievementEligibility = character?.achievementEligible === true;
-    clearSave(activeSlotId); slots = getSaveSlots(); character = null;
+    clearSave(activeSlotId); slots = getSaveSlots(); character = null; eventDialogOpen = false;
     showRestartConfirm = false; activeTab = 'create'; notify('The active save was reset.');
     pendingSlotId = activeSlotId; pendingAchievementEligible = keepAchievementEligibility;
   }
@@ -547,27 +559,11 @@
             </section>
           {/if}
           {#if character.pendingGameEvent}
-            {@const lifeEvent = character.pendingGameEvent}
-            <section class="game-event-panel aurora-event-panel">
-              <EventCardHeader active={true} category={lifeEvent.category} title={lifeEvent.title} description={lifeEvent.description} age={character.age} />
-              <div class="game-event-content">
-                <div class="game-event-choices">
-                  {#each lifeEvent.choices as choice}
-                    {@const planned = !!eventChoicePlanned(choice.id)}
-                    <button class="game-event-choice" class:planned aria-pressed={planned} disabled={!planned && character.money < choice.moneyCost} onclick={() => chooseLifeEvent(choice.id)}>
-                      <span class="game-event-choice-mark" aria-hidden="true">{planned ? '✓' : '＋'}</span>
-                      <span class="game-event-choice-copy"><strong>{choice.label}</strong><small>{choice.detail}</small></span>
-                      <span class="game-event-choice-cost">
-                        {#if choice.staminaCost > 0}<span class="event-cost-chip">−{choice.staminaCost} stamina</span>{/if}
-                        {#if choice.moneyCost > 0}<span class="event-cost-chip">{formatCharacterMoney(character, choice.moneyCost)}</span>{/if}
-                        {#if choice.staminaCost === 0 && choice.moneyCost === 0}<span class="event-cost-chip immediate">Immediate</span>{/if}
-                      </span>
-                    </button>
-                  {/each}
-                </div>
-                <p class="game-event-footnote">Toggle a decision to include or remove it from this week. Non-immediate choices use stamina; you can also leave the situation unanswered.</p>
-              </div>
-            </section>
+            <button class="pending-event-trigger" type="button" onclick={openPendingEventDialog}>
+              <span class="pending-event-indicator">SITUATION</span>
+              <span class="pending-event-copy"><strong>{character.pendingGameEvent.title}</strong><small>{character.pendingGameEvent.category} · Awaiting your decision</small></span>
+              <span class="pending-event-arrow" aria-hidden="true">→</span>
+            </button>
           {/if}
           {#if advanceReviewOpen && weeklyReview}
             <div class="modal-backdrop week-review-backdrop" role="presentation">
@@ -684,6 +680,17 @@
       <span class="fab-arrow" aria-hidden="true">→</span><span class="fab-label">Advance</span>
     </button>
   {/if}
+  {#if character?.pendingGameEvent && eventDialogOpen}
+    <GameplayDialog
+      event={character.pendingGameEvent}
+      age={character.age}
+      money={character.money}
+      formatMoney={(amount) => formatCharacterMoney(character!, amount)}
+      plannedChoiceIds={plannedEventChoiceIds}
+      onToggleChoice={chooseLifeEvent}
+      onClose={() => eventDialogOpen = false}
+    />
+  {/if}
   {#if slotToDelete}
     <div class="modal-backdrop" role="presentation"><div class="modal" role="dialog" aria-modal="true"><button class="modal-close" onclick={() => slotToDelete=null} aria-label="Close">×</button><div class="eyebrow">DELETE SAVED LIFE</div><h2>Delete this slot?</h2><p>This permanently removes the selected character and life history from this device. Other slots are not affected.</p><button class="danger-button danger-confirm" onclick={() => deleteSlot(slotToDelete!)}>Delete this save</button><button class="text-button cancel-button" onclick={() => slotToDelete=null}>Keep save</button></div></div>
   {/if}
@@ -695,6 +702,13 @@
 </div>
 
 <style>
+  .pending-event-trigger{width:100%;display:flex;align-items:center;gap:12px;margin:0 0 15px;padding:13px 14px;border:1px solid var(--line-strong);border-radius:12px;background:linear-gradient(110deg,color-mix(in srgb,var(--accent) 9%,var(--surface)),var(--surface));color:var(--text);text-align:left;cursor:pointer;min-height:64px}
+  .pending-event-trigger:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+  .pending-event-indicator{flex:none;padding:6px 7px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-size:8px;font-weight:850;letter-spacing:.8px}
+  .pending-event-copy{display:grid;gap:4px;min-width:0;flex:1}
+  .pending-event-copy strong{font-size:12px;line-height:1.35}
+  .pending-event-copy small{font-size:9px;color:var(--muted);text-transform:capitalize}
+  .pending-event-arrow{font-size:20px;color:var(--accent)}
   .week-review-backdrop{z-index:1000;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
   .week-review-dialog{position:relative;margin:0;inset:auto;width:min(680px,100%);max-width:none;max-height:min(90dvh,900px);overflow:auto;display:grid;gap:14px;padding:20px}
   .week-review-dialog h2{margin:0;font-size:clamp(22px,4vw,28px);letter-spacing:-.6px}

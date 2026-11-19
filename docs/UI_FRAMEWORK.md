@@ -32,3 +32,16 @@ My Life Simulator uses a small, in-repository Svelte UI framework rather than ha
 - Remove obsolete page-level overrides only after all consumers use the shared primitive.
 - Do not mass-rewrite every workspace in one PR. Keep gameplay logic and save formats unchanged.
 - Every migration should remove duplicated CSS or reduce page-specific styling rather than add another layer of overrides.
+
+
+## Gameplay dialogs
+
+`web/src/components/GameplayDialog.svelte` is the shared presentation layer for contextual situations that require a player decision. Use it instead of embedding bespoke event-choice cards in Overview or individual domain pages. The component displays context, available choices, affordability, known costs, and planned state, while callbacks delegate all mutations to the owning simulation/domain logic.
+
+- Keep event selection, validation, consequences, history, and persistence outside the dialog component.
+- Immediate decisions remain immediate only when the simulation contract says so; time-consuming choices enter the weekly plan and resolve through the normal weekly turn.
+- Closing a dialog must not silently dismiss, resolve, or discard its pending situation. Provide a compact way to reopen unresolved situations.
+- Dialogs must support keyboard dismissal, visible focus, accessible dialog semantics, touch-friendly choices, narrow-screen scrolling, safe-area spacing, and reduced motion.
+- Do not turn routine navigation or ordinary workspace browsing into dialogs. Add information, transaction, confirmation, or multi-step variants only when a concrete flow requires them.
+
+This is a gameplay interaction primitive, not a new simulation subsystem or save-data format.
