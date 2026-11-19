@@ -172,9 +172,8 @@ describe('life simulation', () => {
     const review = getWeeklyActivityReview(planned.character);
     expect(JSON.stringify(planned.character)).toBe(before);
     expect(review.activities).toHaveLength(1);
-    expect(review.activities[0]).toMatchObject({ title: 'Exercise', staminaCost: 10 });
+    expect(review.activities[0]).toMatchObject({ title: 'Exercise', staminaCost: 10, staminaRecovery: 0 });
     expect(review.activities[0].effects).toEqual(expect.arrayContaining([
-      expect.objectContaining({ key: 'stamina', delta: -10, tone: 'danger', kind: 'stat' }),
       expect.objectContaining({ key: 'fitness', tone: 'success', kind: 'stat' })
     ]));
     const resolved = advanceWeek(planned.character);
@@ -202,6 +201,7 @@ describe('life simulation', () => {
     expect(review.activities[0].effects).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'health', delta: 2, tone: 'success' }),
       expect.objectContaining({ key: 'happiness', delta: 3, tone: 'success' }),
+      expect.objectContaining({ key: 'stress', delta: -2, tone: 'success' }),
       expect.objectContaining({ key: 'money', delta: -12, tone: 'danger', kind: 'money' })
     ]));
     expect(review.staminaRecovery).toBe(8);
