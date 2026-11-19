@@ -20,6 +20,7 @@ The canonical gameplay clock is:
 - [Gameplay loop and acceptance criteria](docs/GAMEPLAY_LOOP.md)
 - [Current product and gameplay direction](docs/CURRENT_DIRECTION.md)
 - [Comprehensive project audit](docs/COMPREHENSIVE_PROJECT_AUDIT.md)
+- [Simulation logic review (2026-11-20)](docs/SIMULATION_LOGIC_REVIEW_2026-11-20.md)
 - [Visual design](docs/VISUAL_DESIGN.md)
 - [Technical architecture](docs/TECHNICAL_ARCHITECTURE.md)
 - [CI and delivery](docs/CI_CD.md)
