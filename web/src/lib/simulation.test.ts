@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { enrollInEducation, resolveEducationWeek } from './education';
-import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, getPlannedActivityStaminaRecovery, planBoughtFoodInNextFreeTime, addOwnedLifestyleItem, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditProfile, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
+import { advanceWeek, getWeeklyActivityReview, getPlannedActivityStaminaCost, getPlannedActivityStaminaRecovery, planBoughtFoodInNextFreeTime, addOwnedLifestyleItem, advanceYear, getAnnualReview, acceptJobOffer, acceptPromotionOffer, declineJobOffer, planWorkActionInNextFreeTime, resignFromJob, buyProperty, canAffordActivity, closeBusiness, createCharacter, depositToAccount, formatCharacterMoney, generateRandomCharacter, getActivityCost, planActivity, planActivityInNextFreeTime, planBusinessManagementInNextFreeTime, planEventChoiceInNextFreeTime, planFamilyInteractionInNextFreeTime, getPlannedFamilyInteraction, planCareActionInNextFreeTime, removePlannedActivity, getAnnualTaxEstimate, getCreditProfile, getCreditScore, getEconomicConditions, getHouseholdBudget, getMinimumLoanRate, getNetWorth, manageBusiness, moveIntoOwnedProperty, openBankAccount, performActivity, rentHome, sellProperty, setHouseholdArrangement, setPropertyRental, setSavingsGoalMonths, startBusiness, tradeInvestment, transferBetweenAccounts, withdrawFromAccount } from './simulation';
 import { getActivityDefinition, getActivityStaminaCost, getAvailableActivityIds, getLifeStage, getValueColor, getValueTone } from './progression';
 import { loadPrepaidCard } from './simulation';
 import { addRecurringPayment, depositToVault, issueBankCard, makeAccountPurchase, makeCardPurchase, makeCashPurchase, payCreditCard, redeemCardRewards, repayLoan, rejectLoanApplication, setAutoDeposit, takeLoan, withdrawFromVault } from './simulation';
@@ -299,6 +299,7 @@ describe('life simulation', () => {
     const planned = planFamilyInteractionInNextFreeTime(base, relative.id, 'spend-time');
     expect(planned.issue).toBeNull();
     expect(planned.character.family!.bonds.find((bond) => bond.personId === relative.id)!.closeness).toBe(before);
+    expect(getPlannedFamilyInteraction(planned.character, relative.id)?.action).toMatchObject({ kind: 'family', personId: relative.id, interaction: 'spend-time' });
     const duplicate = planFamilyInteractionInNextFreeTime(planned.character, relative.id, 'reach-out');
     expect(duplicate.issue).toBe('unavailable');
     const resolved = advanceWeek(planned.character).character;
@@ -409,10 +410,21 @@ describe('life simulation', () => {
     expect(second.fitness).toBe(c.fitness + 12);
     expect('actionsRemaining' in second).toBe(false);
   });
-  it('keeps annual settlement available as a calendar-boundary operation', () => {
-    const next = advanceYear(createCharacter('Sam'));
-    expect(next.age).toBe(19); expect(next.year).toBe(2027);
-    expect('actionsRemaining' in next).toBe(false);
+  it('keeps direct annual advancement and the next weekly turn on the same calendar timeline', () => {
+    const base = createCharacter('Sam');
+    const planned = planActivityInNextFreeTime(base, 'exercise').character;
+    const annual = advanceYear(planned);
+    expect(annual.age).toBe(19);
+    expect(annual.year).toBe(2027);
+    expect(annual.calendar.currentDate).toBe('2027-01-11');
+    expect(annual.weeklyPlan.activities).toHaveLength(0);
+    const weekly = advanceWeek(annual);
+    expect(weekly.issue).toBeNull();
+    expect(weekly.character.calendar.currentDate).toBe('2027-01-18');
+    expect(weekly.character.year).toBe(2027);
+    expect(weekly.character.age).toBe(19);
+    expect(weekly.activityOutcomes ?? []).toHaveLength(0);
+    expect('actionsRemaining' in annual).toBe(false);
   });
   it('offers an age-appropriate school event and records a meaningful choice', () => {
     const student = createCharacter('Student', 12);
@@ -1015,6 +1027,21 @@ describe('life simulation', () => {
     expect(next.financialTransactions?.some((t)=>t.type==='business-income')).toBe(true);
   });
 
+  it('settles owned-property maintenance once through the annual household budget', () => {
+    const owner = {
+      ...createCharacter('Property owner', 30), currencyScale: 1, money: 100000,
+      householdArrangement: 'family-supported' as const,
+      primaryResidenceId: 'home-1',
+      properties: [{ id: 'home-1', name: 'Home', type: 'house' as const, marketValue: 100000, purchasePrice: 100000, annualMaintenance: 1200, rentedOut: false, annualRentalIncome: 0 }]
+    };
+    const budget = getHouseholdBudget(owner);
+    expect(budget.housing).toBe(1200);
+    const settled = advanceYear(owner);
+    expect(settled.lastYearExpenses).toBe(budget.total);
+    expect(settled.financialTransactions?.filter((item) => item.type === 'expense' && item.description === 'Annual household expenses paid.')).toHaveLength(1);
+    expect(settled.financialTransactions?.find((item) => item.type === 'expense' && item.description === 'Annual household expenses paid.')?.amount).toBe(budget.total);
+  });
+
   it('locks fixed deposits until maturity and credits their higher interest', () => {
     const base = { ...createCharacter('Saver', 30), currencyScale: 1, money: 1000, year: 2026 };
     const opened = openBankAccount(base, 'fixed-deposit', 'Term deposit', 2);
@@ -1086,6 +1113,24 @@ describe('life simulation', () => {
     expect(getAnnualTaxEstimate(middle).incomeTax).toBe(4800);
     expect(getAnnualTaxEstimate(high).incomeTax).toBe(8300);
   });
+  it('uses the same market-adjusted business result for settlement and asset-income tax', () => {
+    const base = { ...createCharacter('Business owner', 30), currencyScale: 1, money: 100000 };
+    const profitable = startBusiness(base, 'Online shop', 'online', 10000);
+    profitable.businesses![0].performance = 100;
+    const profitYear = advanceYear(profitable);
+    const profitTransactions = (profitYear.financialTransactions ?? []).filter((item) => item.description.startsWith('Annual operating'));
+    const netProfit = profitTransactions.reduce((sum, item) => sum + (item.type === 'business-income' ? item.amount : -item.amount), 0);
+    expect(netProfit).toBeGreaterThan(0);
+    expect(getAnnualTaxEstimate(profitYear).assetIncomeTax).toBe(Math.round(netProfit * 0.1));
+
+    const lossMaking = startBusiness(base, 'Loss cafe', 'cafe', 10000);
+    lossMaking.businesses![0].performance = 0;
+    const lossYear = advanceYear(lossMaking);
+    const lossTransactions = (lossYear.financialTransactions ?? []).filter((item) => item.description.startsWith('Annual operating'));
+    expect(lossTransactions.some((item) => item.type === 'business-expense')).toBe(true);
+    expect(getAnnualTaxEstimate(lossYear).assetIncomeTax).toBe(0);
+  });
+
   it('assesses annual taxes, pays liquid funds first, and carries unpaid tax as a liability', () => {
     const base = {
       ...createCharacter('Tax payer', 30), currencyScale: 1, money: 0, lastYearIncome: 50000,
