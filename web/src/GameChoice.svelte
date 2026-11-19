@@ -30,7 +30,7 @@
   .choice-indicator{flex:none;width:17px;height:17px;display:grid;place-items:center;border:1px solid var(--line-strong);border-radius:50%;font-size:10px;color:var(--accent)}
   .chosen .choice-indicator{border-color:var(--accent);background:var(--accent);color:var(--surface)}
   .compact{grid-template-columns:repeat(var(--choice-columns,2),minmax(0,1fr))}
-  .compact button{min-height:39px;padding:8px 9px;border-radius:8px}
+  .compact button{min-height:44px;padding:8px 9px;border-radius:8px}
   .compact .choice-copy strong{font-size:10px}.compact .choice-copy small{display:none}.compact .choice-indicator{width:14px;height:14px;font-size:9px}
   @media(max-width:520px){.game-choice-grid{grid-template-columns:repeat(min(var(--choice-columns,2),2),minmax(0,1fr))}.game-choice-grid button{min-height:52px;padding:9px}.choice-copy strong{font-size:10px}}
 </style>

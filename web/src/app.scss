@@ -129,7 +129,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .advance-row strong,.advance-row span{display:block}
 .advance-row strong{font:700 12px Inter,ui-sans-serif,system-ui;color:var(--text)}
 .advance-row span{font-size:10px;color:var(--muted);margin-top:4px}
-.primary-button{background:var(--accent);border:0;color:var(--on-accent);border-radius:9px;padding:13px 17px;font-size:11px;font-weight:800;white-space:nowrap;transition:transform .18s,background .18s}
+.primary-button{min-height:44px;background:var(--accent);border:0;color:var(--on-accent);border-radius:9px;padding:13px 17px;font-size:11px;font-weight:800;white-space:nowrap;transition:transform .18s,background .18s}
 .activity-grid-large{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:28px}
 .activity-grid-large .activity-card{min-height:175px}
 .info-panel{padding:20px 22px;border:1px solid var(--line);background:var(--surface);border-radius:12px;margin-top:24px}
@@ -271,7 +271,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .settings-section{padding:16px;margin-bottom:10px}
 .settings-section-heading{padding-bottom:12px}
 .setting-row,.setting-action-row{padding:12px 0}
-.setting-toggle,.secondary-button,.danger-button{min-height:40px}
+.setting-toggle,.secondary-button,.danger-button{min-height:44px}
 .advance-fab{min-height:52px;gap:8px;padding:0 15px 0 10px}
 .fab-arrow{width:29px;height:29px}
 .footer{height:48px}
@@ -341,7 +341,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
   .settings-section-heading p,.setting-row p,.setting-action-row p{font-size:10px;line-height:1.45}
   .setting-row,.setting-action-row{gap:9px;padding:10px 0}
   .setting-row strong,.setting-action-row strong{font-size:11px}
-  .setting-toggle,.secondary-button,.danger-button{min-height:40px;padding:8px 10px}
+  .setting-toggle,.secondary-button,.danger-button{min-height:44px;padding:8px 10px}
   .info-panel{padding:12px 13px;margin-top:12px}
   .info-panel strong{font-size:12px}
   .info-panel p{font-size:10px;line-height:1.5}
@@ -454,7 +454,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .generated-character-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:13px;border-bottom:1px solid var(--line)}
 .generated-label{font-size:8px;letter-spacing:1.2px;color:var(--accent);font-weight:800}
 .generated-character h2{font-size:23px;letter-spacing:-.8px;margin:7px 0 3px}.generated-character-top p{font-size:10px;color:var(--muted);margin:0}
-.reroll-button{border:1px solid var(--line-strong);background:var(--surface-raised);color:var(--accent);border-radius:8px;min-height:38px;padding:7px 10px;font-size:15px}.reroll-button span{font-size:10px;font-weight:700;margin-left:4px}
+.reroll-button{border:1px solid var(--line-strong);background:var(--surface-raised);color:var(--accent);border-radius:8px;min-width:44px;min-height:44px;padding:7px 10px;font-size:15px}.reroll-button span{font-size:10px;font-weight:700;margin-left:4px}
 .identity-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 10px;padding:14px 0;border-bottom:1px solid var(--line)}
 .identity-grid>div{min-width:0;display:flex;flex-direction:column;gap:4px}.identity-grid small{font-size:8px;color:var(--muted)}.identity-grid strong{font-size:10px;overflow-wrap:anywhere}
 .traits-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:12px 0;border-bottom:1px solid var(--line)}
@@ -462,7 +462,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .generated-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding-top:13px}
 .generated-stat>div:first-child{display:flex;justify-content:space-between;margin-bottom:6px}.generated-stat span{font-size:9px;color:var(--muted)}.generated-stat strong{font-size:10px}
 .generation-note{font-size:9px;line-height:1.55;color:var(--subtle);margin:13px 0 0}
-.creation-actions{display:flex;align-items:center;gap:12px;margin-top:13px;flex-wrap:wrap}.creation-actions .primary-button{min-height:44px}.creation-actions .text-button{min-height:40px}
+.creation-actions{display:flex;align-items:center;gap:12px;margin-top:13px;flex-wrap:wrap}.creation-actions .primary-button{min-height:44px}.creation-actions .text-button{min-height:44px}
 @media(max-width:620px){.creation-experience{margin:0}.creation-heading h1{font-size:34px}.creation-heading p{font-size:11px}.life-path-picker{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.life-path-option{min-height:48px}.generated-character{padding:13px}.identity-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.creation-actions{gap:6px}.creation-actions .primary-button{width:100%}}
 
 
