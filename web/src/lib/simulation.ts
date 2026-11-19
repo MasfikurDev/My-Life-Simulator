@@ -1277,7 +1277,7 @@ export interface WeeklyActivityOutcomeEffect {
 function getActivityOutcomeEffects(before: Character, after: Character): WeeklyActivityOutcomeEffect[] {
   const fields: Array<[keyof Character, string, boolean]> = [
     ['health', 'Health', false], ['happiness', 'Happiness', false], ['intelligence', 'Intelligence', false],
-    ['fitness', 'Fitness', false], ['stamina', 'Stamina', false], ['stress', 'Stress', true],
+    ['fitness', 'Fitness', false], ['stress', 'Stress', true],
     ['focus', 'Focus', false], ['confidence', 'Confidence', false], ['comfort', 'Comfort', false],
     ['discipline', 'Discipline', false], ['creativity', 'Creativity', false], ['socialSkills', 'Social skills', false]
   ];
@@ -1407,6 +1407,7 @@ export interface WeeklyActivityReviewItem {
   title: string;
   seal?: 'BOUGHT';
   staminaCost: number;
+  staminaRecovery: number;
   moneyCost: number;
   reward: string;
   effects: WeeklyActivityOutcomeEffect[];
@@ -1502,6 +1503,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     title: getPlannedActivityTitle(character, item),
     seal: item.action?.kind === 'food' ? 'BOUGHT' as const : undefined,
     staminaCost: getPlannedActivityStaminaCost(item),
+    staminaRecovery: getPlannedActivityStaminaRecovery(item),
     moneyCost: getPlannedActivityCost(character, item),
     reward: getPlannedActivityReward(character, item),
     effects: preview.activityOutcomes?.find((outcome) => outcome.id === item.id)?.effects ?? []
