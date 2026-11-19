@@ -46,7 +46,7 @@
     if (filter === 'movers') return Math.abs(change(b)) - Math.abs(change(a));
     if (filter === 'trending') return volume(b) - volume(a);
     if (filter === 'marketcap') return marketCap(b) - marketCap(a);
-    return b.circulatingSupply * b.basePrice - a.circulatingSupply * a.basePrice;
+    return marketCap(b) - marketCap(a);
   }));
   const chart = $derived(current ? chartValues(current) : []);
   const chartHigh = $derived(chart.length ? Math.max(...chart) : 0);
