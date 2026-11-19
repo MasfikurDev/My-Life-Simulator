@@ -25,7 +25,7 @@
   {#each effects as effect (effect.key)}
     <UiBadge tone={effect.tone} size="tiny">
       {effect.delta > 0 ? '+' : '−'}{Math.abs(Number(effect.delta.toFixed(1)))}
-      {#if effect.kind === 'money'}Cash {formatMoney ? formatMoney(Math.abs(effect.delta)) : Math.abs(effect.delta)}{:else} {effect.label}{/if}
+      {#if effect.kind === 'money'}{formatMoney ? formatMoney(Math.abs(effect.delta)) : Math.abs(effect.delta)} cash{:else} {effect.label}{/if}
     </UiBadge>
   {/each}
 </div>
