@@ -3,6 +3,7 @@
   import { establishFamilyBackground, getFamilyConnections, validateFamilyState } from './lib/family';
   import { getValueColor } from './lib/progression';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
+  import UiProgress from './components/UiProgress.svelte';
   import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, planSocialInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { addSocialConnection, removeSocialConnection, setSocialConnectionHousehold } from './lib/lifestyle';
 
@@ -104,13 +105,13 @@
             </div>
             {#if connection.bond}
               <div class="bond-grid bond-grid-primary">
-                <div><span>Closeness</span><strong>{connection.bond.closeness}/100</strong><div class="bond-meter"><i style="width:{connection.bond.closeness}%;background:{getValueColor(connection.bond.closeness)}"></i></div></div>
+                <div><span>Closeness</span><strong>{connection.bond.closeness}/100</strong><UiProgress label="Relationship closeness" value={connection.bond.closeness} tone={connection.bond.closeness >= 70 ? "success" : connection.bond.closeness >= 40 ? "info" : "warning"} size="small" showLabel={false} /></div>
               </div>
               <details class="relative-bond-details">
                 <summary>Trust &amp; tension</summary>
                 <div class="bond-grid">
-                  <div><span>Trust</span><strong>{connection.bond.trust}/100</strong><div class="bond-meter"><i style="width:{connection.bond.trust}%;background:{getValueColor(connection.bond.trust)}"></i></div></div>
-                  <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><div class="bond-meter tension"><i style="width:{connection.bond.tension}%;background:{getValueColor(connection.bond.tension, true)}"></i></div></div>
+                  <div><span>Trust</span><strong>{connection.bond.trust}/100</strong><UiProgress label="Relationship trust" value={connection.bond.trust} tone={connection.bond.trust >= 70 ? "success" : connection.bond.trust >= 40 ? "info" : "warning"} size="small" showLabel={false} /></div>
+                  <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><UiProgress label="Relationship tension" value={connection.bond.tension} tone={connection.bond.tension >= 70 ? "danger" : connection.bond.tension >= 40 ? "warning" : "success"} size="small" showLabel={false} /></div>
                 </div>
               </details>
               {#if connection.bond.lastInteractionYear !== null}
