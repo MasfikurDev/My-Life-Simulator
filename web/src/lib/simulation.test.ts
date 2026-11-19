@@ -173,8 +173,13 @@ describe('life simulation', () => {
     expect(JSON.stringify(planned.character)).toBe(before);
     expect(review.activities).toHaveLength(1);
     expect(review.activities[0]).toMatchObject({ title: 'Exercise', staminaCost: 10 });
+    expect(review.activities[0].effects).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'stamina', delta: -10, tone: 'danger', kind: 'stat' }),
+      expect.objectContaining({ key: 'fitness', tone: 'success', kind: 'stat' })
+    ]));
     const resolved = advanceWeek(planned.character);
     expect(review.projectedStamina).toBe(resolved.character.stamina);
+    expect(resolved.activityOutcomes?.[0].id).toBe(review.activities[0].id);
     expect(review.projectedStress).toBe(resolved.character.stress);
     expect(review.projectedHealth).toBe(resolved.character.health);
     expect(resolved.character.stamina).toBe(66);
@@ -194,6 +199,11 @@ describe('life simulation', () => {
     expect(planned.character.happiness).toBe(base.happiness);
     const review = getWeeklyActivityReview(planned.character);
     expect(review.activities[0]).toMatchObject({ seal: 'BOUGHT', staminaCost: 0, moneyCost: 12 });
+    expect(review.activities[0].effects).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'health', delta: 2, tone: 'success' }),
+      expect.objectContaining({ key: 'happiness', delta: 3, tone: 'success' }),
+      expect.objectContaining({ key: 'money', delta: -12, tone: 'danger', kind: 'money' })
+    ]));
     expect(review.staminaRecovery).toBe(8);
     expect(planned.character.money).toBe(base.money);
     const resolved = advanceWeek(planned.character);
