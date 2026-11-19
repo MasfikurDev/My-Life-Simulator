@@ -79,7 +79,9 @@
   </dialog>
 
 <style>
-   .gameplay-dialog{position:fixed;inset:0;margin:auto;width:min(560px,calc(100% - 32px));max-width:none;max-height:min(88dvh,760px);overflow:auto;overscroll-behavior:contain;padding:22px;border:1px solid var(--line-strong);border-radius:18px;background:var(--surface-raised);color:var(--text);box-shadow:0 28px 100px color-mix(in srgb,var(--shadow-color) 58%,transparent);display:grid;gap:18px;animation:dialog-rise-in .18s ease-out}
+  /* Author display styles must not override the browser's closed-dialog hiding rule. */
+  .gameplay-dialog:not([open]){display:none}
+  .gameplay-dialog{position:fixed;inset:0;margin:auto;width:min(560px,calc(100% - 32px));max-width:none;max-height:min(88dvh,760px);overflow:auto;overscroll-behavior:contain;padding:22px;border:1px solid var(--line-strong);border-radius:18px;background:var(--surface-raised);color:var(--text);box-shadow:0 28px 100px color-mix(in srgb,var(--shadow-color) 58%,transparent);display:grid;gap:18px;animation:dialog-rise-in .18s ease-out}
   .gameplay-dialog::backdrop{background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(9px)}
   .dialog-topline{display:flex;align-items:center;gap:8px;padding-right:38px}
   .dialog-category,.dialog-age{padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:8px;font-weight:850;letter-spacing:.8px;text-transform:uppercase}
