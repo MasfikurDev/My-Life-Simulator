@@ -178,7 +178,7 @@ export function getNetWorth(character: Character): number {
   const investments = (character.investments ?? []).reduce((sum, holding) => sum + holding.units * getMarketPrice(character, holding.type), 0);
   const properties = (character.properties ?? []).reduce((sum, property) => sum + property.marketValue, 0);
   const businesses = (character.businesses ?? []).reduce((sum, business) => sum + business.valuation, 0);
-  return Math.round(character.money + (character.bankAccounts ?? []).reduce((sum, account) => sum + account.balance, 0) + (character.vaultBalance ?? 0) + (character.cards ?? []).filter((card) => card.type === 'prepaid').reduce((sum, card) => sum + card.balance, 0) + investments + properties + businesses - (character.loans ?? []).reduce((sum, loan) => sum + (loan.active ? loan.balance : 0), 0) - (character.cards ?? []).filter((card) => card.type === 'credit').reduce((sum, card) => sum + card.balance, 0) - (character.taxBalance ?? 0));
+  return Math.round(character.money + (character.marketCash ?? 0) + (character.bankAccounts ?? []).reduce((sum, account) => sum + account.balance, 0) + (character.vaultBalance ?? 0) + (character.cards ?? []).filter((card) => card.type === 'prepaid').reduce((sum, card) => sum + card.balance, 0) + investments + properties + businesses - (character.loans ?? []).reduce((sum, loan) => sum + (loan.active ? loan.balance : 0), 0) - (character.cards ?? []).filter((card) => card.type === 'credit').reduce((sum, card) => sum + card.balance, 0) - (character.taxBalance ?? 0));
 }
 
 
