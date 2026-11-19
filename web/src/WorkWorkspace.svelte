@@ -94,8 +94,8 @@
         <div class="work-metrics">
           <div><span>Annual base pay</span><strong>{formatCharacterMoney(character, character.employment.annualSalary)}</strong></div>
           <div><span>Performance</span><strong>{character.employment.performance}{projectedCharacter.employment?.performance !== character.employment.performance ? ' → ' + projectedCharacter.employment?.performance : ''}/100</strong></div>
-          <div><span>Role experience</span><strong>{character.employment.experienceYears} years</strong></div>
-          <div><span>Career experience</span><strong>{character.careerExperienceYears ?? character.employment.experienceYears} years</strong></div>
+          <div><span>Role experience</span><strong>{character.employment.experienceYears}{projectedCharacter.employment?.experienceYears !== character.employment.experienceYears ? ' → ' + projectedCharacter.employment?.experienceYears : ''} years</strong></div>
+          <div><span>Career experience</span><strong>{character.careerExperienceYears ?? character.employment.experienceYears}{projectedCharacter.careerExperienceYears !== character.careerExperienceYears ? ' → ' + projectedCharacter.careerExperienceYears : ''} years</strong></div>
         </div>
         <p class="work-note">Payroll: annual settlement · Monthly pay and benefits: not implemented</p>
         <div class="current-job-actions"><button class="work-secondary" onclick={planDevelopment}>{developmentPlan ? 'Remove career development' : 'Career development · ' + getActivityStaminaCost('career') + ' stamina'} <ActivityStatusSeal status={developmentPlan ? 'planned' : 'available'} /></button><button class="work-secondary" onclick={() => confirmResignation = true}>Leave this job</button></div>
