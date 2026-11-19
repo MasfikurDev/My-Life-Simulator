@@ -52,8 +52,8 @@
   .ui-progress-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;font-weight:650}
   .ui-progress-heading--value-only{justify-content:flex-end}
   .ui-progress-value{color:var(--muted);font-variant-numeric:tabular-nums}
-  .ui-progress-track{height:8px;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-pill);background:var(--surface-raised)}
-  .ui-progress-fill{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--ui-progress-color),color-mix(in srgb,var(--ui-progress-color) 68%,white));transition:width 260ms cubic-bezier(.2,.75,.25,1)}
+  .ui-progress-track{height:8px;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-pill);background:linear-gradient(180deg,color-mix(in srgb,var(--surface-raised) 88%,var(--text)),var(--surface-raised));box-shadow:inset 0 2px 4px color-mix(in srgb,var(--shadow-color) 22%,transparent),0 1px color-mix(in srgb,var(--text) 5%,transparent)}
+  .ui-progress-fill{display:block;height:100%;border-radius:inherit;background:linear-gradient(180deg,color-mix(in srgb,var(--ui-progress-color) 82%,white),var(--ui-progress-color));box-shadow:inset 0 1px color-mix(in srgb,white 24%,transparent),0 0 7px color-mix(in srgb,var(--ui-progress-color) 18%,transparent);transition:width 260ms cubic-bezier(.2,.75,.25,1)}
   .ui-progress-fill--indeterminate{animation:ui-progress-indeterminate 1.15s ease-in-out infinite alternate}
   @keyframes ui-progress-indeterminate{from{transform:translateX(-70%)}to{transform:translateX(190%)}}
   .ui-progress--accent{--ui-progress-color:var(--accent)}
