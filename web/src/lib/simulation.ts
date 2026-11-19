@@ -1479,6 +1479,8 @@ export interface WeeklyActivityReview {
   currentCash: number;
   projectedCash: number;
   changes: WeeklyActivityReviewChange[];
+  /** Resolver output for read-only UI projections; never persisted by the review. */
+  projectedCharacter: Character;
   warnings: string[];
 }
 
@@ -1590,6 +1592,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     currentCash: character.money,
     projectedCash: projected.money,
     changes,
+    projectedCharacter: projected,
     warnings
   };
 }
