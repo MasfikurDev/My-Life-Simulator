@@ -9,7 +9,6 @@ import { getWeeklyPlan } from './weekly-plan';
 import { resolveEducationWeek } from './education';
 import { resolveCareAction, resolveWeeklyWellbeing } from './wellbeing';
 import { applyWeeklyClothingWear, getClothingPresentationScore, getPassiveLifestyleActivities, interactWithSocialConnection, resolvePassiveLifestyleActivities } from './lifestyle';
-import type { PassiveLifestyleActivity } from './lifestyle';
 import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPromotionOfferState, createPromotionOffer, declineJobOffer as declineJobOfferState, declinePromotionOffer as declinePromotionOfferState, expireWorkOffers, getJobListings, getCareerRole, isEligibleForRole, resolveJobApplication, resolveJobInterview, resignFromJob as resignFromJobState } from './work';
 
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
