@@ -15,6 +15,7 @@
   import EducationWorkspace from './EducationWorkspace.svelte';
   import ThemeOption from './components/ThemeOption.svelte';
   import UiBadge from './components/UiBadge.svelte';
+  import ActivityEffectBadges from './components/ActivityEffectBadges.svelte';
   import EmptyState from './components/EmptyState.svelte';
   import UiCard from './components/UiCard.svelte';
   import GameplayDialog from './components/GameplayDialog.svelte';
@@ -611,13 +612,8 @@
                           <article class="review-activity-row">
                             <div class="review-activity-copy">
                               <div class="review-activity-heading"><strong>{activity.title}</strong><UiBadge tone="accent" size="tiny">PLANNED</UiBadge>{#if activity.seal}<UiBadge size="tiny">{activity.seal}</UiBadge>{/if}</div>
-                              <div class="review-effect-badges">
-                                {#if activity.staminaCost > 0}<UiBadge tone="danger" size="tiny">−{activity.staminaCost} stamina</UiBadge>{/if}
-                                {#each activity.effects as effect}
-                                  <UiBadge tone={effect.tone} size="tiny">{effect.delta > 0 ? '+' : '−'}{Math.abs(Number(effect.delta.toFixed(1)))} {effect.kind === 'money' ? formatCharacterMoney(character, Math.abs(effect.delta)) : effect.label}</UiBadge>
-                                {/each}
-                                {#if activity.effects.length === 0 && activity.staminaCost === 0}<UiBadge size="tiny">No tracked stat change</UiBadge>{/if}
-                              </div>
+                              <ActivityEffectBadges effects={activity.effects} staminaCost={activity.staminaCost} formatMoney={(amount) => formatCharacterMoney(character, amount)} />
+                              {#if activity.effects.length === 0 && activity.staminaCost === 0}<UiBadge size="tiny">No tracked stat change</UiBadge>{/if}
                             </div>
                             <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => removeReviewedActivity(activity.id)}>×</button>
                           </article>
@@ -750,8 +746,6 @@
   .review-remove-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .review-activity-cost b{font-size:10px;color:var(--text)}
   .review-activity-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
-  .review-effect-badges{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
-  .review-effect-badges :global(.ui-badge){max-width:100%}
   .review-stamina-summary{display:grid;gap:7px;margin-top:9px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
   .review-stamina-summary>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--muted)}
   .review-stamina-summary strong{color:var(--text);font-variant-numeric:tabular-nums}
