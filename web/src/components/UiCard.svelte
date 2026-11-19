@@ -12,7 +12,8 @@
 <svelte:element this={as} class="ui-card ui-card--{resolvedDensity} ui-card--{surface} ui-card--{tone} ui-card--radius-{radius} ui-card--elevation-{elevation} {interactive?'ui-card--interactive interactive':''} {className}">
  {@render children()}
 </svelte:element>
-<style>
+<style lang="scss">
+ @use '../styles/mixins' as mixins;
  .ui-card{position:relative;isolation:isolate;min-width:0;color:var(--text);border:1px solid var(--line);border-radius:var(--ui-card-radius,var(--radius-lg,16px));background:linear-gradient(155deg,color-mix(in srgb,var(--surface-raised,var(--surface)) 36%,var(--surface)) 0%,var(--surface) 72%);box-shadow:var(--elevation-1);transition:background .2s ease,border-color .2s ease,box-shadow .22s ease,transform .22s cubic-bezier(.2,.75,.25,1)}
  .ui-card::before{content:"";position:absolute;inset:0 0 auto;height:1px;pointer-events:none;border-radius:inherit;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--text) 14%,transparent),transparent);opacity:.72}
  .ui-card--compact{padding:var(--space-2,8px)}.ui-card--comfortable{padding:var(--space-4,16px)}.ui-card--spacious{padding:var(--space-6,24px)}.ui-card--flush,.ui-card--inherit{padding:0}
@@ -28,8 +29,8 @@
  .ui-card--info{border-color:color-mix(in srgb,var(--info) 34%,var(--line))}
  .ui-card--elevation-flat{box-shadow:none}.ui-card--elevation-default{box-shadow:var(--elevation-1)}.ui-card--elevation-raised{box-shadow:var(--elevation-2)}.ui-card--elevation-floating{box-shadow:var(--elevation-3)}.ui-card--elevation-glow{box-shadow:var(--elevation-accent)}
  .ui-card--interactive{cursor:pointer;-webkit-tap-highlight-color:transparent}
- .ui-card--interactive:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+ .ui-card--interactive:focus-within{@include mixins.focus-outline(var(--accent), 2px)}
  @media(hover:hover) and (pointer:fine){.ui-card--interactive:hover{transform:translateY(-2px);border-color:var(--line-strong);box-shadow:var(--elevation-2)}}
  @media(hover:none){.ui-card--interactive:active{transform:translateY(1px);filter:brightness(.98)}}
- @media(prefers-reduced-motion:reduce){.ui-card{transition:none}.ui-card--interactive:hover,.ui-card--interactive:active{transform:none}}
+ @include mixins.reduced-motion{.ui-card{transition:none}.ui-card--interactive:hover,.ui-card--interactive:active{transform:none}}
 </style>

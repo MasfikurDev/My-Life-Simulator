@@ -30,6 +30,7 @@ flowchart TD
 - Web UI: Svelte 5 + TypeScript + Vite.
 - Simulation: plain TypeScript domain modules independent of Svelte/browser APIs.
 - Tests: Vitest for deterministic simulation and persistence behavior.
+- Styling: pinned Sass/SCSS for migrated Svelte component styles through Vite's `vitePreprocess()`; runtime theme palettes remain CSS custom properties.
 - Hosting: GitHub Pages, deployed through GitHub Actions.
 - Android: Kotlin Activity + Android WebView; no game logic in the shell.
 - Android build: GitHub-hosted runners; no local Android Studio requirement for the normal workflow.
