@@ -767,12 +767,12 @@
   .pending-event-copy small{font-size:9px;color:var(--muted);text-transform:capitalize}
   .pending-event-arrow{font-size:20px;color:var(--accent)}
   .week-review-backdrop{z-index:1000;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
-  .week-review-dialog{position:relative;margin:0;inset:auto;width:min(680px,100%);max-width:none;max-height:min(90dvh,900px);overflow:auto;display:grid;gap:14px;padding:20px}
+  .week-review-dialog{position:relative;margin:0;inset:auto;width:min(680px,100%);max-width:none;max-height:min(90dvh,900px);overflow:auto;display:grid;gap:9px;padding:14px}
   .week-review-dialog h2{margin:0;font-size:clamp(22px,4vw,28px);letter-spacing:-.6px}
   .week-review-dialog .game-event-description{margin:0}
-  .review-section{display:grid;gap:9px;padding-top:12px;border-top:1px solid var(--line)}
+  .review-section{display:grid;gap:6px;padding-top:8px;border-top:1px solid var(--line)}
   .review-planned-details{min-width:0}
-  .review-planned-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;cursor:pointer;list-style:none}
+  .review-planned-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:38px;cursor:pointer;list-style:none}
   .review-planned-summary::-webkit-details-marker{display:none}
   .review-planned-heading{display:grid;gap:3px;min-width:0}
   .review-planned-heading strong{font-size:13px;color:var(--text)}
@@ -786,11 +786,11 @@
   .review-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
   .review-section-heading h3{margin:0;font-size:13px;color:var(--text)}
   .review-section-heading>span{font-size:9px;color:var(--muted);text-align:right}
-  .review-activity-list{display:grid;gap:7px}
-  .review-activity-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+  .review-activity-list{display:grid;gap:5px}
+  .review-activity-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
   .review-passive-row{opacity:.62;filter:saturate(.55);background:var(--surface-raised)}
   .review-passive-seal{justify-self:start;padding:3px 6px;border:1px solid var(--line);border-radius:5px;color:var(--muted);font-size:7px;font-weight:850;letter-spacing:.7px}
-  .review-activity-row>div:first-child{display:grid;gap:4px;min-width:0}
+  .review-activity-row>div:first-child{display:grid;gap:3px;min-width:0}
   .review-activity-copy{flex:1;min-width:0}
   .review-bought-seal{justify-self:start;padding:3px 6px;border:1px solid color-mix(in srgb,var(--accent) 48%,transparent);border-radius:5px;background:var(--accent-soft);color:var(--accent);font-size:7px;font-weight:850;letter-spacing:.7px}
   .review-activity-row strong{font-size:11px;color:var(--text)}
@@ -804,7 +804,7 @@
   .review-item-details summary{width:max-content;cursor:pointer;color:var(--accent);font-weight:700}
   .review-item-details ul{display:grid;gap:3px;margin:5px 0 0;padding-left:16px;line-height:1.4}
   .review-activity-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;min-width:0}
-  .review-stamina-summary{display:grid;gap:7px;margin-top:9px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+  .review-stamina-summary{display:grid;gap:4px;margin-top:5px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
   .review-stamina-summary>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--muted)}
   .review-stamina-summary strong{color:var(--text);font-variant-numeric:tabular-nums}
   .review-stamina-summary>div:last-child{display:grid;gap:5px;font-size:9px;color:var(--muted)}
@@ -815,8 +815,8 @@
   
   .review-stamina-track{height:7px;overflow:hidden;border-radius:10px;background:var(--surface-raised)}
   .review-stamina-track span{display:block;height:100%;border-radius:inherit;background:var(--accent)}
-  .review-change-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 12px}
-  .review-change-row{display:grid;gap:6px;align-content:start;min-width:0;padding:7px 0;border-bottom:1px solid var(--line)}
+  .review-change-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 10px}
+  .review-change-row{display:grid;gap:3px;align-content:start;min-width:0;padding:4px 0;border-bottom:1px solid var(--line)}
   .review-change-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
   .review-change-heading>span,.review-cash-row>span{font-size:10px;color:var(--muted)}
   .review-cash-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
@@ -826,9 +826,9 @@
   .game-event-choice.planned{border-color:var(--accent);background:var(--accent-soft)}
   .review-change-row strong small{font-size:9px;color:var(--muted);font-weight:500}
   .review-empty{margin:0;padding:10px;border-radius:9px;background:var(--surface);font-size:10px;line-height:1.5;color:var(--muted)}
-  .review-warning-list{display:grid;gap:6px;padding:10px;border:1px solid color-mix(in srgb,var(--amber) 45%,transparent);border-radius:10px;background:color-mix(in srgb,var(--amber) 8%,transparent)}
+  .review-warning-list{display:grid;gap:4px;padding:7px 8px;border:1px solid color-mix(in srgb,var(--amber) 45%,transparent);border-radius:10px;background:color-mix(in srgb,var(--amber) 8%,transparent)}
   .review-warning-list p{margin:0;font-size:10px;line-height:1.45;color:var(--text)}
   .week-review-dialog .year-review-note{margin:0}
-  @media(max-width:480px){.week-review-dialog{padding:15px;gap:12px}.review-activity-row{gap:8px;padding:8px}.review-change-grid{grid-template-columns:1fr}}
+  @media(max-width:480px){.week-review-dialog{padding:11px;gap:7px}.week-review-dialog h2{font-size:21px}.week-review-dialog .game-event-description{font-size:10px;line-height:1.35}.review-section{gap:5px;padding-top:7px}.review-activity-row{gap:6px;padding:5px 6px}.review-change-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:1px 8px}.review-change-heading{gap:4px}.review-change-heading>span{font-size:9px}.review-change-row strong{font-size:10px}.review-planned-summary{min-height:34px}.review-stamina-summary{margin-top:3px;padding:5px 7px}}
   .main-layout-no-sidebar{grid-template-columns:minmax(0,1fr)}
 </style>
