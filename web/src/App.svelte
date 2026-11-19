@@ -594,7 +594,7 @@
                   {/if}
                   <div class="review-stamina-summary">
                     <div><span>Stamina</span><strong>{Math.round(weeklyReview.currentStamina)}% → {Math.round(weeklyReview.projectedStamina)}%</strong></div>
-                    <div><span>Effort −{weeklyReview.staminaCost} · Recovery +{weeklyReview.staminaRecovery}</span><div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div></div>
+                    <div><span>Effort −{weeklyReview.staminaCost} · Recovery +{weeklyReview.staminaRecovery} · {weeklyReview.staminaDrift > 0 ? 'Natural +' + weeklyReview.staminaDrift : 'Workload −' + Math.abs(weeklyReview.staminaDrift)}</span><div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div></div>
                   </div>
                   {#if Math.min(100, weeklyReview.currentStamina + weeklyReview.staminaRecovery) < weeklyReview.staminaCost}<p class="year-review-warning">The plan exceeds your stamina budget. Select recovery activities or remove demanding activities before resolving.</p>{/if}
                   <div class="review-cash-row"><span>Projected cash after weekly resolution</span><strong>{formatCharacterMoney(character, weeklyReview.projectedCash)}</strong></div>
