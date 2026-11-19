@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { advanceWeek, formatCharacterMoney, getWeeklyActivityReview, planEventChoiceInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import type { WeeklyActivityOutcomeEffect, WeeklyActivityReviewItem } from './lib/simulation';
   import { addCalendarDays, getWeekStart } from './lib/calendar';
   import { getEducationStage, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
@@ -15,6 +16,7 @@
   import EducationWorkspace from './EducationWorkspace.svelte';
   import ThemeOption from './components/ThemeOption.svelte';
   import UiBadge from './components/UiBadge.svelte';
+  import ActivityEffectBadges from './components/ActivityEffectBadges.svelte';
   import EmptyState from './components/EmptyState.svelte';
   import UiCard from './components/UiCard.svelte';
   import GameplayDialog from './components/GameplayDialog.svelte';
@@ -49,6 +51,45 @@
   let eventDialogOpen = $state(false);
   let weeklyFinanceOpen = $state(false);
   const weeklyReview = $derived(character ? getWeeklyActivityReview(character) : null);
+  function groupReviewedActivities(items: WeeklyActivityReviewItem[]): WeeklyActivityReviewItem[] {
+    const purchases = items.filter((item) => item.seal === 'BOUGHT' && item.moneyCost > 0);
+    if (purchases.length < 2) return items;
+    const sourceIds = purchases.map((item) => item.id);
+    const effectMap = new Map<string, WeeklyActivityOutcomeEffect>();
+    for (const item of purchases) {
+      for (const effect of item.effects) {
+        const prior = effectMap.get(effect.key);
+        const delta = (prior?.delta ?? 0) + effect.delta;
+        const inverse = effect.key === 'stress' || effect.key.endsWith('-tension');
+        effectMap.set(effect.key, {
+          ...effect,
+          delta,
+          tone: effect.kind === 'money' ? delta > 0 ? 'success' : 'danger' : (inverse ? delta < 0 : delta > 0) ? 'success' : 'danger'
+        });
+      }
+    }
+    const grouped: WeeklyActivityReviewItem = {
+      ...purchases[0],
+      id: 'food-purchases',
+      sourceIds,
+      title: 'Food purchases',
+      staminaCost: purchases.reduce((total, item) => total + item.staminaCost, 0),
+      staminaRecovery: purchases.reduce((total, item) => total + item.staminaRecovery, 0),
+      moneyCost: purchases.reduce((total, item) => total + item.moneyCost, 0),
+      effects: [...effectMap.values()].filter((effect) => effect.delta !== 0),
+      items: purchases.flatMap((item) => item.items),
+      itemCount: purchases.reduce((total, item) => total + item.itemCount, 0)
+    };
+    const rows: WeeklyActivityReviewItem[] = [];
+    let inserted = false;
+    for (const item of items) {
+      if (sourceIds.includes(item.id)) {
+        if (!inserted) { rows.push(grouped); inserted = true; }
+      } else rows.push(item);
+    }
+    return rows;
+  }
+  const weeklyReviewActivities = $derived(weeklyReview ? groupReviewedActivities(weeklyReview.activities) : []);
   const plannedEventChoiceIds = $derived((character?.weeklyPlan?.activities ?? []).flatMap((item) => item.action?.kind === 'event' ? [item.action.choiceId] : []));
   onMount(() => {
     saveFormatIssue = getSaveFormatIssue();
@@ -264,6 +305,13 @@
     if (!planned) return;
     persist(removePlannedActivity(character, activityId));
     notify('Activity removed from this week. Forecast updated.');
+  }
+  function removeReviewedActivityGroup(activityIds: string[]) {
+    if (!character || !activityIds.length) return;
+    const next = activityIds.reduce((current, id) => removePlannedActivity(current, id), character);
+    if (next === character) return;
+    persist(next);
+    notify('Food purchases removed from this week. Forecast updated.');
   }
   function advanceWeekNow() {
     if (!character) return;
@@ -572,19 +620,31 @@
                 <button class="modal-close" onclick={closeAdvanceReview} aria-label="Close weekly review">×</button>
                 <div class="eyebrow">WEEKLY SIMULATION · AGE {character.age}</div>
                 <h2 id="week-review-title">Review this week</h2>
-                <p class="game-event-description">{weeklyReview.weekStart} – {weeklyReview.weekEnd}. Review the effort, expected rewards and combined effects before resolving the week.</p>
+                <p class="game-event-description">{weeklyReview.weekStart} – {weeklyReview.weekEnd}. Review the effort and expected outcomes before resolving the week.</p>
 
                 <section class="review-section">
-                  <div class="review-section-heading"><h3>Stamina forecast</h3><span>After activity effects and recovery</span></div>
-                  <div class="review-resource-grid">
-                    <div><small>Current</small><strong>{Math.round(weeklyReview.currentStamina)}%</strong></div>
-                    <div><small>Effort cost</small><strong>−{weeklyReview.staminaCost}</strong></div>
-                    <div><small>Planned recovery</small><strong>+{weeklyReview.staminaRecovery}</strong></div>
-                    <div><small>Projected</small><strong>{Math.round(weeklyReview.projectedStamina)}%</strong></div>
+                  <div class="review-section-heading"><h3>Weekly Stat Forecast</h3><span>Changes expected this week</span></div>
+                  {#if weeklyReview.changes.length}
+                    <div class="review-change-grid">
+                      {#each weeklyReview.changes.filter((change) => change.key !== 'stamina') as change}
+                        <div class="review-change-row">
+                          <span>{change.label}</span>
+                          <strong class:positive={change.key === 'stress' || change.key.endsWith('-tension') ? change.delta < 0 : change.delta > 0} class:negative={change.key === 'stress' || change.key.endsWith('-tension') ? change.delta > 0 : change.delta < 0}>
+                            {Number(change.before.toFixed(1))} → {Number(change.after.toFixed(1))}
+                            <small>({change.delta > 0 ? '+' : ''}{Number(change.delta.toFixed(1))})</small>
+                          </strong>
+                        </div>
+                      {/each}
+                    </div>
+                  {:else}
+                    <p class="review-empty">No tracked stats are expected to change.</p>
+                  {/if}
+                  <div class="review-stamina-summary">
+                    <div><span>Stamina</span><strong>{Math.round(weeklyReview.currentStamina)}% → {Math.round(weeklyReview.projectedStamina)}%</strong></div>
+                    <div><span>Effort −{weeklyReview.staminaCost} · Recovery +{weeklyReview.staminaRecovery} · {weeklyReview.staminaDrift > 0 ? 'Natural +' + weeklyReview.staminaDrift : 'Workload −' + Math.abs(weeklyReview.staminaDrift)}</span><div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div></div>
                   </div>
-                  <div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div>
-                  {#if weeklyReview.passiveStaminaRecovery > 0}<p class="review-empty">Home life and close connections restore +{weeklyReview.passiveStaminaRecovery} stamina before your planned activities.</p>{/if}
                   {#if Math.min(100, weeklyReview.currentStamina + weeklyReview.staminaRecovery) < weeklyReview.staminaCost}<p class="year-review-warning">The plan exceeds your stamina budget. Select recovery activities or remove demanding activities before resolving.</p>{/if}
+                  <div class="review-cash-row"><span>Projected cash after weekly resolution</span><strong>{formatCharacterMoney(character, weeklyReview.projectedCash)}</strong></div>
                 </section>
 
                 <section class="review-section">
@@ -595,17 +655,26 @@
                     </summary>
                     {#if weeklyReview.activities.length || weeklyReview.passiveActivities.length}
                       <div class="review-activity-list">
-                        {#each weeklyReview.activities as activity (activity.id)}
+                        {#each weeklyReviewActivities as activity (activity.id)}
                           <article class="review-activity-row">
-                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.reward}</small>{#if activity.seal}<span class="review-bought-seal">{activity.seal}</span>{/if}</div>
-                            <div class="review-activity-cost"><b>{activity.staminaCost ? '−' + activity.staminaCost + ' stamina' : 'No stamina cost'} </b>{#if activity.moneyCost > 0}<small>{formatCharacterMoney(character, activity.moneyCost)}</small>{/if}</div>
-                            <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => removeReviewedActivity(activity.id)}>Remove</button>
+                            <div class="review-activity-copy">
+                              <div class="review-activity-heading"><strong>{activity.title}</strong><UiBadge tone="accent" size="tiny">PLANNED</UiBadge>{#if activity.seal}<UiBadge size="tiny">{activity.seal}</UiBadge>{/if}</div>
+                              <ActivityEffectBadges effects={activity.effects} staminaCost={activity.staminaCost} staminaRecovery={activity.staminaRecovery} moneyCost={activity.moneyCost} formatMoney={(amount) => formatCharacterMoney(character!, amount)} />
+                              {#if activity.itemCount > 0}<UiBadge size="tiny">{activity.itemCount} {activity.itemCount === 1 ? 'item' : 'items'}</UiBadge>{/if}
+                              {#if activity.sourceIds && activity.items.length > 0}
+                                <details class="review-item-details"><summary>View items</summary><ul>{#each activity.items as item, index}<li>{item.name}{item.quantity > 1 ? ' × ' + item.quantity : ''}</li>{/each}</ul></details>
+                              {/if}
+                              {#if activity.effects.length === 0 && activity.staminaCost === 0 && activity.staminaRecovery === 0 && activity.moneyCost === 0}<UiBadge size="tiny">No tracked stat change</UiBadge>{/if}
+                            </div>
+                            <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => activity.sourceIds ? removeReviewedActivityGroup(activity.sourceIds) : removeReviewedActivity(activity.id)}>×</button>
                           </article>
                         {/each}
                         {#each weeklyReview.passiveActivities as activity (activity.id)}
                           <article class="review-activity-row review-passive-row">
-                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.source} · {activity.detail}</small><small>{activity.reward}</small><span class="review-passive-seal">AUTOMATIC</span></div>
-                            <div class="review-activity-cost"><b>{activity.staminaRecovery ? '+' + activity.staminaRecovery + ' stamina' : 'Background effect'}</b></div>
+                            <div class="review-activity-copy">
+                              <div class="review-activity-heading"><strong>{activity.title}</strong><UiBadge size="tiny">AUTOMATIC</UiBadge></div>
+                              <ActivityEffectBadges effects={activity.effects} staminaRecovery={activity.staminaRecovery} />
+                            </div>
                           </article>
                         {/each}
                       </div>
@@ -613,23 +682,6 @@
                       <p class="review-empty">No planned or automatic activities are currently contributing this week.</p>
                     {/if}
                   </details>
-                </section>
-
-                <section class="review-section">
-                  <div class="review-section-heading"><h3>Combined character impact</h3><span>Simulation forecast</span></div>
-                  {#if weeklyReview.changes.length}
-                    <div class="review-change-grid">
-                      {#each weeklyReview.changes as change}
-                        <div class="review-change-row">
-                          <span>{change.label}</span>
-                          <strong class:positive={change.key === 'stress' || change.key === 'family-tension' ? change.delta < 0 : change.delta > 0} class:negative={change.key === 'stress' || change.key === 'family-tension' ? change.delta > 0 : change.delta < 0}>{change.delta > 0 ? '+' : ''}{Math.round(change.delta)} <small>({Math.round(change.after)}%)</small></strong>
-                        </div>
-                      {/each}
-                    </div>
-                  {:else}
-                    <p class="review-empty">No tracked character stats are expected to change.</p>
-                  {/if}
-                  <div class="review-cash-row"><span>Projected cash after weekly resolution</span><strong>{formatCharacterMoney(character, weeklyReview.projectedCash)}</strong></div>
                 </section>
 
                 {#if weeklyReview.warnings.length}
@@ -735,19 +787,28 @@
   .review-passive-row{opacity:.62;filter:saturate(.55);background:var(--surface-raised)}
   .review-passive-seal{justify-self:start;padding:3px 6px;border:1px solid var(--line);border-radius:5px;color:var(--muted);font-size:7px;font-weight:850;letter-spacing:.7px}
   .review-activity-row>div:first-child{display:grid;gap:4px;min-width:0}
-  .review-activity-copy{flex:1}
+  .review-activity-copy{flex:1;min-width:0}
   .review-bought-seal{justify-self:start;padding:3px 6px;border:1px solid color-mix(in srgb,var(--accent) 48%,transparent);border-radius:5px;background:var(--accent-soft);color:var(--accent);font-size:7px;font-weight:850;letter-spacing:.7px}
   .review-activity-row strong{font-size:11px;color:var(--text)}
-  .review-activity-row small{font-size:9px;line-height:1.4;color:var(--muted)}
-  .review-activity-cost{flex:none;display:grid;gap:4px;text-align:right}
+  
+  
   .review-remove-button{flex:none;align-self:center;border:1px solid color-mix(in srgb,var(--coral) 38%,var(--line));border-radius:7px;background:transparent;color:var(--coral);padding:6px 8px;font-size:9px;font-weight:750;cursor:pointer}
   .review-remove-button:hover{background:color-mix(in srgb,var(--coral) 10%,transparent);border-color:var(--coral)}
   .review-remove-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .review-activity-cost b{font-size:10px;color:var(--text)}
-  .review-resource-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
-  .review-resource-grid>div{display:grid;gap:4px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
-  .review-resource-grid small{font-size:9px;color:var(--muted)}
-  .review-resource-grid strong{font-size:17px;color:var(--text)}
+  
+  .review-item-details{font-size:9px;color:var(--muted)}
+  .review-item-details summary{width:max-content;cursor:pointer;color:var(--accent);font-weight:700}
+  .review-item-details ul{display:grid;gap:3px;margin:5px 0 0;padding-left:16px;line-height:1.4}
+  .review-activity-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+  .review-stamina-summary{display:grid;gap:7px;margin-top:9px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+  .review-stamina-summary>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--muted)}
+  .review-stamina-summary strong{color:var(--text);font-variant-numeric:tabular-nums}
+  .review-stamina-summary>div:last-child{display:grid;gap:5px;font-size:9px;color:var(--muted)}
+  .review-remove-button{align-self:flex-start;width:27px;height:27px;padding:0;border-radius:8px;font-size:19px;line-height:1}
+  
+  
+  
+  
   .review-stamina-track{height:7px;overflow:hidden;border-radius:10px;background:var(--surface-raised)}
   .review-stamina-track span{display:block;height:100%;border-radius:inherit;background:var(--accent)}
   .review-change-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 12px}

@@ -1247,6 +1247,9 @@ export interface WeeklyResolutionResult {
   character: Character;
   issue: 'invalid-plan' | 'already-resolved' | 'unresolvable-action' | 'insufficient-stamina' | null;
   recap: string[];
+  activityOutcomes?: Array<{ id: string; effects: WeeklyActivityOutcomeEffect[] }>;
+  passiveEffects?: WeeklyActivityOutcomeEffect[];
+  staminaDrift?: number;
 }
 
 function createWeeklyRandom(character: Character, weekStart: string): () => number {
@@ -1263,6 +1266,65 @@ function createWeeklyRandom(character: Character, weekStart: string): () => numb
     value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
     return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+export interface WeeklyActivityOutcomeEffect {
+  key: string;
+  label: string;
+  delta: number;
+  tone: 'success' | 'danger' | 'neutral';
+  kind: 'stat' | 'money';
+}
+
+function getActivityOutcomeEffects(before: Character, after: Character): WeeklyActivityOutcomeEffect[] {
+  const effects: WeeklyActivityOutcomeEffect[] = [];
+  const add = (key: string, label: string, beforeValue: number | undefined, afterValue: number | undefined, inverse = false) => {
+    const delta = Number(afterValue ?? 0) - Number(beforeValue ?? 0);
+    if (!delta) return;
+    effects.push({ key, label, delta, tone: (inverse ? delta < 0 : delta > 0) ? 'success' : 'danger', kind: 'stat' });
+  };
+  const fields: Array<[keyof Character, string, boolean]> = [
+    ['health', 'Health', false], ['happiness', 'Happiness', false], ['intelligence', 'Intelligence', false], ['educationProgress', 'Self-study progress', false],
+    ['fitness', 'Fitness', false], ['stress', 'Stress', true], ['focus', 'Focus', false],
+    ['confidence', 'Confidence', false], ['comfort', 'Comfort', false], ['discipline', 'Discipline', false],
+    ['creativity', 'Creativity', false], ['socialSkills', 'Social skills', false]
+  ];
+  for (const [key, label, inverse] of fields) {
+    const fallback = key === 'stress' ? 30 : key === 'comfort' ? 50 : 0;
+    add(String(key), label, Number(before[key] ?? fallback), Number(after[key] ?? fallback), inverse);
+  }
+  add('education-grade', 'Education grade', before.educationEnrollment?.grade, after.educationEnrollment?.grade);
+  add('education-attendance', 'Education attendance', before.educationEnrollment?.attendance, after.educationEnrollment?.attendance);
+  add('education-weeks', 'Course weeks', before.educationEnrollment?.weeksCompleted, after.educationEnrollment?.weeksCompleted);
+  const subjectIds = new Set([...(before.educationEnrollment?.subjects ?? []).map((subject) => subject.name), ...(after.educationEnrollment?.subjects ?? []).map((subject) => subject.name)]);
+  for (const subjectId of subjectIds) {
+    const prior = before.educationEnrollment?.subjects.find((subject) => subject.name === subjectId);
+    const nextSubject = after.educationEnrollment?.subjects.find((subject) => subject.name === subjectId);
+    add('education-subject-' + subjectId, subjectId + ' grade', prior?.grade, nextSubject?.grade);
+  }
+  add('work-performance', 'Work performance', before.employment?.performance, after.employment?.performance);
+  add('role-experience', 'Role experience', before.employment?.experienceYears, after.employment?.experienceYears);
+  add('career-experience', 'Career experience', before.careerExperienceYears, after.careerExperienceYears);
+  const skillIds = new Set([...Object.keys(before.skills ?? {}), ...Object.keys(after.skills ?? {})]);
+  for (const skillId of skillIds) add('skill-' + skillId, getSkillLabel(skillId), before.skills?.[skillId], after.skills?.[skillId]);
+  const bondIds = new Set([...(before.family?.bonds ?? []).map((bond) => bond.personId), ...(after.family?.bonds ?? []).map((bond) => bond.personId)]);
+  for (const personId of bondIds) {
+    const prior = before.family?.bonds.find((bond) => bond.personId === personId);
+    const nextBond = after.family?.bonds.find((bond) => bond.personId === personId);
+    const name = before.family?.people.find((person) => person.id === personId)?.name ?? after.family?.people.find((person) => person.id === personId)?.name ?? 'Family member';
+    add('family-' + personId + '-closeness', name + ' closeness', prior?.closeness, nextBond?.closeness);
+    add('family-' + personId + '-trust', name + ' trust', prior?.trust, nextBond?.trust);
+    add('family-' + personId + '-tension', name + ' tension', prior?.tension, nextBond?.tension, true);
+  }
+  const businessIds = new Set([...(before.businesses ?? []).map((business) => business.id), ...(after.businesses ?? []).map((business) => business.id)]);
+  for (const businessId of businessIds) {
+    const prior = before.businesses?.find((business) => business.id === businessId);
+    const nextBusiness = after.businesses?.find((business) => business.id === businessId);
+    add('business-' + businessId, (prior?.name ?? nextBusiness?.name ?? 'Business') + ' performance', prior?.performance, nextBusiness?.performance);
+  }
+  const moneyDelta = after.money - before.money;
+  if (moneyDelta) effects.push({ key: 'money', label: 'Cash', delta: moneyDelta, tone: moneyDelta > 0 ? 'success' : 'danger', kind: 'money' });
+  return effects;
 }
 
 /** Resolves every accepted reservation once, then advances the world calendar by exactly seven days. */
@@ -1286,15 +1348,19 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   const wellbeing = resolveWeeklyWellbeing(next, weeklyWorkload, weekStart, false);
   next = wellbeing.character;
   recap.push(...wellbeing.recap);
+  const passiveBefore = next;
   next = resolvePassiveLifestyleActivities(next, passiveActivities);
+  const passiveEffects = getActivityOutcomeEffects(passiveBefore, next);
   for (const activity of passiveActivities) {
     const staminaNote = activity.staminaRecovery > 0 ? ' Stamina +' + activity.staminaRecovery + '.' : '';
     recap.push(activity.title + ': ' + activity.detail + '.' + staminaNote);
   }
   next = { ...next, stamina: Math.min(100, (next.stamina ?? 50) + staminaRecovery) };
   const educationTasks: EducationTaskType[] = [];
+  const activityOutcomes: Array<{ id: string; effects: WeeklyActivityOutcomeEffect[] }> = [];
   const ordered = [...schedule.activities];
   for (const item of ordered) {
+    const activityBefore = next;
     // Recovery was credited up front; charge each selected activity exactly once.
     next = { ...next, stamina: clamp((next.stamina ?? 50) - getPlannedActivityStaminaCost(item)) };
     let result: Character;
@@ -1344,10 +1410,12 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     // original save and let the player remove or repair the stale plan.
     if (result === next) return { character, issue: 'unresolvable-action', recap: [] };
     next = result;
+    activityOutcomes.push({ id: item.id, effects: getActivityOutcomeEffects(activityBefore, next) });
   }
   next = applyWeeklyClothingWear(next);
   const staminaDrift = weeklyWorkload >= 16 ? -7 : weeklyWorkload >= 12 ? -4 : 3;
   next = { ...next, stamina: clamp((next.stamina ?? 50) + staminaDrift) };
+  recap.push(staminaDrift > 0 ? 'Natural weekly recovery restored +' + staminaDrift + ' stamina.' : 'Weekly workload reduced stamina by ' + Math.abs(staminaDrift) + '.');
   const nextSchedule = { ...schedule, activities: [] };
   next = { ...next, weeklyPlan: nextSchedule, lastResolvedWeekStart: weekStart, lastWeekRecap: recap };
   const academic = resolveEducationWeek(next, educationTasks, weekStart, weeklyWorkload);
@@ -1368,7 +1436,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     next = applyAgeTransition(next, previousAge, nextAge);
     next = { ...next, year: nextYear };
   }
-  return { character: next, issue: null, recap };
+  return { character: next, issue: null, recap, activityOutcomes, passiveEffects, staminaDrift };
 }
 
 export interface WeeklyActivityReviewItem {
@@ -1376,8 +1444,13 @@ export interface WeeklyActivityReviewItem {
   title: string;
   seal?: 'BOUGHT';
   staminaCost: number;
+  staminaRecovery: number;
   moneyCost: number;
   reward: string;
+  effects: WeeklyActivityOutcomeEffect[];
+  items: Array<{ name: string; quantity: number }>;
+  itemCount: number;
+  sourceIds?: string[];
 }
 export interface WeeklyActivityReviewChange {
   key: string;
@@ -1391,13 +1464,14 @@ export interface WeeklyActivityReview {
   weekStart: string;
   weekEnd: string;
   activities: WeeklyActivityReviewItem[];
-  passiveActivities: Array<{ id: string; title: string; source: string; detail: string; staminaRecovery: number; reward: string }>;
+  passiveActivities: Array<{ id: string; title: string; source: string; detail: string; staminaRecovery: number; effects: WeeklyActivityOutcomeEffect[] }>;
   currentStamina: number;
   staminaCost: number;
   staminaRecovery: number;
   passiveStaminaRecovery: number;
   totalMoneyCost: number;
   projectedStamina: number;
+  staminaDrift: number;
   currentStress: number;
   projectedStress: number;
   currentHealth: number;
@@ -1416,7 +1490,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   const preview = advanceWeek(character);
   const projected = preview.issue ? character : preview.character;
   const fields: Array<[keyof Character, string]> = [
-    ['health', 'Health'], ['happiness', 'Happiness'], ['intelligence', 'Intelligence'], ['fitness', 'Fitness'],
+    ['health', 'Health'], ['happiness', 'Happiness'], ['intelligence', 'Intelligence'], ['educationProgress', 'Self-study progress'], ['fitness', 'Fitness'],
     ['stamina', 'Stamina'], ['stress', 'Stress'], ['focus', 'Focus'], ['confidence', 'Confidence'], ['comfort', 'Comfort'],
     ['discipline', 'Discipline'], ['creativity', 'Creativity'], ['socialSkills', 'Social skills']
   ];
@@ -1432,46 +1506,57 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     if (after !== before) changes.push({ key, label, before, after, delta: after - before });
   };
   addChange('education-grade', 'Education grade', character.educationEnrollment?.grade, projected.educationEnrollment?.grade);
+  addChange('education-attendance', 'Education attendance', character.educationEnrollment?.attendance, projected.educationEnrollment?.attendance);
+  addChange('education-weeks', 'Course weeks completed', character.educationEnrollment?.weeksCompleted, projected.educationEnrollment?.weeksCompleted);
+  const subjectIds = new Set([...(character.educationEnrollment?.subjects ?? []).map((subject) => subject.name), ...(projected.educationEnrollment?.subjects ?? []).map((subject) => subject.name)]);
+  for (const subjectId of subjectIds) {
+    const before = character.educationEnrollment?.subjects.find((subject) => subject.name === subjectId)?.grade;
+    const after = projected.educationEnrollment?.subjects.find((subject) => subject.name === subjectId)?.grade;
+    addChange('education-subject-' + subjectId, subjectId + ' grade', before, after);
+  }
   addChange('work-performance', 'Work performance', character.employment?.performance, projected.employment?.performance);
+  addChange('role-experience', 'Role experience', character.employment?.experienceYears, projected.employment?.experienceYears);
+  addChange('career-experience', 'Career experience', character.careerExperienceYears, projected.careerExperienceYears);
   const skillIds = new Set([...Object.keys(character.skills ?? {}), ...Object.keys(projected.skills ?? {})]);
   for (const skillId of skillIds) addChange('skill-' + skillId, getSkillLabel(skillId), character.skills?.[skillId] ?? 0, projected.skills?.[skillId] ?? 0);
-  const averageBond = (value: Character) => {
-    const bonds = value.family?.bonds ?? [];
-    return bonds.length ? bonds.reduce((total, bond) => total + bond.closeness, 0) / bonds.length : undefined;
-  };
-  addChange('family-closeness', 'Average family closeness', averageBond(character), averageBond(projected));
-  const averageBondMetric = (value: Character, key: 'trust' | 'tension') => {
-    const bonds = value.family?.bonds ?? [];
-    return bonds.length ? bonds.reduce((total, bond) => total + bond[key], 0) / bonds.length : undefined;
-  };
-  addChange('family-trust', 'Average family trust', averageBondMetric(character, 'trust'), averageBondMetric(projected, 'trust'));
-  addChange('family-tension', 'Average family tension', averageBondMetric(character, 'tension'), averageBondMetric(projected, 'tension'));
-  const averageBusiness = (value: Character) => {
-    const businesses = value.businesses ?? [];
-    return businesses.length ? businesses.reduce((total, business) => total + business.performance, 0) / businesses.length : undefined;
-  };
-  addChange('business-performance', 'Average business performance', averageBusiness(character), averageBusiness(projected));
+  const bondIds = new Set([...(character.family?.bonds ?? []).map((bond) => bond.personId), ...(projected.family?.bonds ?? []).map((bond) => bond.personId)]);
+  for (const personId of bondIds) {
+    const before = character.family?.bonds.find((bond) => bond.personId === personId);
+    const after = projected.family?.bonds.find((bond) => bond.personId === personId);
+    const personName = character.family?.people.find((person) => person.id === personId)?.name ?? projected.family?.people.find((person) => person.id === personId)?.name ?? 'Family member';
+    addChange('family-' + personId + '-closeness', personName + ' · closeness', before?.closeness, after?.closeness);
+    addChange('family-' + personId + '-trust', personName + ' · trust', before?.trust, after?.trust);
+    addChange('family-' + personId + '-tension', personName + ' · tension', before?.tension, after?.tension);
+  }
+  const businessIds = new Set([...(character.businesses ?? []).map((business) => business.id), ...(projected.businesses ?? []).map((business) => business.id)]);
+  for (const businessId of businessIds) {
+    const before = character.businesses?.find((business) => business.id === businessId);
+    const after = projected.businesses?.find((business) => business.id === businessId);
+    const businessName = before?.name ?? after?.name ?? 'Business';
+    addChange('business-' + businessId, businessName + ' performance', before?.performance, after?.performance);
+  }
   addChange('appearance', 'Clothing presentation', getClothingPresentationScore(character), getClothingPresentationScore(projected));
-  const passiveActivities = getPassiveLifestyleActivities(character).map((item) => ({
-    id: item.id, title: item.title, source: item.source, detail: item.detail,
-    staminaRecovery: item.staminaRecovery,
-    reward: [
-      item.staminaRecovery ? 'Stamina +' + item.staminaRecovery : '',
-      item.health ? 'Health ' + (item.health > 0 ? '+' : '−') + Math.abs(item.health) : '',
-      item.happiness ? 'Happiness ' + (item.happiness > 0 ? '+' : '−') + Math.abs(item.happiness) : '',
-      item.comfort ? 'Comfort ' + (item.comfort > 0 ? '+' : '−') + Math.abs(item.comfort) : '',
-      item.discipline ? 'Discipline ' + (item.discipline > 0 ? '+' : '−') + Math.abs(item.discipline) : '',
-      item.stress ? 'Stress ' + (item.stress > 0 ? '−' : '+') + Math.abs(item.stress) : ''
-    ].filter(Boolean).join(' · ') || 'Background support'
-  }));
+  const passiveActivities = getPassiveLifestyleActivities(character);
   const passiveStaminaRecovery = passiveActivities.reduce((total, item) => total + item.staminaRecovery, 0);
+  const passiveReview = passiveActivities.length ? [{
+    id: 'passive-everyday-life',
+    title: 'Everyday life',
+    source: [...new Set(passiveActivities.map((item) => item.source))].join(' · '),
+    detail: passiveActivities.map((item) => item.title).join(' · '),
+    staminaRecovery: passiveStaminaRecovery,
+    effects: preview.passiveEffects ?? []
+  }] : [];
   const activities = schedule.activities.map((item) => ({
     id: item.id,
     title: getPlannedActivityTitle(character, item),
     seal: item.action?.kind === 'food' ? 'BOUGHT' as const : undefined,
     staminaCost: getPlannedActivityStaminaCost(item),
+    staminaRecovery: getPlannedActivityStaminaRecovery(item),
     moneyCost: getPlannedActivityCost(character, item),
-    reward: getPlannedActivityReward(character, item)
+    reward: getPlannedActivityReward(character, item),
+    effects: preview.activityOutcomes?.find((outcome) => outcome.id === item.id)?.effects ?? [],
+    items: item.action?.kind === 'food' ? [{ name: item.action.name, quantity: item.action.quantity }] : [],
+    itemCount: item.action?.kind === 'food' ? item.action.quantity : 0
   }));
   const warnings: string[] = [];
   const currentStamina = character.stamina ?? 50;
@@ -1490,13 +1575,14 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     weekStart,
     weekEnd: addCalendarDays(weekStart, 6),
     activities,
-    passiveActivities,
+    passiveActivities: passiveReview,
     currentStamina,
     staminaCost: activities.reduce((total, item) => total + item.staminaCost, 0),
     staminaRecovery: schedule.activities.reduce((total, item) => total + getPlannedActivityStaminaRecovery(item), 0) + passiveStaminaRecovery,
     passiveStaminaRecovery,
     totalMoneyCost: activities.reduce((total, item) => total + item.moneyCost, 0),
     projectedStamina,
+    staminaDrift: preview.staminaDrift ?? 0,
     currentStress,
     projectedStress,
     currentHealth: character.health,

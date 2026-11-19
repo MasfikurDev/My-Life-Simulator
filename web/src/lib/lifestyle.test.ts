@@ -43,9 +43,9 @@ describe('passive lifestyle simulation', () => {
       family: { ...family, householdMemberIds: [family.playerPersonId, ...householdIds] }
     };
     const review = getWeeklyActivityReview(supported);
-    const meals = review.passiveActivities.find((item) => item.id === 'passive-family-meals');
-    expect(meals?.staminaRecovery).toBe(5);
-    expect(meals?.reward).toContain('Stamina +5');
+    const everydayLife = review.passiveActivities.find((item) => item.id === 'passive-everyday-life');
+    expect(everydayLife?.staminaRecovery).toBe(5);
+    expect(everydayLife?.detail).toContain('Meals at home');
 
     const resolved = advanceWeek(supported);
     expect(resolved.issue).toBeNull();
@@ -223,7 +223,7 @@ describe('passive lifestyle simulation', () => {
     character = addSocialConnection(character, 'Partner', 'partner', true);
     character = { ...character, socialConnections: character.socialConnections!.map((item) => ({ ...item, closeness: 65, supportLevel: 'regular' as const })) };
     const review = getWeeklyActivityReview(character);
-    expect(review.passiveActivities.some((item) => item.id === 'passive-partner-support')).toBe(true);
+    expect(review.passiveActivities.some((item) => item.id === 'passive-everyday-life' && item.detail.includes('Sharing the load'))).toBe(true);
     expect(review.passiveStaminaRecovery).toBeGreaterThan(0);
     expect(review.staminaRecovery).toBeGreaterThanOrEqual(review.passiveStaminaRecovery);
     expect(review.activities).toHaveLength(0);

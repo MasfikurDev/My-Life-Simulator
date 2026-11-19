@@ -20,6 +20,14 @@ describe('life simulation', () => {
     const passive = getPassiveLifestyleActivities(supported);
     expect(passive.map((item) => item.id)).toContain('passive-family-meals');
     expect(passive.map((item) => item.id)).toContain('passive-stable-home');
+    const review = getWeeklyActivityReview(supported);
+    const everydayLife = review.passiveActivities.find((item) => item.id === 'passive-everyday-life');
+    for (const key of ['health', 'happiness', 'comfort']) {
+      const effect = everydayLife?.effects.find((item) => item.key === key);
+      expect(effect?.tone).toBe('success');
+      expect(effect?.delta).toBeGreaterThan(0);
+    }
+    expect(everydayLife?.staminaRecovery).toBeGreaterThan(0);
   });
 
   it('resolves passive background life and natural development during direct year advancement', () => {
@@ -172,9 +180,15 @@ describe('life simulation', () => {
     const review = getWeeklyActivityReview(planned.character);
     expect(JSON.stringify(planned.character)).toBe(before);
     expect(review.activities).toHaveLength(1);
-    expect(review.activities[0]).toMatchObject({ title: 'Exercise', staminaCost: 10 });
+    expect(review.activities[0]).toMatchObject({ title: 'Exercise', staminaCost: 10, staminaRecovery: 0 });
+    expect(review.activities[0].effects).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'fitness', tone: 'success', kind: 'stat' })
+    ]));
     const resolved = advanceWeek(planned.character);
     expect(review.projectedStamina).toBe(resolved.character.stamina);
+    expect(review.staminaDrift).toBe(resolved.staminaDrift);
+    expect(resolved.recap.some((entry) => entry.includes('Natural weekly recovery'))).toBe(true);
+    expect(resolved.activityOutcomes?.[0].id).toBe(review.activities[0].id);
     expect(review.projectedStress).toBe(resolved.character.stress);
     expect(review.projectedHealth).toBe(resolved.character.health);
     expect(resolved.character.stamina).toBe(66);
@@ -194,6 +208,11 @@ describe('life simulation', () => {
     expect(planned.character.happiness).toBe(base.happiness);
     const review = getWeeklyActivityReview(planned.character);
     expect(review.activities[0]).toMatchObject({ seal: 'BOUGHT', staminaCost: 0, moneyCost: 12 });
+    expect(review.activities[0].effects).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'health', delta: 2, tone: 'success' }),
+      expect.objectContaining({ key: 'happiness', delta: 3, tone: 'success' }),
+      expect.objectContaining({ key: 'stress', delta: -2, tone: 'success', kind: 'stat' })
+    ]));
     expect(review.staminaRecovery).toBe(8);
     expect(planned.character.money).toBe(base.money);
     const resolved = advanceWeek(planned.character);
