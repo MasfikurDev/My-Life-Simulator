@@ -96,6 +96,13 @@ These checks are implemented in GitHub Actions and the repository PR template; d
 - UI changes require inspection of the actual affected screen and a narrow Android/mobile viewport; a passing type check does not establish visual correctness.
 - Never report a check as passed until its current GitHub Actions run is confirmed successful. A green run on an earlier commit does not validate later changes.
 
+200. Shared UI coverage also includes navigation/active indicators, menus and popovers, reusable domain list-row patterns, loading states, selection states, chronological timeline patterns, purposeful stat presentation, and notification indicators. Treat these as documented pattern areas, not a requirement to create a component for each. Reuse existing behavior and extract a primitive only when a real repeated use case justifies it. Keep domain content/actions domain-owned and preserve the established navigation model.
+
+201. All shared and domain-owned UI must follow one cross-component consistency contract: typography hierarchy, spacing/density tokens, surface/elevation scale, distinct interaction states (default, hover where available, pressed, focus, selected, disabled, loading, invalid), and consistent state-driven motion. Semantic meaning stays stable across all 17 themes while palette treatment adapts; never rely on color alone. Honor reduced motion, mobile touch behavior, and Paper's light-theme contrast. Do not impose identical layouts across domains.
+
+202. Migrate shared patterns incrementally by reuse and player impact. Prioritize navigation/selection, transaction and record rows, stat presentation, and loading feedback; adopt menus/popovers, timelines, and notification indicators when real repeated use cases exist. Do not mass-redesign screens or create components merely to complete a checklist.
+
+
 ## Conflict resolution
 Latest explicit user instruction wins for the changed requirement; preserve all other decisions. If ambiguity materially affects architecture, ask one focused question. Record approved changes and consequences in canonical docs/ADRs.
 
@@ -232,3 +239,8 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 
 
 197. Use docs/UI_FRAMEWORK.md as the implementation contract for reusable UI. Shared primitives and semantic tokens are the default; page-specific CSS is limited to composition and exceptional cases. Keep primitives highly configurable through deliberate semantic variants, density, layout, tone, and interaction props. Do not force identical appearance across domains, do not introduce third-party UI frameworks for routine styling, and do not use fixed heights for text-bearing cards by default.
+
+198. Use the shared `UiBadge` primitive for reusable status and metadata labels. Keep semantic meaning consistent across themes, use readable text rather than color alone, and keep animation opt-in for meaningful state changes only. Do not add continuously animated decorative badges or duplicate one-off badge CSS.
+
+
+199. Theme-aware component coverage includes the existing `UiButton`, `UiCard`, `GameplayDialog`, `EmptyState`, app toast surface, and chart token contract, plus `UiProgress` and `UiField`. Reuse these before adding duplicates. Keep input state and validation in the owning form; keep chart data/interaction in the owning domain. All component colors must resolve from shared semantic tokens across all 17 themes, including Paper. Respect reduced motion and visible focus.

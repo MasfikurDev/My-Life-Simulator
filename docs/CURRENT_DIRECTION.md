@@ -68,6 +68,7 @@ Top-level Life contains the modular Lifestyle experience: **Supermarket, Subscri
 - Present contextual situations and consequential player decisions through the reusable gameplay dialog. The dialog owns presentation; simulation rules, immediate outcomes, weekly planning, and persistence remain in their owning systems. Closing a dialog leaves an unresolved situation available to reopen.
 - Overview activity history is grouped by expandable week; the current week is expanded by default. Major achievements and life-stage milestones belong in Life History, not a duplicate Overview milestone panel.
 - Preserve the established visual identity and semantic theme system. Do not redesign the app or copy another game's identity when implementing a focused change.
+- Shared status/metadata labels use the theme-aware `UiBadge` primitive. Badge meaning stays consistent across all 17 themes; optional entrance motion is reserved for meaningful state changes and remains off by default.
 
 ## Visual QA implementation contract
 
@@ -94,6 +95,16 @@ Top-level Life contains the modular Lifestyle experience: **Supermarket, Subscri
 - Add funds and Move transfer money between available cash and the investment wallet. Buy, Sell, and Convert use that wallet and the existing trade fee/tax rules.
 - No live market API, real-world quote, actual earnings statement, analyst rating, or dynamic token supply is claimed.
 - See [Simulated Investment Markets](INVESTMENT_MARKETS.md) for the asset catalogue, rules, and remaining work.
+
+## Shared UI coverage and consistency (2026-11-19)
+
+- The reusable UI foundation covers theme-aware badges, buttons, cards, progress, fields, gameplay dialogs, empty states, the app notification surface, and chart semantic tokens.
+- Additional shared pattern areas are navigation/active indicators, menus and popovers, domain-owned list rows, loading feedback, selection states, timelines, purposeful stat presentation, and notification indicators. These are pattern coverage goals, not a mandate to create one component per item.
+- Keep typography hierarchy, spacing/density, surface/elevation, interaction states, and motion behavior consistent across the interface. Preserve domain-native layouts and information hierarchy; do not turn all screens into the same card grid.
+- Semantic meaning remains consistent across all 17 themes while colors and surface treatments adapt to each palette. Never rely on color alone; preserve Paper contrast and reduced-motion behavior.
+- Migrate incrementally by repeated use and player impact. Prioritize navigation/selection, transaction and record rows, stat presentation, and loading feedback. Adopt other patterns only where repeated use justifies them.
+- Canonical implementation detail: `docs/UI_FRAMEWORK.md`; visual principles: `docs/VISUAL_DESIGN.md`.
+
 ## Architecture, saves, and quality
 
 - Keep simulation rules in pure TypeScript modules, independent of Svelte/browser APIs. UI collects choices and renders simulation-returned effects.

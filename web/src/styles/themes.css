@@ -38,7 +38,7 @@ html,body,.app-shell{background:var(--bg);color:var(--text);color-scheme:inherit
 :root[data-theme="paper"] .weekly-finance-totals>div,:root[data-theme="paper"] .weekly-finance-source{
   background:var(--surface-raised);border-color:var(--line);color:var(--text)
 }
-:root[data-theme="paper"] .achievement-mark,:root[data-theme="paper"] .character-profile-tags span,
+:root[data-theme="paper"] .achievement-mark,
 :root[data-theme="paper"] .character-profile-breakdown,:root[data-theme="paper"] .character-profile-toggle{
   background:var(--surface-raised);border-color:var(--line);color:var(--muted)
 }

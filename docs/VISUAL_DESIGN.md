@@ -70,6 +70,15 @@ Every screen must use space deliberately and make common actions easy to reach. 
 - Sound effects are optional, subtle, generated locally, and independently switchable. Do not autoplay background music.
 - Clearly explain that local saves are tied to the current app/browser storage and are not cloud-backed.
 
+
+## Shared component consistency
+
+The reusable component contract is defined in [UI Framework](UI_FRAMEWORK.md). Apply its remaining pattern coverage—navigation, menus/popovers, list rows, loading, selection, timelines, stat tiles, and notification indicators—without forcing every domain into the same layout. These are reusable behavior/presentation patterns, not an instruction to create a separate component for every visual element.
+
+Across all themes, maintain a consistent typography hierarchy, spacing/density scale, surface/elevation language, interaction-state vocabulary, and motion timing. Keep semantic meaning consistent while adapting palette treatment and contrast to each theme. Selection, status, and alerts must remain understandable without color alone. Motion is state-driven, restrained, and disabled or simplified under `prefers-reduced-motion`.
+
+Prioritize migration by repeated use and player impact: navigation/selection, transaction and record rows, stat presentation, and loading feedback. Add other patterns only where the current UI demonstrates a real repeated need. Preserve domain-native information hierarchy and avoid mass redesign or decorative repetition.
+
 ## Component and layout engineering
 
 The detailed implementation rules live in `.github/skills/ui-engineering/SKILL.md` and are mandatory for every UI change. The current interface is Svelte 5 with shared global CSS, not a pre-existing component framework. Reuse the established semantic class patterns and existing components before introducing new abstractions. Keep shared layout, spacing, control sizing, and responsive behavior consistent across screens.
@@ -171,3 +180,11 @@ Do not render multiple controls or components for the same action or destination
 - Build screens from customizable primitives (card, button, stack, grid) and domain components. Reuse the foundation without flattening distinct domain experiences into identical cards.
 - Cards are content-sized by default. Use explicit compact/comfortable/spacious density; compact is the default for metadata and profile detail grids. Never impose fixed heights on text-bearing cards without a content-driven reason.
 - Decoration and animation are opt-in, theme-aware, and focal. Nested informational cards should remain quiet unless they carry an independent interaction or hierarchy.
+
+
+## Semantic badges (2026-11-19)
+- Use the shared `UiBadge` primitive for compact status and metadata labels instead of one-off pill CSS.
+- Keep meaning stable across all 17 themes: success, informational, special/featured, warning, risk, danger, and neutral. Theme palettes adjust the treatment while preserving readable semantic contrast.
+- Prefer subtle tinted surfaces and thin semantic borders. Status must remain understandable from its text; never rely on color alone.
+- Badges are static by default. Use an entrance animation only when a meaningful status is newly introduced; do not pulse or continuously animate routine labels. Respect `prefers-reduced-motion`.
+- Keep profile metadata tags neutral. Reserve stronger tones for states that communicate a meaningful outcome, eligibility, risk, or change.

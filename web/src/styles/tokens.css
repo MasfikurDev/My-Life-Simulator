@@ -6,7 +6,7 @@
   --shadow-card:0 8px 24px rgba(0,0,0,.16);
   --focus-ring:0 0 0 2px var(--bg),0 0 0 4px var(--accent);
   --on-accent:#041109;--shadow-color:#000;--overlay-color:#000;--illustration-deep:#0c1710;--illustration-mid:#142a1b;--illustration-light:#254b32;--success-soft:#10251a;--info-soft:#142131;
-  --danger:#e38d88;--danger-soft:#291613;--success:#72d69a;--warning:#e3bd76;--warning-soft:#17110b;--info:#8fb9e8;
+  --danger:#e38d88;--danger-soft:#291613;--success:#72d69a;--warning:#e3bd76;--warning-soft:#17110b;--info:#8fb9e8;--special:#b69cff;
 }
 :root[data-theme="amoled"]{color-scheme:dark}
 :root[data-theme="midnight"]{--on-accent:#07111f;
@@ -30,7 +30,7 @@
   color-scheme:light;--bg:#f4f1e9;--surface:#fffdf7;--surface-raised:#f8f5ed;--surface-hover:#eeeade;
   --line:#ded9ca;--line-strong:#c8c1ae;--text:#252b25;--muted:#5e695e;--subtle:#788174;
   --accent:#267447;--accent-strong:#195c36;--accent-soft:#e2eee4;--green:#267447;--green-dark:#d7e8d9;--mint:#267447;
-  --coral:#a84f43;--blue:#426b9b;--amber:#92651c;--danger:#a33e37;--danger-soft:#f5e4e1;--success:#267447;--warning:#92651c;--warning-soft:#f3ead7;--info:#426b9b;
+  --coral:#a84f43;--blue:#426b9b;--amber:#92651c;--danger:#a33e37;--danger-soft:#f5e4e1;--success:#267447;--warning:#92651c;--warning-soft:#f3ead7;--info:#426b9b;--special:#6546a5;
   --shadow-card:0 8px 24px rgba(45,48,36,.08);--shadow-color:#33382f;--overlay-color:#232a23;--illustration-deep:#e2eee4;--illustration-mid:#d7e8d9;--illustration-light:#c4ddc9;--success-soft:#e2eee4;--info-soft:#e7edf5;
 }
 
@@ -109,4 +109,16 @@
   --shadow-color:#100704;--illustration-deep:#2a1715;--illustration-mid:#48251d;--illustration-light:#70402a;
   --success-soft:#3b3020;--info-soft:#2a2b43;--success:#d1c18a;--warning:#ffd27e;--warning-soft:#402d1b;--info:#b4b6df;
   --shadow-card:0 9px 28px rgba(0,0,0,.36),0 0 20px rgba(255,180,95,.055);
+}
+
+/* Theme-aware chart semantics: each theme inherits its own semantic palette. */
+:root{
+  --chart-positive:var(--success);
+  --chart-negative:var(--danger);
+  --chart-neutral:var(--muted);
+  --chart-grid:var(--line);
+  --chart-series-1:var(--accent);
+  --chart-series-2:var(--info);
+  --chart-series-3:var(--special);
+  --chart-fill:color-mix(in srgb,var(--accent) 14%,transparent);
 }
