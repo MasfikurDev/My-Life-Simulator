@@ -103,3 +103,21 @@ The shared primitives expose configuration for common differences without requir
 - **UiGrid / UiStack:** use configurable columns/minimum width, direction, alignment, wrapping, and gap. These are layout primitives, not card or content components.
 
 Add a new prop only when it represents a repeated semantic need. Prefer CSS custom properties for continuous visual values; do not expose arbitrary palette overrides that bypass theme tokens. Existing call sites must remain valid when optional props are added.
+
+## Initial screen adoption (2026-11-19)
+
+The flexible primitives are now used in real domain screens, not only defined:
+
+- **UiProgress**
+  - Finance Accounts: credit score and savings goal.
+  - Finance Products: loan repayment and savings goal.
+  - Education: overall course progress and subject grades.
+  - Family: relationship closeness, trust, and tension.
+  - Health: wellbeing stats and medical-condition severity.
+- **UiField**
+  - Finance Accounts: bank transaction amount.
+  - Finance Products: extra loan repayment amount.
+- **UiBadge**
+  - Used by `ActivityStatusSeal` across Health, Education, Family, Work, and Finance Assets; the wrapper maps domain statuses to shared semantic tones.
+
+The original screen-specific meters and CSS were removed where the shared progress component replaced them. Domain-specific layouts, labels, thresholds, and data calculations remain in their owning screens. This is a targeted first adoption pass, not a claim that every screen has migrated.
