@@ -20,7 +20,7 @@
 @media(prefers-reduced-motion:reduce){.ui-card,.ui-stack,.ui-button{transition:none!important}.ui-card--interactive:hover{transform:none}}
 
 /* Shared form and chart presentation primitives. */
-.ui-field :global(input),.ui-field :global(select),.ui-field :global(textarea){
+.ui-field input,.ui-field select,.ui-field textarea{
   min-width:0;max-width:100%;border-color:var(--line);background:var(--surface-raised);color:var(--text);
 }
 .ui-field :global(input:focus-visible),.ui-field :global(select:focus-visible),.ui-field :global(textarea:focus-visible){
