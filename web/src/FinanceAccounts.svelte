@@ -127,8 +127,6 @@
 
 .credit-profile{display:grid;gap:10px;padding:13px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .credit-profile summary{list-style:none;cursor:pointer}.credit-profile summary::-webkit-details-marker{display:none}.credit-summary{display:flex;align-items:center;justify-content:space-between;gap:10px}.credit-summary>span:first-child{display:grid;gap:3px}.credit-summary strong{font-size:14px}.credit-summary em{font-size:10px;font-style:normal;color:var(--success)}.credit-summary-hint{font-size:10px;color:var(--muted)}
-.credit-score-track{height:8px;border-radius:99px;background:var(--surface-raised);overflow:hidden}
-.credit-score-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--danger),var(--warning),var(--success));transition:width .2s ease}
 .credit-score-scale{display:flex;justify-content:space-between;color:var(--muted);font-size:9px}
 .credit-factors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .credit-factors>div{display:grid;gap:3px;padding:9px;border-radius:9px;background:var(--surface-raised);min-width:0}
