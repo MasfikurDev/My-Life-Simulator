@@ -151,3 +151,5 @@ When a newer explicit decision conflicts with an older document, this file recor
 - `UiProgress` is now adopted for Finance Accounts credit/savings progress, Finance Products loan/savings progress, Education course/subject progress, Family relationship metrics, and Health wellbeing/condition meters.
 - `UiField` is adopted for bank transaction amount and extra loan repayment amount fields.
 - `ActivityStatusSeal` delegates semantic status styling to `UiBadge`. Continue migrating repeated patterns incrementally; do not force domain-specific layouts into generic components.
+
+- Progress-component adoption must preserve the existing semantic bands exactly, including the intermediate coral band and inverse thresholds for stress/severity. `getValueTone` is the shared source for mapping stat values to `UiProgress` tones; do not simplify thresholds during UI migration.
