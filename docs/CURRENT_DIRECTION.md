@@ -86,12 +86,13 @@ Top-level Life contains the modular Lifestyle experience: **Supermarket, Subscri
 
 ## Simulated investment markets
 
-- Finance has separate Stocks and Crypto destinations with searchable market lists, holdings, gainers/losers/trending filters, persistent watchlists, and individual asset detail views.
-- Markets use local simulated assets and deterministic annual price updates tied to the in-game economy. They never display real-time quotes or imply real-money trading.
-- Stocks and crypto share the existing investment holdings, cash balance, brokerage fees, capital-gains tax, and financial ledger. Banking remains the source of available cash.
-- Market charts are illustrative until persisted weekly/daily price history is implemented. Do not describe chart ranges as real historical candles.
-- See [Simulated Investment Markets](INVESTMENT_MARKETS.md) for the asset catalogue, trading rules, and explicit follow-up boundaries.
-
+- Finance retains the established top-level order: Banking, Business, Property, Investments, Taxes. The Investments workspace contains Stocks, Crypto, and Other assets.
+- Stocks and Crypto use separate market lists and portfolio subtotals but share one investment wallet, holdings, brokerage, capital-gains tax, and financial ledger.
+- Stock and crypto prices are simulated locally and update deterministically each resolved in-game week. Weekly closing quotes are persisted for chart history; 1H/1D paths are explicitly modeled within-week movement, not stored candles.
+- Market capitalization uses simulated quotes and catalogue supply. Volume is a simulated market profile, not actual exchange or player trade volume.
+- Add funds and Move transfer money between available cash and the investment wallet. Buy, Sell, and Convert use that wallet and the existing trade fee/tax rules.
+- No live market API, real-world quote, actual earnings statement, analyst rating, or dynamic token supply is claimed.
+- See [Simulated Investment Markets](INVESTMENT_MARKETS.md) for the asset catalogue, rules, and remaining work.
 ## Architecture, saves, and quality
 
 - Keep simulation rules in pure TypeScript modules, independent of Svelte/browser APIs. UI collects choices and renders simulation-returned effects.
