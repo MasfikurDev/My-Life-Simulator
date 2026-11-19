@@ -4,7 +4,7 @@
   import GameChoice from './GameChoice.svelte';
   import UiProgress from './components/UiProgress.svelte';
   import UiField from './components/UiField.svelte';
-  let { character, onChange, view = 'all' }: { character: Character; onChange: (next: Character) => void; view?: 'all' | 'cards' | 'loans' | 'bills' | 'savings' } = $props();
+  let { character, projectedCharacter = character, onChange, view = 'all' }: { character: Character; projectedCharacter?: Character; onChange: (next: Character) => void; view?: 'all' | 'cards' | 'loans' | 'bills' | 'savings' } = $props();
   let cardAccount = $state('');
   const cardProducts = [{id:'everyday-debit',name:'Everyday Debit',type:'debit' as const,description:'Direct spending from your everyday account.',creditLimit:0,apr:0,minimumCreditScore:0,minimumAssets:0,rewardsRate:0.005,brand:'NORTHSTAR BANK'},{id:'starter-credit',name:'Starter Credit',type:'credit' as const,description:'A first credit line for building a payment record.',creditLimit:5000,apr:0.24,minimumCreditScore:520,minimumAssets:0,rewardsRate:0.005,brand:'NORTHSTAR BANK'},{id:'rewards-credit',name:'Rewards Credit',type:'credit' as const,description:'Higher limit and stronger everyday rewards.',creditLimit:15000,apr:0.18,minimumCreditScore:680,minimumAssets:15000,rewardsRate:0.015,brand:'SUMMIT FINANCIAL'},{id:'premium-credit',name:'Premium Credit',type:'credit' as const,description:'Premium rewards for established, higher-asset customers.',creditLimit:50000,apr:0.14,minimumCreditScore:760,minimumAssets:75000,rewardsRate:0.02,brand:'SUMMIT FINANCIAL'},{id:'prepaid-travel',name:'Travel Prepaid',type:'prepaid' as const,description:'Preload funds for controlled spending. No credit line or interest.',creditLimit:0,apr:0,minimumCreditScore:0,minimumAssets:0,rewardsRate:0,brand:'NORTHSTAR BANK'}];
   let loanDialogOpen = $state(false);
@@ -152,7 +152,7 @@
     {#if character.age<18}<small class="hint">Emergency savings targets unlock at age 18.</small>{/if}
     {#if character.savingsGoalMonths}
       <div class="vault-balance"><small>TARGET · {character.savingsGoalMonths} MONTHS</small><strong>{formatCharacterMoney(character,savingsGoalTarget)}</strong><small>Cash balance · {formatCharacterMoney(character)}</small></div>
-      <UiProgress label="Savings goal progress" value={character.money} max={Math.max(1, savingsGoalTarget)} tone="accent" showLabel={false} />
+      <UiProgress label="Savings goal progress" value={character.money} previewValue={projectedCharacter.money} previewTone={projectedCharacter.money >= character.money ? 'success' : 'danger'} max={Math.max(1, savingsGoalTarget)} tone="accent" showLabel={false} showValue valueText={`${formatCharacterMoney(character)} → ${formatCharacterMoney(character, projectedCharacter.money)}`} />
       <small class="hint">{Math.min(100,Math.round(character.money/Math.max(1,savingsGoalTarget)*100))}% of your target.</small>
     {/if}
   </details>
