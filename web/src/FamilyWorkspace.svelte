@@ -7,13 +7,14 @@
   import { formatCharacterMoney, planFamilyInteractionInNextFreeTime, planSocialInteractionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { addSocialConnection, removeSocialConnection, setSocialConnectionHousehold } from './lib/lifestyle';
 
-  let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
+  let { character, projectedCharacter = character, onChange }: { character: Character; projectedCharacter?: Character; onChange: (next: Character) => void } = $props();
   let supportAmount = $state(0);
   let socialName = $state('');
   let socialType = $state<'friend' | 'partner' | 'child' | 'extended-family'>('friend');
   let socialLivesTogether = $state(false);
   let feedback = $state('');
   const connections = $derived(getFamilyConnections(character));
+  const projectedConnections = $derived(getFamilyConnections(projectedCharacter));
   const family = $derived(character.family);
   const errors = $derived(family ? validateFamilyState(family) : []);
   const livingCount = $derived(connections.filter((item) => item.living).length);
@@ -104,14 +105,15 @@
               <span class:deceased={!connection.living} class="relative-status">{connection.living ? 'Living' : 'Deceased'}</span>
             </div>
             {#if connection.bond}
+              {@const projectedBond = projectedConnections.find((item) => item.person.id === connection.person.id)?.bond ?? connection.bond}
               <div class="bond-grid bond-grid-primary">
-                <div><span>Closeness</span><strong>{connection.bond.closeness}/100</strong><UiProgress label="Relationship closeness" value={connection.bond.closeness} tone={getValueTone(connection.bond.closeness)} size="small" showLabel={false} /></div>
+                <div><span>Closeness</span><strong>{connection.bond.closeness}{#if projectedBond.closeness !== connection.bond.closeness} → {projectedBond.closeness}{/if}/100</strong><UiProgress label="Relationship closeness" value={connection.bond.closeness} previewValue={projectedBond.closeness} previewTone={projectedBond.closeness > connection.bond.closeness ? 'success' : 'danger'} tone={getValueTone(connection.bond.closeness)} size="small" showLabel={false} /></div>
               </div>
               <details class="relative-bond-details">
                 <summary>Trust &amp; tension</summary>
                 <div class="bond-grid">
-                  <div><span>Trust</span><strong>{connection.bond.trust}/100</strong><UiProgress label="Relationship trust" value={connection.bond.trust} tone={getValueTone(connection.bond.trust)} size="small" showLabel={false} /></div>
-                  <div><span>Tension</span><strong>{connection.bond.tension}/100</strong><UiProgress label="Relationship tension" value={connection.bond.tension} tone={getValueTone(connection.bond.tension, true)} size="small" showLabel={false} /></div>
+                  <div><span>Trust</span><strong>{connection.bond.trust}{#if projectedBond.trust !== connection.bond.trust} → {projectedBond.trust}{/if}/100</strong><UiProgress label="Relationship trust" value={connection.bond.trust} previewValue={projectedBond.trust} previewTone={projectedBond.trust > connection.bond.trust ? 'success' : 'danger'} tone={getValueTone(connection.bond.trust)} size="small" showLabel={false} /></div>
+                  <div><span>Tension</span><strong>{connection.bond.tension}{#if projectedBond.tension !== connection.bond.tension} → {projectedBond.tension}{/if}/100</strong><UiProgress label="Relationship tension" value={connection.bond.tension} previewValue={projectedBond.tension} previewTone={projectedBond.tension < connection.bond.tension ? 'success' : 'danger'} tone={getValueTone(connection.bond.tension, true)} size="small" showLabel={false} /></div>
                 </div>
               </details>
               {#if connection.bond.lastInteractionYear !== null}
