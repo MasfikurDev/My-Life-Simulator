@@ -29,4 +29,4 @@
     unavailable: 'neutral'
   };
 </script>
-<UiBadge tone={tones[status]} size="tiny" shape="square" prefix={symbols[status]} ariaLabel={label ?? defaults[status]}>{label ?? defaults[status]}</UiBadge>
+<span role="status"><UiBadge tone={tones[status]} size="tiny" shape="square" prefix={symbols[status]} ariaLabel={label ?? defaults[status]}>{label ?? defaults[status]}</UiBadge></span>
