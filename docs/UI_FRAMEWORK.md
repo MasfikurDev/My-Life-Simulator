@@ -4,7 +4,7 @@
 My Life Simulator uses a small, in-repository Svelte UI framework rather than hand-authored page CSS or a third-party component library. It is a design system and composition toolkit, not a requirement that every screen or card look alike.
 
 ## Layers and ownership
-1. Semantic theme tokens in web/src/styles/tokens.css and themes.css define palette, surfaces, typography colors, spacing, radii, controls, focus, and theme identity.
+1. Semantic theme tokens in web/src/styles/tokens.scss and themes.scss define palette, surfaces, typography colors, spacing, radii, controls, focus, and theme identity.
 2. Framework primitives in web/src/components own reusable presentation and expose deliberate customization.
 3. Domain components combine primitives while retaining domain-specific information hierarchy and behavior.
 4. Pages and workspaces arrange domain components. Page CSS describes exceptional composition, not repeated card, button, spacing, or theme behavior.
@@ -31,7 +31,7 @@ My Life Simulator uses a small, in-repository Svelte UI framework rather than ha
 - Establish tokens and primitives first.
 - Migrate high-reuse patterns in small slices, beginning with shared primitives and Profile details, then common workspace sections.
 - Remove obsolete page-level overrides only after all consumers use the shared primitive.
-- Do not mass-rewrite every workspace in one PR. Keep gameplay logic and save formats unchanged.
+- Keep gameplay logic and save formats unchanged. All application-authored stylesheets and Svelte component style blocks are now SCSS.
 - Every migration should remove duplicated CSS or reduce page-specific styling rather than add another layer of overrides.
 
 
@@ -166,6 +166,6 @@ Use raised/floating levels only where the content hierarchy justifies them. Avoi
 
 - Sass with SCSS syntax is the preprocessor for shared Svelte component styles. The Vite Svelte plugin uses `vitePreprocess()`; component styles opt in with `<style lang="scss">`.
 - Shared compile-time helpers live in `web/src/styles/_mixins.scss`. Use Sass modules with `@use` (namespaced by default); do not introduce legacy Sass `@import` or global helper leakage.
-- Sass variables, functions, and mixins are compile-time authoring tools. Runtime theme palettes and player-selected appearance remain CSS custom properties in `tokens.css` and `themes.css`; do not duplicate the 17 theme palettes in Sass maps or hard-code theme colors in component styles.
-- Keep existing global CSS in place. Migrate high-reuse component styles to SCSS incrementally when it removes duplication or creates a useful shared abstraction; do not mass-convert files or change visual behavior just to change extensions.
+- Sass variables, functions, and mixins are compile-time authoring tools. Runtime theme palettes and player-selected appearance remain CSS custom properties in `tokens.scss` and `themes.scss`; do not duplicate the 17 theme palettes in Sass maps or hard-code theme colors in component styles.
+- All application-authored stylesheets and Svelte component style blocks use SCSS. Preserve the separation between global foundations, shared framework styles, and component-scoped styles; do not create parallel CSS files or change visual behavior just to reorganize selectors.
 - Keep Sass pinned in `web/package.json` and `web/package-lock.json`. The normal `npm ci` workflow must remain reproducible.

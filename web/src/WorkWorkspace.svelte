@@ -199,7 +199,7 @@
   {/if}
 </section>
 
-<style>
+<style lang="scss">
   .work-workspace{display:grid;gap:10px;min-width:0}
   .work-header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
   .work-date{flex:none;padding:8px 10px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:10px}

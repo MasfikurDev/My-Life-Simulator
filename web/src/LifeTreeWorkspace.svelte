@@ -72,7 +72,7 @@
   {/if}
 </section>
 
-<style>
+<style lang="scss">
   .life-tree{display:grid;gap:14px;min-width:0}
   .tree-intro{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:17px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,var(--surface-raised),var(--surface))}
   .tree-intro>div:first-child{min-width:0}

@@ -265,7 +265,7 @@
   {/if}
 </section>
 
-<style>
+<style lang="scss">
   .lifestyle-workspace{display:grid;gap:10px;min-width:0}
   .lifestyle-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
   .lifestyle-heading h2{font-size:24px;line-height:1.2;letter-spacing:-.7px;margin:3px 0 4px}

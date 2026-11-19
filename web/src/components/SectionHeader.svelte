@@ -11,7 +11,7 @@
   </div>
   {#if children}<div class="ui-section-actions">{@render children()}</div>{/if}
 </header>
-<style>
+<style lang="scss">
   .ui-section-header{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--space-3);min-width:0}
   .ui-section-copy{min-width:0;display:grid;gap:4px}
   h2{margin:0;color:var(--text);font-size:18px;line-height:1.25}

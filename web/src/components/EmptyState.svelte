@@ -7,7 +7,7 @@
   {#if description}<p>{description}</p>{/if}
 </div>
 
-<style>
+<style lang="scss">
   .ui-empty-state {
     display: grid;
     gap: 5px;

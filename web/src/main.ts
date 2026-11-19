@@ -1,8 +1,8 @@
 import { mount } from 'svelte';
 import App from './App.svelte';
-import './app.css';
-import './styles/tokens.css';
-import './styles/themes.css';
-import './styles/ui-framework.css';
+import './app.scss';
+import './styles/tokens.scss';
+import './styles/themes.scss';
+import './styles/ui-framework.scss';
 
 mount(App, { target: document.getElementById('app')! });

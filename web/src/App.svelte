@@ -702,7 +702,7 @@
   <footer class="footer"><span>life<span class="brand-light">story</span></span><span>YOUR LIFE. YOUR STORY.</span><span>v0.1 · EARLY PLAYABLE</span></footer>
 </div>
 
-<style>
+<style lang="scss">
   .pending-event-trigger{width:100%;display:flex;align-items:center;gap:12px;margin:0 0 15px;padding:13px 14px;border:1px solid var(--line-strong);border-radius:12px;background:linear-gradient(110deg,color-mix(in srgb,var(--accent) 9%,var(--surface)),var(--surface));color:var(--text);text-align:left;cursor:pointer;min-height:64px}
   .pending-event-trigger:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
   .pending-event-indicator{flex:none;padding:6px 7px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-size:8px;font-weight:850;letter-spacing:.8px}

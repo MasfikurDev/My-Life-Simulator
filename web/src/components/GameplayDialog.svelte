@@ -78,7 +78,7 @@
     </div>
   </dialog>
 
-<style>
+<style lang="scss">
   /* Author display styles must not override the browser's closed-dialog hiding rule. */
   .gameplay-dialog:not([open]){display:none}
   .gameplay-dialog{position:fixed;inset:0;margin:auto;width:min(560px,calc(100% - 32px));max-width:none;max-height:min(88dvh,760px);overflow:auto;overscroll-behavior:contain;padding:22px;border:1px solid var(--line-strong);border-radius:18px;background:var(--surface-raised);color:var(--text);box-shadow:0 28px 100px color-mix(in srgb,var(--shadow-color) 58%,transparent);display:grid;gap:18px;animation:dialog-rise-in .18s ease-out}

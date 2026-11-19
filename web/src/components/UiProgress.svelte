@@ -47,7 +47,7 @@
   </div>
 </div>
 
-<style>
+<style lang="scss">
   .ui-progress{display:grid;gap:6px;min-width:0;color:var(--text)}
   .ui-progress-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;font-weight:650}
   .ui-progress-heading--value-only{justify-content:flex-end}

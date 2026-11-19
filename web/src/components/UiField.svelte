@@ -34,7 +34,7 @@
   {/if}
 </div>
 
-<style>
+<style lang="scss">
   .ui-field{display:grid;gap:6px;min-width:0}
   .ui-field-control{min-width:0}
   .ui-field--compact{gap:4px}

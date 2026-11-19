@@ -81,7 +81,7 @@ function start() {
   </div>
 </section>
 
-<style>
+<style lang="scss">
 .preset-experience{margin:0}
 .creation-heading-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
 .creation-back-button{flex:none;white-space:nowrap;margin-top:2px}

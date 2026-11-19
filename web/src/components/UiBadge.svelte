@@ -46,7 +46,7 @@
   <span class="ui-badge-label">{@render children()}</span>
 </span>
 
-<style>
+<style lang="scss">
   .ui-badge {
     display: inline-flex;
     align-items: center;
