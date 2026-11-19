@@ -4,6 +4,7 @@
   import FinanceProducts from './FinanceProducts.svelte';
   import EmptyState from './components/EmptyState.svelte';
   import GameChoice from './GameChoice.svelte';
+  import UiProgress from './components/UiProgress.svelte';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   let accountType = $state<BankAccountType>('checking');
   let fixedTermYears = $state('1');
@@ -47,7 +48,7 @@
         <span><small>CREDIT HEALTH</small><strong>Credit score · {creditProfile.score} / 850</strong><em>{creditProfile.rating}</em></span>
         <span class="credit-summary-hint">View breakdown</span>
       </summary>
-      <div class="credit-score-track" role="meter" aria-label="Credit score" aria-valuemin="300" aria-valuemax="850" aria-valuenow={creditProfile.score}><span style={'width:' + ((creditProfile.score - 300) / 550 * 100) + '%'}></span></div>
+      <UiProgress label="Credit score" value={creditProfile.score - 300} max={550} tone={creditProfile.score >= 740 ? "success" : creditProfile.score >= 670 ? "info" : creditProfile.score >= 580 ? "warning" : "danger"} showLabel={false} showValue valueText={`${creditProfile.score} / 850`} />
       <div class="credit-score-scale"><span>300 · Poor</span><span>850 · Excellent</span></div>
       <div class="credit-factors">
         <div><small>Payment record</small><strong>{creditProfile.successfulPayments} on time · {creditProfile.missedPayments} missed</strong></div>
