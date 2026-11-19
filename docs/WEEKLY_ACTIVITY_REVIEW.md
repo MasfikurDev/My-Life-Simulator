@@ -79,7 +79,7 @@ Money changes the quality of available choices, not only the size of a balance. 
 **Implemented on `feat/weekly-activity-outcome-ui`; validation pending.**
 
 - The Weekly Review now presents the full changed-stat forecast returned by the deterministic weekly preview, including tracked character stats, education grade/attendance/course progress/subject grades, work performance/experience, skills, individual family bonds, individual business performance, and clothing presentation. Unchanged metrics are omitted.
-- Stamina is shown once as a compact current-to-projected allocation summary, with effort and recovery totals. It is not treated as the only weekly stat forecast.
+- Stamina is shown once as a compact current-to-projected allocation summary, with effort, selected/passive recovery, and natural workload drift identified separately. The automatic drift is also added to the week recap so it is not a hidden state change.
 - The duplicate Combined Character Impact section has been removed. Projected cash remains separate inside the forecast section.
 - Planned activity rows use compact semantic badges for resolver-observed scalar stat and cash deltas, plus stamina cost/recovery. Automatic passive rows expose their actual health, happiness, fitness, comfort, discipline, stress, and stamina effects as structured badges rather than hiding them in explanatory copy. Planned activities have a compact × removal control; automatic activities remain unremovable.
 - Per-activity outcomes are captured around the actual deterministic resolver step. The preview remains read-only and does not infer outcomes from descriptive reward copy. Stress uses inverse semantic tone. Application outcomes are not assigned invented career progression.
