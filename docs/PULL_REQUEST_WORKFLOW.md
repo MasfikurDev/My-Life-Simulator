@@ -20,6 +20,12 @@ The PR is the primary record for an individual change. Its description must stay
 - Keep validation evidence tied to actual GitHub Actions runs and the commit that was tested. Distinguish code validation, the separate simulation audit, deployment, and visual verification.
 - Update the PR description when scope, behavior, risks, decisions, or validation results change. Do not rely on chat history as the only record.
 
+### Mandatory read-back after GitHub mutations
+
+Do not treat a successful create/update call as proof that the requested PR state was saved. After creating or changing PR metadata, fetch the PR and verify its actual title, body, draft/state, base/head, and any other fields relevant to the change. Verify labels and comments through their own read endpoints when applicable. If the expected content is absent, correct it and fetch again before reporting success.
+
+Validation is separate from metadata persistence: confirm checks against the exact current head SHA. Verify merge, deployment, and release independently; never infer one from another. If a state or check cannot be read, label it **unverified** rather than claiming completion.
+
 ## 3. Iterate while it is a draft
 
 A draft PR is the normal place for unfinished work and last-minute changes:
