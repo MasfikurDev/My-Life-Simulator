@@ -20,7 +20,8 @@
   let range = $state('1W');
   let quantity = $state('1');
   let notice = $state('');
-  let watchOnly = $state(false);\n  let searchOpen = $state(false);
+  let watchOnly = $state(false);
+  let searchOpen = $state(false);
   let fundsAction = $state<'deposit' | 'move' | null>(null);
   let fundsAmount = $state('1000');
   let convertOpen = $state(false);
@@ -53,7 +54,9 @@
   const chartLow = $derived(chart.length ? Math.min(...chart) : 0);
   const chartChange = $derived(chart.length > 1 && chart[0] > 0 ? ((chart[chart.length - 1] / chart[0]) - 1) * 100 : 0);
   const currentHolding = $derived(current ? holdings.find((item) => item.type === current.type) : undefined);
-  const currentMarketAssets = $derived(assets.filter((asset) => asset.type !== current?.type));\n  const estimatedGross = $derived(current ? Math.round(currentPrice * Math.max(0, Math.floor(Number(quantity) || 0))) : 0);\n  const estimatedFee = $derived(estimatedGross > 0 ? Math.ceil(estimatedGross * 0.005) : 0);
+  const currentMarketAssets = $derived(assets.filter((asset) => asset.type !== current?.type));
+  const estimatedGross = $derived(current ? Math.round(currentPrice * Math.max(0, Math.floor(Number(quantity) || 0))) : 0);
+  const estimatedFee = $derived(estimatedGross > 0 ? Math.ceil(estimatedGross * 0.005) : 0);
 
   function price(asset: MarketAsset) { return getMarketPrice(character, asset.type); }
   function history(asset: MarketAsset) {
