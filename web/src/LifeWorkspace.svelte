@@ -122,7 +122,7 @@
   }
   .life-workspace .finance-nav button {
     flex:0 0 auto;
-    min-height:42px;
+    min-height:44px;
     border:1px solid var(--line);
     border-radius:10px;
     padding:0 12px;
@@ -149,7 +149,7 @@
       padding-bottom:7px;
     }
     .life-workspace .finance-nav button {
-      min-height:40px;
+      min-height:44px;
       padding:0 11px;
       font-size:10px;
     }

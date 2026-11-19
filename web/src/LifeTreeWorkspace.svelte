@@ -80,10 +80,10 @@
   .tree-intro p{max-width:620px;margin:0;color:var(--muted);font-size:12px;line-height:1.55}
   .tree-total{display:grid;justify-items:center;gap:3px;flex:none;min-width:65px;padding:9px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
   .tree-total strong{font-size:23px;color:var(--accent);font-variant-numeric:tabular-nums}
-  .tree-total span,.node-meta,.chosen-tag,.other-tag,.branch-followup>span{font-size:8px;font-weight:800;letter-spacing:.8px}
+  .tree-total span,.node-meta,.chosen-tag,.other-tag,.branch-followup>span{font-size:9px;font-weight:800;letter-spacing:.8px}
   .tree-total span{color:var(--muted)}
   .tree-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 7px;scrollbar-width:thin}
-  .tree-tabs button{flex:none;min-height:39px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:10px;font-weight:700;white-space:nowrap}
+  .tree-tabs button{flex:none;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:10px;font-weight:700;white-space:nowrap}
   .tree-tabs button.active{border-color:color-mix(in srgb,var(--accent) 50%, transparent);background:var(--accent-soft);color:var(--accent)}
   .tree-description{margin:-8px 0 0;color:var(--muted);font-size:10px}
   .tree-path{display:grid;gap:0}
@@ -105,7 +105,7 @@
   .other-tag{flex:none;color:var(--muted)}
   .branch-card>p{margin:6px 0 8px;color:var(--muted);font-size:9px;line-height:1.45}
   .branch-rewards{display:flex;flex-wrap:wrap;gap:4px}
-  .branch-rewards span{padding:4px 6px;border-radius:6px;background:var(--surface);color:var(--accent);font-size:8px;font-weight:750}
+  .branch-rewards span{padding:4px 6px;border-radius:6px;background:var(--surface);color:var(--accent);font-size:9px;font-weight:750}
   .branch-rewards span.negative{color:var(--danger,var(--muted))}
   .branch-rewards .no-reward{color:var(--muted)}
   .branch-followup{display:grid;gap:3px;margin-top:8px;padding-top:7px;border-top:1px solid var(--line)}
@@ -116,5 +116,5 @@
   .empty-glyph{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-size:24px}
   .tree-empty h3{margin:4px 0 0;color:var(--text);font-size:14px}
   .tree-empty p{max-width:390px;margin:0;color:var(--muted);font-size:10px;line-height:1.55}
-  @media(max-width:520px){.tree-intro{padding:13px}.tree-intro h2{font-size:22px}.tree-intro p{font-size:10px}.branch-list{grid-template-columns:1fr}.node-content{padding:10px}.node-meta{font-size:7px}}
+  @media(max-width:520px){.tree-intro{padding:13px}.tree-intro h2{font-size:22px}.tree-intro p{font-size:10px}.branch-list{grid-template-columns:1fr}.node-content{padding:10px}.node-meta{font-size:9px}}
 </style>

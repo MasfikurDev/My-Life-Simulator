@@ -58,7 +58,7 @@
   .life-overview-heading{align-items:center}
   .life-overview-age{display:grid;justify-items:center;gap:2px;min-width:76px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
   .life-overview-age strong{font-size:25px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums}
-  .life-overview-age span,.life-overview-facts small{font-size:8px;letter-spacing:1px;font-weight:800;color:var(--subtle)}
+  .life-overview-age span,.life-overview-facts small{font-size:9px;letter-spacing:1px;font-weight:800;color:var(--subtle)}
   .life-overview-panel,.life-overview-stats{display:grid;gap:16px;padding:16px}
   .life-overview-intro{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
   .life-overview-intro h2{margin:5px 0;font-size:20px}

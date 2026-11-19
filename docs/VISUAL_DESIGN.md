@@ -58,6 +58,7 @@ Every screen must use space deliberately and make common actions easy to reach. 
 - Navigation must remain obvious, reachable, and usable on small screens. Labels may be concise, but destinations must remain understandable.
 - Preserve readable typography, sufficient contrast, clear grouping, and comfortable touch targets (aim for at least 44 CSS px for primary interactive controls).
 - Do not solve density by hiding important information, shrinking text excessively, removing labels, or making controls difficult to tap.
+- Keep horizontal section/filter rails, market range selectors, watchlist controls, quantity steppers, and purchase/trade actions at least 44 CSS px high. Product and inventory cards size to their content rather than a forced square ratio; gameplay effect summaries remain readable at 10px or larger.
 - Use progressive disclosure for secondary detail rather than filling the first view with every available statistic.
 - Test narrow phone widths, typical Android viewport sizes, and desktop layouts; account for bottom navigation, floating actions, and system safe areas.
 - Every new screen or component must justify its vertical space and provide a clear user task or useful information.

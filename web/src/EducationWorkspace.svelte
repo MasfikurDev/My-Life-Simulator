@@ -120,7 +120,7 @@
   }
   .education-nav button {
     flex:0 0 auto;
-    min-height:42px;
+    min-height:44px;
     padding:0 13px;
     border:1px solid var(--line);
     border-radius:10px;
@@ -147,7 +147,7 @@
   @media(max-width:620px) {
     .education-nav { padding-bottom:7px; }
     .education-nav button {
-      min-height:40px;
+      min-height:44px;
       padding:0 11px;
       font-size:10px;
     }
