@@ -1,5 +1,12 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import type { PendingGameEvent } from '../lib/types';
+
+  let dialogElement: HTMLDialogElement;
+  onMount(() => {
+    if (!dialogElement.open) dialogElement.showModal();
+    return () => { if (dialogElement.open) dialogElement.close(); };
+  });
 
   let {
     event,
@@ -20,13 +27,12 @@
   } = $props();
 </script>
 
-<div class="gameplay-dialog-backdrop" role="presentation">
-  <dialog open class="gameplay-dialog" aria-modal="true" aria-labelledby="gameplay-dialog-title" onkeydown={(keyEvent) => keyEvent.key === 'Escape' && onClose()}>
+<dialog bind:this={dialogElement} class="gameplay-dialog" aria-modal="true" aria-labelledby="gameplay-dialog-title" oncancel={(cancelEvent) => { cancelEvent.preventDefault(); onClose(); }}>
     <div class="dialog-topline">
       <span class="dialog-category">{event.category}</span>
       <span class="dialog-age">AGE {age}</span>
     </div>
-    <button class="dialog-close" type="button" onclick={onClose} aria-label="Close situation" autofocus>×</button>
+    <button class="dialog-close" type="button" onclick={onClose} aria-label="Close situation">×</button>
 
     <div class="dialog-heading">
       <span class="dialog-kicker">A SITUATION HAS COME UP</span>
@@ -71,11 +77,10 @@
       <button class="dialog-later" type="button" onclick={onClose}>Decide later</button>
     </div>
   </dialog>
-</div>
 
 <style>
-  .gameplay-dialog-backdrop{position:fixed;inset:0;z-index:1100;display:grid;place-items:center;padding:16px;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(9px);animation:dialog-fade-in .18s ease-out}
-  .gameplay-dialog{position:relative;inset:auto;margin:0;width:min(560px,100%);max-width:none;max-height:min(88dvh,760px);overflow:auto;overscroll-behavior:contain;padding:22px;border:1px solid var(--line-strong);border-radius:18px;background:var(--surface-raised);color:var(--text);box-shadow:0 28px 100px color-mix(in srgb,var(--shadow-color) 58%,transparent);display:grid;gap:18px}
+   .gameplay-dialog{position:fixed;inset:0;margin:auto;width:min(560px,calc(100% - 32px));max-width:none;max-height:min(88dvh,760px);overflow:auto;overscroll-behavior:contain;padding:22px;border:1px solid var(--line-strong);border-radius:18px;background:var(--surface-raised);color:var(--text);box-shadow:0 28px 100px color-mix(in srgb,var(--shadow-color) 58%,transparent);display:grid;gap:18px;animation:dialog-rise-in .18s ease-out}
+  .gameplay-dialog::backdrop{background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(9px)}
   .dialog-topline{display:flex;align-items:center;gap:8px;padding-right:38px}
   .dialog-category,.dialog-age{padding:6px 8px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:8px;font-weight:850;letter-spacing:.8px;text-transform:uppercase}
   .dialog-category{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));background:var(--accent-soft);color:var(--accent)}
@@ -106,15 +111,14 @@
   .dialog-footer{display:grid;gap:10px;padding-top:13px;border-top:1px solid var(--line)}
   .dialog-footer p{margin:0;color:var(--muted);font-size:9px;line-height:1.55}
   .dialog-later{justify-self:end;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font-size:10px;font-weight:750;cursor:pointer}
-  @keyframes dialog-fade-in{from{opacity:0}to{opacity:1}}
+  @keyframes dialog-rise-in{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
   @media(max-width:520px){
-    .gameplay-dialog-backdrop{align-items:end;padding:8px 8px max(8px,env(safe-area-inset-bottom))}
-    .gameplay-dialog{width:100%;max-height:min(88dvh,760px);padding:18px 15px;border-radius:18px 18px 14px 14px;gap:15px}
+    .gameplay-dialog{inset:auto 8px max(8px,env(safe-area-inset-bottom));margin:0;width:auto;max-height:min(88dvh,760px);padding:18px 15px;border-radius:18px 18px 14px 14px;gap:15px}
     .dialog-choice{grid-template-columns:24px minmax(0,1fr);gap:9px;padding:11px}
     .choice-action{grid-column:2;justify-self:start;text-align:left}
   }
   @media(prefers-reduced-motion:reduce){
-    .gameplay-dialog-backdrop{animation:none}
+    .gameplay-dialog{animation:none}
     .dialog-choice{transition:none}
     .dialog-choice:hover:not(:disabled){transform:none}
   }
