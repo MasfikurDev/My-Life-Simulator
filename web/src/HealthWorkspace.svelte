@@ -4,7 +4,7 @@
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
   import UiProgress from './components/UiProgress.svelte';
   import { formatCharacterMoney, planActivityInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
-  import { getActivityStaminaCost, getValueColor } from './lib/progression';
+  import { getActivityStaminaCost } from './lib/progression';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   const medical = $derived(character.medicalState ?? { conditions: [], medications: [], highStressWeeks: 0 });
   const schedule = $derived(character.weeklyPlan);
