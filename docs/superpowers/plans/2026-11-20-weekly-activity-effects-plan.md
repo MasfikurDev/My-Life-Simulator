@@ -43,11 +43,12 @@
 
 ### 4. Documentation and validation
 
-**Status: Documentation updated; automated and visual validation pending.**
+**Status: Documentation updated; automated validation passed on the implementation revision. Final CSS cleanup requires one last workflow rerun; responsive visual review remains pending.**
 - Update Weekly Activity Review, Visual Design, and relevant domain docs after implementation.
-- Run `npm run check`, `npm test`, and `npm run build` from `web/`.
+- GitHub Actions validation passed on the implementation revision: Svelte check 0 errors / 11 warnings, Vitest 201 tests across 14 files, and production build succeeded. Re-run after the final CSS cleanup.
 - Review responsive behavior at 320, 360, 390, 430, 768, 1024, and 1440 CSS px where browser preview is available.
 - Verify no theme regressions, overflow, focus issues, or duplicate actions.
+- Long simulation audit passed 4/4 stress scenarios; pull request safeguards passed.
 - Keep the PR Draft; report exactly what is implemented and what remains unverified.
 
 ## Verification notes
