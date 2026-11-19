@@ -81,7 +81,7 @@ Prioritize migration by repeated use and player impact: navigation/selection, tr
 
 ## Component and layout engineering
 
-The detailed implementation rules live in `.github/skills/ui-engineering/SKILL.md` and are mandatory for every UI change. The current interface is Svelte 5 with shared global CSS, not a pre-existing component framework. Reuse the established semantic class patterns and existing components before introducing new abstractions. Keep shared layout, spacing, control sizing, and responsive behavior consistent across screens.
+The detailed implementation rules live in `.github/skills/ui-engineering/SKILL.md` and are mandatory for every UI change. The current interface is Svelte 5 with shared global CSS and an in-repository design system. Sass/SCSS is the authoring preprocessor for migrated shared component styles; existing global CSS remains valid and is migrated incrementally. Reuse the established semantic class patterns and existing components before introducing new abstractions. Keep shared layout, spacing, control sizing, and responsive behavior consistent across screens.
 
 A UI change is not complete merely because it compiles. Verify alignment, spacing, clipping, overflow, safe areas, and touch targets at representative phone and desktop widths. If visual preview is unavailable, state that visual verification remains outstanding rather than claiming the screen was checked.
 
