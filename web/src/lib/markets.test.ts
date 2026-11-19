@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { MARKET_ASSETS } from './markets';
-import { advanceWeek, advanceYear, convertMarketAsset, createCharacter, depositMarketFunds, getMarketPrice, moveMarketFunds, tradeMarketAsset } from './simulation';
+import { advanceWeek, advanceYear, convertMarketAsset, createCharacter, depositMarketFunds, getMarketPrice, getNetWorth, moveMarketFunds, tradeMarketAsset } from './simulation';
 
 describe('simulated investment markets', () => {
   it('defines distinct stock and crypto listings with stable symbols', () => {
@@ -15,7 +15,7 @@ describe('simulated investment markets', () => {
     const base = { ...createCharacter('Market trader', 30), currencyScale: 1, money: 100000 };
     const funded = depositMarketFunds(base, 50000);
     expect(funded.money).toBe(50000);
-    expect(funded.marketCash).toBe(50000);
+    expect(funded.marketCash).toBe(50000);\n    expect(getNetWorth(funded)).toBe(getNetWorth(base));
     const boughtStock = tradeMarketAsset(funded, 'stock-apple', 'buy', 2);
     expect(boughtStock).not.toBe(base);
     expect(boughtStock.investments?.find((item) => item.type === 'stock-apple')?.units).toBe(2);
