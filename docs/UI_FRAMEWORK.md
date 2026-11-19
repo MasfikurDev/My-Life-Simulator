@@ -161,3 +161,11 @@ The shared theme tokens now define one elevation ladder consumed by components r
 All elevation values derive from the active theme's shadow, text, line, and accent tokens. Paper has a dedicated soft neutral shadow ladder to retain natural light-surface depth. AMOLED keeps its black canvas and uses edge highlights and tonal separation rather than broad bright glows. No theme-specific component forks are required.
 
 Use raised/floating levels only where the content hierarchy justifies them. Avoid nested shadow stacking, avoid glow on routine status labels, and keep interactive lift available on touch via press feedback. Reduced-motion disables lift transitions without removing focus or selected-state cues.
+
+## SCSS authoring and compilation
+
+- Sass with SCSS syntax is the preprocessor for shared Svelte component styles. The Vite Svelte plugin uses `vitePreprocess()`; component styles opt in with `<style lang="scss">`.
+- Shared compile-time helpers live in `web/src/styles/_mixins.scss`. Use Sass modules with `@use` (namespaced by default); do not introduce legacy Sass `@import` or global helper leakage.
+- Sass variables, functions, and mixins are compile-time authoring tools. Runtime theme palettes and player-selected appearance remain CSS custom properties in `tokens.css` and `themes.css`; do not duplicate the 17 theme palettes in Sass maps or hard-code theme colors in component styles.
+- Keep existing global CSS in place. Migrate high-reuse component styles to SCSS incrementally when it removes duplication or creates a useful shared abstraction; do not mass-convert files or change visual behavior just to change extensions.
+- Keep Sass pinned in `web/package.json` and `web/package-lock.json`. The normal `npm ci` workflow must remain reproducible.
