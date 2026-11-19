@@ -110,3 +110,15 @@
   --success-soft:#3b3020;--info-soft:#2a2b43;--success:#d1c18a;--warning:#ffd27e;--warning-soft:#402d1b;--info:#b4b6df;
   --shadow-card:0 9px 28px rgba(0,0,0,.36),0 0 20px rgba(255,180,95,.055);
 }
+
+/* Theme-aware chart semantics: each theme inherits its own semantic palette. */
+:root{
+  --chart-positive:var(--success);
+  --chart-negative:var(--danger);
+  --chart-neutral:var(--muted);
+  --chart-grid:var(--line);
+  --chart-series-1:var(--accent);
+  --chart-series-2:var(--info);
+  --chart-series-3:var(--special);
+  --chart-fill:color-mix(in srgb,var(--accent) 14%,transparent);
+}
