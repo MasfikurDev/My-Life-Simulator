@@ -129,17 +129,16 @@ The annual household affordability calculation uses cash and employment income; 
 
 The focused correctness implementation adds calendar alignment for direct annual advancement, clears stale weekly plans when that coarse annual turn is used, centralizes financial-flow classification, shares one business operating-result calculation between settlement and tax estimation, and makes Family workspace actions follow the same one-interaction-per-person rule enforced by the planner. SIM-02 is retained as a regression guard rather than adding a second charge.
 
-## Validation still required
+## Validation results — PR #225
 
-Before implementation is considered complete:
+All required GitHub Actions checks passed for head commit `9f19382ae26578df6c27c933201530d4226fc330`:
 
-- Add targeted unit tests for each corrected rule and its ledger/reporting effects.
-- Add sequential-time tests across direct annual advancement and weekly advancement.
-- Add integrated scenarios for property ownership/rental, business profit/loss/tax, and family weekly planning.
-- Run the relevant focused tests, full web checks/tests/build, and the repository's required CI for the implementation PR.
-- Verify UI behavior where the Family workspace availability rule changes.
-- Record exact commands and results in the implementation PR. This review itself did not execute tests or CI.
+- [Web validation and Pages deployment](https://github.com/MasfikurDev/My-Life-Simulator/actions/runs/44638209328): 15 test files passed, 205 tests passed, Svelte check reported 0 errors and 11 warnings, and the production Vite build completed successfully. The Pages deployment step was correctly skipped for a pull request.
+- [Long simulation audit](https://github.com/MasfikurDev/My-Life-Simulator/actions/runs/44638209320): passed.
+- [Pull request safeguards](https://github.com/MasfikurDev/My-Life-Simulator/actions/runs/44638209316): passed.
+
+The connected local development devices were offline, so validation was performed in GitHub Actions rather than locally. The Family workspace interaction-control change still needs visual review before this Draft PR is marked ready for review.
 
 ## Status
 
-These findings are review items, not a statement that fixes have been implemented. The priorities describe recommended order and impact; they are not a claim that every gameplay gap must be addressed in the same release.
+SIM-01, SIM-03, SIM-04, and SIM-05 are implemented on Draft PR #225. SIM-02 was confirmed to be covered by the existing annual household-budget settlement and is protected by a regression test; no duplicate charge was added. These changes have passed the listed automated checks but have not been merged.
