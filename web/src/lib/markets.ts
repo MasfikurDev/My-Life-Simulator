@@ -1,6 +1,6 @@
 import type { InvestmentType } from './types';
 
-export type MarketAsset = { type: InvestmentType; symbol: string; name: string; market: 'stocks' | 'crypto'; category: string; basePrice: number; volatility: number; description: string };
+export type MarketAsset = { type: InvestmentType; symbol: string; name: string; market: 'stocks' | 'crypto'; category: string; basePrice: number; volatility: number; circulatingSupply: number; volumeRate: number; description: string };
 
 export const MARKET_ASSETS: MarketAsset[] = [
   { type: 'stock-apple', symbol: 'AAPL', name: 'Apple', market: 'stocks', category: 'Technology', basePrice: 352, volatility: 0.16, circulatingSupply: 15000000000, volumeRate: 0.035, description: 'Consumer technology, devices and services.' },
