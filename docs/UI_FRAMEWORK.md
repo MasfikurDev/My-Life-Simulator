@@ -123,3 +123,14 @@ The flexible primitives are now used in real domain screens, not only defined:
   - Used by `ActivityStatusSeal` across Health, Education, Family, Work, and Finance Assets; the wrapper maps domain statuses to shared semantic tones.
 
 The original screen-specific meters and CSS were removed where the shared progress component replaced them. Domain-specific layouts, labels, and data calculations remain in their owning screens. Stat meters use the shared `getValueTone` thresholds (including the coral band and inverse stress/severity bands), avoiding flattened or reinterpreted status colors. This is a targeted first adoption pass, not a claim that every screen has migrated.
+
+## Component migration quality gate (2026-11-19)
+
+A shared component is not automatically an upgrade over an existing screen implementation. Replace local UI only when the shared version is demonstrably better overall:
+
+- Preserve or improve the screen's visual hierarchy, density, responsive behavior, and interaction feedback.
+- Preserve domain semantics exactly, including thresholds, inverse metrics, labels, locked/disabled states, and accessible meaning.
+- Improve theme consistency, accessibility, reuse, or maintainability without forcing generic-looking layouts.
+- Compare the old and new presentation in representative themes and narrow Android layouts before treating the migration as complete.
+
+If the shared component cannot meet the existing implementation's quality, keep the local implementation and improve the primitive first. Do not migrate solely to increase component adoption or reduce CSS line count. Expressive artwork and genuinely domain-specific compositions may remain bespoke.
