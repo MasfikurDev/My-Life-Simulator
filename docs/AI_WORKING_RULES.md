@@ -232,3 +232,5 @@ If code and docs disagree, identify the discrepancy and reconcile it without los
 
 
 197. Use docs/UI_FRAMEWORK.md as the implementation contract for reusable UI. Shared primitives and semantic tokens are the default; page-specific CSS is limited to composition and exceptional cases. Keep primitives highly configurable through deliberate semantic variants, density, layout, tone, and interaction props. Do not force identical appearance across domains, do not introduce third-party UI frameworks for routine styling, and do not use fixed heights for text-bearing cards by default.
+
+198. Use the shared `UiBadge` primitive for reusable status and metadata labels. Keep semantic meaning consistent across themes, use readable text rather than color alone, and keep animation opt-in for meaningful state changes only. Do not add continuously animated decorative badges or duplicate one-off badge CSS.
