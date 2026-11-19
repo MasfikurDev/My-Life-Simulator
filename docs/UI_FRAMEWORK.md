@@ -35,6 +35,36 @@ My Life Simulator uses a small, in-repository Svelte UI framework rather than ha
 - Every migration should remove duplicated CSS or reduce page-specific styling rather than add another layer of overrides.
 
 
+## Remaining shared interaction patterns
+
+These are coverage areas for the shared system, not a mandate to create a component for every item. First inspect existing components and domain patterns; extract a primitive only when the same behavior or presentation is genuinely reused.
+
+- **Navigation:** bottom navigation, active tabs, and section indicators use shared theme tokens and a single clear active treatment. Preserve the established information architecture and responsive destinations; do not create parallel navigation systems.
+- **Menus and popovers:** dropdowns, context menus, tooltips, and popovers share surface, border, shadow, focus, dismissal, and layering rules. Keep them anchored to their trigger, keyboard-operable, touch-usable, and within the viewport/safe area.
+- **List rows:** reusable rows for transactions, family members, jobs, holdings, and similar records may share alignment, metadata, separators, density, and interaction states. Keep domain-specific content, hierarchy, and actions owned by each domain; do not flatten every list into identical cards.
+- **Loading states:** use consistent lightweight progress indicators, skeletons, and blocking overlays according to wait scope. Skeletons should approximate the actual content shape; avoid flashing them for trivial operations or using indefinite motion without a meaningful loading state.
+- **Selection states:** selected cards, choices, filters, and toggles must have a clear selected treatment, visible focus, and accessible state semantics. Selection must not rely on color alone and must not be confused with hover or pressed feedback.
+- **Timelines:** life events, weekly activity, and career history may share chronological markers, connector geometry, date alignment, and responsive behavior while retaining domain-specific grouping and content.
+- **Stat tiles:** reusable metric presentation may share label/value hierarchy, trend/status treatment, and compact density. Use only for metrics with a clear decision or informational purpose; do not turn every number into a tile or elevate secondary stats above the dashboard's financial priorities.
+- **Notification indicators:** unread counts, alerts, and new-activity markers use consistent semantic tones, compact sizing, accessible labels, and bounded counts. Do not duplicate notification content already visible in the owning screen.
+
+## Cross-component consistency contract
+
+Every shared component and domain-owned surface must align on the following foundations while preserving its own information hierarchy:
+
+1. **Typography:** consistent page/section/body/metadata hierarchy, restrained weight use, readable line-height, and sufficient contrast. Do not use size or weight alone to imply semantic status.
+2. **Spacing and density:** use shared spacing tokens and deliberate compact/comfortable density. Align related controls and content; avoid arbitrary per-component gaps and cramped touch targets.
+3. **Elevation and surfaces:** use a coherent surface/border/shadow scale. Elevation communicates layering and interaction, not decoration; popovers and dialogs must layer above page content predictably.
+4. **Interaction states:** define and distinguish default, hover where available, pressed, focused, selected, disabled, loading, and invalid states. Mobile interactions must not depend on hover.
+5. **Motion:** use consistent timing/easing for related transitions. Animate meaningful state changes and focal feedback only; avoid continuous decorative motion, prevent layout shifts, and honor `prefers-reduced-motion`.
+
+Semantic meaning remains stable across all 17 themes; palettes adapt the treatment, contrast, and surface tint. Paper must retain light-theme contrast. Shared standards must not force every domain into the same card layout or visual pattern.
+
+## Component adoption order
+
+When existing screens are migrated, prioritize high-reuse and high-impact patterns: navigation and selection states, transaction/record rows, stat presentation, and loading feedback. Add menus/popovers, timelines, and notification indicators where a real repeated use case exists. Migrate incrementally, remove obsolete duplicate styling only after consumers move, and do not treat this list as a request for a mass redesign.
+
+
 ## Gameplay dialogs
 
 `web/src/components/GameplayDialog.svelte` is the shared presentation layer for contextual situations that require a player decision. Use it instead of embedding bespoke event-choice cards in Overview or individual domain pages. The component displays context, available choices, affordability, known costs, and planned state, while callbacks delegate all mutations to the owning simulation/domain logic.
