@@ -1,5 +1,5 @@
 <script lang="ts">
-  type Tone = 'accent' | 'success' | 'info' | 'warning' | 'danger';
+  type Tone = 'accent' | 'success' | 'info' | 'coral' | 'warning' | 'danger';
   type Size = 'small' | 'medium' | 'large';
 
   let {
@@ -59,6 +59,7 @@
   .ui-progress--accent{--ui-progress-color:var(--accent)}
   .ui-progress--success{--ui-progress-color:var(--success)}
   .ui-progress--info{--ui-progress-color:var(--info)}
+  .ui-progress--coral{--ui-progress-color:var(--coral)}
   .ui-progress--warning{--ui-progress-color:var(--warning)}
   .ui-progress--danger{--ui-progress-color:var(--danger)}
   .ui-progress--small .ui-progress-track{height:5px}
