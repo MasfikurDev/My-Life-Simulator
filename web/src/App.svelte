@@ -659,7 +659,7 @@
                           <article class="review-activity-row">
                             <div class="review-activity-copy">
                               <div class="review-activity-heading"><strong>{activity.title}</strong><UiBadge tone="accent" size="tiny">PLANNED</UiBadge>{#if activity.seal}<UiBadge size="tiny">{activity.seal}</UiBadge>{/if}</div>
-                              <ActivityEffectBadges effects={activity.effects} staminaCost={activity.staminaCost} staminaRecovery={activity.staminaRecovery} moneyCost={activity.moneyCost} formatMoney={(amount) => formatCharacterMoney(character, amount)} />
+                              <ActivityEffectBadges effects={activity.effects} staminaCost={activity.staminaCost} staminaRecovery={activity.staminaRecovery} moneyCost={activity.moneyCost} formatMoney={(amount) => formatCharacterMoney(character!, amount)} />
                               {#if activity.itemCount > 0}<UiBadge size="tiny">{activity.itemCount} {activity.itemCount === 1 ? 'item' : 'items'}</UiBadge>{/if}
                               {#if activity.sourceIds && activity.items.length > 0}
                                 <details class="review-item-details"><summary>View items</summary><ul>{#each activity.items as item, index}<li>{item.name}{item.quantity > 1 ? ' × ' + item.quantity : ''}</li>{/each}</ul></details>
