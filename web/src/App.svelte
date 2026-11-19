@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { advanceWeek, formatCharacterMoney, getWeeklyActivityReview, planEventChoiceInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import type { WeeklyActivityOutcomeEffect, WeeklyActivityReviewItem } from './lib/simulation';
   import { addCalendarDays, getWeekStart } from './lib/calendar';
   import { getEducationStage, getLifeStage } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
@@ -50,6 +51,45 @@
   let eventDialogOpen = $state(false);
   let weeklyFinanceOpen = $state(false);
   const weeklyReview = $derived(character ? getWeeklyActivityReview(character) : null);
+  function groupReviewedActivities(items: WeeklyActivityReviewItem[]): WeeklyActivityReviewItem[] {
+    const purchases = items.filter((item) => item.seal === 'BOUGHT' && item.moneyCost > 0);
+    if (purchases.length < 2) return items;
+    const sourceIds = purchases.map((item) => item.id);
+    const effectMap = new Map<string, WeeklyActivityOutcomeEffect>();
+    for (const item of purchases) {
+      for (const effect of item.effects) {
+        const prior = effectMap.get(effect.key);
+        const delta = (prior?.delta ?? 0) + effect.delta;
+        const inverse = effect.key === 'stress' || effect.key.endsWith('-tension');
+        effectMap.set(effect.key, {
+          ...effect,
+          delta,
+          tone: effect.kind === 'money' ? delta > 0 ? 'success' : 'danger' : (inverse ? delta < 0 : delta > 0) ? 'success' : 'danger'
+        });
+      }
+    }
+    const grouped: WeeklyActivityReviewItem = {
+      ...purchases[0],
+      id: 'food-purchases',
+      sourceIds,
+      title: 'Food purchases',
+      staminaCost: purchases.reduce((total, item) => total + item.staminaCost, 0),
+      staminaRecovery: purchases.reduce((total, item) => total + item.staminaRecovery, 0),
+      moneyCost: purchases.reduce((total, item) => total + item.moneyCost, 0),
+      effects: [...effectMap.values()].filter((effect) => effect.delta !== 0),
+      items: purchases.flatMap((item) => item.items),
+      itemCount: purchases.reduce((total, item) => total + item.itemCount, 0)
+    };
+    const rows: WeeklyActivityReviewItem[] = [];
+    let inserted = false;
+    for (const item of items) {
+      if (sourceIds.includes(item.id)) {
+        if (!inserted) { rows.push(grouped); inserted = true; }
+      } else rows.push(item);
+    }
+    return rows;
+  }
+  const weeklyReviewActivities = $derived(weeklyReview ? groupReviewedActivities(weeklyReview.activities) : []);
   const plannedEventChoiceIds = $derived((character?.weeklyPlan?.activities ?? []).flatMap((item) => item.action?.kind === 'event' ? [item.action.choiceId] : []));
   onMount(() => {
     saveFormatIssue = getSaveFormatIssue();
@@ -265,6 +305,13 @@
     if (!planned) return;
     persist(removePlannedActivity(character, activityId));
     notify('Activity removed from this week. Forecast updated.');
+  }
+  function removeReviewedActivityGroup(activityIds: string[]) {
+    if (!character || !activityIds.length) return;
+    const next = activityIds.reduce((current, id) => removePlannedActivity(current, id), character);
+    if (next === character) return;
+    persist(next);
+    notify('Food purchases removed from this week. Forecast updated.');
   }
   function advanceWeekNow() {
     if (!character) return;
@@ -608,14 +655,18 @@
                     </summary>
                     {#if weeklyReview.activities.length || weeklyReview.passiveActivities.length}
                       <div class="review-activity-list">
-                        {#each weeklyReview.activities as activity (activity.id)}
+                        {#each weeklyReviewActivities as activity (activity.id)}
                           <article class="review-activity-row">
                             <div class="review-activity-copy">
                               <div class="review-activity-heading"><strong>{activity.title}</strong><UiBadge tone="accent" size="tiny">PLANNED</UiBadge>{#if activity.seal}<UiBadge size="tiny">{activity.seal}</UiBadge>{/if}</div>
                               <ActivityEffectBadges effects={activity.effects} staminaCost={activity.staminaCost} staminaRecovery={activity.staminaRecovery} moneyCost={activity.moneyCost} formatMoney={(amount) => formatCharacterMoney(character, amount)} />
-                              {#if activity.effects.length === 0 && activity.staminaCost === 0 && activity.staminaRecovery === 0}<UiBadge size="tiny">No tracked stat change</UiBadge>{/if}
+                              {#if activity.itemCount > 0}<UiBadge size="tiny">{activity.itemCount} {activity.itemCount === 1 ? 'item' : 'items'}</UiBadge>{/if}
+                              {#if activity.sourceIds && activity.items.length > 0}
+                                <details class="review-item-details"><summary>View items</summary><ul>{#each activity.items as item, index}<li>{item.name}{item.quantity > 1 ? ' × ' + item.quantity : ''}</li>{/each}</ul></details>
+                              {/if}
+                              {#if activity.effects.length === 0 && activity.staminaCost === 0 && activity.staminaRecovery === 0 && activity.moneyCost === 0}<UiBadge size="tiny">No tracked stat change</UiBadge>{/if}
                             </div>
-                            <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => removeReviewedActivity(activity.id)}>×</button>
+                            <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => activity.sourceIds ? removeReviewedActivityGroup(activity.sourceIds) : removeReviewedActivity(activity.id)}>×</button>
                           </article>
                         {/each}
                         {#each weeklyReview.passiveActivities as activity (activity.id)}
@@ -745,6 +796,9 @@
   .review-remove-button:hover{background:color-mix(in srgb,var(--coral) 10%,transparent);border-color:var(--coral)}
   .review-remove-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .review-activity-cost b{font-size:10px;color:var(--text)}
+  .review-item-details{font-size:9px;color:var(--muted)}
+  .review-item-details summary{width:max-content;cursor:pointer;color:var(--accent);font-weight:700}
+  .review-item-details ul{display:grid;gap:3px;margin:5px 0 0;padding-left:16px;line-height:1.4}
   .review-activity-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
   .review-stamina-summary{display:grid;gap:7px;margin-top:9px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
   .review-stamina-summary>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--muted)}
