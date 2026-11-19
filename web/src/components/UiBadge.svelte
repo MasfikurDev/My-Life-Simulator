@@ -1,5 +1,5 @@
 <script lang="ts">
-  type Tone = 'success' | 'info' | 'special' | 'warning' | 'risk' | 'danger' | 'neutral';
+  type Tone = 'accent' | 'success' | 'info' | 'special' | 'warning' | 'risk' | 'danger' | 'neutral';
   type Size = 'tiny' | 'small' | 'medium';
   type Shape = 'pill' | 'rounded' | 'square';
 
