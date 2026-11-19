@@ -146,3 +146,8 @@ When a newer explicit decision conflicts with an older document, this file recor
 - Migrate incrementally, beginning with shared primitives and Profile details. Preserve gameplay behavior, save formats, offline operation, and the existing 17-theme palette.
 - Shared primitives must be flexible enough for repeated semantic differences (tone, density, shape, surface, layout, and interaction) through backward-compatible props. `ActivityStatusSeal` reuses `UiBadge` semantics rather than maintaining a duplicate status palette. This is foundation work; screen adoption remains incremental and domain-native.
 - Canonical implementation contract: docs/UI_FRAMEWORK.md.
+
+## Shared UI adoption update (2026-11-19)
+- `UiProgress` is now adopted for Finance Accounts credit/savings progress, Finance Products loan/savings progress, Education course/subject progress, Family relationship metrics, and Health wellbeing/condition meters.
+- `UiField` is adopted for bank transaction amount and extra loan repayment amount fields.
+- `ActivityStatusSeal` delegates semantic status styling to `UiBadge`. Continue migrating repeated patterns incrementally; do not force domain-specific layouts into generic components.
