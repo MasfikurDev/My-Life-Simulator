@@ -97,7 +97,7 @@ The shared primitives expose configuration for common differences without requir
 - **UiBadge:** semantic tone (including accent), tiny/small/medium size, pill/rounded/square shape, optional prefix or status dot, wrapping, custom class for exceptional composition, and opt-in entrance motion. Keep text labels; prefixes are decorative and hidden from assistive technology.
 - **ActivityStatusSeal:** compatibility/domain wrapper around UiBadge. It maps activity states to shared semantic tones and preserves the status role. Do not add a second status color system.
 - **UiButton:** semantic variant, size, shape, width, disabled state, optional accessible label, and loading state. Loading prevents duplicate activation and announces busy state. Keep the default touch target.
-- **UiProgress:** determinate or indeterminate mode, semantic tone, size, optional heading/value visibility, and caller-provided value text. Keep the real accessible label; do not use progress bars for charts or arbitrary decoration.
+- **UiProgress:** determinate or indeterminate mode, semantic tone (`accent`, `success`, `info`, `coral`, `warning`, `danger`), size, optional heading/value visibility, and caller-provided value text. Use `getValueTone` for stat meters so the existing normal/inverse thresholds are preserved exactly. Keep the real accessible label; do not use progress bars for charts or arbitrary decoration.
 - **UiField:** stacked or inline layout, compact or medium density, helper/error text, required marker, and custom class. The owning form still controls the native input and its validation/value.
 - **UiCard:** use its existing as, density, surface, tone, radius, elevation, and interactive presentation options. Content determines height; do not add fixed-height variants for ordinary cards.
 - **UiGrid / UiStack:** use configurable columns/minimum width, direction, alignment, wrapping, and gap. These are layout primitives, not card or content components.
@@ -112,6 +112,7 @@ The flexible primitives are now used in real domain screens, not only defined:
   - Finance Accounts: credit score and savings goal.
   - Finance Products: loan repayment and savings goal.
   - Education: overall course progress and subject grades.
+  - Life Overview: health, stamina, intelligence, fitness, happiness, and inverse stress meters.
   - Family: relationship closeness, trust, and tension.
   - Health: wellbeing stats and medical-condition severity.
 - **UiField**
@@ -120,4 +121,4 @@ The flexible primitives are now used in real domain screens, not only defined:
 - **UiBadge**
   - Used by `ActivityStatusSeal` across Health, Education, Family, Work, and Finance Assets; the wrapper maps domain statuses to shared semantic tones.
 
-The original screen-specific meters and CSS were removed where the shared progress component replaced them. Domain-specific layouts, labels, thresholds, and data calculations remain in their owning screens. This is a targeted first adoption pass, not a claim that every screen has migrated.
+The original screen-specific meters and CSS were removed where the shared progress component replaced them. Domain-specific layouts, labels, and data calculations remain in their owning screens. Stat meters use the shared `getValueTone` thresholds (including the coral band and inverse stress/severity bands), avoiding flattened or reinterpreted status colors. This is a targeted first adoption pass, not a claim that every screen has migrated.
