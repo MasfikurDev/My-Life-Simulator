@@ -222,9 +222,6 @@
   .relative-bond-details>summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
   .bond-grid>div{display:grid;grid-template-columns:1fr auto;gap:5px;align-items:center}
   .bond-grid span{font-size:10px;color:var(--muted)}.bond-grid strong{font-size:11px}
-  .bond-meter{grid-column:1/-1;height:5px;border-radius:8px;background:var(--surface-raised);overflow:hidden}
-  .bond-meter i{display:block;height:100%;border-radius:8px;background:var(--accent)}
-  .bond-meter.tension i{background:var(--warning)}
   .last-contact,.support-note{font-size:10px!important}
   .relative-actions{display:flex;flex-wrap:wrap;gap:7px}
   .relative-actions button,.support-row button,.primary-action{min-height:38px;border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:var(--surface-raised);color:var(--text);font-size:11px;font-weight:700}
