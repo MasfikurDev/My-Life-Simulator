@@ -186,7 +186,11 @@ export function getNetWorth(character: Character): number {
 export function getMarketPrice(character: Character, type: InvestmentType): number {
   const scale = character.currencyScale ?? 1;
   const listedAsset = MARKET_ASSETS.find((asset) => asset.type === type);
-  if (listedAsset) return Math.max(0.01, Math.round((character.marketPrices?.assets?.[type] ?? listedAsset.basePrice * scale) * 100) / 100);
+  if (listedAsset) {
+    const raw = character.marketPrices?.assets?.[type] ?? listedAsset.basePrice * scale;
+    const precision = raw < 1 ? 6 : raw < 10 ? 4 : 2;
+    return Math.max(0.000001, Math.round(raw * 10 ** precision) / 10 ** precision);
+  }
   const prices = character.marketPrices;
   const value = type === 'gold' ? prices?.gold ?? 150 * scale
     : type === 'technology-stock' ? prices?.technology ?? 125 * scale
