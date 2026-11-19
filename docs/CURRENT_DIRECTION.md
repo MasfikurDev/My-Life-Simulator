@@ -144,4 +144,5 @@ When a newer explicit decision conflicts with an older document, this file recor
 - Use semantic theme tokens, configurable primitives, reusable domain components, and page-level composition. Each component must support meaningful variants for density, surface, hierarchy, layout, tone, and interaction while preserving domain-native identity.
 - Cards must size to content by default; Profile metadata cards use compact density. Avoid fixed heights and repetitive decoration.
 - Migrate incrementally, beginning with shared primitives and Profile details. Preserve gameplay behavior, save formats, offline operation, and the existing 17-theme palette.
+- Shared primitives must be flexible enough for repeated semantic differences (tone, density, shape, surface, layout, and interaction) through backward-compatible props. `ActivityStatusSeal` reuses `UiBadge` semantics rather than maintaining a duplicate status palette. This is foundation work; screen adoption remains incremental and domain-native.
 - Canonical implementation contract: docs/UI_FRAMEWORK.md.
