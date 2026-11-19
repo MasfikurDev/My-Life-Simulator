@@ -626,10 +626,9 @@
 
                 <section class="review-section">
                   <div class="review-section-heading"><h3>Weekly Stat Forecast</h3><span>Changes expected this week</span></div>
-                  {@const characterChanges = weeklyReview.changes.filter((change) => CHARACTER_STAT_KEYS.has(change.key))}
-                  {#if characterChanges.length}
+                  {#if weeklyReview.changes.filter((change) => CHARACTER_STAT_KEYS.has(change.key)).length}
                     <div class="review-change-grid">
-                      {#each characterChanges as change}
+                      {#each weeklyReview.changes.filter((change) => CHARACTER_STAT_KEYS.has(change.key)) as change}
                         <div class="review-change-row">
                           <div class="review-change-heading">
                             <span>{change.label}</span>
