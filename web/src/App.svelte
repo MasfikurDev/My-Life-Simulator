@@ -630,7 +630,7 @@
                         <div class="review-change-row">
                           <span>{change.label}</span>
                           <strong class:positive={change.key === 'stress' || change.key.endsWith('-tension') ? change.delta < 0 : change.delta > 0} class:negative={change.key === 'stress' || change.key.endsWith('-tension') ? change.delta > 0 : change.delta < 0}>
-                            {Math.round(change.before)} → {Math.round(change.after)}
+                            {Number(change.before.toFixed(1))} → {Number(change.after.toFixed(1))}
                             <small>({change.delta > 0 ? '+' : ''}{Number(change.delta.toFixed(1))})</small>
                           </strong>
                         </div>
