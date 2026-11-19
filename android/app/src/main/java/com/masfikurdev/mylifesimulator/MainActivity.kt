@@ -32,6 +32,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 
 class MainActivity : Activity() {
     private var pageReady = false
+    private var mainFrameErrorMessage: String? = null
     private val startupTimeoutHandler = Handler(Looper.getMainLooper())
     private val startupTimeout = Runnable {
         if (!pageReady) {
@@ -115,8 +116,9 @@ class MainActivity : Activity() {
             override fun onReceivedError(view: WebView, request: WebResourceRequest, error: android.webkit.WebResourceError) {
                 if (request.isForMainFrame) {
                     pageReady = true
+                    mainFrameErrorMessage = "The game could not be reached. Check your connection and tap here to retry."
                     startupTimeoutHandler.removeCallbacks(startupTimeout)
-                    retry.text = "The game could not be reached. Check your connection and tap here to retry."
+                    retry.text = mainFrameErrorMessage
                     retry.visibility = View.VISIBLE
                     progress.visibility = View.GONE
                     dismissSplashArtwork()
@@ -126,8 +128,9 @@ class MainActivity : Activity() {
             override fun onReceivedHttpError(view: WebView, request: WebResourceRequest, response: android.webkit.WebResourceResponse) {
                 if (request.isForMainFrame && response.statusCode >= 400) {
                     pageReady = true
+                    mainFrameErrorMessage = "The game server returned an error (${response.statusCode}). Tap here to retry."
                     startupTimeoutHandler.removeCallbacks(startupTimeout)
-                    retry.text = "The game server returned an error (${response.statusCode}). Tap here to retry."
+                    retry.text = mainFrameErrorMessage
                     retry.visibility = View.VISIBLE
                     progress.visibility = View.GONE
                     dismissSplashArtwork()
@@ -137,7 +140,8 @@ class MainActivity : Activity() {
             override fun onPageFinished(view: WebView, url: String) {
                 pageReady = true
                 startupTimeoutHandler.removeCallbacks(startupTimeout)
-                retry.visibility = View.GONE
+                retry.text = mainFrameErrorMessage ?: retry.text
+                retry.visibility = if (mainFrameErrorMessage == null) View.GONE else View.VISIBLE
                 progress.visibility = View.GONE
                 dismissSplashArtwork()
             }
@@ -283,6 +287,7 @@ class MainActivity : Activity() {
 
     private fun loadGame(fresh: Boolean = false) {
         pageReady = false
+        mainFrameErrorMessage = null
         startupTimeoutHandler.removeCallbacks(startupTimeout)
         retry.visibility = View.GONE
         progress.visibility = View.VISIBLE
