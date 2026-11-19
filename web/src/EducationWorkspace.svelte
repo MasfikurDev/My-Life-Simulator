@@ -39,7 +39,7 @@
   function taskPlanned(task: EducationTaskType) { return plannedTasks.some((item) => item.action?.kind === 'education' && item.action.taskType === task); }
   function taskPreview(task: EducationTaskType) {
     const existing = plannedTasks.find((item) => item.action?.kind === 'education' && item.action.taskType === task);
-    const planned = existing ? character : planEducationTaskInNextFreeTime(character, task);
+    const planned = existing ? { character, plannedActivity: existing, issue: null } : planEducationTaskInNextFreeTime(character, task);
     const target = existing?.id ?? planned.plannedActivity?.id;
     if (!target || planned.issue) return null;
     return getWeeklyActivityReview(planned.character).activities.find((item) => item.id === target) ?? null;
