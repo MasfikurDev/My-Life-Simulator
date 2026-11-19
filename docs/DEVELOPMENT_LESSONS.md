@@ -98,3 +98,17 @@ A review of the 13 closed, unmerged PRs found recurring process lessons. The clo
 - Close unmerged PRs with the structured closure record in [Change and Decision Records](CHANGE_RECORDS.md). For historical PRs above, do not retroactively invent explanations where none were recorded.
 
 This review documents historical evidence; it does not imply that any closed PR should be reopened, cherry-picked, or implemented.
+
+
+## GitHub operations must be verified after mutation (added 2026-11-19)
+
+A PR was created without a populated description even though the intended description had been presented in chat as if it were saved. The underlying failure was treating intended content and the create operation as proof of persisted GitHub state.
+
+**Required correction for every AI agent:**
+- After every GitHub create/update/mutation, fetch the affected resource again and inspect the actual persisted fields before reporting completion.
+- Verify the exact field the user expects (for example, PR body, labels, draft status, branch/file content), not merely that the resource exists.
+- Verify CI against the exact current commit SHA. A write response, an existing commit, or a prior green run is not validation of the latest state.
+- Treat merge, deployment, and release as separate outcomes; verify each independently against its authoritative source and intended artifact.
+- If read-back or evidence is unavailable, say **unverified** and identify the missing evidence. Never turn an attempted action into a success claim.
+
+This is a process rule, not a claim that every future operation is automatically safe. Its effectiveness must be demonstrated by consistent read-back and evidence-based reporting.
