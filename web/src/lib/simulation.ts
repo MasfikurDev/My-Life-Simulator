@@ -1247,6 +1247,7 @@ export interface WeeklyResolutionResult {
   character: Character;
   issue: 'invalid-plan' | 'already-resolved' | 'unresolvable-action' | 'insufficient-stamina' | null;
   recap: string[];
+  activityOutcomes?: Array<{ id: string; effects: WeeklyActivityOutcomeEffect[] }>;
 }
 
 function createWeeklyRandom(character: Character, weekStart: string): () => number {
@@ -1263,6 +1264,33 @@ function createWeeklyRandom(character: Character, weekStart: string): () => numb
     value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
     return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+export interface WeeklyActivityOutcomeEffect {
+  key: string;
+  label: string;
+  delta: number;
+  tone: 'success' | 'danger' | 'neutral';
+  kind: 'stat' | 'money';
+}
+
+function getActivityOutcomeEffects(before: Character, after: Character): WeeklyActivityOutcomeEffect[] {
+  const fields: Array<[keyof Character, string, boolean]> = [
+    ['health', 'Health', false], ['happiness', 'Happiness', false], ['intelligence', 'Intelligence', false],
+    ['fitness', 'Fitness', false], ['stamina', 'Stamina', false], ['stress', 'Stress', true],
+    ['focus', 'Focus', false], ['confidence', 'Confidence', false], ['comfort', 'Comfort', false],
+    ['discipline', 'Discipline', false], ['creativity', 'Creativity', false], ['socialSkills', 'Social skills', false]
+  ];
+  const effects: WeeklyActivityOutcomeEffect[] = [];
+  for (const [key, label, inverse] of fields) {
+    const fallback = key === 'stress' ? 30 : key === 'stamina' || key === 'comfort' ? 50 : 0;
+    const delta = Number(after[key] ?? fallback) - Number(before[key] ?? fallback);
+    if (!delta) continue;
+    effects.push({ key: String(key), label, delta, tone: (inverse ? delta < 0 : delta > 0) ? 'success' : 'danger', kind: 'stat' });
+  }
+  const moneyDelta = after.money - before.money;
+  if (moneyDelta) effects.push({ key: 'money', label: 'Cash', delta: moneyDelta, tone: moneyDelta > 0 ? 'success' : 'danger', kind: 'money' });
+  return effects;
 }
 
 /** Resolves every accepted reservation once, then advances the world calendar by exactly seven days. */
@@ -1293,8 +1321,10 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   }
   next = { ...next, stamina: Math.min(100, (next.stamina ?? 50) + staminaRecovery) };
   const educationTasks: EducationTaskType[] = [];
+  const activityOutcomes: Array<{ id: string; effects: WeeklyActivityOutcomeEffect[] }> = [];
   const ordered = [...schedule.activities];
   for (const item of ordered) {
+    const activityBefore = next;
     // Recovery was credited up front; charge each selected activity exactly once.
     next = { ...next, stamina: clamp((next.stamina ?? 50) - getPlannedActivityStaminaCost(item)) };
     let result: Character;
@@ -1344,6 +1374,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     // original save and let the player remove or repair the stale plan.
     if (result === next) return { character, issue: 'unresolvable-action', recap: [] };
     next = result;
+    activityOutcomes.push({ id: item.id, effects: getActivityOutcomeEffects(activityBefore, next) });
   }
   next = applyWeeklyClothingWear(next);
   const staminaDrift = weeklyWorkload >= 16 ? -7 : weeklyWorkload >= 12 ? -4 : 3;
@@ -1368,7 +1399,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     next = applyAgeTransition(next, previousAge, nextAge);
     next = { ...next, year: nextYear };
   }
-  return { character: next, issue: null, recap };
+  return { character: next, issue: null, recap, activityOutcomes };
 }
 
 export interface WeeklyActivityReviewItem {
@@ -1378,6 +1409,7 @@ export interface WeeklyActivityReviewItem {
   staminaCost: number;
   moneyCost: number;
   reward: string;
+  effects: WeeklyActivityOutcomeEffect[];
 }
 export interface WeeklyActivityReviewChange {
   key: string;
@@ -1471,7 +1503,8 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     seal: item.action?.kind === 'food' ? 'BOUGHT' as const : undefined,
     staminaCost: getPlannedActivityStaminaCost(item),
     moneyCost: getPlannedActivityCost(character, item),
-    reward: getPlannedActivityReward(character, item)
+    reward: getPlannedActivityReward(character, item),
+    effects: preview.activityOutcomes?.find((outcome) => outcome.id === item.id)?.effects ?? []
   }));
   const warnings: string[] = [];
   const currentStamina = character.stamina ?? 50;
