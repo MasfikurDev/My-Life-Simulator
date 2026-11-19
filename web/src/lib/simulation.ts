@@ -440,6 +440,7 @@ function updateListedMarketsForWeek(character: Character, date: string): Charact
   const last = history[history.length - 1];
   if (last?.date === date) history[history.length - 1] = point;
   else history.push(point);
+  if (history.length > 6500) history.splice(0, history.length - 6500);
   return {
     ...character,
     marketPrices: {
