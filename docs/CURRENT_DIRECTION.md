@@ -148,7 +148,7 @@ When a newer explicit decision conflicts with an older document, this file recor
 - Canonical implementation contract: docs/UI_FRAMEWORK.md.
 
 ## Shared UI adoption update (2026-11-19)
-- `UiProgress` is now adopted for Finance Accounts credit/savings progress, Finance Products loan/savings progress, Education course/subject progress, Family relationship metrics, and Health wellbeing/condition meters.
+- `UiProgress` is now adopted for Finance Accounts credit score progress, Finance Products loan/savings progress, Education course/subject progress, Family relationship metrics, and Health wellbeing/condition meters.
 - `UiField` is adopted for bank transaction amount and extra loan repayment amount fields.
 - `ActivityStatusSeal` delegates semantic status styling to `UiBadge`. Continue migrating repeated patterns incrementally; do not force domain-specific layouts into generic components.
 
