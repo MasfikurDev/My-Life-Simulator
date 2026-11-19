@@ -186,6 +186,8 @@ describe('life simulation', () => {
     ]));
     const resolved = advanceWeek(planned.character);
     expect(review.projectedStamina).toBe(resolved.character.stamina);
+    expect(review.staminaDrift).toBe(resolved.staminaDrift);
+    expect(resolved.recap.some((entry) => entry.includes('Natural weekly recovery'))).toBe(true);
     expect(resolved.activityOutcomes?.[0].id).toBe(review.activities[0].id);
     expect(review.projectedStress).toBe(resolved.character.stress);
     expect(review.projectedHealth).toBe(resolved.character.health);
