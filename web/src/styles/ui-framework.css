@@ -18,3 +18,22 @@
 .profile-detail-grid .overview-context-item{min-height:0;padding:var(--ui-card-padding-compact);align-content:start;gap:var(--space-1,4px)}
 .profile-detail-grid .overview-context-item strong{line-height:1.35}
 @media(prefers-reduced-motion:reduce){.ui-card,.ui-stack,.ui-button{transition:none!important}.ui-card--interactive:hover{transform:none}}
+
+/* Shared form and chart presentation primitives. */
+.ui-field :global(input),.ui-field :global(select),.ui-field :global(textarea){
+  min-width:0;max-width:100%;border-color:var(--line);background:var(--surface-raised);color:var(--text);
+}
+.ui-field :global(input:focus-visible),.ui-field :global(select:focus-visible),.ui-field :global(textarea:focus-visible){
+  outline:none;border-color:var(--accent);box-shadow:var(--focus-ring);
+}
+.ui-field :global(input:disabled),.ui-field :global(select:disabled),.ui-field :global(textarea:disabled){
+  color:var(--subtle);background:var(--surface);cursor:not-allowed;
+}
+.ui-chart-grid{stroke:var(--chart-grid)}
+.ui-chart-series-1{color:var(--chart-series-1);stroke:var(--chart-series-1)}
+.ui-chart-series-2{color:var(--chart-series-2);stroke:var(--chart-series-2)}
+.ui-chart-series-3{color:var(--chart-series-3);stroke:var(--chart-series-3)}
+.ui-chart-positive{color:var(--chart-positive);stroke:var(--chart-positive)}
+.ui-chart-negative{color:var(--chart-negative);stroke:var(--chart-negative)}
+.ui-chart-neutral{color:var(--chart-neutral);stroke:var(--chart-neutral)}
+.ui-chart-area{fill:var(--chart-fill)}
