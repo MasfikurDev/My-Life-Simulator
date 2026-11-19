@@ -575,16 +575,28 @@
                 <p class="game-event-description">{weeklyReview.weekStart} – {weeklyReview.weekEnd}. Review the effort, expected rewards and combined effects before resolving the week.</p>
 
                 <section class="review-section">
-                  <div class="review-section-heading"><h3>Stamina forecast</h3><span>After activity effects and recovery</span></div>
-                  <div class="review-resource-grid">
-                    <div><small>Current</small><strong>{Math.round(weeklyReview.currentStamina)}%</strong></div>
-                    <div><small>Effort cost</small><strong>−{weeklyReview.staminaCost}</strong></div>
-                    <div><small>Planned recovery</small><strong>+{weeklyReview.staminaRecovery}</strong></div>
-                    <div><small>Projected</small><strong>{Math.round(weeklyReview.projectedStamina)}%</strong></div>
+                  <div class="review-section-heading"><h3>Weekly stat forecast</h3><span>Changes expected this week</span></div>
+                  {#if weeklyReview.changes.length}
+                    <div class="review-change-grid">
+                      {#each weeklyReview.changes as change}
+                        <div class="review-change-row">
+                          <span>{change.label}</span>
+                          <strong class:positive={change.key === 'stress' || change.key === 'family-tension' ? change.delta < 0 : change.delta > 0} class:negative={change.key === 'stress' || change.key === 'family-tension' ? change.delta > 0 : change.delta < 0}>
+                            {Math.round(change.before)} → {Math.round(change.after)}
+                            <small>({change.delta > 0 ? '+' : ''}{Number(change.delta.toFixed(1))})</small>
+                          </strong>
+                        </div>
+                      {/each}
+                    </div>
+                  {:else}
+                    <p class="review-empty">No tracked stats are expected to change.</p>
+                  {/if}
+                  <div class="review-stamina-summary">
+                    <div><span>Stamina</span><strong>{Math.round(weeklyReview.currentStamina)}% → {Math.round(weeklyReview.projectedStamina)}%</strong></div>
+                    <div><span>Effort −{weeklyReview.staminaCost} · Recovery +{weeklyReview.staminaRecovery}</span><div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div></div>
                   </div>
-                  <div class="review-stamina-track"><span style="width:{weeklyReview.projectedStamina}%"></span></div>
-                  {#if weeklyReview.passiveStaminaRecovery > 0}<p class="review-empty">Home life and close connections restore +{weeklyReview.passiveStaminaRecovery} stamina before your planned activities.</p>{/if}
                   {#if Math.min(100, weeklyReview.currentStamina + weeklyReview.staminaRecovery) < weeklyReview.staminaCost}<p class="year-review-warning">The plan exceeds your stamina budget. Select recovery activities or remove demanding activities before resolving.</p>{/if}
+                  <div class="review-cash-row"><span>Projected cash after weekly resolution</span><strong>{formatCharacterMoney(character, weeklyReview.projectedCash)}</strong></div>
                 </section>
 
                 <section class="review-section">
@@ -597,15 +609,25 @@
                       <div class="review-activity-list">
                         {#each weeklyReview.activities as activity (activity.id)}
                           <article class="review-activity-row">
-                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.reward}</small>{#if activity.seal}<span class="review-bought-seal">{activity.seal}</span>{/if}</div>
-                            <div class="review-activity-cost"><b>{activity.staminaCost ? '−' + activity.staminaCost + ' stamina' : 'No stamina cost'} </b>{#if activity.moneyCost > 0}<small>{formatCharacterMoney(character, activity.moneyCost)}</small>{/if}</div>
-                            <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => removeReviewedActivity(activity.id)}>Remove</button>
+                            <div class="review-activity-copy">
+                              <div class="review-activity-heading"><strong>{activity.title}</strong><UiBadge tone="accent" size="tiny">PLANNED</UiBadge>{#if activity.seal}<UiBadge size="tiny">{activity.seal}</UiBadge>{/if}</div>
+                              <div class="review-effect-badges">
+                                {#if activity.staminaCost > 0}<UiBadge tone="danger" size="tiny">−{activity.staminaCost} stamina</UiBadge>{/if}
+                                {#each activity.effects as effect}
+                                  <UiBadge tone={effect.tone} size="tiny">{effect.delta > 0 ? '+' : '−'}{Math.abs(Number(effect.delta.toFixed(1)))} {effect.kind === 'money' ? formatCharacterMoney(character, Math.abs(effect.delta)) : effect.label}</UiBadge>
+                                {/each}
+                                {#if activity.effects.length === 0 && activity.staminaCost === 0}<UiBadge size="tiny">No tracked stat change</UiBadge>{/if}
+                              </div>
+                            </div>
+                            <button class="review-remove-button" type="button" aria-label={'Remove ' + activity.title + ' from this week'} title="Remove from this week" onclick={() => removeReviewedActivity(activity.id)}>×</button>
                           </article>
                         {/each}
                         {#each weeklyReview.passiveActivities as activity (activity.id)}
                           <article class="review-activity-row review-passive-row">
-                            <div class="review-activity-copy"><strong>{activity.title}</strong><small>{activity.source} · {activity.detail}</small><small>{activity.reward}</small><span class="review-passive-seal">AUTOMATIC</span></div>
-                            <div class="review-activity-cost"><b>{activity.staminaRecovery ? '+' + activity.staminaRecovery + ' stamina' : 'Background effect'}</b></div>
+                            <div class="review-activity-copy">
+                              <div class="review-activity-heading"><strong>{activity.title}</strong><UiBadge size="tiny">AUTOMATIC</UiBadge></div>
+                              <div class="review-effect-badges">{#if activity.staminaRecovery > 0}<UiBadge tone="success" size="tiny">+{activity.staminaRecovery} stamina</UiBadge>{:else}<UiBadge size="tiny">Background effect</UiBadge>{/if}</div>
+                            </div>
                           </article>
                         {/each}
                       </div>
@@ -613,23 +635,6 @@
                       <p class="review-empty">No planned or automatic activities are currently contributing this week.</p>
                     {/if}
                   </details>
-                </section>
-
-                <section class="review-section">
-                  <div class="review-section-heading"><h3>Combined character impact</h3><span>Simulation forecast</span></div>
-                  {#if weeklyReview.changes.length}
-                    <div class="review-change-grid">
-                      {#each weeklyReview.changes as change}
-                        <div class="review-change-row">
-                          <span>{change.label}</span>
-                          <strong class:positive={change.key === 'stress' || change.key === 'family-tension' ? change.delta < 0 : change.delta > 0} class:negative={change.key === 'stress' || change.key === 'family-tension' ? change.delta > 0 : change.delta < 0}>{change.delta > 0 ? '+' : ''}{Math.round(change.delta)} <small>({Math.round(change.after)}%)</small></strong>
-                        </div>
-                      {/each}
-                    </div>
-                  {:else}
-                    <p class="review-empty">No tracked character stats are expected to change.</p>
-                  {/if}
-                  <div class="review-cash-row"><span>Projected cash after weekly resolution</span><strong>{formatCharacterMoney(character, weeklyReview.projectedCash)}</strong></div>
                 </section>
 
                 {#if weeklyReview.warnings.length}
@@ -744,6 +749,14 @@
   .review-remove-button:hover{background:color-mix(in srgb,var(--coral) 10%,transparent);border-color:var(--coral)}
   .review-remove-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .review-activity-cost b{font-size:10px;color:var(--text)}
+  .review-activity-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+  .review-effect-badges{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
+  .review-effect-badges :global(.ui-badge){max-width:100%}
+  .review-stamina-summary{display:grid;gap:7px;margin-top:9px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+  .review-stamina-summary>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--muted)}
+  .review-stamina-summary strong{color:var(--text);font-variant-numeric:tabular-nums}
+  .review-stamina-summary>div:last-child{display:grid;gap:5px;font-size:9px;color:var(--muted)}
+  .review-remove-button{align-self:flex-start;width:27px;height:27px;padding:0;border-radius:8px;font-size:19px;line-height:1}
   .review-resource-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
   .review-resource-grid>div{display:grid;gap:4px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
   .review-resource-grid small{font-size:9px;color:var(--muted)}
