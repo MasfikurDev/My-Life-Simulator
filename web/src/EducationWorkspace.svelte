@@ -6,7 +6,7 @@
   import { enrollInEducation, getAvailableEducationPrograms, resumeEducation } from './lib/education';
   import EducationRecordsWorkspace from './EducationRecordsWorkspace.svelte';
   import { formatCharacterMoney, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
-  import { getActivityStaminaCost } from './lib/progression';
+  import { getActivityStaminaCost, getValueTone } from './lib/progression';
   let { character, onChange, onNotify }: { character: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   let subpage = $state<'education' | 'records'>('education');
   let selectedProgramId = $state('');
@@ -55,10 +55,10 @@
       <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%</strong><small>Present / scheduled</small></div>
       <div><span>COURSE PROGRESS</span><strong>{progress}%</strong><small>{enrollment.weeksCompleted}/{enrollment.totalWeeks} weeks</small></div>
     </div>
-    <UiProgress label="Course progress" value={progress} tone="info" showLabel={false} />
+    <UiProgress label="Course progress" value={progress} tone={getValueTone(progress)} showLabel={false} />
     <div class="education-subjects">
       {#each enrollment.subjects as subject}
-        <div class="education-subject"><span>{subject.name}</span><strong>{Math.round(subject.grade)}%</strong><UiProgress label={`${subject.name} grade`} value={subject.grade} tone={subject.grade >= 70 ? "success" : subject.grade >= 50 ? "warning" : "danger"} size="small" showLabel={false} /></div>
+        <div class="education-subject"><span>{subject.name}</span><strong>{Math.round(subject.grade)}%</strong><UiProgress label={`${subject.name} grade`} value={subject.grade} tone={getValueTone(subject.grade)} size="small" showLabel={false} /></div>
       {/each}
     </div>
     <div class="education-footnote">{#if enrollment.status === 'paused'}Progress retained{:else}{enrollment.weeklyStudyTarget} study points required each week{/if}</div>
