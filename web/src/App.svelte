@@ -790,12 +790,12 @@
   .review-activity-copy{flex:1;min-width:0}
   .review-bought-seal{justify-self:start;padding:3px 6px;border:1px solid color-mix(in srgb,var(--accent) 48%,transparent);border-radius:5px;background:var(--accent-soft);color:var(--accent);font-size:7px;font-weight:850;letter-spacing:.7px}
   .review-activity-row strong{font-size:11px;color:var(--text)}
-  .review-activity-row small{font-size:9px;line-height:1.4;color:var(--muted)}
-  .review-activity-cost{flex:none;display:grid;gap:4px;text-align:right}
+  
+  
   .review-remove-button{flex:none;align-self:center;border:1px solid color-mix(in srgb,var(--coral) 38%,var(--line));border-radius:7px;background:transparent;color:var(--coral);padding:6px 8px;font-size:9px;font-weight:750;cursor:pointer}
   .review-remove-button:hover{background:color-mix(in srgb,var(--coral) 10%,transparent);border-color:var(--coral)}
   .review-remove-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .review-activity-cost b{font-size:10px;color:var(--text)}
+  
   .review-item-details{font-size:9px;color:var(--muted)}
   .review-item-details summary{width:max-content;cursor:pointer;color:var(--accent);font-weight:700}
   .review-item-details ul{display:grid;gap:3px;margin:5px 0 0;padding-left:16px;line-height:1.4}
@@ -805,10 +805,10 @@
   .review-stamina-summary strong{color:var(--text);font-variant-numeric:tabular-nums}
   .review-stamina-summary>div:last-child{display:grid;gap:5px;font-size:9px;color:var(--muted)}
   .review-remove-button{align-self:flex-start;width:27px;height:27px;padding:0;border-radius:8px;font-size:19px;line-height:1}
-  .review-resource-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
-  .review-resource-grid>div{display:grid;gap:4px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
-  .review-resource-grid small{font-size:9px;color:var(--muted)}
-  .review-resource-grid strong{font-size:17px;color:var(--text)}
+  
+  
+  
+  
   .review-stamina-track{height:7px;overflow:hidden;border-radius:10px;background:var(--surface-raised)}
   .review-stamina-track span{display:block;height:100%;border-radius:inherit;background:var(--accent)}
   .review-change-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 12px}
