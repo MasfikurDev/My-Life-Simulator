@@ -5,7 +5,7 @@
   import FinanceTaxes from './FinanceTaxes.svelte';
   import { formatCharacterMoney, getNetWorth, getMarketPrice } from './lib/simulation';
   import type { Character } from './lib/types';
-  let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
+  let { character, projectedCharacter = character, onChange }: { character: Character; projectedCharacter?: Character; onChange: (next: Character) => void } = $props();
   let activeView = $state('overview');
   const views = $derived([
     { id: 'overview', label: 'Overview', available: true },
@@ -42,7 +42,7 @@
       <article class="finance-insight finance-debt"><div><small>OUTSTANDING DEBT</small><strong>{formatCharacterMoney(character,(character.loans ?? []).filter(l=>l.active).reduce((sum,l)=>sum+l.balance,0)+(character.cards ?? []).filter(c=>c.active&&c.type==='credit').reduce((sum,c)=>sum+c.balance,0))}</strong></div><p>Active loans and credit-card balances</p></article>
     </section>
   {:else if activeView === 'banking'}
-    <FinanceAccounts {character} {onChange} />
+    <FinanceAccounts {character} {projectedCharacter} {onChange} />
   {:else if activeView === 'taxes'}
     <FinanceTaxes {character} />
   {:else if activeView === 'property'}
