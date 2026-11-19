@@ -817,8 +817,10 @@
   .review-stamina-track{height:7px;overflow:hidden;border-radius:10px;background:var(--surface-raised)}
   .review-stamina-track span{display:block;height:100%;border-radius:inherit;background:var(--accent)}
   .review-change-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 12px}
-  .review-change-row,.review-cash-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
-  .review-change-row>span,.review-cash-row>span{font-size:10px;color:var(--muted)}
+  .review-change-row{display:grid;gap:6px;align-content:start;min-width:0;padding:7px 0;border-bottom:1px solid var(--line)}
+  .review-change-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+  .review-change-heading>span,.review-cash-row>span{font-size:10px;color:var(--muted)}
+  .review-cash-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
   .review-change-row strong,.review-cash-row strong{font-size:11px;color:var(--text);font-variant-numeric:tabular-nums}
   .review-change-row strong.positive{color:var(--green)}
   .review-change-row strong.negative{color:var(--coral)}
