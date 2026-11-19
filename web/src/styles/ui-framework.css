@@ -23,10 +23,10 @@
 .ui-field input,.ui-field select,.ui-field textarea{
   min-width:0;max-width:100%;border-color:var(--line);background:var(--surface-raised);color:var(--text);
 }
-.ui-field :global(input:focus-visible),.ui-field :global(select:focus-visible),.ui-field :global(textarea:focus-visible){
+.ui-field input:focus-visible,.ui-field select:focus-visible,.ui-field textarea:focus-visible{
   outline:none;border-color:var(--accent);box-shadow:var(--focus-ring);
 }
-.ui-field :global(input:disabled),.ui-field :global(select:disabled),.ui-field :global(textarea:disabled){
+.ui-field input:disabled,.ui-field select:disabled,.ui-field textarea:disabled{
   color:var(--subtle);background:var(--surface);cursor:not-allowed;
 }
 .ui-chart-grid{stroke:var(--chart-grid)}
