@@ -5,6 +5,7 @@
   import EmptyState from './components/EmptyState.svelte';
   import GameChoice from './GameChoice.svelte';
   import UiProgress from './components/UiProgress.svelte';
+  import UiField from './components/UiField.svelte';
   let { character, onChange }: { character: Character; onChange: (next: Character) => void } = $props();
   let accountType = $state<BankAccountType>('checking');
   let fixedTermYears = $state('1');
@@ -85,7 +86,7 @@
     <dialog open class="account-dialog" aria-label={selected.name + ' account'}>
       <div class="account-dialog-heading"><div><small>ACCOUNT DETAILS</small><h3>{selected.name}</h3><strong>{formatCharacterMoney(character, selected.balance)}</strong></div><button class="quiet" onclick={() => accountDialogOpen = false}>Close</button></div>
       <p class="hint">{selected.type === 'fixed-deposit' && character.year < (selected.maturesAtYear ?? Number.MAX_SAFE_INTEGER) ? 'Fixed deposits are locked until maturity. Withdrawals and outgoing payments become available after maturity.' : selected.type === 'fixed-deposit' ? 'This fixed deposit has matured. Withdrawals and outgoing payments are now available.' : selected.type === 'savings' ? 'Savings account · 2% annual interest. Transfers and withdrawals are available.' : 'Everyday account · instant access for transfers, withdrawals and recurring payments.'}</p>
-      <label>Amount<input type="number" min="1" step="1" bind:value={amount} inputmode="numeric" /></label>
+      <UiField label="Amount" controlId="bank-transaction-amount"><input id="bank-transaction-amount" type="number" min="1" step="1" bind:value={amount} inputmode="numeric" /></UiField>
       <button class="primary" onclick={deposit}>Deposit cash</button>
       {#if selected.type !== 'fixed-deposit' || character.year >= (selected.maturesAtYear ?? Number.MAX_SAFE_INTEGER)}
         <button onclick={withdraw}>Withdraw cash</button>
