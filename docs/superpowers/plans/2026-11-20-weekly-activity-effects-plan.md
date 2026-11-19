@@ -15,6 +15,8 @@
 ## Tasks
 
 ### 1. Expose structured weekly outcomes from the simulation
+
+**Status: Implemented; full validation pending.**
 - Inspect the weekly resolver and existing review contracts.
 - Add a failing test proving the review exposes actual per-activity effects and full changed-stat forecast, including correct inverse-metric tone metadata where applicable.
 - Implement the smallest resolver-owned outcome contract; do not parse reward copy or run repeated full-week simulations to guess attribution.
@@ -22,6 +24,8 @@
 - Test job applications, education tasks, work, care/rest, food/item use, family/social, and passive activity outcomes using existing mechanics.
 
 ### 2. Update Weekly Review presentation
+
+**Status: Implemented; responsive visual review pending.**
 - Add failing component/contract tests for all changed metrics, no duplicate Combined Character Impact, compact badge rows, planned × control, automatic non-removable rows, and item disclosure.
 - Replace the stamina-only forecast with the broader stat forecast while retaining stamina budget details in compact form.
 - Remove Combined Character Impact.
@@ -29,6 +33,8 @@
 - Ensure removing a planned activity recalculates forecast and financial totals immediately.
 
 ### 3. Reuse outcome badges in domain workspaces
+
+**Status: Partially implemented.** Education task cards, Health & Wellbeing activity cards, and Work extra-earnings / career-development choices use resolver-backed previews. Family, Lifestyle/Supermarket/Inventory, and any other activity-selection cards remain to be reviewed; do not add badges where a trustworthy preview is not available.
 - Audit Education, Work, Lifestyle/Supermarket/Owned, Health, Family, Finance, and other activity selection cards.
 - Add shared badge presentation only where the owning domain exposes verified effects/costs/requirements.
 - Keep domain-specific layout and interactions; do not force all cards into a generic template.
@@ -36,6 +42,8 @@
 - Shopping and item-use details remain grouped behind contextual disclosure when lists are long.
 
 ### 4. Documentation and validation
+
+**Status: Documentation updated; automated and visual validation pending.**
 - Update Weekly Activity Review, Visual Design, and relevant domain docs after implementation.
 - Run `npm run check`, `npm test`, and `npm run build` from `web/`.
 - Review responsive behavior at 320, 360, 390, 430, 768, 1024, and 1440 CSS px where browser preview is available.
