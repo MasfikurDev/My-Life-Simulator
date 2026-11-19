@@ -1249,6 +1249,7 @@ export interface WeeklyResolutionResult {
   issue: 'invalid-plan' | 'already-resolved' | 'unresolvable-action' | 'insufficient-stamina' | null;
   recap: string[];
   activityOutcomes?: Array<{ id: string; effects: WeeklyActivityOutcomeEffect[] }>;
+  staminaDrift?: number;
 }
 
 function createWeeklyRandom(character: Character, weekStart: string): () => number {
@@ -1403,6 +1404,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
   next = applyWeeklyClothingWear(next);
   const staminaDrift = weeklyWorkload >= 16 ? -7 : weeklyWorkload >= 12 ? -4 : 3;
   next = { ...next, stamina: clamp((next.stamina ?? 50) + staminaDrift) };
+  recap.push(staminaDrift > 0 ? 'Natural weekly recovery restored +' + staminaDrift + ' stamina.' : 'Weekly workload reduced stamina by ' + Math.abs(staminaDrift) + '.');
   const nextSchedule = { ...schedule, activities: [] };
   next = { ...next, weeklyPlan: nextSchedule, lastResolvedWeekStart: weekStart, lastWeekRecap: recap };
   const academic = resolveEducationWeek(next, educationTasks, weekStart, weeklyWorkload);
@@ -1423,7 +1425,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     next = applyAgeTransition(next, previousAge, nextAge);
     next = { ...next, year: nextYear };
   }
-  return { character: next, issue: null, recap, activityOutcomes };
+  return { character: next, issue: null, recap, activityOutcomes, staminaDrift };
 }
 
 export interface WeeklyActivityReviewItem {
@@ -1455,6 +1457,7 @@ export interface WeeklyActivityReview {
   passiveStaminaRecovery: number;
   totalMoneyCost: number;
   projectedStamina: number;
+  staminaDrift: number;
   currentStress: number;
   projectedStress: number;
   currentHealth: number;
@@ -1569,6 +1572,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
     passiveStaminaRecovery,
     totalMoneyCost: activities.reduce((total, item) => total + item.moneyCost, 0),
     projectedStamina,
+    staminaDrift: preview.staminaDrift ?? 0,
     currentStress,
     projectedStress,
     currentHealth: character.health,
