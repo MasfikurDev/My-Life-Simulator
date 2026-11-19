@@ -63,7 +63,7 @@
     letter-spacing: .01em;
     vertical-align: middle;
     white-space: nowrap;
-    transition: color .16s ease, background-color .16s ease, border-color .16s ease;
+    box-shadow:inset 0 1px color-mix(in srgb,var(--text) 7%,transparent);\n    transition: color .16s ease, background-color .16s ease, border-color .16s ease, box-shadow .16s ease;
   }
 
   .ui-badge-label {
