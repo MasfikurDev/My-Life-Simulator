@@ -57,10 +57,10 @@
       <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%</strong><small>Present / scheduled</small></div>
       <div><span>COURSE PROGRESS</span><strong>{progress}%</strong><small>{enrollment.weeksCompleted}/{enrollment.totalWeeks} weeks</small></div>
     </div>
-    <UiProgress label="Course progress" value={progress} previewValue={projectedProgress} previewTone="success" tone={getValueTone(progress)} showLabel={false} />
+    <UiProgress label="Course progress" value={progress} previewValue={projectedProgress} previewTone={projectedProgress >= progress ? 'success' : 'danger'} tone={getValueTone(progress)} showLabel={false} showValue valueText={`${progress}% → ${projectedProgress}%`} />
     <div class="education-subjects">
       {#each enrollment.subjects as subject}
-        <div class="education-subject"><span>{subject.name}</span><strong>{Math.round(subject.grade)}%</strong><UiProgress label={`${subject.name} grade`} value={subject.grade} previewValue={projectedEnrollment?.subjects.find((item) => item.name === subject.name)?.grade ?? subject.grade} previewTone="success" tone={getValueTone(subject.grade)} size="small" showLabel={false} /></div>
+        <div class="education-subject"><span>{subject.name}</span><strong>{Math.round(subject.grade)}%</strong><UiProgress label={`${subject.name} grade`} value={subject.grade} previewValue={projectedEnrollment?.subjects.find((item) => item.name === subject.name)?.grade ?? subject.grade} previewTone={(projectedEnrollment?.subjects.find((item) => item.name === subject.name)?.grade ?? subject.grade) >= subject.grade ? 'success' : 'danger'} tone={getValueTone(subject.grade)} size="small" showLabel={false} showValue valueText={`${Math.round(subject.grade)}% → ${Math.round(projectedEnrollment?.subjects.find((item) => item.name === subject.name)?.grade ?? subject.grade)}%`} /></div>
       {/each}
     </div>
     <div class="education-footnote">{#if enrollment.status === 'paused'}Progress retained{:else}{enrollment.weeklyStudyTarget} study points required each week{/if}</div>
