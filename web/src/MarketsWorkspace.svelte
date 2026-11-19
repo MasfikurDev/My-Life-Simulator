@@ -253,13 +253,13 @@
 
   {#if fundsAction}
     <div class="funds-overlay" role="presentation" onclick={(event) => { if (event.target === event.currentTarget) fundsAction = null; }}>
-      <section class="funds-dialog" role="dialog" aria-modal="true" aria-labelledby="funds-title">
+      <div class="funds-dialog" role="dialog" aria-modal="true" aria-labelledby="funds-title" tabindex="-1">
         <h3 id="funds-title">{fundsAction === 'deposit' ? 'Add funds' : 'Move funds'}</h3>
         <p>{fundsAction === 'deposit' ? 'Transfer cash into your investment wallet. This does not create money.' : 'Move unused investment cash back to your available cash.'}</p>
         <label>Amount<input type="number" min="1" step="1" bind:value={fundsAmount}/></label>
         <small>{fundsAction === 'deposit' ? 'Available cash: ' + formatCharacterMoney(character) : 'Investment cash: ' + formatCharacterMoney(character, marketCash)}</small>
         <div class="dialog-actions"><button onclick={() => fundsAction = null}>Cancel</button><button class="primary" onclick={moveFunds}>{fundsAction === 'deposit' ? 'Add funds' : 'Move to cash'}</button></div>
-      </section>
+      </div>
     </div>
   {/if}
 </section>
