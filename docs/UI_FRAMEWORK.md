@@ -46,3 +46,15 @@ My Life Simulator uses a small, in-repository Svelte UI framework rather than ha
 - Do not turn routine navigation or ordinary workspace browsing into dialogs. Add information, transaction, confirmation, or multi-step variants only when a concrete flow requires them.
 
 This is a gameplay interaction primitive, not a new simulation subsystem or save-data format.
+
+
+## Theme-aware shared components (2026-11-19)
+
+- `UiButton` and `UiCard` are the shared action and surface primitives. Their semantic variants consume the active theme tokens; keep their APIs stable and add variants only for a repeated interaction or hierarchy need.
+- `UiProgress` presents determinate progress with an accessible label, bounded values, semantic tone, and compact size variants. Use it for tracked game progress; do not replace bespoke charts or invent progress values.
+- `UiField` provides consistent label, helper, required, and validation presentation around existing native controls. Keep the actual input type, value, validation, and state owned by the calling form.
+- Existing `GameplayDialog` owns player-decision presentation. Its surfaces, actions, focus, backdrop, and safe-area treatment must use semantic tokens. Do not create a second dialog system for the same flow.
+- Existing `EmptyState` remains the shared empty-collection presentation. Toasts use the existing app notification surface; preserve its single notification flow.
+- Charts remain domain-owned because investment and financial visualizations have different data and interaction requirements. Consume the shared `--chart-*` semantic tokens for series, grid, gain, loss, and neutral values rather than adding palette literals.
+- Form controls, progress fills, dialogs, toast surfaces, and chart series must resolve from the active theme. All 17 themes must remain supported, including Paper's light contrast.
+- Keep transitions tied to state changes, not continuous decoration. Honor `prefers-reduced-motion` and maintain visible keyboard focus and mobile touch targets.
