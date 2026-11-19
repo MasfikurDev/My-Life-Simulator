@@ -109,7 +109,7 @@ Add a new prop only when it represents a repeated semantic need. Prefer CSS cust
 The flexible primitives are now used in real domain screens, not only defined:
 
 - **UiProgress**
-  - Finance Accounts: credit score and savings goal.
+  - Finance Accounts: credit score.
   - Finance Products: loan repayment and savings goal.
   - Education: overall course progress and subject grades.
   - Life Overview: health, stamina, intelligence, fitness, happiness, and inverse stress meters.
