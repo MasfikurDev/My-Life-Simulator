@@ -53,9 +53,9 @@
   <section class="education-hero domain-panel">
     <div class="education-hero-top"><div><div class="eyebrow">CURRENT ENROLLMENT · {enrollment.institution.toUpperCase()}</div><h2>{enrollment.level === 'bachelor' ? "Bachelor's degree" : enrollment.level === 'master' ? "Master's degree" : enrollment.level === 'doctorate' ? 'Doctoral programme' : enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">{enrollment.status === 'paused' ? 'ON HOLD' : 'ENROLLED'}</span></div>
     <div class="education-metrics">
-      <div><span>{enrollment.level === 'early-learning' ? 'DEVELOPMENT' : 'OVERALL GRADE'}</span><strong>{Math.round(enrollment.grade)}%</strong><small>{gradeLabel(enrollment.grade)}</small></div>
-      <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%</strong><small>Present / scheduled</small></div>
-      <div><span>COURSE PROGRESS</span><strong>{progress}%</strong><small>{enrollment.weeksCompleted}/{enrollment.totalWeeks} weeks</small></div>
+      <div><span>{enrollment.level === 'early-learning' ? 'DEVELOPMENT' : 'OVERALL GRADE'}</span><strong>{Math.round(enrollment.grade)}%{#if projectedEnrollment && projectedEnrollment.grade !== enrollment.grade} → {Math.round(projectedEnrollment.grade)}%{/if}</strong><small>{gradeLabel(enrollment.grade)}</small></div>
+      <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%{#if projectedEnrollment && projectedEnrollment.attendance !== enrollment.attendance} → {Math.round(projectedEnrollment.attendance)}%{/if}</strong><small>Present / scheduled</small></div>
+      <div><span>COURSE PROGRESS</span><strong>{progress}%{#if projectedProgress !== progress} → {projectedProgress}%{/if}</strong><small>{enrollment.weeksCompleted}/{enrollment.totalWeeks} weeks</small></div>
     </div>
     <UiProgress label="Course progress" value={progress} previewValue={projectedProgress} previewTone={projectedProgress >= progress ? 'success' : 'danger'} tone={getValueTone(progress)} showLabel={false} showValue valueText={`${progress}% → ${projectedProgress}%`} />
     <div class="education-subjects">
