@@ -137,7 +137,7 @@ function start() {
 <style lang="scss">
 .custom-start-experience{margin:0}
 .creation-heading-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
-.creation-back-button{flex:none;white-space:nowrap;margin-top:2px}
+.creation-back-button{flex:none;min-height:44px;white-space:nowrap;margin-top:2px}
 .custom-start-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(250px,.75fr);gap:16px;align-items:start;margin-top:20px}
 .custom-start-main{display:grid;gap:13px;min-width:0}
 .custom-game-section,.custom-start-preview{border:1px solid var(--line);border-radius:17px;background:var(--surface);padding:15px}
@@ -168,10 +168,10 @@ function start() {
 .custom-identity-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
 .custom-field{display:grid;gap:5px;font-size:10px;font-weight:750;color:var(--muted);min-width:0}
 .custom-field-wide{grid-column:1/-1}
-.custom-field input,.custom-field select{width:100%;min-width:0;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised,var(--surface));color:var(--text);padding:10px;font:inherit;font-size:12px}
+.custom-field input,.custom-field select{width:100%;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:9px;background:var(--surface-raised,var(--surface));color:var(--text);padding:10px;font:inherit;font-size:12px}
 .custom-name-row{display:flex;gap:7px}
 .custom-name-row input{flex:1}
-.custom-name-row .secondary-button{flex:none;padding:8px 10px;font-size:10px}
+.custom-name-row .secondary-button{flex:none;min-height:44px;padding:8px 10px;font-size:10px}
 .custom-start-preview{position:sticky;top:14px}
 .custom-preview-emblem{display:grid;place-items:center;width:48px;height:48px;margin:12px 0 8px;border:1px solid var(--line);border-radius:14px;background:var(--surface-raised,var(--surface));font-size:21px;font-weight:900;color:var(--accent)}
 .custom-start-preview h2{font-size:20px;margin:0}

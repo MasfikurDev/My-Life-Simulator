@@ -69,6 +69,6 @@
   .currency-icon{display:inline-grid;place-items:center;min-width:21px;height:21px;padding:0 4px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font-size:12px;font-weight:850;line-height:1}
   .gender-icon{display:inline-grid;place-items:center;width:18px;height:18px;border:1px solid var(--line);border-radius:50%;font-size:13px;font-weight:800;line-height:1}
   .generation-note{margin:0}
-  .creation-back-button{flex:none;white-space:nowrap;margin-top:2px}
+  .creation-back-button{flex:none;min-height:44px;white-space:nowrap;margin-top:2px}
   @media(max-width:520px){.creation-heading-row{gap:10px}.creation-back-button{padding:8px 10px}}
 </style>
