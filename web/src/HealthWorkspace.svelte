@@ -2,8 +2,9 @@
   import type { CareActionType, Character } from './lib/types';
   import EmptyState from './components/EmptyState.svelte';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
+  import ActivityEffectBadges from './components/ActivityEffectBadges.svelte';
   import UiProgress from './components/UiProgress.svelte';
-  import { formatCharacterMoney, planActivityInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
+  import { formatCharacterMoney, getWeeklyActivityReview, planActivityInNextFreeTime, planCareActionInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getActivityStaminaCost, getValueTone } from './lib/progression';
   let { character, projectedCharacter = character, onChange, onNotify }: { character: Character; projectedCharacter?: Character; onChange: (next: Character) => void; onNotify: (message: string) => void } = $props();
   const medical = $derived(character.medicalState ?? { conditions: [], medications: [], highStressWeeks: 0 });
@@ -18,6 +19,24 @@
     onNotify('Added to this week. Toggle it again to remove it.');
   }
   function isPlanned(type: CareActionType) { return plannedCare.some((item) => item.action?.kind === 'care' && item.action.careType === type); }
+  function previewAction(type: CareActionType | 'exercise' | 'socialize') {
+    const existing = schedule.activities.find((item) =>
+      type === 'exercise' || type === 'socialize'
+        ? item.activityId === type && item.action?.kind === 'activity'
+        : item.action?.kind === 'care' && item.action.careType === type
+    );
+    const planned = existing ? { character, plannedActivity: existing, issue: null } :
+      type === 'exercise' || type === 'socialize'
+        ? planActivityInNextFreeTime(character, type)
+        : planCareActionInNextFreeTime(character, type);
+    if (planned.issue || !planned.plannedActivity) return null;
+    return getWeeklyActivityReview(planned.character).activities.find((item) => item.id === planned.plannedActivity!.id) ?? null;
+  }
+  const carePreviews = $derived({
+    rest: previewAction('rest'), mindfulness: previewAction('mindfulness'),
+    counselling: previewAction('counselling'), medical: previewAction('medical-checkup'),
+    exercise: previewAction('exercise'), socialize: previewAction('socialize')
+  });
   function isPersonalActivityPlanned(type: 'exercise' | 'socialize') { return schedule.activities.some((item) => item.activityId === type && item.action?.kind === 'activity'); }
   function togglePersonalActivity(type: 'exercise' | 'socialize') {
     const existing = schedule.activities.find((item) => item.activityId === type && item.action?.kind === 'activity');
@@ -65,7 +84,7 @@
   <div class="section-heading"><div><span class="section-index">02</span><h3>Medical record</h3></div><span class="section-hint">{medical.conditions.length} active conditions</span></div>
   {#if medical.conditions.length}
     {#each medical.conditions as condition}
-      <div class="health-condition-row"><div><strong>{condition.name}</strong><small>{condition.diagnosed ? 'Diagnosed' : 'Not yet assessed'} · {condition.weeksActive} weeks active · {condition.treatment ? 'Treatment: ' + condition.treatment.replaceAll('-', ' ') : 'No treatment plan'}</small></div><div class="health-condition-severity"><strong>{Math.round(condition.severity)}%</strong><UiProgress label={`${condition.name} severity`} value={condition.severity} tone={getValueTone(condition.severity, true)} size="small" showLabel={false} /></div></div>
+      <div class="health-condition-row"><div><strong>{condition.name}</strong><small>{condition.diagnosed ? 'Diagnosed' : 'Not yet assessed'} · {condition.weeksActive} weeks active · {condition.treatment ? 'Treatment: ' + condition.treatment.replaceAll('-', ' ') : 'No treatment plan'}</small></div><div class="health-condition-severity"><strong>{Math.round(condition.severity)}%</strong><UiProgress label={`${condition.name} severity`} value={condition.severity} previewValue={projectedCharacter.medicalState?.conditions.find((item) => item.id === condition.id)?.severity ?? condition.severity} previewTone={(projectedCharacter.medicalState?.conditions.find((item) => item.id === condition.id)?.severity ?? condition.severity) < condition.severity ? 'success' : 'danger'} tone={getValueTone(condition.severity, true)} size="small" showLabel={false} /></div></div>
     {/each}
   {:else}
     <EmptyState title="No active medical conditions" />
