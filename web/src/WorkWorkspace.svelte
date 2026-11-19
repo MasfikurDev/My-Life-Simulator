@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { acceptJobOffer, acceptPromotionOffer, declineJobOffer, declinePromotionOffer, formatCharacterMoney, planActivityInNextFreeTime, planWorkActionInNextFreeTime, removePlannedActivity, resignFromJob } from './lib/simulation';
+  import { acceptJobOffer, acceptPromotionOffer, declineJobOffer, declinePromotionOffer, formatCharacterMoney, getWeeklyActivityReview, planActivityInNextFreeTime, planWorkActionInNextFreeTime, removePlannedActivity, resignFromJob } from './lib/simulation';
   import { getCareerPath, getCareerRequirements, getCareerRole, getJobListings, getPromotionReadiness, isEligibleForRole } from './lib/work';
   import type { CareerPathId, Character } from './lib/types';
   import GameChoice from './GameChoice.svelte';
