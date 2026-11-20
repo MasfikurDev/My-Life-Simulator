@@ -2,7 +2,7 @@ import type { Character, EducationLevel } from './types';
 import { EDUCATION_PROGRAMS, getAvailableEducationPrograms, type EducationProgram } from './education';
 
 export type EducationTreeStatus = 'completed' | 'current' | 'available' | 'locked';
-export type EducationTreeNodeKind = 'programme' | 'subject';
+export type EducationTreeNodeKind = 'programme';
 
 export interface EducationTreeNode {
   id: string;
@@ -28,9 +28,12 @@ export interface EducationTreeEdge {
   style: 'required' | 'alternative' | 'independent';
 }
 
+export interface EducationTreeSubject { id: string; title: string; grade: number; programId: string; }
+
 export interface EducationTree {
   nodes: EducationTreeNode[];
   edges: EducationTreeEdge[];
+  subjects: EducationTreeSubject[];
 }
 
 const PROGRAM_POSITIONS: Record<string, { x: number; y: number }> = {
@@ -123,5 +126,6 @@ export function getEducationTree(character: Character): EducationTree {
   });
 
   const edges = PROGRAM_EDGES.filter((edge) => nodes.some((node) => node.id === edge.from) && nodes.some((node) => node.id === edge.to));
-  return { nodes, edges };
+  const subjects = enrollment?.subjects.map((subject) => ({ id: subject.id, title: subject.name, grade: Math.max(0, Math.min(100, Math.round(subject.grade))), programId: enrollment.programId })) ?? [];
+  return { nodes, edges, subjects };
 }
