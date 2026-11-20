@@ -973,7 +973,11 @@ export function getPlannedActivityStaminaRecovery(item: PlannedActivity): number
 
 function getPlannedActivityTitle(character: Character, item: PlannedActivity): string {
   if (item.action?.kind === 'food') return 'Meal · ' + item.action.name + (item.action.quantity > 1 ? ' × ' + item.action.quantity : '');
-  if (item.action?.kind === 'education') return item.action.taskType === 'assignment' ? 'Education assignment' : item.action.taskType === 'exam' ? 'Academic assessment' : 'Focused study';
+  if (item.action?.kind === 'education') {
+    const subject = character.educationEnrollment?.subjects.find((entry) => entry.id === item.action.subjectId)?.name;
+    const task = item.action.taskType === 'assignment' ? 'Assignment' : item.action.taskType === 'exam' ? 'Assessment' : 'Focused study';
+    return (subject ? subject + ' · ' : '') + task;
+  }
   if (item.action?.kind === 'care') return ({ rest: 'Rest & recovery', mindfulness: 'Mindfulness', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up' }[item.action.careType]);
   if (item.action?.kind === 'work') return (item.action.workAction === 'apply' ? 'Job application: ' : 'Job interview: ') + item.action.title;
   const action = item.action;
@@ -1375,7 +1379,8 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
         const fieldSkill = getEducationSkillId(next.educationEnrollment?.field);
         result = awardSkillProgress(result, fieldSkill, item.action.taskType === 'assignment' ? 4 : item.action.taskType === 'exam' ? 3 : 1);
         educationTasks.push({ taskType: item.action.taskType, subjectId: item.action.subjectId });
-        recap.push(item.action.taskType === 'assignment' ? 'Completed an education assignment.' : item.action.taskType === 'exam' ? 'Completed an academic exam.' : 'Completed a focused study session.');
+        const subjectName = next.educationEnrollment?.subjects.find((subject) => subject.id === item.action.subjectId)?.name;
+        recap.push((subjectName ? subjectName + ': ' : '') + (item.action.taskType === 'assignment' ? 'completed an education assignment.' : item.action.taskType === 'exam' ? 'completed an academic assessment.' : 'completed a focused study session.'));
       }
     } else if (item.action?.kind === 'care') {
       const careCost = next.age < 18 ? 0 : Math.round((item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (next.currencyScale ?? 1));
