@@ -179,7 +179,7 @@
   .detail-facts b{color:var(--text);font-size:10px}
   .subject-nodes{display:flex;flex-wrap:wrap;gap:12px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface-raised)}
   .subject-node{display:grid;justify-items:center;gap:5px;width:76px;text-align:center}
-  .subject-orb{display:grid;place-items:center;width:42px;height:42px;border:3px solid var(--accent);border-radius:50%;background:var(--surface);color:var(--text);font-size:10px;font-weight:850;box-shadow:inset 0 0 0 3px var(--surface-raised)}
+  .subject-orb{display:grid;place-items:center;width:42px;height:42px;border:3px solid transparent;border-radius:50%;background:linear-gradient(var(--surface),var(--surface)) padding-box,conic-gradient(var(--accent) var(--subject-progress),var(--line) 0) border-box;color:var(--text);font-size:10px;font-weight:850;box-shadow:inset 0 0 0 3px var(--surface-raised)}
   .subject-node strong{color:var(--muted);font-size:8px;line-height:1.25}
   .detail-progress{display:flex;justify-content:space-between;color:var(--muted);font-size:10px}
   .detail-progress b{color:var(--accent)}
