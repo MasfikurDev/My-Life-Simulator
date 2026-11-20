@@ -19,6 +19,7 @@
   const progress = $derived(enrollment ? Math.min(100, Math.round(enrollment.weeksCompleted / enrollment.totalWeeks * 100)) : 0);
   const projectedProgress = $derived(projectedEnrollment ? Math.min(100, Math.round(projectedEnrollment.weeksCompleted / projectedEnrollment.totalWeeks * 100)) : progress);
   const plannedTasks = $derived(character.weeklyPlan?.activities.filter((item) => item.action?.kind === 'education') ?? []);
+  const taskTypes: EducationTaskType[] = ['study', 'assignment', 'exam'];
   const selectedSubject = $derived(enrollment?.subjects.find((subject) => subject.id === selectedSubjectId) ?? enrollment?.subjects[0] ?? null);
   const plannedStudyPoints = $derived(plannedTasks.reduce((total, item) => total + (item.action?.kind === 'education' ? item.action.taskType === 'assignment' ? 1.25 : item.action.taskType === 'exam' ? 1.6 : 1 : 0), 0));
   const studyTargetProgress = $derived(enrollment ? Math.min(100, plannedStudyPoints / Math.max(1, enrollment.weeklyStudyTarget) * 100) : 0);
@@ -99,7 +100,7 @@
         <div class="study-target"><span>WEEKLY STUDY TARGET</span><strong>{plannedStudyPoints.toFixed(2).replace(/\.00$/, '')} / {enrollment.weeklyStudyTarget} pts</strong><div class="study-target-track"><i style:width={studyTargetProgress + '%'}></i></div></div>
       </div>
       <div class="education-task-grid">
-        {#each (['study', 'assignment', 'exam'] as EducationTaskType[]) as task}
+        {#each taskTypes as task}
           <button class="education-task-card" class:planned={taskPlanned(task)} onclick={() => planTask(task)}>
             <span class="education-task-icon">{task === 'study' ? '✦' : task === 'assignment' ? '▤' : '✓'}</span>
             <strong>{taskTitle(task)}</strong>
