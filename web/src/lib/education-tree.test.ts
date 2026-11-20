@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createCharacter } from './simulation';
-import { enrollInEducation, resolveEducationWeek } from './education';
+import { EDUCATION_PROGRAMS, enrollInEducation, resolveEducationWeek } from './education';
 import { getEducationTree } from './education-tree';
 
 describe('education progression tree', () => {
@@ -9,6 +9,15 @@ describe('education progression tree', () => {
     const tree = getEducationTree(child);
     expect(tree.nodes.find((node) => node.id === 'primary-school')?.status).toBe('available');
     expect(tree.nodes.find((node) => node.id === 'bachelor-degree')?.status).toBe('locked');
+  });
+
+  it('marks only catalogue-defined prerequisites as required tree connections', () => {
+    const tree = getEducationTree(createCharacter('Student', 30));
+    for (const edge of tree.edges.filter((item) => item.style === 'required')) {
+      const source = EDUCATION_PROGRAMS.find((program) => program.id === edge.from);
+      const target = EDUCATION_PROGRAMS.find((program) => program.id === edge.to);
+      expect(target?.prerequisite).toBe(source?.level);
+    }
   });
 
   it('keeps early development and preschool as optional routes', () => {
