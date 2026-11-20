@@ -16,6 +16,25 @@ describe('weekly education and care integration', () => {
     expect(result.recap.some((item) => item.includes('weekly learning target met'))).toBe(true);
   });
 
+  it('applies focused academic work to the selected subject instead of rotating it', () => {
+    const enrolled = enrollInEducation({ ...createCharacter('Student', 10), health: 90, stress: 20, stamina: 80 }, 'primary-school', 'General studies').character;
+    const selectedSubject = enrolled.educationEnrollment!.subjects[1];
+    const planned = planEducationTaskInNextFreeTime(enrolled, 'study', selectedSubject.id);
+    expect(planned.issue).toBeNull();
+    const result = advanceWeek(planned.character);
+    expect(result.issue).toBeNull();
+    const subjects = result.character.educationEnrollment!.subjects;
+    expect(subjects[1].grade).toBeGreaterThan(subjects[0].grade);
+    expect(result.recap.some((item) => item.includes(selectedSubject.name))).toBe(true);
+  });
+
+  it('rejects a subject focus that is not part of the current programme', () => {
+    const enrolled = enrollInEducation(createCharacter('Student', 10), 'primary-school', 'General studies').character;
+    const planned = planEducationTaskInNextFreeTime(enrolled, 'study', 'not-a-subject');
+    expect(planned.issue).toBe('unavailable');
+    expect(planned.character.weeklyPlan.activities).toHaveLength(0);
+  });
+
   it('lowers grades when a student advances a week without academic work', () => {
     const enrolled = enrollInEducation(createCharacter('Student', 10), 'primary-school', 'General studies').character;
     const before = enrolled.educationEnrollment!.grade;
