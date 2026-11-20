@@ -126,7 +126,7 @@
       {/if}
     </section>
   {/if}
-  <p class="tree-note">Connections show programme prerequisites. Independent certificates and vocational routes are separate options, not mandatory steps in a single academic chain.</p>
+  <p class="tree-note">Solid connections show prerequisites; dashed branches show optional parallel routes. Independent certificates and vocational training do not require every academic milestone.</p>
 </section>
 
 <style lang="scss">
