@@ -123,7 +123,6 @@ export function resolveEducationWeek(character: Character, tasks: Array<Educatio
   // Attendance and sustainable workload affect course standing. Optional study tasks
   // improve the selected subject; there is no weekly quota or missed-task penalty.
   const change = -fatiguePenalty - workloadPenalty - attendanceGap;
-  const grade = Math.max(0, Math.min(100, enrollment.grade + change));
   const focusedSelections = selections.filter((task) => enrollment.subjects.some((subject) => subject.id === task.subjectId));
   const hasSubjectFocus = focusedSelections.length > 0;
   const subjects = enrollment.subjects.map((subject, index) => {
@@ -132,6 +131,8 @@ export function resolveEducationWeek(character: Character, tasks: Array<Educatio
       : selections.length && index === enrollment.weeksCompleted % enrollment.subjects.length ? 1 : 0;
     return { ...subject, grade: Math.max(0, Math.min(100, subject.grade + change + focusBonus)) };
   });
+  // Overall course grade is derived from actual subject results, not a separate quota score.
+  const grade = subjects.reduce((total, subject) => total + subject.grade, 0) / Math.max(1, subjects.length);
   const nextEnrollment: EducationEnrollment = { ...enrollment, grade, subjects, attendance: Math.max(0, Math.round((enrollment.attendance * enrollment.weeksCompleted + attendance) / (enrollment.weeksCompleted + 1))), weeksCompleted: enrollment.weeksCompleted + 1 };
   const recap = [
     'Education: classes and course progress updated.',
