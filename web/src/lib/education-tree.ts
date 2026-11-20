@@ -96,15 +96,16 @@ export function getEducationTree(character: Character): EducationTree {
   const enrollment = character.educationEnrollment;
   const nodes: EducationTreeNode[] = EDUCATION_PROGRAMS.map((program) => {
     const completed = hasCompletedProgram(character, program);
-    const current = enrollment?.programId === program.id;
+    const currentEnrollment = enrollment?.programId === program.id ? enrollment : null;
+    const current = currentEnrollment !== null;
     const isAvailable = available.has(program.id) && !enrollment;
     const position = PROGRAM_POSITIONS[program.id] ?? { x: 180, y: 1040 };
     const status: EducationTreeStatus = completed ? 'completed' : current ? 'current' : isAvailable ? 'available' : 'locked';
-    const progress = current
-      ? Math.min(100, Math.round(enrollment.weeksCompleted / Math.max(1, enrollment.totalWeeks) * 100))
+    const progress = currentEnrollment
+      ? Math.min(100, Math.round(currentEnrollment.weeksCompleted / Math.max(1, currentEnrollment.totalWeeks) * 100))
       : completed ? 100 : 0;
     const reason = completed ? 'Programme completed'
-      : current ? enrollment.status === 'paused' ? 'Programme paused · progress retained' : 'Currently enrolled'
+      : currentEnrollment ? currentEnrollment.status === 'paused' ? 'Programme paused · progress retained' : 'Currently enrolled'
       : isAvailable ? 'Entry requirements met'
       : lockedReason(character, program, completedLevels);
     return {
@@ -117,7 +118,7 @@ export function getEducationTree(character: Character): EducationTree {
       reason,
       programId: program.id,
       category: program.level,
-      field: current ? enrollment.field : undefined,
+      field: currentEnrollment?.field,
       durationWeeks: program.durationWeeks,
       tuition: program.tuition,
       ageRange: program.maxAge < 120 ? `${program.minAge}–${program.maxAge}` : `${program.minAge}+`,
