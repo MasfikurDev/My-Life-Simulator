@@ -11,6 +11,14 @@ describe('education progression tree', () => {
     expect(tree.nodes.find((node) => node.id === 'bachelor-degree')?.status).toBe('locked');
   });
 
+  it('keeps early development and preschool as optional routes', () => {
+    const tree = getEducationTree(createCharacter('Student', 10));
+    expect(tree.nodes.find((node) => node.id === 'primary-school')?.status).toBe('available');
+    expect(tree.edges.find((edge) => edge.from === 'early-development' && edge.to === 'early-learning')?.style).toBe('alternative');
+    expect(tree.edges.find((edge) => edge.from === 'early-learning' && edge.to === 'primary-school')?.style).toBe('alternative');
+    expect(tree.edges.some((edge) => edge.to === 'primary-school' && edge.style === 'required')).toBe(false);
+  });
+
   it('shows current enrollment progress and its actual subjects', () => {
     const enrolled = enrollInEducation(createCharacter('Student', 16), 'upper-secondary', 'Science').character;
     const character = {
