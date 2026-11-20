@@ -14,6 +14,7 @@
   const completedCount = $derived(tree.nodes.filter((node) => node.status === 'completed').length);
   const availableCount = $derived(tree.nodes.filter((node) => node.status === 'available').length);
   const currentCount = $derived(tree.nodes.filter((node) => node.status === 'current').length);
+  const selectedSubjects = $derived(character.educationEnrollment?.programId === selectedNode?.programId ? character.educationEnrollment.subjects : []);
 
   function edgePath(from: EducationTreeNode, to: EducationTreeNode) {
     const startY = from.y + (from.kind === 'subject' ? 25 : 32);
@@ -58,7 +59,7 @@
   </div>
 
   <div class="tree-canvas" aria-label="Education progression tree">
-    <svg class="tree-connections" viewBox="0 0 360 1080" preserveAspectRatio="none" aria-hidden="true">
+    <svg class="tree-connections" viewBox="0 0 360 1000" preserveAspectRatio="none" aria-hidden="true">
       {#each tree.edges as edge}
         {@const from = tree.nodes.find((node) => node.id === edge.from)}
         {@const to = tree.nodes.find((node) => node.id === edge.to)}
@@ -76,7 +77,7 @@
         class:available={node.status === 'available'}
         class:locked={node.status === 'locked'}
         style:left={`${node.x / 360 * 100}%`}
-        style:top={`${node.y / 1080 * 100}%`}
+        style:top={`${node.y / 1000 * 100}%`}
         aria-pressed={selectedNode?.id === node.id}
         aria-label={`${node.title}, ${nodeStatusLabel(node.status)}`}
         onclick={() => selectedNodeId = node.id}
@@ -105,12 +106,23 @@
           {#if selectedNode.field}<span>Field <b>{selectedNode.field}</b></span>{/if}
           {#if selectedNode.progress > 0}<span>Progress <b>{selectedNode.progress}%</b></span>{/if}
           {#if selectedNode.durationWeeks}<span>Duration <b>{selectedNode.durationWeeks} weeks</b></span>{/if}
+          {#if selectedNode.ageRange}<span>Age range <b>{selectedNode.ageRange}</b></span>{/if}
           {#if selectedNode.tuition !== undefined}<span>Tuition <b>{selectedNode.tuition ? selectedNode.tuition.toLocaleString() : 'Free'}</b></span>{/if}
         </div>
       {:else}
         <div class="detail-progress"><span>Current grade</span><b>{selectedNode.progress}%</b></div>
       {/if}
       <p class="detail-reason">{selectedNode.reason}</p>
+      {#if selectedSubjects.length}
+        <div class="subject-nodes" aria-label="Current subject progress">
+          {#each selectedSubjects as subject}
+            <div class="subject-node" style={`--subject-progress:${Math.max(0, Math.min(100, subject.grade)) * 3.6}deg`}>
+              <span class="subject-orb">{Math.round(subject.grade)}</span>
+              <strong>{subject.name}</strong>
+            </div>
+          {/each}
+        </div>
+      {/if}
       {#if selectedNode.status === 'available' && selectedNode.kind === 'programme'}
         <p class="detail-action">This route is open. Enrolment and programme selection remain in the Education workspace.</p>
       {:else if selectedNode.status === 'locked'}
@@ -137,7 +149,7 @@
   .tree-legend i.current{background:var(--accent)}
   .tree-legend i.available{background:var(--info)}
   .tree-legend i.locked{background:var(--muted)}
-  .tree-canvas{position:relative;width:100%;max-width:560px;aspect-ratio:360/1080;margin:0 auto;overflow:visible}
+  .tree-canvas{position:relative;width:100%;max-width:560px;aspect-ratio:360/1000;margin:0 auto;overflow:visible}
   .tree-connections{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
   .tree-connections path{fill:none;stroke:var(--line-strong);stroke-width:2.2;stroke-linecap:round;opacity:.85}
   .tree-connections path.optional{stroke-dasharray:4 6;opacity:.55}
@@ -164,6 +176,10 @@
   .detail-facts{display:flex;flex-wrap:wrap;gap:7px}
   .detail-facts span{display:grid;gap:3px;min-width:90px;padding:7px 9px;border-radius:8px;background:var(--surface-raised);color:var(--muted);font-size:8px}
   .detail-facts b{color:var(--text);font-size:10px}
+  .subject-nodes{display:flex;flex-wrap:wrap;gap:12px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface-raised)}
+  .subject-node{display:grid;justify-items:center;gap:5px;width:76px;text-align:center}
+  .subject-orb{display:grid;place-items:center;width:42px;height:42px;border:3px solid var(--accent);border-radius:50%;background:var(--surface);color:var(--text);font-size:10px;font-weight:850;box-shadow:inset 0 0 0 3px var(--surface-raised)}
+  .subject-node strong{color:var(--muted);font-size:8px;line-height:1.25}
   .detail-progress{display:flex;justify-content:space-between;color:var(--muted);font-size:10px}
   .detail-progress b{color:var(--accent)}
   .detail-reason{margin:0;color:var(--text);font-size:11px}
