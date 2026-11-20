@@ -974,8 +974,9 @@ export function getPlannedActivityStaminaRecovery(item: PlannedActivity): number
 function getPlannedActivityTitle(character: Character, item: PlannedActivity): string {
   if (item.action?.kind === 'food') return 'Meal · ' + item.action.name + (item.action.quantity > 1 ? ' × ' + item.action.quantity : '');
   if (item.action?.kind === 'education') {
-    const subject = character.educationEnrollment?.subjects.find((entry) => entry.id === item.action.subjectId)?.name;
-    const task = item.action.taskType === 'assignment' ? 'Assignment' : item.action.taskType === 'exam' ? 'Assessment' : 'Focused study';
+    const educationAction = item.action as Extract<PlannedAction, { kind: 'education' }>;
+    const subject = character.educationEnrollment?.subjects.find((entry) => entry.id === educationAction.subjectId)?.name;
+    const task = educationAction.taskType === 'assignment' ? 'Assignment' : educationAction.taskType === 'exam' ? 'Assessment' : 'Focused study';
     return (subject ? subject + ' · ' : '') + task;
   }
   if (item.action?.kind === 'care') return ({ rest: 'Rest & recovery', mindfulness: 'Mindfulness', counselling: 'Professional counselling', 'medical-checkup': 'Medical check-up' }[item.action.careType]);
@@ -1374,13 +1375,14 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
       result = { ...next, health: clamp(next.health + foodAction.health), happiness: clamp(next.happiness + foodAction.happiness), comfort: clamp((next.comfort ?? 50) + (foodAction.comfort ?? 0)), stress: clamp((next.stress ?? 30) - foodAction.stress), ...(foodAction.ownedItemId ? { ownedLifestyleItems: (next.ownedLifestyleItems ?? []).map((owned) => owned.id === foodAction.ownedItemId ? { ...owned, quantity: Math.max(0, owned.quantity - foodAction.quantity) } : owned).filter((owned) => owned.quantity > 0) } : {}) };
       recap.push('Food: ate ' + foodAction.name + (foodAction.quantity > 1 ? ' × ' + foodAction.quantity : '') + '.');
     } else if (item.action?.kind === 'education') {
+      const educationAction = item.action as Extract<PlannedAction, { kind: 'education' }>;
       result = performActivity(next, 'study', weekRandom);
       if (result !== next) {
         const fieldSkill = getEducationSkillId(next.educationEnrollment?.field);
-        result = awardSkillProgress(result, fieldSkill, item.action.taskType === 'assignment' ? 4 : item.action.taskType === 'exam' ? 3 : 1);
-        educationTasks.push({ taskType: item.action.taskType, subjectId: item.action.subjectId });
-        const subjectName = next.educationEnrollment?.subjects.find((subject) => subject.id === item.action.subjectId)?.name;
-        recap.push((subjectName ? subjectName + ': ' : '') + (item.action.taskType === 'assignment' ? 'completed an education assignment.' : item.action.taskType === 'exam' ? 'completed an academic assessment.' : 'completed a focused study session.'));
+        result = awardSkillProgress(result, fieldSkill, educationAction.taskType === 'assignment' ? 4 : educationAction.taskType === 'exam' ? 3 : 1);
+        educationTasks.push({ taskType: educationAction.taskType, subjectId: educationAction.subjectId });
+        const subjectName = next.educationEnrollment?.subjects.find((subject) => subject.id === educationAction.subjectId)?.name;
+        recap.push((subjectName ? subjectName + ': ' : '') + (educationAction.taskType === 'assignment' ? 'completed an education assignment.' : educationAction.taskType === 'exam' ? 'completed an academic assessment.' : 'completed a focused study session.'));
       }
     } else if (item.action?.kind === 'care') {
       const careCost = next.age < 18 ? 0 : Math.round((item.action.careType === 'medical-checkup' ? 120 : item.action.careType === 'counselling' ? 90 : 0) * (next.currencyScale ?? 1));
