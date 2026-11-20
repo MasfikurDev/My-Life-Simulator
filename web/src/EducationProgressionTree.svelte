@@ -106,7 +106,7 @@
           {#if selectedNode.progress > 0}<span>Progress <b>{selectedNode.progress}%</b></span>{/if}
           {#if selectedNode.durationWeeks}<span>Duration <b>{selectedNode.durationWeeks} weeks</b></span>{/if}
           {#if selectedNode.ageRange}<span>Age range <b>{selectedNode.ageRange}</b></span>{/if}
-          {#if selectedNode.tuition !== undefined}<span>Tuition <b>{selectedNode.tuition ? selectedNode.tuition.toLocaleString() : 'Free'}</b></span>{/if}
+          {#if selectedNode.tuition !== undefined}<span>Tuition <b>{selectedNode.tuition ? formatCharacterMoney(character, selectedNode.tuition * (character.currencyScale ?? 1)) : 'Free'}</b></span>{/if}
         </div>
       <p class="detail-reason">{selectedNode.reason}</p>
       {#if selectedSubjects.length}
