@@ -25,8 +25,8 @@ describe('education progression tree', () => {
     const programme = tree.nodes.find((node) => node.id === 'upper-secondary');
     expect(programme?.status).toBe('current');
     expect(programme?.progress).toBe(25);
-    expect(tree.nodes.filter((node) => node.kind === 'subject')).toHaveLength(3);
-    expect(tree.nodes.find((node) => node.id === 'subject:subject-0')?.progress).toBe(72);
+    expect(tree.subjects).toHaveLength(3);
+    expect(tree.subjects.find((subject) => subject.id === 'subject-0')?.grade).toBe(72);
   });
 
   it('marks an earned professional credential as completed without replacing its source record', () => {
@@ -45,6 +45,7 @@ describe('education progression tree', () => {
     const tree = getEducationTree(createCharacter('Adult', 30));
     expect(tree.edges).toContainEqual({ from: 'upper-secondary', to: 'bachelor-degree', style: 'required' });
     expect(tree.edges).toContainEqual({ from: 'bachelor-degree', to: 'masters-degree', style: 'required' });
-    expect(tree.edges.some((edge) => edge.to === 'professional-certificate')).toBe(false);
+    expect(tree.edges.find((edge) => edge.to === 'professional-certificate')?.style).toBe('alternative');
+    expect(tree.edges.some((edge) => edge.to === 'professional-certificate' && edge.style === 'required')).toBe(false);
   });
 });
