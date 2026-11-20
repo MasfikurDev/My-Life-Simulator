@@ -4,7 +4,7 @@ import { getActivityDefinition, getEducationStage, isActivityAvailable } from '.
 import { awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabel } from './skills';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
-import { addCalendarDays, createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
+import { addCalendarDays, createGameCalendar, getAgeAtDate, getBirthdayWeekStart, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
 import { getWeeklyPlan } from './weekly-plan';
 import { resolveEducationWeek } from './education';
 import { resolveCareAction, resolveWeeklyWellbeing } from './wellbeing';
@@ -456,6 +456,15 @@ function updateListedMarketsForWeek(character: Character, date: string): Charact
   };
 }
 
+function getBusinessAnnualResult(character: Character, business: OwnedBusiness): { profitRate: number; profit: number } {
+  const economy = getEconomicConditions(character);
+  const profile = business.type === 'retail' ? { base: 0.045, cashCost: 0.018, volatility: 0.035 } : business.type === 'online' ? { base: 0.065, cashCost: 0.008, volatility: 0.075 } : { base: 0.035, cashCost: 0.025, volatility: 0.065 };
+  const marketShock = Math.sin(character.year * 1.83 + business.name.length * 0.17) * profile.volatility;
+  const performanceEffect = ((business.performance - 60) / 100) * 0.08;
+  const profitRate = profile.base - profile.cashCost + performanceEffect + economy.growthRate * 0.35 + marketShock;
+  return { profitRate, profit: Math.round(business.investedCapital * profitRate) };
+}
+
 function settleAnnualAssets(character: Character): Character {
   let next = character;
   const scale = next.currencyScale ?? 1;
@@ -505,11 +514,7 @@ function settleAnnualAssets(character: Character): Character {
     }
   }
   for (const business of next.businesses ?? []) {
-    const profile = business.type === 'retail' ? { base: 0.045, cashCost: 0.018, volatility: 0.035 } : business.type === 'online' ? { base: 0.065, cashCost: 0.008, volatility: 0.075 } : { base: 0.035, cashCost: 0.025, volatility: 0.065 };
-    const marketShock = Math.sin(next.year * 1.83 + business.name.length * 0.17) * profile.volatility;
-    const performanceEffect = ((business.performance - 60) / 100) * 0.08;
-    const profitRate = profile.base - profile.cashCost + performanceEffect + economy.growthRate * 0.35 + marketShock;
-    const profit = Math.round(business.investedCapital * profitRate);
+    const { profitRate, profit } = getBusinessAnnualResult(next, business);
     next = { ...next, businesses: (next.businesses ?? []).map((item) => item.id === business.id ? { ...item, valuation: Math.max(1, Math.round(item.valuation * (1 + profitRate * 0.65))) } : item) };
     if (profit > 0) {
       next = { ...next, money: next.money + profit };
@@ -1052,10 +1057,14 @@ export function planActivity(character: Character, activity: ActivityId, date?: 
   return addWeeklyAction(character, activity, day, { kind: 'activity' }, getActivityCost(character, activity));
 }
 
+export function getPlannedFamilyInteraction(character: Character, personId: string): PlannedActivity | undefined {
+  return getWeeklyPlan(character.weeklyPlan).activities.find((item) => item.action?.kind === 'family' && item.action.personId === personId);
+}
+
 export function planFamilyInteraction(character: Character, personId: string, interaction: 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support', supportAmount = 0, date?: string): ActivityPlanningResult {
   const preview = interactWithFamily(character, personId, interaction, supportAmount);
   if (preview === character) return { character, issue: 'unavailable', message: 'This interaction is not available for that person right now.' };
-  if (getWeeklyPlan(character.weeklyPlan).activities.some((item) => item.action?.kind === 'family' && item.action.personId === personId)) {
+  if (getPlannedFamilyInteraction(character, personId)) {
     return { character, issue: 'unavailable', message: 'An interaction with this person is already planned this week.' };
   }
   const family = character.family;
@@ -1699,8 +1708,7 @@ export function getAnnualTaxEstimate(character: Character) {
     Math.max(0, income - thirdBand) * 0.2
   );
   const rentalIncome = (character.properties ?? []).filter((property) => property.rentedOut).reduce((sum, property) => sum + property.annualRentalIncome, 0);
-  const economy = getEconomicConditions(character);
-  const businessProfit = (character.businesses ?? []).reduce((sum, business) => sum + Math.round(business.investedCapital * (((business.performance - 50) / 100) * 0.1 + economy.growthRate * 0.35)), 0);
+  const businessProfit = (character.businesses ?? []).reduce((sum, business) => sum + getBusinessAnnualResult(character, business).profit, 0);
   const assetIncomeTax = Math.round(Math.max(0, rentalIncome + businessProfit) * 0.1);
   const propertyTax = Math.round((character.properties ?? []).reduce((sum, property) => sum + property.marketValue, 0) * 0.005);
   return { incomeTax, assetIncomeTax, propertyTax, total: incomeTax + assetIncomeTax + propertyTax };
@@ -1882,5 +1890,14 @@ function settleCalendarYear(character: Character, targetYear: number, targetAge:
 }
 
 export function advanceYear(character: Character): Character {
-  return settleCalendarYear(character, character.year + 1, character.age + 1, character.age, true);
+  const targetYear = character.year + 1;
+  const currentCalendar = character.calendar ?? createGameCalendar(character.age, character.year);
+  const targetDate = getBirthdayWeekStart(currentCalendar.birthDate, targetYear);
+  const targetAge = getAgeAtDate(currentCalendar.birthDate, targetDate);
+  const prepared = {
+    ...character,
+    calendar: { ...currentCalendar, currentDate: targetDate },
+    weeklyPlan: { version: 1 as const, activities: [] }
+  };
+  return settleCalendarYear(prepared, targetYear, targetAge, character.age, true);
 }

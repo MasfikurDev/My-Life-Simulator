@@ -59,6 +59,13 @@ function birthdayInYear(birthDate: Date, year: number): Date {
   return utcDate(year, month, day);
 }
 
+/** Returns the first Monday on or after the birthday in the supplied year. */
+export function getBirthdayWeekStart(birthDateValue: string, year: number): string {
+  const birthday = formatDate(birthdayInYear(parseDate(birthDateValue), year));
+  const weekStart = getWeekStart(birthday);
+  return weekStart === birthday ? weekStart : addCalendarDays(weekStart, 7);
+}
+
 /** Age in completed years. February 29 birthdays fall on March 1 in non-leap years. */
 export function getAgeAtDate(birthDateValue: string, currentDateValue: string): number {
   const birthDate = parseDate(birthDateValue);

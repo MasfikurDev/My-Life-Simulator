@@ -1,6 +1,7 @@
 <script lang="ts">
   import { formatCharacterMoney } from './lib/simulation';
-  import type { Character } from './lib/types';
+  import type { Character, FinancialTransactionType } from './lib/types';
+  import { getFinancialFlow } from './lib/financial-flow';
   import LifestyleWorkspace from './LifestyleWorkspace.svelte';
   import FamilyWorkspace from './FamilyWorkspace.svelte';
   import LifeTreeWorkspace from './LifeTreeWorkspace.svelte';
@@ -19,10 +20,8 @@
     { id: 'tree', label: 'Life Tree' },
     { id: 'history', label: 'Life story' }
   ];
-  function financialFlow(type: string): 'income' | 'expense' | null {
-    if (['income', 'interest', 'business-income', 'investment-sell', 'property-sale'].includes(type)) return 'income';
-    if (['expense', 'family-support', 'loan-payment', 'loan-interest', 'card-purchase', 'card-interest', 'recurring-payment', 'investment-buy', 'property-purchase', 'property-rent', 'business-expense', 'tax', 'fee'].includes(type)) return 'expense';
-    return null;
+  function financialFlow(type: FinancialTransactionType): 'income' | 'expense' | null {
+    return getFinancialFlow(type);
   }
   function displayLifeEventDescription(description: string) {
     return description.replace(/A (working-class|modest|comfortable|affluent) upbringing shapes the starting point, but the choices ahead are yours\./i, 'Starting circumstances shape the beginning, but the choices ahead are yours.');

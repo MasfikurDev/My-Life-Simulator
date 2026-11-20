@@ -3,6 +3,7 @@
   import { advanceWeek, formatCharacterMoney, getWeeklyActivityReview, planEventChoiceInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import type { WeeklyActivityOutcomeEffect, WeeklyActivityReviewItem } from './lib/simulation';
   import { addCalendarDays, getWeekStart } from './lib/calendar';
+  import { getFinancialFlow } from './lib/financial-flow';
   import { getEducationStage, getLifeStage, getValueTone } from './lib/progression';
   import { createGameDebugSnapshot } from './lib/debug-export';
   import { copyTextToClipboard } from './lib/clipboard';
@@ -138,9 +139,7 @@
       : startMonth + ' ' + startDay + ' – ' + endMonth + ' ' + endDay + ', ' + endYear;
   }
   function financialFlow(type: FinancialTransaction['type']): 'income' | 'expense' | null {
-    if (['income', 'interest', 'business-income', 'investment-sell', 'property-sale'].includes(type)) return 'income';
-    if (['expense', 'family-support', 'loan-payment', 'loan-interest', 'card-purchase', 'card-interest', 'recurring-payment', 'investment-buy', 'property-purchase', 'property-rent', 'business-expense', 'tax', 'fee'].includes(type)) return 'expense';
-    return null;
+    return getFinancialFlow(type);
   }
   function groupWeeklyFinances(transactions: FinancialTransaction[], flow: 'income' | 'expense') {
     const groups = new Map<string, { source: string; total: number; transactions: FinancialTransaction[] }>();

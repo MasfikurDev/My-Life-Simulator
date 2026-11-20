@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCalendarDays, createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart, isLeapYear } from './calendar';
+import { addCalendarDays, createGameCalendar, getAgeAtDate, getBirthdayWeekStart, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart, isLeapYear } from './calendar';
 
 describe('game calendar', () => {
   it('uses Monday through Sunday week boundaries', () => {
@@ -18,6 +18,12 @@ describe('game calendar', () => {
   it('finds the first Monday on or after January 1', () => {
     expect(getFirstWeekStartOfYear(2026)).toBe('2026-01-05');
     expect(getFirstWeekStartOfYear(2027)).toBe('2027-01-04');
+  });
+
+  it('aligns annual advancement to the first active week on or after a birthday', () => {
+    expect(getBirthdayWeekStart('2008-01-05', 2027)).toBe('2027-01-11');
+    expect(getBirthdayWeekStart('2008-01-04', 2027)).toBe('2027-01-04');
+    expect(getBirthdayWeekStart('2004-02-29', 2025)).toBe('2025-03-03');
   });
 
   it('calculates completed age only on the birthday', () => {
