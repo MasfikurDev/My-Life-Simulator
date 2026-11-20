@@ -15,7 +15,7 @@ The tree is a view of the education system. It is not a second education engine 
 - Keep `education.ts` authoritative for programmes, enrollment eligibility, weekly academic resolution, grades, completion and qualification awards.
 - Derive tree state from existing character data: education records, active enrollment, academic results, qualifications, age and relevant attributes.
 - Do not add duplicated persisted tree progress or require a save migration for a read-only projection.
-- Keep real prerequisites distinct from optional/parallel routes. A visual connection must not silently become an enrollment requirement.
+- Keep real prerequisites distinct from optional/parallel routes. A visual connection must not silently become an enrollment requirement. Early development and preschool are optional; primary school does not require either.
 - Preserve existing education records, academic history and qualification IDs. Do not rewrite or discard historical choices.
 - Keep education as an age-aware system. Early development, school, vocational routes, higher education and professional learning must not be forced into one mandatory linear sequence.
 - Follow the current weekly gameplay contract: education remains an automatic background responsibility. Do not introduce a day/period timetable or fixed weekly action quota as part of the tree.
@@ -72,4 +72,4 @@ This is a focused extension of the existing weekly planner, not a new timetable 
 
 ## Current limitations
 
-The programme tree still visualizes the existing catalogue; it does not add new credentials or independent subject progression outside an enrolled programme. The School workspace now supports subject-focused weekly tasks, but the three task types still share the existing study resolver. New topic-level mechanics, practical activity systems, credentials and live trees for other Life domains remain future stages.
+The programme tree still visualizes the existing catalogue; it does not add new credentials or independent subject progression outside an enrolled programme. Optional early-development and preschool routes are visually connected but are not prerequisites for primary school. The School workspace now supports subject-focused weekly tasks, but the three task types still share the existing study resolver. New topic-level mechanics, practical activity systems, credentials and live trees for other Life domains remain future stages.
