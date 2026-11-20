@@ -96,7 +96,6 @@
         <label class="study-focus-select"><span>Study focus</span><select value={selectedSubject?.id ?? ''} onchange={(event) => selectedSubjectId = event.currentTarget.value}>
           {#each enrollment.subjects as subject}<option value={subject.id}>{subject.name} · {Math.round(subject.grade)}%</option>{/each}
         </select></label>
-
       </div>
       <div class="education-task-grid">
         {#each taskTypes as task}
@@ -184,17 +183,11 @@
     outline-offset:2px;
   }
   .education-study-planner{display:grid;gap:11px}
-  .study-focus-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,.8fr);gap:10px;align-items:end;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  .study-focus-row{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
   .study-focus-select{display:grid;gap:6px;color:var(--muted);font-size:10px;font-weight:700}
   .study-focus-select select{width:100%;min-width:0;min-height:40px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface-raised);color:var(--text);font:inherit}
-  .study-target{display:grid;gap:5px}
-  .study-target>span{color:var(--muted);font-size:8px;font-weight:800;letter-spacing:.5px}
-  .study-target strong{color:var(--text);font-size:12px;font-variant-numeric:tabular-nums}
-  .study-target-track{height:5px;overflow:hidden;border-radius:99px;background:var(--line)}
-  .study-target-track i{display:block;height:100%;border-radius:inherit;background:var(--accent);transition:width .2s}
   .task-focus{color:var(--accent);font-size:8px;font-weight:800;letter-spacing:.4px}
   .study-outcome-note{padding:9px 11px;border-left:2px solid var(--accent);background:var(--surface);color:var(--muted);font-size:9px;line-height:1.5}
-  @media(max-width:420px){.study-focus-row{grid-template-columns:1fr}.study-target{grid-template-columns:1fr auto;align-items:center}.study-target-track{grid-column:1/-1}}
   @media(max-width:620px) {
     .education-nav { padding-bottom:7px; }
     .education-nav button {
