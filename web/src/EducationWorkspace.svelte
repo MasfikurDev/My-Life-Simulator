@@ -45,7 +45,8 @@
   function taskPlanned(task: EducationTaskType) { return plannedTasks.some((item) => item.action?.kind === 'education' && item.action.taskType === task); }
   function taskFocus(task: EducationTaskType) {
     const item = plannedTasks.find((entry) => entry.action?.kind === 'education' && entry.action.taskType === task);
-    return item?.action?.kind === 'education' ? enrollment?.subjects.find((subject) => subject.id === item.action.subjectId)?.name ?? 'General study' : selectedSubject?.name ?? 'General study';
+    const action = item?.action;
+    return action?.kind === 'education' ? enrollment?.subjects.find((subject) => subject.id === action.subjectId)?.name ?? 'General study' : selectedSubject?.name ?? 'General study';
   }
   function taskTitle(task: EducationTaskType) {
     if (character.age < 6) return task === 'assignment' ? 'Creative activity' : task === 'exam' ? 'Learning check-in' : 'Guided exploration';
