@@ -42,7 +42,7 @@ const PROGRAM_POSITIONS: Record<string, { x: number; y: number }> = {
   'vocational-diploma': { x: 65, y: 685 },
   'college-associate': { x: 180, y: 685 },
   'bachelor-degree': { x: 295, y: 685 },
-  'professional-certificate': { x: 65, y: 810 },
+  'professional-certificate': { x: 65, y: 925 },
   'professional-specialist': { x: 180, y: 810 },
   'masters-degree': { x: 295, y: 810 },
   'doctoral-degree': { x: 295, y: 925 }
