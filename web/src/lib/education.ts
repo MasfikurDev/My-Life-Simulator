@@ -11,7 +11,6 @@ export interface EducationProgram {
   maxAge: number;
   durationWeeks: number;
   tuition: number;
-  weeklyStudyTarget: number;
   fieldOptions: string[];
   prerequisite?: EducationLevel;
   minIntelligence?: number;
@@ -21,18 +20,18 @@ export interface EducationProgram {
 
 
 export const EDUCATION_PROGRAMS: EducationProgram[] = [
-  { id: 'early-development', title: 'Play & discovery', institutionType: 'Early childhood care', level: 'early-learning', minAge: 0, maxAge: 2, durationWeeks: 104, tuition: 0, weeklyStudyTarget: 1, fieldOptions: ['Play & discovery', 'Language & stories', 'Movement & coordination'] },
-  { id: 'early-learning', title: 'Early learning & preschool', institutionType: 'Preschool', level: 'early-learning', minAge: 3, maxAge: 5, durationWeeks: 32, tuition: 0, weeklyStudyTarget: 1, fieldOptions: ['Foundations'] },
-  { id: 'primary-school', title: 'Primary school', institutionType: 'Public school', level: 'primary', minAge: 6, maxAge: 11, durationWeeks: 240, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies'] },
-  { id: 'lower-secondary', title: 'Lower secondary school', institutionType: 'Secondary school', level: 'lower-secondary', minAge: 12, maxAge: 14, durationWeeks: 120, tuition: 0, weeklyStudyTarget: 2, fieldOptions: ['General studies', 'Science', 'Humanities', 'Business studies'], prerequisite: 'primary' },
-  { id: 'upper-secondary', title: 'Upper secondary school', institutionType: 'Secondary school / college', level: 'upper-secondary', minAge: 15, maxAge: 19, durationWeeks: 120, tuition: 0, weeklyStudyTarget: 3, fieldOptions: ['Science', 'Humanities', 'Business studies', 'Arts'], prerequisite: 'lower-secondary' },
-  { id: 'vocational-diploma', title: 'Vocational diploma', institutionType: 'Technical institute', level: 'vocational', minAge: 16, maxAge: 120, durationWeeks: 64, tuition: 360, weeklyStudyTarget: 2, fieldOptions: ['Electrical trades', 'Construction', 'Hospitality', 'Automotive', 'Information technology', 'Healthcare support'], minIntelligence: 35, minDiscipline: 35 },
-  { id: 'college-associate', title: 'College diploma / associate degree', institutionType: 'College', level: 'associate', minAge: 18, maxAge: 120, durationWeeks: 96, tuition: 620, weeklyStudyTarget: 3, fieldOptions: ['Business', 'Computing', 'Engineering', 'Health sciences', 'Arts'], minIntelligence: 45, minFocus: 40, prerequisite: 'upper-secondary' },
-  { id: 'bachelor-degree', title: "Bachelor's degree", institutionType: 'University', level: 'bachelor', minAge: 18, maxAge: 120, durationWeeks: 160, tuition: 980, weeklyStudyTarget: 3, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Medicine & health sciences', 'Law', 'Education', 'Natural sciences', 'Social sciences', 'Arts'], minIntelligence: 50, minFocus: 45, minDiscipline: 40, prerequisite: 'upper-secondary' },
-  { id: 'masters-degree', title: "Master's degree", institutionType: 'University / graduate school', level: 'master', minAge: 21, maxAge: 120, durationWeeks: 80, tuition: 1250, weeklyStudyTarget: 3, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Public health', 'Law', 'Education', 'Research sciences'], minIntelligence: 60, minFocus: 55, minDiscipline: 55, prerequisite: 'bachelor' },
-  { id: 'doctoral-degree', title: 'Doctoral / PhD programme', institutionType: 'Graduate research school', level: 'doctorate', minAge: 24, maxAge: 120, durationWeeks: 160, tuition: 1600, weeklyStudyTarget: 3, fieldOptions: ['Computing research', 'Engineering research', 'Medical research', 'Business research', 'Natural sciences', 'Social sciences'], minIntelligence: 70, minFocus: 65, minDiscipline: 65, prerequisite: 'master' },
-  { id: 'professional-specialist', title: 'Professional specialist programme', institutionType: 'Professional institute', level: 'professional-specialist', minAge: 21, maxAge: 120, durationWeeks: 48, tuition: 840, weeklyStudyTarget: 2, fieldOptions: ['Project management', 'Cybersecurity', 'Accounting', 'Teaching', 'Clinical specialization', 'Data science'], minIntelligence: 55, minFocus: 50, minDiscipline: 50, prerequisite: 'bachelor' },
-  { id: 'professional-certificate', title: 'Professional certificate course', institutionType: 'Training provider', level: 'professional-specialist', minAge: 16, maxAge: 120, durationWeeks: 12, tuition: 240, weeklyStudyTarget: 2, fieldOptions: ['Digital skills', 'Programming', 'First aid', 'Workplace safety', 'Communication', 'Small business'], minFocus: 35, minDiscipline: 35 }
+  { id: 'early-development', title: 'Play & discovery', institutionType: 'Early childhood care', level: 'early-learning', minAge: 0, maxAge: 2, durationWeeks: 104, tuition: 0, fieldOptions: ['Play & discovery', 'Language & stories', 'Movement & coordination'] },
+  { id: 'early-learning', title: 'Early learning & preschool', institutionType: 'Preschool', level: 'early-learning', minAge: 3, maxAge: 5, durationWeeks: 32, tuition: 0, fieldOptions: ['Foundations'] },
+  { id: 'primary-school', title: 'Primary school', institutionType: 'Public school', level: 'primary', minAge: 6, maxAge: 11, durationWeeks: 240, tuition: 0, fieldOptions: ['General studies'] },
+  { id: 'lower-secondary', title: 'Lower secondary school', institutionType: 'Secondary school', level: 'lower-secondary', minAge: 12, maxAge: 14, durationWeeks: 120, tuition: 0, fieldOptions: ['General studies', 'Science', 'Humanities', 'Business studies'], prerequisite: 'primary' },
+  { id: 'upper-secondary', title: 'Upper secondary school', institutionType: 'Secondary school / college', level: 'upper-secondary', minAge: 15, maxAge: 19, durationWeeks: 120, tuition: 0, fieldOptions: ['Science', 'Humanities', 'Business studies', 'Arts'], prerequisite: 'lower-secondary' },
+  { id: 'vocational-diploma', title: 'Vocational diploma', institutionType: 'Technical institute', level: 'vocational', minAge: 16, maxAge: 120, durationWeeks: 64, tuition: 360, fieldOptions: ['Electrical trades', 'Construction', 'Hospitality', 'Automotive', 'Information technology', 'Healthcare support'], minIntelligence: 35, minDiscipline: 35 },
+  { id: 'college-associate', title: 'College diploma / associate degree', institutionType: 'College', level: 'associate', minAge: 18, maxAge: 120, durationWeeks: 96, tuition: 620, fieldOptions: ['Business', 'Computing', 'Engineering', 'Health sciences', 'Arts'], minIntelligence: 45, minFocus: 40, prerequisite: 'upper-secondary' },
+  { id: 'bachelor-degree', title: "Bachelor's degree", institutionType: 'University', level: 'bachelor', minAge: 18, maxAge: 120, durationWeeks: 160, tuition: 980, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Medicine & health sciences', 'Law', 'Education', 'Natural sciences', 'Social sciences', 'Arts'], minIntelligence: 50, minFocus: 45, minDiscipline: 40, prerequisite: 'upper-secondary' },
+  { id: 'masters-degree', title: "Master's degree", institutionType: 'University / graduate school', level: 'master', minAge: 21, maxAge: 120, durationWeeks: 80, tuition: 1250, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Public health', 'Law', 'Education', 'Research sciences'], minIntelligence: 60, minFocus: 55, minDiscipline: 55, prerequisite: 'bachelor' },
+  { id: 'doctoral-degree', title: 'Doctoral / PhD programme', institutionType: 'Graduate research school', level: 'doctorate', minAge: 24, maxAge: 120, durationWeeks: 160, tuition: 1600, fieldOptions: ['Computing research', 'Engineering research', 'Medical research', 'Business research', 'Natural sciences', 'Social sciences'], minIntelligence: 70, minFocus: 65, minDiscipline: 65, prerequisite: 'master' },
+  { id: 'professional-specialist', title: 'Professional specialist programme', institutionType: 'Professional institute', level: 'professional-specialist', minAge: 21, maxAge: 120, durationWeeks: 48, tuition: 840, fieldOptions: ['Project management', 'Cybersecurity', 'Accounting', 'Teaching', 'Clinical specialization', 'Data science'], minIntelligence: 55, minFocus: 50, minDiscipline: 50, prerequisite: 'bachelor' },
+  { id: 'professional-certificate', title: 'Professional certificate course', institutionType: 'Training provider', level: 'professional-specialist', minAge: 16, maxAge: 120, durationWeeks: 12, tuition: 240, fieldOptions: ['Digital skills', 'Programming', 'First aid', 'Workplace safety', 'Communication', 'Small business'], minFocus: 35, minDiscipline: 35 }
 ];
 
 function completedLevels(character: Character): Set<EducationLevel> {
@@ -67,7 +66,6 @@ export function enrollInEducation(character: Character, programId: string, field
   const enrollment: EducationEnrollment = {
     recordId: id, status: 'enrolled', programId, institution: program.institutionType, level: program.level, field, startedAtAge: character.age,
     tuitionPaid: tuition, weeksCompleted: 0, totalWeeks: program.durationWeeks, grade: 65, attendance: 100,
-    weeklyStudyTarget: program.weeklyStudyTarget,
     subjects: (program.id === 'early-development' ? ['Language & stories', 'Movement', 'Play & discovery'] : program.level === 'primary' || program.level === 'early-learning' ? ['Literacy', 'Numeracy', 'Discovery'] :
       program.level === 'lower-secondary' || program.level === 'upper-secondary' ? ['Core studies', field, 'Communication'] :
       ['Core theory', field, 'Practical work']).map((name, index) => ({ id: 'subject-' + index, name, grade: 65 }))
@@ -117,16 +115,14 @@ export function resolveEducationWeek(character: Character, tasks: Array<Educatio
   const enrollment = character.educationEnrollment;
   if (!enrollment || enrollment.status !== 'enrolled') return { character, recap: [] };
   const selections = tasks.map((task) => typeof task === 'string' ? { taskType: task } : task);
-  const taskScore = selections.reduce((score, task) => score + (task.taskType === 'assignment' ? 1.25 : task.taskType === 'exam' ? 1.6 : 1), 0);
   const stress = character.stress ?? 30;
   const fatiguePenalty = Math.max(0, Math.floor((stress - 55) / 12)) + ((character.stamina ?? 50) < 25 ? 2 : 0);
-  const expected = enrollment.weeklyStudyTarget;
   const attendance = character.health < 25 || stress > 90 ? 65 : character.health < 45 || stress > 78 ? 82 : 100;
   const attendanceGap = attendance < 90 ? 3 : 0;
-  const missedPenalty = taskScore < expected ? Math.ceil((expected - taskScore) * 2) : 0;
   const workloadPenalty = workload >= 17 ? 3 : workload >= 14 ? 1 : 0;
-  const improvement = taskScore >= expected ? Math.min(5, Math.floor(taskScore - expected) + 2) : 0;
-  const change = improvement - missedPenalty - fatiguePenalty - workloadPenalty - attendanceGap;
+  // Attendance and sustainable workload affect course standing. Optional study tasks
+  // improve the selected subject; there is no weekly quota or missed-task penalty.
+  const change = -fatiguePenalty - workloadPenalty - attendanceGap;
   const grade = Math.max(0, Math.min(100, enrollment.grade + change));
   const focusedSelections = selections.filter((task) => enrollment.subjects.some((subject) => subject.id === task.subjectId));
   const hasSubjectFocus = focusedSelections.length > 0;
@@ -137,7 +133,11 @@ export function resolveEducationWeek(character: Character, tasks: Array<Educatio
     return { ...subject, grade: Math.max(0, Math.min(100, subject.grade + change + focusBonus)) };
   });
   const nextEnrollment: EducationEnrollment = { ...enrollment, grade, subjects, attendance: Math.max(0, Math.round((enrollment.attendance * enrollment.weeksCompleted + attendance) / (enrollment.weeksCompleted + 1))), weeksCompleted: enrollment.weeksCompleted + 1 };
-  const recap = [taskScore >= expected ? 'Education: weekly learning target met.' : 'Education: missed learning work lowered academic progress.', ...(attendance < 90 ? ['Education: health and pressure affected attendance.'] : [])];
+  const recap = [
+    'Education: classes and course progress updated.',
+    ...(selections.length ? ['Education: ' + selections.length + ' academic task' + (selections.length === 1 ? '' : 's') + ' completed.'] : []),
+    ...(attendance < 90 ? ['Education: health and pressure affected attendance.'] : [])
+  ];
   if (nextEnrollment.weeksCompleted >= nextEnrollment.totalWeeks) {
     const outcome: AcademicResult['outcome'] = grade >= 60 && nextEnrollment.attendance >= 70 ? 'completed' : 'failed';
     const result: AcademicResult = { programId: enrollment.programId, institution: enrollment.institution, level: enrollment.level, field: enrollment.field, grade, completedAtAge: character.age, outcome };
