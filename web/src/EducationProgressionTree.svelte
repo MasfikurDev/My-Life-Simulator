@@ -15,10 +15,10 @@
   const completedCount = $derived(tree.nodes.filter((node) => node.status === 'completed').length);
   const availableCount = $derived(tree.nodes.filter((node) => node.status === 'available').length);
   const currentCount = $derived(tree.nodes.filter((node) => node.status === 'current').length);
-  const selectedSubjects = $derived(character.educationEnrollment?.programId === selectedNode?.programId ? character.educationEnrollment.subjects : []);
+  const selectedSubjects = $derived(tree.subjects.filter((subject) => subject.programId === selectedNode?.programId));
 
   function edgePath(from: EducationTreeNode, to: EducationTreeNode) {
-    const startY = from.y + (from.kind === 'subject' ? 25 : 32);
+    const startY = from.y + 32;
     const endY = to.y - 32;
     const middleY = (startY + endY) / 2;
     return `M ${from.x} ${startY} C ${from.x} ${middleY}, ${to.x} ${middleY}, ${to.x} ${endY}`;
@@ -27,7 +27,6 @@
     return title.replace('Programme', '').replace('programme', '').replace('school', 'School');
   }
   function nodeSymbol(node: EducationTreeNode) {
-    if (node.kind === 'subject') return '✦';
     if (node.status === 'completed') return '✓';
     if (node.status === 'locked') return '⌑';
     if (node.status === 'current') return '◉';
@@ -87,7 +86,7 @@
           <span class="node-core">{nodeSymbol(node)}</span>
         </span>
         <span class="node-title">{shortTitle(node.title)}</span>
-        <span class="node-state">{node.kind === 'subject' ? `${node.progress}%` : nodeStatusLabel(node.status)}</span>
+        <span class="node-state">{nodeStatusLabel(node.status)}</span>
       </button>
     {/each}
   </div>
@@ -96,35 +95,31 @@
     <section class="node-details" aria-live="polite">
       <div class="detail-heading">
         <div>
-          <span class="eyebrow">{selectedNode.kind === 'subject' ? 'SUBJECT PROGRESS' : 'PATHWAY DETAILS'}</span>
+          <span class="eyebrow">PATHWAY DETAILS</span>
           <h3>{selectedNode.title}</h3>
           <p>{selectedNode.subtitle}</p>
         </div>
         <span class="detail-state" class:done={selectedNode.status === 'completed'} class:open={selectedNode.status === 'available'} class:active={selectedNode.status === 'current'}>{nodeStatusLabel(selectedNode.status)}</span>
       </div>
-      {#if selectedNode.kind === 'programme'}
-        <div class="detail-facts">
+      <div class="detail-facts">
           {#if selectedNode.field}<span>Field <b>{selectedNode.field}</b></span>{/if}
           {#if selectedNode.progress > 0}<span>Progress <b>{selectedNode.progress}%</b></span>{/if}
           {#if selectedNode.durationWeeks}<span>Duration <b>{selectedNode.durationWeeks} weeks</b></span>{/if}
           {#if selectedNode.ageRange}<span>Age range <b>{selectedNode.ageRange}</b></span>{/if}
           {#if selectedNode.tuition !== undefined}<span>Tuition <b>{selectedNode.tuition ? selectedNode.tuition.toLocaleString() : 'Free'}</b></span>{/if}
         </div>
-      {:else}
-        <div class="detail-progress"><span>Current grade</span><b>{selectedNode.progress}%</b></div>
-      {/if}
       <p class="detail-reason">{selectedNode.reason}</p>
       {#if selectedSubjects.length}
         <div class="subject-nodes" aria-label="Current subject progress">
           {#each selectedSubjects as subject}
-            <div class="subject-node" style={`--subject-progress:${Math.max(0, Math.min(100, subject.grade)) * 3.6}deg`}>
-              <span class="subject-orb">{Math.round(subject.grade)}</span>
-              <strong>{subject.name}</strong>
+            <div class="subject-node" style={`--subject-progress:${subject.grade * 3.6}deg`}>
+              <span class="subject-orb">{subject.grade}</span>
+              <strong>{subject.title}</strong>
             </div>
           {/each}
         </div>
       {/if}
-      {#if selectedNode.status === 'available' && selectedNode.kind === 'programme'}
+      {#if selectedNode.status === 'available'}
         <p class="detail-action">This route is open. Enrolment and programme selection remain in the Education workspace.</p>
       {:else if selectedNode.status === 'locked'}
         <p class="detail-action">Meet the requirement to unlock this route. Other independent routes may still be available.</p>
