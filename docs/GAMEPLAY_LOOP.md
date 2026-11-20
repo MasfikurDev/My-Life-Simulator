@@ -217,7 +217,7 @@ Show a compact "This week" view:
 **Phase B — Make choices in their own workspaces**
 
 The player visits the relevant domain and chooses what to do:
-- **Education:** progress through education automatically, plan study/assignment/assessment tasks, maintain grades, progress through courses and earn qualifications. Missing weekly learning targets lowers grades.
+- **Education:** progress through education automatically, plan study/assignment/assessment tasks, maintain grades, progress through courses and earn qualifications. Attendance, health and workload affect grades; optional study tasks improve the selected subject.
 - **Health:** monitor condition and pressure, plan rest/mindfulness/counselling/medical check-ups, and manage treatment. Workload and sustained stress can cause burnout and reduce task efficiency.
 - **Work:** attend shifts, perform work activities, develop skills, pursue opportunities, and respond to workplace situations when implemented.
 - **Life:** wellbeing, personal growth, relationships, family, recreation, and personal commitments.

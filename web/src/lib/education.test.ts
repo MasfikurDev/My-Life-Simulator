@@ -17,7 +17,7 @@ describe('education progression', () => {
     const student = createCharacter('Student', 10);
     const result = enrollInEducation(student, 'primary-school', 'General studies');
     expect(result.issue).toBeNull();
-    expect(result.character.educationEnrollment?.weeklyStudyTarget).toBe(2);
+    expect(result.character.educationEnrollment?.weeklyStudyTarget).toBeUndefined();
     expect(result.character.weeklyPlan.activities).toHaveLength(0);
     expect(result.character.educationRecords?.[0].status).toBe('enrolled');
   });
@@ -29,11 +29,12 @@ describe('education progression', () => {
     expect(result.issue).toContain('tuition');
   });
 
-  it('reduces grades when weekly learning targets are missed', () => {
-    const student = enrollInEducation(createCharacter('Student', 10), 'primary-school', 'General studies').character;
-    const result = resolveEducationWeek(student, [], '2026-11-02', 8);
-    expect(result.character.educationEnrollment?.grade).toBeLessThan(student.educationEnrollment!.grade);
-    expect(result.recap.some((item) => item.includes('missed learning'))).toBe(true);
+  it('does not penalize students for skipping optional weekly study tasks', () => {
+    const enrolled = enrollInEducation(createCharacter('Student', 10), 'primary-school', 'General studies').character;
+    const student = { ...enrolled, health: 90, stress: 20, stamina: 80 };
+    const result = resolveEducationWeek(student, [], '2026-11-02', 0);
+    expect(result.character.educationEnrollment?.grade).toBe(student.educationEnrollment!.grade);
+    expect(result.recap.some((item) => item.includes('missed learning'))).toBe(false);
   });
 
   it('improves grades when study and assignment work is completed', () => {

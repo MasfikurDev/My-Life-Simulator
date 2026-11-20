@@ -13,7 +13,7 @@ describe('weekly education and care integration', () => {
     const result = advanceWeek(assignment.character);
     expect(result.issue).toBeNull();
     expect(result.character.educationEnrollment!.grade).toBeGreaterThan(before);
-    expect(result.recap.some((item) => item.includes('weekly learning target met'))).toBe(true);
+    expect(result.recap.some((item) => item.includes('academic tasks completed'))).toBe(true);
   });
 
   it('applies focused academic work to the selected subject instead of rotating it', () => {
@@ -35,12 +35,12 @@ describe('weekly education and care integration', () => {
     expect(planned.character.weeklyPlan.activities).toHaveLength(0);
   });
 
-  it('lowers grades when a student advances a week without academic work', () => {
-    const enrolled = enrollInEducation(createCharacter('Student', 10), 'primary-school', 'General studies').character;
+  it('does not penalize a student for advancing a week without optional academic work', () => {
+    const enrolled = enrollInEducation({ ...createCharacter('Student', 10), health: 90, stress: 20, stamina: 80 }, 'primary-school', 'General studies').character;
     const before = enrolled.educationEnrollment!.grade;
     const result = advanceWeek(enrolled);
     expect(result.issue).toBeNull();
-    expect(result.character.educationEnrollment!.grade).toBeLessThan(before);
+    expect(result.character.educationEnrollment!.grade).toBe(before);
   });
 
   it('schedules a recovery action and applies it during week resolution', () => {
