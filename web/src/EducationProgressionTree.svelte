@@ -126,7 +126,7 @@
       {/if}
     </section>
   {/if}
-  <p class="tree-note">Solid connections show prerequisites; dashed branches show optional parallel routes. Independent certificates and vocational training do not require every academic milestone.</p>
+  <p class="tree-note">Solid connections show formal entry prerequisites. Dashed branches are optional routes, not admission requirements; early learning and preschool are not required before primary school.</p>
 </section>
 
 <style lang="scss">
