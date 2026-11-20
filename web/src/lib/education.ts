@@ -128,10 +128,11 @@ export function resolveEducationWeek(character: Character, tasks: Array<Educatio
   const improvement = taskScore >= expected ? Math.min(5, Math.floor(taskScore - expected) + 2) : 0;
   const change = improvement - missedPenalty - fatiguePenalty - workloadPenalty - attendanceGap;
   const grade = Math.max(0, Math.min(100, enrollment.grade + change));
-  const hasSubjectFocus = selections.some((task) => task.subjectId);
+  const focusedSelections = selections.filter((task) => enrollment.subjects.some((subject) => subject.id === task.subjectId));
+  const hasSubjectFocus = focusedSelections.length > 0;
   const subjects = enrollment.subjects.map((subject, index) => {
     const focusBonus = hasSubjectFocus
-      ? selections.filter((task) => task.subjectId === subject.id).length
+      ? focusedSelections.filter((task) => task.subjectId === subject.id).length
       : selections.length && index === enrollment.weeksCompleted % enrollment.subjects.length ? 1 : 0;
     return { ...subject, grade: Math.max(0, Math.min(100, subject.grade + change + focusBonus)) };
   });
