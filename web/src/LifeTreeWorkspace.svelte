@@ -12,7 +12,6 @@
   ];
   let activeTree = $state<DecisionTreeId>('life');
   const records = $derived((character.decisionTreeHistory ?? []).filter((item) => item.treeId === activeTree).slice().reverse());
-  const totalDecisions = $derived((character.decisionTreeHistory ?? []).length);
   const statLabels: Record<string, string> = {
     health: 'Health', happiness: 'Happiness', intelligence: 'Intelligence', fitness: 'Fitness',
     stamina: 'Stamina', focus: 'Focus', confidence: 'Confidence', discipline: 'Discipline',
