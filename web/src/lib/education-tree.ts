@@ -100,12 +100,12 @@ export function getEducationTree(character: Character): EducationTree {
     const current = currentEnrollment !== null;
     const isAvailable = available.has(program.id) && !enrollment;
     const position = PROGRAM_POSITIONS[program.id] ?? { x: 180, y: 1040 };
-    const status: EducationTreeStatus = completed ? 'completed' : current ? 'current' : isAvailable ? 'available' : 'locked';
+    const status: EducationTreeStatus = current ? 'current' : completed ? 'completed' : isAvailable ? 'available' : 'locked';
     const progress = currentEnrollment
       ? Math.min(100, Math.round(currentEnrollment.weeksCompleted / Math.max(1, currentEnrollment.totalWeeks) * 100))
       : completed ? 100 : 0;
-    const reason = completed ? 'Programme completed'
-      : currentEnrollment ? currentEnrollment.status === 'paused' ? 'Programme paused · progress retained' : 'Currently enrolled'
+    const reason = currentEnrollment ? currentEnrollment.status === 'paused' ? 'Programme paused · progress retained' : 'Currently enrolled'
+      : completed ? 'Programme completed'
       : isAvailable ? 'Entry requirements met'
       : lockedReason(character, program, completedLevels);
     return {
