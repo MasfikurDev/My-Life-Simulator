@@ -52,8 +52,8 @@ const PROGRAM_POSITIONS: Record<string, { x: number; y: number }> = {
 };
 
 const PROGRAM_EDGES: EducationTreeEdge[] = [
-  { from: 'early-development', to: 'early-learning', style: 'required' },
-  { from: 'early-learning', to: 'primary-school', style: 'required' },
+  { from: 'early-development', to: 'early-learning', style: 'alternative' },
+  { from: 'early-learning', to: 'primary-school', style: 'alternative' },
   { from: 'primary-school', to: 'lower-secondary', style: 'required' },
   { from: 'lower-secondary', to: 'upper-secondary', style: 'required' },
   { from: 'upper-secondary', to: 'vocational-diploma', style: 'alternative' },
