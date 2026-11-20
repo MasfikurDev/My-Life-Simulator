@@ -41,7 +41,7 @@ The tree is a view of the education system. It is not a second education engine 
 
 ### Stage 3 — Complete the education gameplay domain
 
-**Implemented increment:** The School workspace now lets the player choose a subject focus for each planned study, assignment or assessment task. Focused tasks add a transparent +1 grade point to that subject per task; the normal weekly grade calculation still accounts for study target, attendance, fatigue and workload. Age-appropriate task labels and descriptions reuse the existing three task types. The weekly target meter shows selected study points, and the existing projected-character preview shows expected subject grades.
+**Implemented increment:** The School workspace now lets the player choose a subject focus for each planned study, assignment or assessment task. Optional study, coursework and assessment-preparation activities improve the selected subject. Overall course standing reflects attendance, health, fatigue and workload; skipping optional tasks does not trigger a quota penalty. Age-appropriate task labels and descriptions reuse the existing three task types. The projected-character preview shows expected course and subject grades.
 
 This is a focused extension of the existing weekly planner, not a new timetable or separate activity engine. Older planned tasks without a subject ID remain valid and retain their previous rotating-subject behavior.
 
