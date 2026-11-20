@@ -21,8 +21,6 @@
   const plannedTasks = $derived(character.weeklyPlan?.activities.filter((item) => item.action?.kind === 'education') ?? []);
   const taskTypes: EducationTaskType[] = ['study', 'assignment', 'exam'];
   const selectedSubject = $derived(enrollment?.subjects.find((subject) => subject.id === selectedSubjectId) ?? enrollment?.subjects[0] ?? null);
-  const plannedStudyPoints = $derived(plannedTasks.reduce((total, item) => total + (item.action?.kind === 'education' ? item.action.taskType === 'assignment' ? 1.25 : item.action.taskType === 'exam' ? 1.6 : 1 : 0), 0));
-  const studyTargetProgress = $derived(enrollment ? Math.min(100, plannedStudyPoints / Math.max(1, enrollment.weeklyStudyTarget) * 100) : 0);
   function enroll() {
     if (!selectedProgram) return;
     const field = selectedField && selectedProgram.fieldOptions.includes(selectedField) ? selectedField : selectedProgram.fieldOptions[0];
@@ -85,7 +83,7 @@
         <div class="education-subject"><span>{subject.name}</span><strong>{Math.round(subject.grade)}%</strong><UiProgress label={`${subject.name} grade`} value={subject.grade} previewValue={projectedEnrollment?.subjects.find((item) => item.name === subject.name)?.grade ?? subject.grade} previewTone={(projectedEnrollment?.subjects.find((item) => item.name === subject.name)?.grade ?? subject.grade) >= subject.grade ? 'success' : 'danger'} tone={getValueTone(subject.grade)} size="small" showLabel={false} showValue valueText={`${Math.round(subject.grade)}% → ${Math.round(projectedEnrollment?.subjects.find((item) => item.name === subject.name)?.grade ?? subject.grade)}%`} /></div>
       {/each}
     </div>
-    <div class="education-footnote">{#if enrollment.status === 'paused'}Progress retained{:else}{enrollment.weeklyStudyTarget} study points required each week{/if}</div>
+    <div class="education-footnote">{#if enrollment.status === 'paused'}Progress retained{:else}Attendance and course progress are tracked automatically. Academic tasks improve the subject you choose.{/if}</div>
     {#if enrollment.status === 'paused'}<button class="primary-button" onclick={resumeLegacyEnrollment}>Continue Programme</button>{/if}
   </section>
 
@@ -98,7 +96,7 @@
         <label class="study-focus-select"><span>Study focus</span><select value={selectedSubject?.id ?? ''} onchange={(event) => selectedSubjectId = event.currentTarget.value}>
           {#each enrollment.subjects as subject}<option value={subject.id}>{subject.name} · {Math.round(subject.grade)}%</option>{/each}
         </select></label>
-        <div class="study-target"><span>WEEKLY STUDY TARGET</span><strong>{plannedStudyPoints.toFixed(2).replace(/\.00$/, '')} / {enrollment.weeklyStudyTarget} pts</strong><div class="study-target-track"><i style:width={studyTargetProgress + '%'}></i></div></div>
+
       </div>
       <div class="education-task-grid">
         {#each taskTypes as task}
@@ -108,11 +106,11 @@
             <ActivityStatusSeal status={taskPlanned(task) ? 'planned' : 'available'} />
             <small>{taskDescription(task)}</small>
             <span class="task-focus">FOCUS · {taskFocus(task)}</span>
-            <b>{taskPlanned(task) ? 'REMOVE FROM WEEK' : 'ADD · ' + (task === 'assignment' ? '1.25' : task === 'exam' ? '1.6' : '1') + ' PTS · ' + getActivityStaminaCost('study') + ' STAMINA'}</b>
+            <b>{taskPlanned(task) ? 'REMOVE FROM WEEK' : 'ADD · ' + getActivityStaminaCost('study') + ' STAMINA'}</b>
           </button>
         {/each}
       </div>
-      <div class="study-outcome-note">Each planned task uses {getActivityStaminaCost('study')} stamina and adds 1 point to its focused subject grade, on top of the weekly academic result. The final change also reflects attendance, workload and fatigue.</div>
+      <div class="study-outcome-note">Study, coursework and assessment preparation are optional activities. They improve the selected subject; attendance, health and workload shape the overall course result.</div>
     </div>
     <div class="education-footnote">Attendance is handled automatically. Your weekly review previews the expected grade and subject changes before you advance.</div>
   </section>
@@ -124,7 +122,7 @@
       <div class="education-program-list">
         {#each programs as program}
           <button class:education-program-selected={selectedProgram?.id === program.id} class="education-program-card" onclick={() => { selectedProgramId = program.id; selectedField = ''; }}>
-            <span class="education-program-type">{program.institutionType}</span><strong>{program.title}</strong><small>{program.durationWeeks} weeks · {program.weeklyStudyTarget} weekly study points</small>
+            <span class="education-program-type">{program.institutionType}</span><strong>{program.title}</strong><small>{program.durationWeeks} weeks · attendance and academic progress tracked each week</small>
             <span class="education-program-cost">{program.tuition ? formatCharacterMoney(character, program.tuition * (character.currencyScale ?? 1)) : 'No tuition'}</span>
           </button>
         {/each}
