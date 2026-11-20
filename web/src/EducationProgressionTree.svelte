@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Character } from './lib/types';
   import { getEducationTree, type EducationTreeNode } from './lib/education-tree';
+  import { formatCharacterMoney } from './lib/simulation';
 
   let { character }: { character: Character } = $props();
   let selectedNodeId = $state('');
@@ -59,7 +60,7 @@
   </div>
 
   <div class="tree-canvas" aria-label="Education progression tree">
-    <svg class="tree-connections" viewBox="0 0 360 1000" preserveAspectRatio="none" aria-hidden="true">
+    <svg class="tree-connections" viewBox="0 0 360 1050" preserveAspectRatio="none" aria-hidden="true">
       {#each tree.edges as edge}
         {@const from = tree.nodes.find((node) => node.id === edge.from)}
         {@const to = tree.nodes.find((node) => node.id === edge.to)}
@@ -77,7 +78,7 @@
         class:available={node.status === 'available'}
         class:locked={node.status === 'locked'}
         style:left={`${node.x / 360 * 100}%`}
-        style:top={`${node.y / 1000 * 100}%`}
+        style:top={`${node.y / 1050 * 100}%`}
         aria-pressed={selectedNode?.id === node.id}
         aria-label={`${node.title}, ${nodeStatusLabel(node.status)}`}
         onclick={() => selectedNodeId = node.id}
@@ -149,7 +150,7 @@
   .tree-legend i.current{background:var(--accent)}
   .tree-legend i.available{background:var(--info)}
   .tree-legend i.locked{background:var(--muted)}
-  .tree-canvas{position:relative;width:100%;max-width:560px;aspect-ratio:360/1000;margin:0 auto;overflow:visible}
+  .tree-canvas{position:relative;width:100%;max-width:560px;aspect-ratio:360/1050;margin:0 auto;overflow:visible}
   .tree-connections{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
   .tree-connections path{fill:none;stroke:var(--line-strong);stroke-width:2.2;stroke-linecap:round;opacity:.85}
   .tree-connections path.optional{stroke-dasharray:4 6;opacity:.55}
