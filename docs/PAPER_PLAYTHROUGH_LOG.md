@@ -18,7 +18,7 @@ The paper run continues an illustrative infant profile adopted in conversation. 
 - No siblings, partner, children, employment, education enrollment, bank accounts, property, investments, or owned business.
 - Personal cash: $0.
 - No player-planned activities are selected in the weeks recorded here.
-- Week 52 starting snapshot carried forward from the earlier paper run: Health 30, Happiness 79, Intelligence 30, Fitness 15, Stamina 100, Focus 30, Confidence 27, Discipline 82, Creativity 30, Social Skills 21, Stress 1, Comfort 100.
+- The earlier conversation's Week 52 estimate was: Health 30, Happiness 79, Intelligence 30, Fitness 15, Stamina 100, Focus 30, Confidence 27, Discipline 82, Creativity 30, Social Skills 21, Stress 1, Comfort 100. Rechecking the actual calendar boundary shows that Week 52 advances the date to January 4, 2027 and performs annual settlement before Week 53. Therefore the corrected Week 53 input is Health 29, age 0, year 2027; all other listed stats remain as estimated. The previous Week 52 Health 30 figure omitted this settlement.
 
 The assumed birth date is used to demonstrate actual date-derived age progression. If a real generated character or save is supplied later, replace this illustrative baseline rather than merging the two.
 
@@ -30,7 +30,7 @@ The run follows the current source implementation inspected on the source baseli
 - `wellbeing.ts`: with no enrollment, employment, or planned activity workload, weekly workload is 0. Stress load is -3 and Happiness gains +1 while resulting stress is at most 35.
 - `lifestyle.ts`: the strained-family meal activity provides +3 stamina recovery, +1 Comfort, +1 Discipline, and a stress field of -1 (which increases actual Stress by 1 because the resolver subtracts the summed stress field). The stable family-supported home adds +2 Comfort. Comfort and stats are clamped to 0–100.
 - The weekly resolver adds +3 natural stamina drift at workload 0. With strained-family meals, Stamina therefore gains up to +6 per week before the 100 cap.
-- `settleCalendarYear` reduces Health by 1 for a character below age 45 at each calendar-year boundary, even if that boundary occurs before the birthday.
+- `settleCalendarYear` reduces Health by 1 for a character below age 45 at each calendar-year boundary, even if that boundary occurs before the birthday. In this scenario the first settlement occurs at the end of Week 52 (next date January 4, 2027), before the January 5 birthday.
 - `applyAgeTransition` adds +3 to the listed developmental stats, but first clamps each to `ageStatCeiling(age)`. The current ceiling is 34 at age 1 and 38 at age 2.
 - No eligible annual contextual event exists for this character below age 6. No income or personal financial transactions occur in this scenario.
 
@@ -107,8 +107,8 @@ Abbreviations: H = Health; Ha = Happiness; I = Intelligence; Fi = Fitness; St = 
 
 - Week: January 4–10, 2027; the assumed birthday is January 5.
 - The weekly effects resolve first: Happiness +1, Discipline +1, Stamina remains capped at 100.
-- Calendar-year settlement reduces Health from 30 to 29.
-- Age transition sets age to 1 and applies +3 development, subject to the age-1 ceiling of 34.
+- The character enters the week at age 0, year 2027, with Health 29 after the annual settlement at the end of Week 52.
+- The January 5 birthday changes age to 1 during the week and applies +3 development, subject to the age-1 ceiling of 34. No second annual health reduction occurs in Week 53.
 - Result: H32, Ha34, I33, Fi18, St34, Fo33, Co30, D34, Cr33, So24, Sr1, Cm100.
 - The ceiling unexpectedly drops Happiness, Stamina, and Discipline from their higher pre-birthday values to 34.
 
