@@ -6,7 +6,7 @@ import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, r
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
 import { addCalendarDays, createGameCalendar, getAgeAtDate, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
 import { getWeeklyPlan } from './weekly-plan';
-import { resolveEducationWeek } from './education';
+import { resolveEducationWeek, type EducationTaskSelection } from './education';
 import { resolveCareAction, resolveWeeklyWellbeing } from './wellbeing';
 import { applyWeeklyClothingWear, getClothingPresentationScore, getPassiveLifestyleActivities, interactWithSocialConnection, resolvePassiveLifestyleActivities } from './lifestyle';
 import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPromotionOfferState, createPromotionOffer, declineJobOffer as declineJobOfferState, declinePromotionOffer as declinePromotionOfferState, expireWorkOffers, getJobListings, getCareerRole, isEligibleForRole, resolveJobApplication, resolveJobInterview, resignFromJob as resignFromJobState } from './work';
@@ -1156,13 +1156,14 @@ export function planEventChoice(character: Character, choiceId: string, date?: s
   return addWeeklyAction(character, 'event', day, { kind: 'event', eventId: pending.id, choiceId, staminaCost: choice.staminaCost }, choice.moneyCost);
 }
 
-export function planEducationTaskInNextFreeTime(character: Character, taskType: EducationTaskType): ActivityPlanningResult {
+export function planEducationTaskInNextFreeTime(character: Character, taskType: EducationTaskType, subjectId?: string): ActivityPlanningResult {
   if (!character.educationEnrollment) return { character, issue: 'unavailable', message: 'Enroll in an education programme before planning academic work.' };
+  if (subjectId && !character.educationEnrollment.subjects.some((subject) => subject.id === subjectId)) return { character, issue: 'unavailable', message: 'Choose a subject in your current programme.' };
   if (getWeeklyPlan(character.weeklyPlan).activities.some((item) => item.action?.kind === 'education' && item.action.taskType === taskType)) {
     return { character, issue: 'unavailable', message: 'This type of academic task is already planned this week.' };
   }
   const cost = getActivityCost(character, 'study');
-  return planForCurrentWeek(character, (date) => addWeeklyAction(character, 'study', date, { kind: 'education', taskType }, cost));
+  return planForCurrentWeek(character, (date) => addWeeklyAction(character, 'study', date, { kind: 'education', taskType, ...(subjectId ? { subjectId } : {}) }, cost));
 }
 
 export function planCareActionInNextFreeTime(character: Character, careType: CareActionType): ActivityPlanningResult {
@@ -1356,7 +1357,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     recap.push(activity.title + ': ' + activity.detail + '.' + staminaNote);
   }
   next = { ...next, stamina: Math.min(100, (next.stamina ?? 50) + staminaRecovery) };
-  const educationTasks: EducationTaskType[] = [];
+  const educationTasks: EducationTaskSelection[] = [];
   const activityOutcomes: Array<{ id: string; effects: WeeklyActivityOutcomeEffect[] }> = [];
   const ordered = [...schedule.activities];
   for (const item of ordered) {
@@ -1373,7 +1374,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
       if (result !== next) {
         const fieldSkill = getEducationSkillId(next.educationEnrollment?.field);
         result = awardSkillProgress(result, fieldSkill, item.action.taskType === 'assignment' ? 4 : item.action.taskType === 'exam' ? 3 : 1);
-        educationTasks.push(item.action.taskType);
+        educationTasks.push({ taskType: item.action.taskType, subjectId: item.action.subjectId });
         recap.push(item.action.taskType === 'assignment' ? 'Completed an education assignment.' : item.action.taskType === 'exam' ? 'Completed an academic exam.' : 'Completed a focused study session.');
       }
     } else if (item.action?.kind === 'care') {
