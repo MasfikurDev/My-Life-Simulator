@@ -1,5 +1,7 @@
 import type { AcademicResult, Character, EducationEnrollment, EducationLevel, EducationRecord, EducationTaskType, Qualification } from './types';
 
+export interface EducationTaskSelection { taskType: EducationTaskType; subjectId?: string; }
+
 export interface EducationProgram {
   id: string;
   title: string;
@@ -111,10 +113,11 @@ export function pauseEducation(character: Character): Character {
   };
 }
 
-export function resolveEducationWeek(character: Character, tasks: EducationTaskType[], weekStart: string, workload: number): { character: Character; recap: string[] } {
+export function resolveEducationWeek(character: Character, tasks: Array<EducationTaskType | EducationTaskSelection>, weekStart: string, workload: number): { character: Character; recap: string[] } {
   const enrollment = character.educationEnrollment;
   if (!enrollment || enrollment.status !== 'enrolled') return { character, recap: [] };
-  const taskScore = tasks.reduce((score, task) => score + (task === 'assignment' ? 1.25 : task === 'exam' ? 1.6 : 1), 0);
+  const selections = tasks.map((task) => typeof task === 'string' ? { taskType: task } : task);
+  const taskScore = selections.reduce((score, task) => score + (task.taskType === 'assignment' ? 1.25 : task.taskType === 'exam' ? 1.6 : 1), 0);
   const stress = character.stress ?? 30;
   const fatiguePenalty = Math.max(0, Math.floor((stress - 55) / 12)) + ((character.stamina ?? 50) < 25 ? 2 : 0);
   const expected = enrollment.weeklyStudyTarget;
@@ -125,10 +128,13 @@ export function resolveEducationWeek(character: Character, tasks: EducationTaskT
   const improvement = taskScore >= expected ? Math.min(5, Math.floor(taskScore - expected) + 2) : 0;
   const change = improvement - missedPenalty - fatiguePenalty - workloadPenalty - attendanceGap;
   const grade = Math.max(0, Math.min(100, enrollment.grade + change));
-  const subjects = enrollment.subjects.map((subject, index) => ({
-    ...subject,
-    grade: Math.max(0, Math.min(100, subject.grade + change + (tasks.length && index === enrollment.weeksCompleted % enrollment.subjects.length ? 1 : 0)))
-  }));
+  const hasSubjectFocus = selections.some((task) => task.subjectId);
+  const subjects = enrollment.subjects.map((subject, index) => {
+    const focusBonus = hasSubjectFocus
+      ? selections.filter((task) => task.subjectId === subject.id).length
+      : selections.length && index === enrollment.weeksCompleted % enrollment.subjects.length ? 1 : 0;
+    return { ...subject, grade: Math.max(0, Math.min(100, subject.grade + change + focusBonus)) };
+  });
   const nextEnrollment: EducationEnrollment = { ...enrollment, grade, subjects, attendance: Math.max(0, Math.round((enrollment.attendance * enrollment.weeksCompleted + attendance) / (enrollment.weeksCompleted + 1))), weeksCompleted: enrollment.weeksCompleted + 1 };
   const recap = [taskScore >= expected ? 'Education: weekly learning target met.' : 'Education: missed learning work lowered academic progress.', ...(attendance < 90 ? ['Education: health and pressure affected attendance.'] : [])];
   if (nextEnrollment.weeksCompleted >= nextEnrollment.totalWeeks) {
