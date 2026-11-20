@@ -116,7 +116,7 @@ export function getEducationTree(character: Character): EducationTree {
       category: program.level,
       field: current ? enrollment.field : undefined,
       durationWeeks: program.durationWeeks,
-      tuition: Math.round(program.tuition * (character.currencyScale ?? 1)),
+      tuition: program.tuition,
       ageRange: program.maxAge < 120 ? `${program.minAge}–${program.maxAge}` : `${program.minAge}+`,
       ...position
     };
