@@ -25,6 +25,7 @@ describe('weekly education and care integration', () => {
     expect(result.issue).toBeNull();
     const subjects = result.character.educationEnrollment!.subjects;
     expect(subjects[1].grade).toBeGreaterThan(subjects[0].grade);
+    expect(result.recap.some((item) => item.includes(selectedSubject.name))).toBe(true);
   });
 
   it('rejects a subject focus that is not part of the current programme', () => {
