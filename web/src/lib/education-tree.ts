@@ -15,6 +15,9 @@ export interface EducationTreeNode {
   programId?: string;
   field?: string;
   category?: string;
+  durationWeeks?: number;
+  tuition?: number;
+  ageRange?: string;
   x: number;
   y: number;
 }
@@ -50,6 +53,8 @@ const PROGRAM_EDGES: EducationTreeEdge[] = [
   { from: 'early-learning', to: 'primary-school', style: 'required' },
   { from: 'primary-school', to: 'lower-secondary', style: 'required' },
   { from: 'lower-secondary', to: 'upper-secondary', style: 'required' },
+  { from: 'upper-secondary', to: 'vocational-diploma', style: 'alternative' },
+  { from: 'upper-secondary', to: 'professional-certificate', style: 'alternative' },
   { from: 'upper-secondary', to: 'college-associate', style: 'required' },
   { from: 'upper-secondary', to: 'bachelor-degree', style: 'required' },
   { from: 'bachelor-degree', to: 'professional-specialist', style: 'required' },
@@ -110,35 +115,13 @@ export function getEducationTree(character: Character): EducationTree {
       programId: program.id,
       category: program.level,
       field: current ? enrollment.field : undefined,
+      durationWeeks: program.durationWeeks,
+      tuition: Math.round(program.tuition * (character.currencyScale ?? 1)),
+      ageRange: program.maxAge < 120 ? `${program.minAge}–${program.maxAge}` : `${program.minAge}+`,
       ...position
     };
   });
 
-  if (enrollment) {
-    enrollment.subjects.forEach((subject, index) => {
-      nodes.push({
-        id: `subject:${subject.id}`,
-        kind: 'subject',
-        title: subject.name,
-        subtitle: 'Current subject',
-        status: 'current',
-        progress: Math.max(0, Math.min(100, Math.round(subject.grade))),
-        reason: `Current grade: ${Math.round(subject.grade)}%`,
-        programId: enrollment.programId,
-        field: enrollment.field,
-        x: index === 0 ? 90 : index === 1 ? 180 : 270,
-        y: 1040
-      });
-    });
-  }
-
   const edges = PROGRAM_EDGES.filter((edge) => nodes.some((node) => node.id === edge.from) && nodes.some((node) => node.id === edge.to));
-  if (enrollment?.subjects.length) {
-    enrollment.subjects.forEach((subject) => edges.push({
-      from: enrollment.programId,
-      to: `subject:${subject.id}`,
-      style: 'alternative'
-    }));
-  }
   return { nodes, edges };
 }
