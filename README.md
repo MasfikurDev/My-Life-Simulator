@@ -21,6 +21,7 @@ The canonical gameplay clock is:
 - [Current product and gameplay direction](docs/CURRENT_DIRECTION.md)
 - [Comprehensive project audit](docs/COMPREHENSIVE_PROJECT_AUDIT.md)
 - [Simulation logic review (2026-11-20)](docs/SIMULATION_LOGIC_REVIEW_2026-11-20.md)
+- [Education progression tree migration](docs/EDUCATION_TREE_MIGRATION.md)
 - [Visual design](docs/VISUAL_DESIGN.md)
 - [Technical architecture](docs/TECHNICAL_ARCHITECTURE.md)
 - [CI and delivery](docs/CI_CD.md)
