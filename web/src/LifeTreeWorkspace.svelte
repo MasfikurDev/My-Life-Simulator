@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Character, DecisionTreeId, GameEventEffects } from './lib/types';
+  import EducationProgressionTree from './EducationProgressionTree.svelte';
   let { character }: { character: Character } = $props();
   const trees: { id: DecisionTreeId; label: string; detail: string }[] = [
     { id: 'life', label: 'Life choices', detail: 'Personal opportunities and turning points' },
@@ -25,17 +26,18 @@
 
 <section class="life-tree">
   <header class="tree-intro">
-    <div><div class="eyebrow">YOUR STORY · DECISION MAP</div><h2>Life tree</h2><p>Every recorded choice becomes a node in your story. Follow the path you took, compare the alternatives, and see the abilities each route could develop.</p></div>
-    <div class="tree-total"><strong>{totalDecisions}</strong><span>DECISIONS</span></div>
+    <div><div class="eyebrow">LIVE PROGRESSION · PATHWAYS</div><h2>Life tree</h2><p>Explore current opportunities, prerequisites and future routes. Education is the first system moving to a live RPG-style progression tree; other life systems will migrate in stages.</p></div>
   </header>
-  <nav class="tree-tabs" aria-label="Decision tree types">
+  <nav class="tree-tabs" aria-label="Progression domains">
     {#each trees as tree}
       <button class:active={activeTree === tree.id} onclick={() => activeTree = tree.id}>{tree.label}</button>
     {/each}
   </nav>
   <p class="tree-description">{trees.find((tree) => tree.id === activeTree)?.detail}</p>
 
-  {#if records.length}
+  {#if activeTree === 'education'}
+    <EducationProgressionTree {character} />
+  {:else if records.length}
     <div class="tree-path">
       {#each records as record, index}
         <article class="decision-node">
