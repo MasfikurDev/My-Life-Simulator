@@ -1,7 +1,7 @@
 # Education Progression Tree Migration
 
 **Status:** Incremental implementation plan  
-**First implementation slice:** Live education programme tree  
+**First implementation slice:** Live education programme tree and subject-focused school planner  
 **Scope:** The Life Tree's education domain and its projection of existing education state
 
 ## Purpose
@@ -41,6 +41,11 @@ The tree is a view of the education system. It is not a second education engine 
 
 ### Stage 3 — Complete the education gameplay domain
 
+**Implemented increment:** The School workspace now lets the player choose a subject focus for each planned study, assignment or assessment task. Focused tasks add a transparent +1 grade point to that subject per task; the normal weekly grade calculation still accounts for study target, attendance, fatigue and workload. Age-appropriate task labels and descriptions reuse the existing three task types. The weekly target meter shows selected study points, and the existing projected-character preview shows expected subject grades.
+
+This is a focused extension of the existing weekly planner, not a new timetable or separate activity engine. Older planned tasks without a subject ID remain valid and retain their previous rotating-subject behavior.
+
+
 - Expand age-specific learning experiences and programme content within the education domain before deep cross-system integration.
 - Add subject/topic/skill/certification nodes only when backed by meaningful learning, assessment or credential mechanics.
 - Preserve multiple routes: school completion, vocational training, independent certificates, degrees, specialist qualifications and adult retraining.
@@ -67,4 +72,4 @@ The tree is a view of the education system. It is not a second education engine 
 
 ## Current limitations
 
-The first slice is a visualization of the programme catalogue that already exists. It does not yet add new learning mechanics, new credentials, independent subject progression, new school activities, or live trees for the other Life domains. Those require their own staged implementation and validation.
+The programme tree still visualizes the existing catalogue; it does not add new credentials or independent subject progression outside an enrolled programme. The School workspace now supports subject-focused weekly tasks, but the three task types still share the existing study resolver. New topic-level mechanics, practical activity systems, credentials and live trees for other Life domains remain future stages.
