@@ -90,7 +90,7 @@ describe('skill acquisition across life systems', () => {
   });
 
   it('develops entrepreneurship and operations through actual business actions', () => {
-    const founder = { ...createCharacter('Founder', 30), money: 100000, intelligence: 80, focus: 80, confidence: 80, discipline: 80 };
+    const founder = { ...createCharacter('Founder', 30), money: 1000000000, intelligence: 80, focus: 80, confidence: 80, discipline: 80 };
     const started = startBusiness(founder, 'Northstar Shop', 'retail', 5000);
     expect(getSkillLevel(started, 'entrepreneurship')).toBeGreaterThan(getSkillLevel(founder, 'entrepreneurship'));
     const managed = manageBusiness(started, started.businesses![0].id);
@@ -145,8 +145,10 @@ describe('skill gameplay effects', () => {
     const enrolled = enrollInEducation({
       ...createCharacter('Student', 25), money: 100000, intelligence: 85, focus: 85, discipline: 85
     }, 'bachelor-degree', 'Computer science').character;
-    const novice = resolveEducationWeek({ ...enrolled, skills: { programming: 20 } }, ['assignment'], '2026-11-02', 4);
-    const skilled = resolveEducationWeek({ ...enrolled, skills: { programming: 90 } }, ['assignment'], '2026-11-02', 4);
+    const fieldSubject = enrolled.educationEnrollment!.subjects.find((subject) => subject.name === 'Computer science')!;
+    const task = [{ taskType: 'assignment' as const, subjectId: fieldSubject.id }];
+    const novice = resolveEducationWeek({ ...enrolled, skills: { programming: 20 } }, task, '2026-11-02', 4);
+    const skilled = resolveEducationWeek({ ...enrolled, skills: { programming: 90 } }, task, '2026-11-02', 4);
     expect(skilled.character.educationEnrollment!.grade).toBeGreaterThan(novice.character.educationEnrollment!.grade);
   });
 
