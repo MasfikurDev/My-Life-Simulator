@@ -10,6 +10,13 @@ describe('pursuit-based activity rewards', () => {
     expect(getEducationSubjectSkillId('Computer science', 'Computer science')).toBe('programming');
     expect(getEducationSubjectSkillId('Cybersecurity', 'Cybersecurity')).toBeUndefined();
     expect(getEducationSkillId('Business')).toBe('business');
+    expect(getEducationSkillId('Computing')).toBe('technology');
+    expect(getEducationSkillId('Programming')).toBe('technology');
+    expect(getEducationSkillId('Electrical trades')).toBe('engineering');
+    expect(getEducationSkillId('Automotive')).toBe('practical-trades');
+    expect(getEducationSkillId('Accounting')).toBe('business');
+    expect(getEducationSkillId('First aid')).toBe('healthcare');
+    expect(getEducationSkillId('Teaching')).toBe('education');
     expect(getEducationSkillId('Arts')).toBe('creative-arts');
     expect(getEducationSkillId('Cybersecurity')).toBe('digital-literacy');
     expect(getEducationSkillId('Clinical specialization')).toBe('clinical-practice');
@@ -18,6 +25,8 @@ describe('pursuit-based activity rewards', () => {
     expect(getCareerSpecialtySkillId('software-developer')).toBe('programming');
     expect(getCareerSkillId('technology', 'it-support')).toBe('technology');
     expect(getCareerSpecialtySkillId('it-support')).toBe('digital-literacy');
+    expect(getCareerSpecialtySkillId('operations-manager')).toBe('project-management');
+    expect(getEducationSubjectSkillId('Project management', 'Project management')).toBe('project-management');
     expect(getCareerSkillId('technology')).toBe('technology');
     expect(getCareerSkillId()).toBe('professional-practice');
     expect(getEducationSkillId('  Computer Science  ')).toBe('technology');
