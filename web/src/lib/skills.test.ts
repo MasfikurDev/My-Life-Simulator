@@ -90,7 +90,7 @@ describe('skill acquisition across life systems', () => {
   });
 
   it('develops entrepreneurship and operations through actual business actions', () => {
-    const founder = { ...createCharacter('Founder', 30), money: 1000000000, intelligence: 80, focus: 80, confidence: 80, discipline: 80 };
+    const founder = { ...createCharacter('Founder', 30), money: 1000000000, currency: 'USD', currencyScale: 1, intelligence: 80, focus: 80, confidence: 80, discipline: 80 };
     const started = startBusiness(founder, 'Northstar Shop', 'retail', 500000);
     expect(getSkillLevel(started, 'entrepreneurship')).toBeGreaterThan(getSkillLevel(founder, 'entrepreneurship'));
     const managed = manageBusiness(started, started.businesses![0].id);
