@@ -116,7 +116,7 @@ export function resolveEducationWeek(character: Character, tasks: Array<Educatio
       : selections.length && index === enrollment.weeksCompleted % enrollment.subjects.length ? 1 : 0;
     const subjectSkillId = getEducationSubjectSkillId(subject.name, enrollment.field) ?? getEducationSkillId(enrollment.field);
     const subjectSkillLevel = getSkillLevel(character, subjectSkillId);
-    const learningBonus = selections.length ? Math.max(-1, Math.min(2, Math.floor((subjectSkillLevel - 40) / 25))) : 0;
+    const learningBonus = selections.length ? Math.max(0, Math.min(2, Math.floor((subjectSkillLevel - 50) / 25))) : 0;
     return { ...subject, grade: Math.max(0, Math.min(100, subject.grade + change + focusBonus + (focusBonus ? learningBonus : 0))) };
   });
   // Overall course grade is derived from actual subject results, not a separate quota score.
