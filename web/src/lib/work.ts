@@ -3,6 +3,7 @@ import { addCalendarDays } from './calendar';
 import { getClothingPresentationScore } from './lifestyle';
 import { getCareerSkillId, getSkillLevel } from './skills';
 import { CAREER_ROLES } from './career-content';
+import { CAREER_EMPLOYERS } from './employer-content';
 
 export interface CareerRole {
   id: string;
@@ -49,16 +50,7 @@ export interface CareerRequirement {
   detail: string;
 }
 
-const EMPLOYERS = [
-  { name: 'Northstar Services', sector: 'Customer services' },
-  { name: 'Cedarline Group', sector: 'Business operations' },
-  { name: 'Brightpath Systems', sector: 'Technology' },
-  { name: 'Harbor & Field', sector: 'Retail and sales' },
-  { name: 'Everwell Partners', sector: 'Professional services' },
-  { name: 'Summit Works', sector: 'Business services' },
-  { name: 'Bluegate Digital', sector: 'Technology' },
-  { name: 'MarketSquare Co.', sector: 'Retail and sales' }
-];
+
 
 const hash = (value: string): number => {
   let result = 2166136261;
@@ -151,7 +143,7 @@ export function getJobListings(character: Character): JobListing[] {
   const type: EmploymentType = character.age < 18 ? 'part-time' : character.age >= 65 ? 'flexible' : 'full-time';
   const location = 'Local area';
   return shuffled.slice(0, 5).map((role, index) => {
-    const employer = EMPLOYERS[(hash(week + role.id + character.name) + index) % EMPLOYERS.length];
+    const employer = CAREER_EMPLOYERS[(hash(week + role.id + character.name) + index) % CAREER_EMPLOYERS.length];
     const salarySeed = seeded(week + role.id + character.name + '|salary');
     const midpoint = role.annualSalaryMin + (role.annualSalaryMax - role.annualSalaryMin) * salarySeed();
     const ageFactor = type === 'part-time' ? 0.45 : type === 'flexible' ? 0.7 : 1;
