@@ -1,10 +1,27 @@
 {
   "contentVersion": 1,
+  "paths": [
+    {
+      "id": "customer-service",
+      "name": "Customer service"
+    },
+    {
+      "id": "operations",
+      "name": "Operations"
+    },
+    {
+      "id": "technology",
+      "name": "Technology"
+    },
+    {
+      "id": "sales",
+      "name": "Sales"
+    }
+  ],
   "roles": [
     {
       "id": "service-assistant",
       "pathId": "customer-service",
-      "pathName": "Customer service",
       "title": "Service assistant",
       "level": 1,
       "description": "Help customers, answer questions and solve everyday service issues.",
@@ -21,7 +38,6 @@
     {
       "id": "service-specialist",
       "pathId": "customer-service",
-      "pathName": "Customer service",
       "title": "Service specialist",
       "level": 2,
       "description": "Handle complex requests and support consistent service quality.",
@@ -39,7 +55,6 @@
     {
       "id": "service-supervisor",
       "pathId": "customer-service",
-      "pathName": "Customer service",
       "title": "Service supervisor",
       "level": 3,
       "description": "Coordinate a team, resolve escalations and improve service delivery.",
@@ -57,7 +72,6 @@
     {
       "id": "operations-assistant",
       "pathId": "operations",
-      "pathName": "Operations",
       "title": "Operations assistant",
       "level": 1,
       "description": "Support daily operations, records and routine coordination.",
@@ -73,7 +87,6 @@
     {
       "id": "operations-coordinator",
       "pathId": "operations",
-      "pathName": "Operations",
       "title": "Operations coordinator",
       "level": 2,
       "description": "Coordinate processes, schedules and cross-team work.",
@@ -91,7 +104,6 @@
     {
       "id": "operations-manager",
       "pathId": "operations",
-      "pathName": "Operations",
       "title": "Operations manager",
       "level": 3,
       "description": "Lead an operational team and take responsibility for delivery.",
@@ -109,7 +121,6 @@
     {
       "id": "it-support",
       "pathId": "technology",
-      "pathName": "Technology",
       "title": "IT support technician",
       "level": 1,
       "description": "Troubleshoot devices, accounts and common technical issues.",
@@ -131,7 +142,6 @@
     {
       "id": "software-developer",
       "pathId": "technology",
-      "pathName": "Technology",
       "title": "Software developer",
       "level": 2,
       "description": "Build, test and maintain software used by customers or teams.",
@@ -155,7 +165,6 @@
     {
       "id": "senior-developer",
       "pathId": "technology",
-      "pathName": "Technology",
       "title": "Senior software developer",
       "level": 3,
       "description": "Own technical decisions, mentor developers and deliver complex work.",
@@ -173,7 +182,6 @@
     {
       "id": "sales-associate",
       "pathId": "sales",
-      "pathName": "Sales",
       "title": "Sales associate",
       "level": 1,
       "description": "Understand customer needs and help people choose suitable products.",
@@ -190,7 +198,6 @@
     {
       "id": "account-executive",
       "pathId": "sales",
-      "pathName": "Sales",
       "title": "Account executive",
       "level": 2,
       "description": "Manage customer accounts and develop long-term business relationships.",
@@ -208,7 +215,6 @@
     {
       "id": "sales-manager",
       "pathId": "sales",
-      "pathName": "Sales",
       "title": "Sales manager",
       "level": 3,
       "description": "Lead a sales team and take responsibility for team results.",
