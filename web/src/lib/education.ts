@@ -1,4 +1,5 @@
 import type { AcademicResult, Character, EducationEnrollment, EducationLevel, EducationRecord, EducationTaskType, Qualification } from './types';
+import { applySkillAcquisition } from './skills';
 import { EDUCATION_PROGRAMS as educationPrograms } from './education-content';
 import type { EducationProgramDefinition } from './education-content';
 
@@ -93,6 +94,8 @@ export function resolveEducationWeek(character: Character, tasks: Array<Educatio
   const enrollment = character.educationEnrollment;
   if (!enrollment || enrollment.status !== 'enrolled') return { character, recap: [] };
   const selections = tasks.map((task) => typeof task === 'string' ? { taskType: task } : task);
+  let skilledCharacter = character;
+  for (const selection of selections) skilledCharacter = applySkillAcquisition(skilledCharacter, 'education-task', selection.taskType, { field: enrollment.field });
   const stress = character.stress ?? 30;
   const fatiguePenalty = Math.max(0, Math.floor((stress - 55) / 12)) + ((character.stamina ?? 50) < 25 ? 2 : 0);
   const attendance = character.health < 25 || stress > 90 ? 65 : character.health < 45 || stress > 78 ? 82 : 100;
@@ -130,10 +133,10 @@ export function resolveEducationWeek(character: Character, tasks: Array<Educatio
       category: enrollment.level === 'vocational' ? 'diploma' : enrollment.programId === 'professional-certificate' ? 'certificate' : enrollment.level === 'professional-specialist' ? 'professional' : 'degree',
       issuer: enrollment.institution, field: enrollment.field, awardedAtAge: character.age
     });
-    const next: Character = { ...character, educationEnrollment: null, educationRecords: records, academicHistory: [...(character.academicHistory ?? []), result], qualifications };
+    const next: Character = { ...skilledCharacter, educationEnrollment: null, educationRecords: records, academicHistory: [...(character.academicHistory ?? []), result], qualifications };
     next.history = [{ id: 'education-result-' + result.programId + '-' + next.year + '-' + next.academicHistory!.length, age: next.age, year: next.year, date: next.calendar?.currentDate ?? weekStart, kind: 'milestone', title: outcome === 'completed' ? 'Completed ' + result.level + ' education' : 'Did not complete ' + result.level + ' education', description: 'Final grade: ' + grade + '%. ' + (outcome === 'completed' ? 'A qualification was awarded.' : 'The programme was not passed; a future retake or alternative route remains possible.'), }, ...next.history];
     recap.push(outcome === 'completed' ? 'Education programme completed and qualification awarded.' : 'Education programme ended without a passing grade.');
     return { character: next, recap };
   }
-  return { character: { ...character, educationEnrollment: nextEnrollment }, recap };
+  return { character: { ...skilledCharacter, educationEnrollment: nextEnrollment }, recap };
 }
