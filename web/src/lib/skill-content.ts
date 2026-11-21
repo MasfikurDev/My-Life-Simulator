@@ -24,6 +24,7 @@ export interface ValidatedSkillContent {
   educationSubjectSkills: ReadonlyMap<string, string>;
   careerPathSkills: ReadonlyMap<CareerPathId, string>;
   careerRoleSkills: ReadonlyMap<string, string>;
+  careerRoleSpecialtySkills: ReadonlyMap<string, string>;
 }
 
 const GROUPS: readonly SkillGroup[] = ['academic','business','care','core','creative','physical','practical','professional','technical'];
@@ -100,14 +101,14 @@ export function validateSkillContent(value: unknown): ValidatedSkillContent {
     throw new Error('Skill content must define every supported career path exactly once.');
   }
 
-  return { skills, skillById, skillLabels, educationFieldSkills, educationSubjectSkills, careerPathSkills, careerRoleSkills: new Map() };
+  return { skills, skillById, skillLabels, educationFieldSkills, educationSubjectSkills, careerPathSkills, careerRoleSkills: new Map(), careerRoleSpecialtySkills: new Map() };
 }
 
 export function validateSkillCoverage(
   content: ValidatedSkillContent,
   educationFields: readonly string[],
   educationSubjects: readonly string[],
-  careerRoles: readonly Pick<CareerRole, 'id' | 'skillId'>[]
+  careerRoles: readonly Pick<CareerRole, 'id' | 'skillId' | 'specialtySkillId'>[]
 ): ValidatedSkillContent {
   for (const field of educationFields) {
     if (!content.educationFieldSkills.has(field.trim().toLowerCase())) {
@@ -120,14 +121,19 @@ export function validateSkillCoverage(
     }
   }
   const careerRoleSkills = new Map<string, string>();
+  const careerRoleSpecialtySkills = new Map<string, string>();
   for (const role of careerRoles) {
     if (!content.skillById.has(role.skillId)) {
       throw new Error(`Career role ${role.id} references unknown skill ${role.skillId}.`);
     }
     if (careerRoleSkills.has(role.id)) throw new Error(`Duplicate career role skill mapping: ${role.id}.`);
     careerRoleSkills.set(role.id, role.skillId);
+    if (role.specialtySkillId) {
+      if (!content.skillById.has(role.specialtySkillId)) throw new Error(`Career role ${role.id} references unknown specialty skill ${role.specialtySkillId}.`);
+      careerRoleSpecialtySkills.set(role.id, role.specialtySkillId);
+    }
   }
-  return { ...content, careerRoleSkills };
+  return { ...content, careerRoleSkills, careerRoleSpecialtySkills };
 }
 
 const educationFields = [...new Set(EDUCATION_PROGRAMS.flatMap((program) => program.fieldOptions))];
