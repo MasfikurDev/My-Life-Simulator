@@ -6,7 +6,9 @@ This document defines the intended player experience and records the current imp
 
 ## Current implementation · 2026-11-09
 
-The Work workspace now has a functional first recruitment and career loop:
+The Work workspace now has a functional first recruitment and career loop. Its 12 role definitions are loaded from the versioned `web/src/lib/content/career-roles.json` catalogue through `career-content.ts`; validation protects stable IDs, supported paths, requirement ranges, salary ranges, and same-path forward progression links. The Work domain remains authoritative for interpreting those definitions.
+
+The Work workspace includes:
 
 - A deterministic weekly job board generates a small set of fictional openings across Customer service, Operations, Technology, and Sales. Listings refresh with the game week; employer names and salary values are generated game data, not real companies or real-world market claims.
 - Each listing has an employment type, annual base-pay amount, role description, and visible age, education, knowledge, and experience requirements. Ineligible jobs remain inspectable so players can understand future opportunities.
@@ -111,11 +113,12 @@ This is deliberately staged. Do not present later-stage mechanics as live until 
 1. **Implemented — recruitment foundation:** job listings, requirements, stamina-costed weekly applications and interviews, expiring offers, acceptance/decline, job changes, and resignation.
 2. **Implemented — career preview:** four fictional role paths with clearly labeled estimated annual salary bands. Viewing a path never changes the save or ledger.
 3. **Implemented — transparent first-pass readiness:** age, education, general knowledge, career experience, and current performance are checked separately. Detailed role-specific skills remain future work.
-4. **Implemented — attribute-aware role requirements:** selected roles now check focus, social skills, confidence, discipline or creativity in addition to age, education, intelligence and experience. Qualification ID checks are supported by the role requirement model; qualification programme IDs are available to role requirements; expand role-specific certificate gates as the occupation catalog gains matching credentials.
-5. **Implemented — player-controlled promotion:** eligible employees receive a time-limited promotion offer at annual review; the player accepts or declines. A stale offer cannot promote a different job after a job change, and changing jobs clears the previous promotion offer.
-6. **Next — education and qualification integration:** localized curricula, regulated licenses, credential expiry/renewal, apprenticeships and more detailed career-specific qualification gates.
-7. **Next — workplace depth:** employer structures, real vacancies, workplace decisions, performance outcomes, layoffs, and career stability.
-8. **Later — compensation depth:** monthly payroll, conditional bonuses, benefits, and negotiation only when the finance and employer rules are ready.
+4. **Implemented — data-backed role catalogue:** the existing 12 roles and their current requirements/estimated salary ranges are validated from JSON. Adding or adjusting a role and its progression link no longer requires editing the Work module.
+5. **Implemented — attribute-aware role requirements:** selected roles now check focus, social skills, confidence, discipline or creativity in addition to age, education, intelligence and experience. Qualification ID checks are supported by the role requirement model; qualification programme IDs are available to role requirements; expand role-specific certificate gates as the occupation catalog gains matching credentials.
+6. **Implemented — player-controlled promotion:** eligible employees receive a time-limited promotion offer at annual review; the player accepts or declines. A stale offer cannot promote a different job after a job change, and changing jobs clears the previous promotion offer.
+7. **Next — education and qualification integration:** localized curricula, regulated licenses, credential expiry/renewal, apprenticeships and more detailed career-specific qualification gates.
+8. **Next — workplace depth:** employer structures, real vacancies, workplace decisions, performance outcomes, layoffs, and career stability.
+9. **Later — compensation depth:** monthly payroll, conditional bonuses, benefits, and negotiation only when the finance and employer rules are ready.
 
 ## Out of scope for the initial career preview
 
