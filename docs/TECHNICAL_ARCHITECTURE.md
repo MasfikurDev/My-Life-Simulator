@@ -298,3 +298,18 @@ The Svelte UI uses a small in-repository design system rather than a third-party
 
 
 The legacy UI color migration is complete: all shared app and workspace CSS color declarations consume semantic tokens from `web/src/styles/tokens.scss` and `web/src/styles/themes.scss`. Preserve this contract when adding styles; avoid hard-coded palette colors outside intentional artwork or theme-preview swatches.
+
+
+## Data-driven gameplay and presentation
+
+The approved target is maximum practical data control over the authored gameplay experience—not only catalogues. Versioned JSON definitions should ultimately control player-facing text, labels, button/action descriptors, contextual visibility, stat/resource metadata, requirements, choices, costs, rewards, delayed/recurring consequences, progression and unlocks. Adding or tuning a supported action should not require a one-off screen or hardcoded button.
+
+The UI renders validated descriptors using a finite set of approved Svelte components and layout patterns. It does not execute arbitrary markup from content or own gameplay rules. Stable action IDs are dispatched to pure TypeScript domain systems, which revalidate eligibility and affordability before applying an atomic result. Costs and rewards use typed stat/resource/effect identifiers and must flow through the owning domain APIs—for example, money through Finance's transaction path—not direct arbitrary Character-field mutation.
+
+TypeScript remains responsible for contracts, runtime validation, rendering, domain state transitions, complex formulas, simulation orchestration, transaction integrity, and new mechanics that cannot be expressed through supported declarative rules. JSON is not a general-purpose programming language. Content versions remain separate from character save schema versions; catalogue changes alone should not force save rewrites.
+
+The first migrated catalogue is Education. Its programme definitions, entry thresholds, age-based prerequisite alternatives, fields, tuition, duration, and subjects live in `web/src/lib/content/education-programs.json`. `education-content.ts` validates the version, required fields, ranges, duplicate IDs, supported education levels, and prerequisite references. `education.ts` consumes that validated catalogue and continues to own enrollment and academic simulation. Existing programme IDs and character save fields are preserved.
+
+The architecture contract and staged migration plan are in [Data-Driven Content Architecture](DATA_DRIVEN_CONTENT.md).
+
+Content dependency propagation is mandatory: each configurable definition has one authoritative validated registry entry, and dependent screens, projections, eligibility explanations, costs, rewards, and simulation paths resolve through that source or its owning domain API. Do not duplicate content in consumer components or fall back to stale literals. Derived trees and listings must be generated from catalogue definitions and authoritative character state. Content changes take effect on the next build/load without manual synchronization; unsupported engine capabilities must be identified and implemented once in TypeScript before content can use them. Historical records and already-agreed commitments retain their original snapshots.

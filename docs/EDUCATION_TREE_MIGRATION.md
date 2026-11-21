@@ -12,7 +12,7 @@ The tree is a view of the education system. It is not a second education engine 
 
 ## Migration rules
 
-- Keep `education.ts` authoritative for programmes, enrollment eligibility, weekly academic resolution, grades, completion and qualification awards.
+- Keep the versioned JSON catalogue in `web/src/lib/content/education-programs.json` authoritative for programme definitions; `education-content.ts` validates it. Keep `education.ts` authoritative for enrollment eligibility, weekly academic resolution, grades, completion and qualification awards.
 - Derive tree state from existing character data: education records, active enrollment, academic results, qualifications, age and relevant attributes.
 - Do not add duplicated persisted tree progress or require a save migration for a read-only projection.
 - Keep real prerequisites distinct from optional/parallel routes. A visual connection must not silently become an enrollment requirement. Early development and preschool are optional; primary school does not require either.

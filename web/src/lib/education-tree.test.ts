@@ -58,6 +58,23 @@ describe('education progression tree', () => {
     expect(completed.qualifications?.some((item) => item.programId === 'professional-certificate')).toBe(true);
   });
 
+  it('keeps progression-tree availability and eligibility explanations aligned with the education domain', () => {
+    const ageFallback = createCharacter('Student', 12);
+    const tree = getEducationTree(ageFallback);
+    expect(tree.nodes.find((node) => node.id === 'lower-secondary')?.status).toBe('available');
+    const tooYoung = getEducationTree(createCharacter('Student', 11));
+    expect(tooYoung.nodes.find((node) => node.id === 'lower-secondary')?.reason).toContain('Available from age');
+  });
+
+  it('derives optional progression connections from the programme definitions', () => {
+    const tree = getEducationTree(createCharacter('Adult', 30));
+    for (const program of EDUCATION_PROGRAMS) {
+      for (const connection of program.treeConnections ?? []) {
+        expect(tree.edges).toContainEqual({ from: connection.from, to: program.id, style: connection.style });
+      }
+    }
+  });
+
   it('keeps parallel education routes distinct instead of forcing every credential into one chain', () => {
     const tree = getEducationTree(createCharacter('Adult', 30));
     expect(tree.edges).toContainEqual({ from: 'upper-secondary', to: 'bachelor-degree', style: 'required' });

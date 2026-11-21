@@ -1,58 +1,38 @@
 import type { AcademicResult, Character, EducationEnrollment, EducationLevel, EducationRecord, EducationTaskType, Qualification } from './types';
+import { EDUCATION_PROGRAMS as educationPrograms } from './education-content';
+import type { EducationProgramDefinition } from './education-content';
 
 export interface EducationTaskSelection { taskType: EducationTaskType; subjectId?: string; }
 
-export interface EducationProgram {
-  id: string;
-  title: string;
-  institutionType: string;
-  level: EducationLevel;
-  minAge: number;
-  maxAge: number;
-  durationWeeks: number;
-  tuition: number;
-  fieldOptions: string[];
-  prerequisite?: EducationLevel;
-  minIntelligence?: number;
-  minFocus?: number;
-  minDiscipline?: number;
-}
+export type EducationProgram = EducationProgramDefinition;
+export { EDUCATION_PROGRAMS } from './education-content';
 
 
-export const EDUCATION_PROGRAMS: EducationProgram[] = [
-  { id: 'early-development', title: 'Play & discovery', institutionType: 'Early childhood care', level: 'early-learning', minAge: 0, maxAge: 2, durationWeeks: 104, tuition: 0, fieldOptions: ['Play & discovery', 'Language & stories', 'Movement & coordination'] },
-  { id: 'early-learning', title: 'Early learning & preschool', institutionType: 'Preschool', level: 'early-learning', minAge: 3, maxAge: 5, durationWeeks: 32, tuition: 0, fieldOptions: ['Foundations'] },
-  { id: 'primary-school', title: 'Primary school', institutionType: 'Public school', level: 'primary', minAge: 6, maxAge: 11, durationWeeks: 240, tuition: 0, fieldOptions: ['General studies'] },
-  { id: 'lower-secondary', title: 'Lower secondary school', institutionType: 'Secondary school', level: 'lower-secondary', minAge: 12, maxAge: 14, durationWeeks: 120, tuition: 0, fieldOptions: ['General studies', 'Science', 'Humanities', 'Business studies'], prerequisite: 'primary' },
-  { id: 'upper-secondary', title: 'Upper secondary school', institutionType: 'Secondary school / college', level: 'upper-secondary', minAge: 15, maxAge: 19, durationWeeks: 120, tuition: 0, fieldOptions: ['Science', 'Humanities', 'Business studies', 'Arts'], prerequisite: 'lower-secondary' },
-  { id: 'vocational-diploma', title: 'Vocational diploma', institutionType: 'Technical institute', level: 'vocational', minAge: 16, maxAge: 120, durationWeeks: 64, tuition: 360, fieldOptions: ['Electrical trades', 'Construction', 'Hospitality', 'Automotive', 'Information technology', 'Healthcare support'], minIntelligence: 35, minDiscipline: 35 },
-  { id: 'college-associate', title: 'College diploma / associate degree', institutionType: 'College', level: 'associate', minAge: 18, maxAge: 120, durationWeeks: 96, tuition: 620, fieldOptions: ['Business', 'Computing', 'Engineering', 'Health sciences', 'Arts'], minIntelligence: 45, minFocus: 40, prerequisite: 'upper-secondary' },
-  { id: 'bachelor-degree', title: "Bachelor's degree", institutionType: 'University', level: 'bachelor', minAge: 18, maxAge: 120, durationWeeks: 160, tuition: 980, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Medicine & health sciences', 'Law', 'Education', 'Natural sciences', 'Social sciences', 'Arts'], minIntelligence: 50, minFocus: 45, minDiscipline: 40, prerequisite: 'upper-secondary' },
-  { id: 'masters-degree', title: "Master's degree", institutionType: 'University / graduate school', level: 'master', minAge: 21, maxAge: 120, durationWeeks: 80, tuition: 1250, fieldOptions: ['Computer science', 'Engineering', 'Business', 'Public health', 'Law', 'Education', 'Research sciences'], minIntelligence: 60, minFocus: 55, minDiscipline: 55, prerequisite: 'bachelor' },
-  { id: 'doctoral-degree', title: 'Doctoral / PhD programme', institutionType: 'Graduate research school', level: 'doctorate', minAge: 24, maxAge: 120, durationWeeks: 160, tuition: 1600, fieldOptions: ['Computing research', 'Engineering research', 'Medical research', 'Business research', 'Natural sciences', 'Social sciences'], minIntelligence: 70, minFocus: 65, minDiscipline: 65, prerequisite: 'master' },
-  { id: 'professional-specialist', title: 'Professional specialist programme', institutionType: 'Professional institute', level: 'professional-specialist', minAge: 21, maxAge: 120, durationWeeks: 48, tuition: 840, fieldOptions: ['Project management', 'Cybersecurity', 'Accounting', 'Teaching', 'Clinical specialization', 'Data science'], minIntelligence: 55, minFocus: 50, minDiscipline: 50, prerequisite: 'bachelor' },
-  { id: 'professional-certificate', title: 'Professional certificate course', institutionType: 'Training provider', level: 'professional-specialist', minAge: 16, maxAge: 120, durationWeeks: 12, tuition: 240, fieldOptions: ['Digital skills', 'Programming', 'First aid', 'Workplace safety', 'Communication', 'Small business'], minFocus: 35, minDiscipline: 35 }
-];
 
 function completedLevels(character: Character): Set<EducationLevel> {
   return new Set((character.educationRecords ?? []).filter((record) => record.status === 'completed').map((record) => record.level));
 }
+export interface EducationProgramAvailability { available: boolean; reason: string; }
+
+export function getEducationProgramAvailability(character: Character, program: EducationProgram): EducationProgramAvailability {
+  if (!program.enabled) return { available: false, reason: 'This programme is not currently offered.' };
+  if (character.age < program.minAge) return { available: false, reason: `Available from age ${program.minAge}.` };
+  if (character.age > program.maxAge) return { available: false, reason: 'This programme is no longer age-eligible.' };
+  if (program.minIntelligence !== undefined && character.intelligence < program.minIntelligence) return { available: false, reason: `Intelligence ${program.minIntelligence} required.` };
+  if (program.minFocus !== undefined && (character.focus ?? 50) < program.minFocus) return { available: false, reason: `Focus ${program.minFocus} required.` };
+  if (program.minDiscipline !== undefined && (character.discipline ?? 50) < program.minDiscipline) return { available: false, reason: `Discipline ${program.minDiscipline} required.` };
+  if (program.prerequisite && !completedLevels(character).has(program.prerequisite) &&
+      !(program.prerequisiteMinAge !== undefined && character.age >= program.prerequisiteMinAge)) {
+    return { available: false, reason: `Complete ${program.prerequisite.replaceAll('-', ' ')} first.` };
+  }
+  return { available: true, reason: 'Entry requirements met.' };
+}
+
 export function getAvailableEducationPrograms(character: Character): EducationProgram[] {
-  const completed = completedLevels(character);
-  return EDUCATION_PROGRAMS.filter((program) => {
-    if (character.age < program.minAge || character.age > program.maxAge) return false;
-    if (program.minIntelligence && character.intelligence < program.minIntelligence) return false;
-    if (program.minFocus && (character.focus ?? 50) < program.minFocus) return false;
-    if (program.minDiscipline && (character.discipline ?? 50) < program.minDiscipline) return false;
-    if (!program.prerequisite || completed.has(program.prerequisite)) return true;
-    if (program.prerequisite === 'primary') return character.age >= 12;
-    if (program.prerequisite === 'lower-secondary') return character.age >= 15;
-    if (program.prerequisite === 'upper-secondary') return character.age >= 18;
-    return false;
-  });
+  return educationPrograms.filter((program) => getEducationProgramAvailability(character, program).available);
 }
 export function getEducationProgram(programId: string): EducationProgram | undefined {
-  return EDUCATION_PROGRAMS.find((program) => program.id === programId);
+  return educationPrograms.find((program) => program.id === programId);
 }
 export function enrollInEducation(character: Character, programId: string, field: string): { character: Character; issue: string | null } {
   const program = getEducationProgram(programId);
@@ -66,9 +46,7 @@ export function enrollInEducation(character: Character, programId: string, field
   const enrollment: EducationEnrollment = {
     recordId: id, status: 'enrolled', programId, institution: program.institutionType, level: program.level, field, startedAtAge: character.age,
     tuitionPaid: tuition, weeksCompleted: 0, totalWeeks: program.durationWeeks, grade: 65, attendance: 100,
-    subjects: (program.id === 'early-development' ? ['Language & stories', 'Movement', 'Play & discovery'] : program.level === 'primary' || program.level === 'early-learning' ? ['Literacy', 'Numeracy', 'Discovery'] :
-      program.level === 'lower-secondary' || program.level === 'upper-secondary' ? ['Core studies', field, 'Communication'] :
-      ['Core theory', field, 'Practical work']).map((name, index) => ({ id: 'subject-' + index, name, grade: 65 }))
+    subjects: program.subjects.map((name, index) => ({ id: 'subject-' + index, name: name.replace('{field}', field), grade: 65 }))
   };
   const record: EducationRecord = { id, level: program.level, institution: program.institutionType, field, startedAtAge: character.age, status: 'enrolled' };
   const next: Character = {

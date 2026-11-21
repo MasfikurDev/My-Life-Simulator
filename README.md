@@ -25,6 +25,7 @@ The canonical gameplay clock is:
 - [Paper playthrough log](docs/PAPER_PLAYTHROUGH_LOG.md) — source-informed weekly paper run and observed progression issues.
 - [Visual design](docs/VISUAL_DESIGN.md)
 - [Technical architecture](docs/TECHNICAL_ARCHITECTURE.md)
+- [Data-driven content architecture](docs/DATA_DRIVEN_CONTENT.md)
 - [CI and delivery](docs/CI_CD.md)
 - [GitHub repository settings](docs/REPOSITORY_SETTINGS.md)
 - [Development lessons and reliability guardrails](docs/DEVELOPMENT_LESSONS.md)
