@@ -24,6 +24,7 @@ function validateRole(value: unknown, index: number): CareerRole {
     if (!isText(value[key])) throw new Error(`${label} has an invalid ${key}.`);
   }
   if (!PATHS.includes(value.pathId as CareerPathId)) throw new Error(`${label} has an unsupported career path.`);
+  if (!isText(value.skillId) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.skillId)) throw new Error(`${label} has an invalid skillId.`);
   if (!isInteger(value.level, 1, 100)) throw new Error(`${label} has an invalid level.`);
   if (!isInteger(value.minAge, 0, 120) || !isInteger(value.maxAge, 0, 120) || value.minAge > value.maxAge) {
     throw new Error(`${label} has an invalid age range.`);
@@ -49,7 +50,7 @@ function validateRole(value: unknown, index: number): CareerRole {
   }
   if (value.nextRoleId !== undefined && !isText(value.nextRoleId)) throw new Error(`${label} has an invalid nextRoleId.`);
   return {
-    id: value.id as string, pathId: value.pathId as CareerPathId, pathName: '',
+    id: value.id as string, pathId: value.pathId as CareerPathId, pathName: '', skillId: value.skillId as string,
     title: value.title as string, level: value.level as number, description: value.description as string,
     minAge: value.minAge as number, maxAge: value.maxAge as number,
     minIntelligence: value.minIntelligence as number, minExperienceYears: value.minExperienceYears as number,
