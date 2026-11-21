@@ -56,6 +56,7 @@ describe('pursuit-based activity rewards', () => {
     };
     const result = performActivity(character, 'career');
     expect(result.skills?.technology).toBeGreaterThan(getSkillLevel(character, 'technology'));
+    expect(result.skills?.programming).toBeGreaterThan(getSkillLevel(character, 'programming'));
     expect(result.employment?.performance).toBeGreaterThan(character.employment!.performance);
   });
 
@@ -69,7 +70,8 @@ describe('pursuit-based activity rewards', () => {
       qualifications: [{ id: 'degree-qualification', name: "Bachelor's degree", category: 'degree' as const, issuer: 'University', field: 'Computer science', awardedAtAge: 22 }],
       skills: { technology: 50, programming: 44 }
     };
-    expect(getCareerRequirements(character, role).find((item) => item.label === 'Relevant skill')?.met).toBe(false);
+    expect(getCareerRequirements(character, role).find((item) => item.label === 'Relevant skill')?.met).toBe(true);
+    expect(getCareerRequirements(character, role).find((item) => item.label === 'Specialty skill')?.met).toBe(false);
     const improved = awardSkillProgress(character, 'programming', 1);
     expect(isEligibleForRole(improved, role)).toBe(true);
   });
