@@ -9,8 +9,11 @@ export function getEducationSkillId(field?: string): string {
 
 export function getEducationSubjectSkillId(subject?: string, field?: string): string | undefined {
   const normalized = (subject ?? '').trim().toLowerCase();
-  if (!normalized || normalized === (field ?? '').trim().toLowerCase()) return undefined;
-  return SKILL_CONTENT.educationSubjectSkills.get(normalized);
+  if (!normalized) return undefined;
+  const mapped = SKILL_CONTENT.educationSubjectSkills.get(normalized);
+  if (mapped) return mapped;
+  if (normalized === (field ?? '').trim().toLowerCase()) return undefined;
+  return undefined;
 }
 
 export function getCareerSkillId(path?: CareerPathId | null, roleId?: string): string {
