@@ -8,7 +8,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "General technical capability used by legacy technology-path employment records.",
+      "effect": "Supports technology-path career progression when a role has no more specific skill reference."
     },
     {
       "id": "engineering",
@@ -17,7 +19,9 @@
       "startingStats": [
         "intelligence",
         "discipline"
-      ]
+      ],
+      "description": "Engineering principles and applied technical problem-solving.",
+      "effect": "Improves results in engineering-focused education tasks."
     },
     {
       "id": "business",
@@ -26,7 +30,9 @@
       "startingStats": [
         "intelligence",
         "confidence"
-      ]
+      ],
+      "description": "Business concepts, planning and commercial decision-making.",
+      "effect": "Improves results in business-focused education tasks."
     },
     {
       "id": "healthcare",
@@ -35,7 +41,9 @@
       "startingStats": [
         "intelligence",
         "health"
-      ]
+      ],
+      "description": "Health sciences and support-care knowledge.",
+      "effect": "Improves results in healthcare-focused education tasks."
     },
     {
       "id": "practical-trades",
@@ -44,7 +52,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Hands-on trade methods and workplace safety knowledge.",
+      "effect": "Improves results in practical-trade education tasks."
     },
     {
       "id": "law",
@@ -53,7 +63,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Legal systems, rules and structured reasoning.",
+      "effect": "Improves results in law-focused education tasks."
     },
     {
       "id": "education",
@@ -62,7 +74,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Legacy education capability retained for existing saves.",
+      "effect": "Compatibility only; new education fields use the Teaching skill."
     },
     {
       "id": "science",
@@ -71,7 +85,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Scientific concepts and evidence-based reasoning.",
+      "effect": "Improves results in science and discovery education tasks."
     },
     {
       "id": "social-science",
@@ -80,7 +96,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Understanding people, communities and social systems.",
+      "effect": "Improves results in humanities and social-science education tasks."
     },
     {
       "id": "creative-arts",
@@ -89,7 +107,9 @@
       "startingStats": [
         "creativity",
         "focus"
-      ]
+      ],
+      "description": "Creative expression, visual arts and imaginative work.",
+      "effect": "Improves results in arts and creative-learning tasks."
     },
     {
       "id": "hospitality",
@@ -98,7 +118,9 @@
       "startingStats": [
         "socialSkills",
         "discipline"
-      ]
+      ],
+      "description": "Service and hospitality knowledge.",
+      "effect": "Improves results in hospitality education tasks."
     },
     {
       "id": "communication",
@@ -106,7 +128,9 @@
       "group": "core",
       "startingStats": [
         "socialSkills"
-      ]
+      ],
+      "description": "Expressing ideas, listening and maintaining relationships.",
+      "effect": "Improves family interaction outcomes and job-interview chances."
     },
     {
       "id": "operations",
@@ -115,7 +139,9 @@
       "startingStats": [
         "discipline",
         "focus"
-      ]
+      ],
+      "description": "Organizing work, coordinating processes and delivering reliably.",
+      "effect": "Contributes to business returns and supports operations career progression."
     },
     {
       "id": "customer-service",
@@ -124,7 +150,9 @@
       "startingStats": [
         "socialSkills",
         "confidence"
-      ]
+      ],
+      "description": "Helping customers, understanding needs and resolving service issues.",
+      "effect": "Supports customer-service career eligibility and job performance."
     },
     {
       "id": "sales",
@@ -133,7 +161,9 @@
       "startingStats": [
         "socialSkills",
         "confidence"
-      ]
+      ],
+      "description": "Presenting products, understanding customers and closing sales.",
+      "effect": "Supports sales career eligibility and job performance."
     },
     {
       "id": "physical-fitness",
@@ -141,7 +171,9 @@
       "group": "physical",
       "startingStats": [
         "fitness"
-      ]
+      ],
+      "description": "Physical conditioning developed through regular exercise.",
+      "effect": "Improves fitness gains from exercise."
     },
     {
       "id": "general-learning",
@@ -150,7 +182,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Broad learning capability used when no specific field applies.",
+      "effect": "Provides a baseline for self-directed study and unclassified learning fields."
     },
     {
       "id": "professional-practice",
@@ -159,7 +193,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "General professional capability used when no specific career path applies.",
+      "effect": "Supports career development for legacy or unclassified employment records."
     },
     {
       "id": "programming",
@@ -168,7 +204,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Writing, testing and maintaining software.",
+      "effect": "Supports software-development eligibility and improves relevant job performance."
     },
     {
       "id": "digital-literacy",
@@ -177,7 +215,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Using digital tools, software and technical systems effectively.",
+      "effect": "Supports IT-support eligibility and improves relevant job performance."
     },
     {
       "id": "electrical-work",
@@ -186,7 +226,9 @@
       "startingStats": [
         "intelligence",
         "discipline"
-      ]
+      ],
+      "description": "Electrical installation, maintenance and safe working practices.",
+      "effect": "Improves results in electrical-trades education tasks."
     },
     {
       "id": "construction",
@@ -195,7 +237,9 @@
       "startingStats": [
         "discipline",
         "fitness"
-      ]
+      ],
+      "description": "Construction methods, materials and practical building knowledge.",
+      "effect": "Improves results in construction education tasks."
     },
     {
       "id": "automotive",
@@ -204,7 +248,9 @@
       "startingStats": [
         "intelligence",
         "discipline"
-      ]
+      ],
+      "description": "Vehicle systems, maintenance and repair knowledge.",
+      "effect": "Improves results in automotive education tasks."
     },
     {
       "id": "accounting",
@@ -213,7 +259,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Recording transactions, tracking costs and interpreting accounts.",
+      "effect": "Improves results in accounting education tasks."
     },
     {
       "id": "entrepreneurship",
@@ -222,7 +270,9 @@
       "startingStats": [
         "intelligence",
         "confidence"
-      ]
+      ],
+      "description": "Starting, organizing and developing a business.",
+      "effect": "Contributes to business returns and improves through business ownership and management."
     },
     {
       "id": "first-aid",
@@ -231,7 +281,9 @@
       "startingStats": [
         "intelligence",
         "health"
-      ]
+      ],
+      "description": "Basic emergency response and immediate care.",
+      "effect": "Improves results in first-aid education tasks."
     },
     {
       "id": "clinical-practice",
@@ -240,7 +292,9 @@
       "startingStats": [
         "intelligence",
         "health"
-      ]
+      ],
+      "description": "Applied clinical knowledge and patient-care procedures.",
+      "effect": "Improves results in clinical-specialization education tasks."
     },
     {
       "id": "teaching",
@@ -249,7 +303,9 @@
       "startingStats": [
         "intelligence",
         "socialSkills"
-      ]
+      ],
+      "description": "Planning learning activities and explaining concepts to others.",
+      "effect": "Improves results in teaching and education-focused tasks."
     },
     {
       "id": "research",
@@ -258,7 +314,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Investigating questions, evaluating evidence and drawing conclusions.",
+      "effect": "Improves results in research-focused education tasks."
     },
     {
       "id": "literacy",
@@ -267,7 +325,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Reading, writing and understanding language.",
+      "effect": "Improves results in literacy and language-focused education tasks."
     },
     {
       "id": "numeracy",
@@ -276,7 +336,9 @@
       "startingStats": [
         "intelligence",
         "focus"
-      ]
+      ],
+      "description": "Working with numbers and quantitative reasoning.",
+      "effect": "Improves results in numeracy education tasks."
     },
     {
       "id": "movement-coordination",
@@ -285,7 +347,9 @@
       "startingStats": [
         "fitness",
         "discipline"
-      ]
+      ],
+      "description": "Motor control, balance and coordinated movement.",
+      "effect": "Improves results in movement-focused early-learning tasks."
     }
   ],
   "educationFieldMappings": [
@@ -478,6 +542,48 @@
     {
       "pathId": "sales",
       "skillId": "sales"
+    }
+  ],
+  "educationSubjectMappings": [
+    {
+      "subject": "Language & stories",
+      "skillId": "literacy"
+    },
+    {
+      "subject": "Movement",
+      "skillId": "movement-coordination"
+    },
+    {
+      "subject": "Play & discovery",
+      "skillId": "creative-arts"
+    },
+    {
+      "subject": "Literacy",
+      "skillId": "literacy"
+    },
+    {
+      "subject": "Numeracy",
+      "skillId": "numeracy"
+    },
+    {
+      "subject": "Discovery",
+      "skillId": "science"
+    },
+    {
+      "subject": "Core studies",
+      "skillId": "general-learning"
+    },
+    {
+      "subject": "Communication",
+      "skillId": "communication"
+    },
+    {
+      "subject": "Core theory",
+      "skillId": "general-learning"
+    },
+    {
+      "subject": "Practical work",
+      "skillId": "practical-trades"
     }
   ]
 }
