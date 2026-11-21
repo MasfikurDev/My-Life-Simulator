@@ -1,0 +1,45 @@
+{
+  "contentVersion": 1,
+  "employers": [
+    {
+      "id": "northstar-services",
+      "name": "Northstar Services",
+      "sector": "Customer services"
+    },
+    {
+      "id": "cedarline-group",
+      "name": "Cedarline Group",
+      "sector": "Business operations"
+    },
+    {
+      "id": "brightpath-systems",
+      "name": "Brightpath Systems",
+      "sector": "Technology"
+    },
+    {
+      "id": "harbor-and-field",
+      "name": "Harbor & Field",
+      "sector": "Retail and sales"
+    },
+    {
+      "id": "everwell-partners",
+      "name": "Everwell Partners",
+      "sector": "Professional services"
+    },
+    {
+      "id": "summit-works",
+      "name": "Summit Works",
+      "sector": "Business services"
+    },
+    {
+      "id": "bluegate-digital",
+      "name": "Bluegate Digital",
+      "sector": "Technology"
+    },
+    {
+      "id": "marketsquare-co",
+      "name": "MarketSquare Co.",
+      "sector": "Retail and sales"
+    }
+  ]
+}
