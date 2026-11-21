@@ -43,8 +43,13 @@ describe('education progression', () => {
     const numeracy = enrolled.educationEnrollment!.subjects.find((subject) => subject.name === 'Numeracy')!;
     expect(getEducationSubjectSkillId('Numeracy', 'Foundations')).toBe('numeracy');
     const before = getSkillLevel(enrolled, 'numeracy');
-    const result = resolveEducationWeek(enrolled, [{ taskType: 'assignment', subjectId: numeracy.id }], '2026-11-02', 2);
+    const task = [{ taskType: 'assignment' as const, subjectId: numeracy.id }];
+    const result = resolveEducationWeek(enrolled, task, '2026-11-02', 2);
     expect(getSkillLevel(result.character, 'numeracy')).toBeGreaterThan(before);
+    const novice = resolveEducationWeek({ ...enrolled, skills: { numeracy: 20 } }, task, '2026-11-02', 2);
+    const skilled = resolveEducationWeek({ ...enrolled, skills: { numeracy: 90 } }, task, '2026-11-02', 2);
+    expect(skilled.character.educationEnrollment!.subjects.find((subject) => subject.id === numeracy.id)!.grade)
+      .toBeGreaterThan(novice.character.educationEnrollment!.subjects.find((subject) => subject.id === numeracy.id)!.grade);
   });
 
   it('develops the enrolled field skill through weekly academic tasks', () => {
