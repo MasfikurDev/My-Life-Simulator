@@ -11,7 +11,8 @@ export type SkillAcquisitionTarget =
   | { kind: 'skill'; skillId: string }
   | { kind: 'education-field' }
   | { kind: 'education-subject' }
-  | { kind: 'career-role' };
+  | { kind: 'career-role' }
+  | { kind: 'career-role-specialty' };
 
 export interface SkillAcquisitionRule {
   id: string;
@@ -69,6 +70,9 @@ export function validateSkillAcquisitionContent(value: unknown): ValidatedSkillA
     } else if (target.kind === 'career-role' && item.source === 'activity' &&
       (item.action === 'work' || item.action === 'career')) {
       validatedTarget = { kind: 'career-role' };
+    } else if (target.kind === 'career-role-specialty' && item.source === 'activity' &&
+      (item.action === 'work' || item.action === 'career')) {
+      validatedTarget = { kind: 'career-role-specialty' };
     } else {
       throw new Error(`Skill acquisition rule ${item.id} has an invalid or unknown skill target.`);
     }
