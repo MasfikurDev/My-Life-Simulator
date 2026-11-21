@@ -1,5 +1,5 @@
 import type { AcademicResult, Character, EducationEnrollment, EducationLevel, EducationRecord, EducationTaskType, Qualification } from './types';
-import { applySkillAcquisition, getEducationSkillId, getSkillLevel } from './skills';
+import { applySkillAcquisition, getEducationSkillId, getEducationSubjectSkillId, getSkillLevel } from './skills';
 import { EDUCATION_PROGRAMS as educationPrograms } from './education-content';
 import type { EducationProgramDefinition } from './education-content';
 
@@ -108,14 +108,15 @@ export function resolveEducationWeek(character: Character, tasks: Array<Educatio
   // Attendance and sustainable workload affect course standing. Optional study tasks
   // improve the selected subject; there is no weekly quota or missed-task penalty.
   const change = -fatiguePenalty - workloadPenalty - attendanceGap;
-  const fieldSkillLevel = getSkillLevel(character, getEducationSkillId(enrollment.field));
-  const learningBonus = selections.length ? Math.max(-1, Math.min(2, Math.floor((fieldSkillLevel - 40) / 25))) : 0;
   const focusedSelections = selections.filter((task) => enrollment.subjects.some((subject) => subject.id === task.subjectId));
   const hasSubjectFocus = focusedSelections.length > 0;
   const subjects = enrollment.subjects.map((subject, index) => {
     const focusBonus = hasSubjectFocus
       ? focusedSelections.filter((task) => task.subjectId === subject.id).length
       : selections.length && index === enrollment.weeksCompleted % enrollment.subjects.length ? 1 : 0;
+    const subjectSkillId = getEducationSubjectSkillId(subject.name, enrollment.field) ?? getEducationSkillId(enrollment.field);
+    const subjectSkillLevel = getSkillLevel(character, subjectSkillId);
+    const learningBonus = selections.length ? Math.max(-1, Math.min(2, Math.floor((subjectSkillLevel - 40) / 25))) : 0;
     return { ...subject, grade: Math.max(0, Math.min(100, subject.grade + change + focusBonus + (focusBonus ? learningBonus : 0))) };
   });
   // Overall course grade is derived from actual subject results, not a separate quota score.
