@@ -104,7 +104,9 @@
       "annualSalaryMin": 22000,
       "annualSalaryMax": 35000,
       "nextRoleId": "operations-manager",
-      "skillId": "operations"
+      "skillId": "operations",
+      "specialtySkillId": "project-management",
+      "minSpecialtySkill": 35
     },
     {
       "id": "operations-manager",
@@ -122,7 +124,9 @@
       "minSkill": 55,
       "annualSalaryMin": 30000,
       "annualSalaryMax": 50000,
-      "skillId": "operations"
+      "skillId": "operations",
+      "specialtySkillId": "project-management",
+      "minSpecialtySkill": 50
     },
     {
       "id": "it-support",
@@ -144,7 +148,9 @@
       "annualSalaryMin": 18000,
       "annualSalaryMax": 30000,
       "nextRoleId": "software-developer",
-      "skillId": "digital-literacy"
+      "skillId": "technology",
+      "specialtySkillId": "digital-literacy",
+      "minSpecialtySkill": 30
     },
     {
       "id": "software-developer",
@@ -168,7 +174,9 @@
       "annualSalaryMin": 32000,
       "annualSalaryMax": 56000,
       "nextRoleId": "senior-developer",
-      "skillId": "programming"
+      "skillId": "technology",
+      "specialtySkillId": "programming",
+      "minSpecialtySkill": 45
     },
     {
       "id": "senior-developer",
@@ -186,7 +194,9 @@
       "minSkill": 70,
       "annualSalaryMin": 55000,
       "annualSalaryMax": 85000,
-      "skillId": "programming"
+      "skillId": "technology",
+      "specialtySkillId": "programming",
+      "minSpecialtySkill": 65
     },
     {
       "id": "sales-associate",
