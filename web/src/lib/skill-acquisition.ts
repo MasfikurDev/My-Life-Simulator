@@ -1,7 +1,7 @@
 import acquisitionContent from './content/skill-acquisition.json';
 import { SKILL_CONTENT } from './skill-content';
 
-export type SkillAcquisitionSource = 'activity' | 'education-task' | 'social' | 'family' | 'business' | 'work';
+export type SkillAcquisitionSource = 'activity' | 'education-task' | 'education-subject' | 'social' | 'family' | 'business' | 'work';
 export type SkillAcquisitionAction =
   | 'study' | 'exercise' | 'socialize' | 'work' | 'career'
   | 'assignment' | 'exam' | 'spend-time' | 'reach-out' | 'reconcile'
@@ -10,6 +10,7 @@ export type SkillAcquisitionAction =
 export type SkillAcquisitionTarget =
   | { kind: 'skill'; skillId: string }
   | { kind: 'education-field' }
+  | { kind: 'education-subject' }
   | { kind: 'career-role' };
 
 export interface SkillAcquisitionRule {
@@ -28,6 +29,7 @@ export interface ValidatedSkillAcquisitionContent {
 const ACTIONS: Record<SkillAcquisitionSource, readonly SkillAcquisitionAction[]> = {
   activity: ['study','exercise','socialize','work','career','apply'],
   'education-task': ['study','assignment','exam'],
+  'education-subject': ['study','assignment','exam'],
   social: ['spend-time'],
   family: ['spend-time','reach-out','reconcile','provide-support'],
   business: ['start','manage'],
@@ -62,6 +64,8 @@ export function validateSkillAcquisitionContent(value: unknown): ValidatedSkillA
       validatedTarget = { kind: 'skill', skillId: target.skillId };
     } else if (target.kind === 'education-field' && ((item.source === 'activity' && item.action === 'study') || item.source === 'education-task')) {
       validatedTarget = { kind: 'education-field' };
+    } else if (target.kind === 'education-subject' && item.source === 'education-subject') {
+      validatedTarget = { kind: 'education-subject' };
     } else if (target.kind === 'career-role' && item.source === 'activity' &&
       (item.action === 'work' || item.action === 'career')) {
       validatedTarget = { kind: 'career-role' };
