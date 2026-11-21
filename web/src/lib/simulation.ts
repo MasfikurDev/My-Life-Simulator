@@ -1025,7 +1025,7 @@ function getPlannedActivityReward(character: Character, item: PlannedActivity): 
     socialize: 'Communication skill, relationship quality and happiness',
     work: 'Income, role-relevant skill and work experience',
     'apply-job': 'Employment opportunity',
-    career: getSkillLabel(getCareerSkillId(character.employment?.careerPathId ?? character.careerPathId)) + ' skill, work performance and promotion readiness'
+    career: getSkillLabel(getCareerSkillId(character.employment?.careerPathId ?? character.careerPathId, character.employment?.roleId)) + ' skill, work performance and promotion readiness'
   } as Record<ActivityId, string>)[item.activityId as ActivityId] ?? 'Character progression';
 }
 
@@ -1658,7 +1658,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       break;
     case 'work':
       if (next.age < 16) return character;
-      applySkillProgress(next, getCareerSkillId(next.employment?.careerPathId ?? next.careerPathId), 1);
+      applySkillProgress(next, getCareerSkillId(next.employment?.careerPathId ?? next.careerPathId, next.employment?.roleId), 1);
       const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
       const roleFactor = next.employment ? 0.75 + next.employment.performance / 200 : 1;
       const baseShiftPay = next.employment ? Math.max(180 * scale, next.employment.annualSalary / 52 * 0.5) : 180 * scale;
