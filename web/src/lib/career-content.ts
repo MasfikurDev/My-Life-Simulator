@@ -25,6 +25,9 @@ function validateRole(value: unknown, index: number): CareerRole {
   }
   if (!PATHS.includes(value.pathId as CareerPathId)) throw new Error(`${label} has an unsupported career path.`);
   if (!isText(value.skillId) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.skillId)) throw new Error(`${label} has an invalid skillId.`);
+  if (value.specialtySkillId !== undefined && (!isText(value.specialtySkillId) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.specialtySkillId))) throw new Error(`${label} has an invalid specialtySkillId.`);
+  if (value.minSpecialtySkill !== undefined && !isInteger(value.minSpecialtySkill, 0, 100)) throw new Error(`${label} has an invalid minSpecialtySkill.`);
+  if (value.minSpecialtySkill !== undefined && !isText(value.specialtySkillId)) throw new Error(`${label} has a minSpecialtySkill without a specialtySkillId.`);
   if (!isInteger(value.level, 1, 100)) throw new Error(`${label} has an invalid level.`);
   if (!isInteger(value.minAge, 0, 120) || !isInteger(value.maxAge, 0, 120) || value.minAge > value.maxAge) {
     throw new Error(`${label} has an invalid age range.`);
@@ -33,7 +36,7 @@ function validateRole(value: unknown, index: number): CareerRole {
     throw new Error(`${label} has invalid knowledge or experience requirements.`);
   }
   if (typeof value.requiresHigherEducation !== 'boolean') throw new Error(`${label} has an invalid higher-education requirement.`);
-  for (const key of ['minDiscipline', 'minCreativity', 'minFocus', 'minSocialSkills', 'minConfidence', 'minSkill'] as const) {
+  for (const key of ['minDiscipline', 'minCreativity', 'minFocus', 'minSocialSkills', 'minConfidence', 'minSkill', 'minSpecialtySkill'] as const) {
     if (value[key] !== undefined && !isInteger(value[key], 0, 100)) throw new Error(`${label} has an invalid ${key} threshold.`);
   }
   for (const key of ['annualSalaryMin', 'annualSalaryMax'] as const) {
@@ -51,6 +54,8 @@ function validateRole(value: unknown, index: number): CareerRole {
   if (value.nextRoleId !== undefined && !isText(value.nextRoleId)) throw new Error(`${label} has an invalid nextRoleId.`);
   return {
     id: value.id as string, pathId: value.pathId as CareerPathId, pathName: '', skillId: value.skillId as string,
+    ...(value.specialtySkillId !== undefined ? { specialtySkillId: value.specialtySkillId as string } : {}),
+    ...(value.minSpecialtySkill !== undefined ? { minSpecialtySkill: value.minSpecialtySkill as number } : {}),
     title: value.title as string, level: value.level as number, description: value.description as string,
     minAge: value.minAge as number, maxAge: value.maxAge as number,
     minIntelligence: value.minIntelligence as number, minExperienceYears: value.minExperienceYears as number,
