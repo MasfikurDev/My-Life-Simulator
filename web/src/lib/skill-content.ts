@@ -12,6 +12,8 @@ export interface SkillDefinition {
   label: string;
   group: SkillGroup;
   startingStats: SkillStartingStat[];
+  description: string;
+  effect: string;
 }
 
 export interface ValidatedSkillContent {
@@ -19,6 +21,7 @@ export interface ValidatedSkillContent {
   skillById: ReadonlyMap<string, SkillDefinition>;
   skillLabels: ReadonlyMap<string, string>;
   educationFieldSkills: ReadonlyMap<string, string>;
+  educationSubjectSkills: ReadonlyMap<string, string>;
   careerPathSkills: ReadonlyMap<CareerPathId, string>;
   careerRoleSkills: ReadonlyMap<string, string>;
 }
@@ -36,7 +39,7 @@ function isText(value: unknown): value is string {
 export function validateSkillContent(value: unknown): ValidatedSkillContent {
   if (!isRecord(value) || value.contentVersion !== 1 ||
     !Array.isArray(value.skills) || value.skills.length === 0 ||
-    !Array.isArray(value.educationFieldMappings) || !Array.isArray(value.careerPathMappings)) {
+    !Array.isArray(value.educationFieldMappings) || !Array.isArray(value.educationSubjectMappings) || !Array.isArray(value.careerPathMappings)) {
     throw new Error('Skill content must use supported contentVersion 1 and contain skills and mappings.');
   }
 
@@ -45,7 +48,7 @@ export function validateSkillContent(value: unknown): ValidatedSkillContent {
   const skillLabels = new Map<string, string>();
   for (const [index, item] of value.skills.entries()) {
     if (!isRecord(item) || !isText(item.id) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(item.id) ||
-      !isText(item.label) || !GROUPS.includes(item.group as SkillGroup) ||
+      !isText(item.label) || !isText(item.description) || !isText(item.effect) || !GROUPS.includes(item.group as SkillGroup) ||
       !Array.isArray(item.startingStats) || item.startingStats.length === 0 ||
       !item.startingStats.every((stat) => STARTING_STATS.includes(stat as SkillStartingStat)) ||
       new Set(item.startingStats).size !== item.startingStats.length) {
@@ -53,7 +56,7 @@ export function validateSkillContent(value: unknown): ValidatedSkillContent {
     }
     if (skillById.has(item.id)) throw new Error(`Duplicate skill id: ${item.id}.`);
     const definition: SkillDefinition = {
-      id: item.id, label: item.label.trim(), group: item.group as SkillGroup,
+      id: item.id, label: item.label.trim(), group: item.group as SkillGroup, description: item.description.trim(), effect: item.effect.trim(),
       startingStats: [...item.startingStats] as SkillStartingStat[]
     };
     skillById.set(definition.id, definition);
@@ -72,6 +75,17 @@ export function validateSkillContent(value: unknown): ValidatedSkillContent {
     educationFieldSkills.set(field, item.skillId);
   }
 
+  const educationSubjectSkills = new Map<string, string>();
+  for (const [index, item] of value.educationSubjectMappings.entries()) {
+    if (!isRecord(item) || !isText(item.subject) || !isText(item.skillId)) {
+      throw new Error(`Education subject mapping at index ${index} is invalid.`);
+    }
+    const subject = item.subject.trim().toLowerCase();
+    if (educationSubjectSkills.has(subject)) throw new Error(`Duplicate education subject mapping: ${subject}.`);
+    if (!skillById.has(item.skillId)) throw new Error(`Education subject ${subject} references unknown skill ${item.skillId}.`);
+    educationSubjectSkills.set(subject, item.skillId);
+  }
+
   const careerPathSkills = new Map<CareerPathId, string>();
   for (const [index, item] of value.careerPathMappings.entries()) {
     const paths: readonly CareerPathId[] = ['customer-service','operations','technology','sales'];
@@ -88,17 +102,23 @@ export function validateSkillContent(value: unknown): ValidatedSkillContent {
     throw new Error('Skill content must define every supported career path exactly once.');
   }
 
-  return { skills, skillById, skillLabels, educationFieldSkills, careerPathSkills, careerRoleSkills: new Map() };
+  return { skills, skillById, skillLabels, educationFieldSkills, educationSubjectSkills, careerPathSkills, careerRoleSkills: new Map() };
 }
 
 export function validateSkillCoverage(
   content: ValidatedSkillContent,
   educationFields: readonly string[],
+  educationSubjects: readonly string[],
   careerRoles: readonly Pick<CareerRole, 'id' | 'skillId'>[]
 ): ValidatedSkillContent {
   for (const field of educationFields) {
     if (!content.educationFieldSkills.has(field.trim().toLowerCase())) {
       throw new Error(`Education field "${field}" has no skill mapping.`);
+    }
+  }
+  for (const subject of educationSubjects) {
+    if (!content.educationSubjectSkills.has(subject.trim().toLowerCase())) {
+      throw new Error(`Education subject "${subject}" has no skill mapping.`);
     }
   }
   const careerRoleSkills = new Map<string, string>();
@@ -113,4 +133,5 @@ export function validateSkillCoverage(
 }
 
 const educationFields = [...new Set(EDUCATION_PROGRAMS.flatMap((program) => program.fieldOptions))];
-export const SKILL_CONTENT = validateSkillCoverage(validateSkillContent(skillContent), educationFields, CAREER_ROLES);
+const educationSubjects = [...new Set(EDUCATION_PROGRAMS.flatMap((program) => program.subjects.filter((subject) => subject !== '{field}')))];
+export const SKILL_CONTENT = validateSkillCoverage(validateSkillContent(skillContent), educationFields, educationSubjects, CAREER_ROLES);
