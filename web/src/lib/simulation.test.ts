@@ -1265,12 +1265,14 @@ describe('life simulation', () => {
       currencyScale: 1,
       money: 1000,
       stress: 30,
+      intelligence: 50,
+      focus: 50,
       employment: { title: 'Analyst', type: 'full-time' as const, annualSalary: 52000, experienceYears: 1, performance: 100, promotions: 0, startedAtAge: 30 }
     };
     const worked = performActivity(worker, 'work');
-    expect(worked.money).toBe(1633);
-    expect(worked.financialTransactions?.[0]).toMatchObject({ type: 'income', amount: 633 });
-    expect(worked.history[0].description).toContain('633');
+    expect(worked.money).toBe(1625);
+    expect(worked.financialTransactions?.[0]).toMatchObject({ type: 'income', amount: 625 });
+    expect(worked.history[0].description).toContain('625');
   });
 
   it('filters job listings to the selected career path and explains recruitment rejection reasons', () => {
