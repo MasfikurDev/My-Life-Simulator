@@ -100,9 +100,13 @@ export function validateEducationContent(value: unknown): EducationProgramDefini
   }
   const programs = value.programs.map(validateProgram);
   const ids = new Set<string>();
+  const levels = new Set(programs.map((program) => program.level));
   for (const program of programs) {
     if (ids.has(program.id)) throw new Error(`Duplicate education program id: ${program.id}.`);
     ids.add(program.id);
+    if (program.prerequisite && !levels.has(program.prerequisite)) {
+      throw new Error(`Education program ${program.id} references missing prerequisite level ${program.prerequisite}.`);
+    }
   }
   return programs;
 }
