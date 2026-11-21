@@ -58,6 +58,13 @@ describe('versioned education content', () => {
     expect(() => validateEducationContent({ contentVersion: 1, programs: [program] })).toThrow(/missing prerequisite level/);
   });
 
+  it('rejects progression links that reference missing programme IDs', () => {
+    expect(() => validateEducationContent({
+      contentVersion: 1,
+      programs: [{ ...EDUCATION_PROGRAMS[0], treeConnections: [{ from: 'missing-program', style: 'alternative' }] }]
+    })).toThrow(/tree connection/);
+  });
+
   it('rejects invalid ranges, thresholds, and empty fields', () => {
     const program = { ...EDUCATION_PROGRAMS[0], minAge: 8, maxAge: 2 };
     expect(() => validateEducationContent({ contentVersion: 1, programs: [program] })).toThrow(/age range/);
