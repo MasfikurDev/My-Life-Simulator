@@ -7,8 +7,8 @@ describe('career content', () => {
     expect(CAREER_ROLES).toHaveLength(12);
     expect(CAREER_ROLES.find((role) => role.id === 'service-assistant')?.pathName).toBe('Customer service');
     expect(CAREER_ROLES.map((role) => role.id)).toContain('software-developer');
-    expect(CAREER_ROLES.find((role) => role.id === 'software-developer')?.skillId).toBe('programming');
-    expect(CAREER_ROLES.find((role) => role.id === 'it-support')?.skillId).toBe('digital-literacy');
+    expect(CAREER_ROLES.find((role) => role.id === 'software-developer')).toMatchObject({ skillId: 'technology', specialtySkillId: 'programming', minSpecialtySkill: 45 });
+    expect(CAREER_ROLES.find((role) => role.id === 'it-support')).toMatchObject({ skillId: 'technology', specialtySkillId: 'digital-literacy', minSpecialtySkill: 30 });
     expect(CAREER_ROLES.find((role) => role.id === 'it-support')).toMatchObject({
       requiredQualificationFields: ['Digital skills', 'Programming'],
       requiredQualificationCategory: 'certificate'
@@ -19,6 +19,11 @@ describe('career content', () => {
     expect(() => validateCareerContent({ contentVersion: 2, roles: careerContent.roles })).toThrow(/contentVersion/);
     const duplicate = { ...careerContent, roles: [careerContent.roles[0], careerContent.roles[0]] };
     expect(() => validateCareerContent(duplicate)).toThrow(/Duplicate career role id/);
+  });
+
+  it('rejects malformed specialty skill references', () => {
+    const invalidSpecialty = { ...careerContent.roles[0], specialtySkillId: 'Not A Skill' };
+    expect(() => validateCareerContent({ ...careerContent, roles: [invalidSpecialty] })).toThrow(/specialtySkillId/);
   });
 
   it('rejects roles without a canonical skill reference', () => {
