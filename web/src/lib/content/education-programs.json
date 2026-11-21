@@ -1,0 +1,296 @@
+{
+  "contentVersion": 1,
+  "programs": [
+    {
+      "id": "early-development",
+      "title": "Play & discovery",
+      "institutionType": "Early childhood care",
+      "level": "early-learning",
+      "minAge": 0,
+      "maxAge": 2,
+      "durationWeeks": 104,
+      "tuition": 0,
+      "fieldOptions": [
+        "Play & discovery",
+        "Language & stories",
+        "Movement & coordination"
+      ],
+      "subjects": [
+        "Language & stories",
+        "Movement",
+        "Play & discovery"
+      ]
+    },
+    {
+      "id": "early-learning",
+      "title": "Early learning & preschool",
+      "institutionType": "Preschool",
+      "level": "early-learning",
+      "minAge": 3,
+      "maxAge": 5,
+      "durationWeeks": 32,
+      "tuition": 0,
+      "fieldOptions": [
+        "Foundations"
+      ],
+      "subjects": [
+        "Literacy",
+        "Numeracy",
+        "Discovery"
+      ]
+    },
+    {
+      "id": "primary-school",
+      "title": "Primary school",
+      "institutionType": "Public school",
+      "level": "primary",
+      "minAge": 6,
+      "maxAge": 11,
+      "durationWeeks": 240,
+      "tuition": 0,
+      "fieldOptions": [
+        "General studies"
+      ],
+      "subjects": [
+        "Literacy",
+        "Numeracy",
+        "Discovery"
+      ]
+    },
+    {
+      "id": "lower-secondary",
+      "title": "Lower secondary school",
+      "institutionType": "Secondary school",
+      "level": "lower-secondary",
+      "minAge": 12,
+      "maxAge": 14,
+      "durationWeeks": 120,
+      "tuition": 0,
+      "fieldOptions": [
+        "General studies",
+        "Science",
+        "Humanities",
+        "Business studies"
+      ],
+      "prerequisite": "primary",
+      "prerequisiteMinAge": 12,
+      "subjects": [
+        "Core studies",
+        "{field}",
+        "Communication"
+      ]
+    },
+    {
+      "id": "upper-secondary",
+      "title": "Upper secondary school",
+      "institutionType": "Secondary school / college",
+      "level": "upper-secondary",
+      "minAge": 15,
+      "maxAge": 19,
+      "durationWeeks": 120,
+      "tuition": 0,
+      "fieldOptions": [
+        "Science",
+        "Humanities",
+        "Business studies",
+        "Arts"
+      ],
+      "prerequisite": "lower-secondary",
+      "prerequisiteMinAge": 15,
+      "subjects": [
+        "Core studies",
+        "{field}",
+        "Communication"
+      ]
+    },
+    {
+      "id": "vocational-diploma",
+      "title": "Vocational diploma",
+      "institutionType": "Technical institute",
+      "level": "vocational",
+      "minAge": 16,
+      "maxAge": 120,
+      "durationWeeks": 64,
+      "tuition": 360,
+      "fieldOptions": [
+        "Electrical trades",
+        "Construction",
+        "Hospitality",
+        "Automotive",
+        "Information technology",
+        "Healthcare support"
+      ],
+      "minIntelligence": 35,
+      "minDiscipline": 35,
+      "subjects": [
+        "Core theory",
+        "{field}",
+        "Practical work"
+      ]
+    },
+    {
+      "id": "college-associate",
+      "title": "College diploma / associate degree",
+      "institutionType": "College",
+      "level": "associate",
+      "minAge": 18,
+      "maxAge": 120,
+      "durationWeeks": 96,
+      "tuition": 620,
+      "fieldOptions": [
+        "Business",
+        "Computing",
+        "Engineering",
+        "Health sciences",
+        "Arts"
+      ],
+      "minIntelligence": 45,
+      "minFocus": 40,
+      "prerequisite": "upper-secondary",
+      "prerequisiteMinAge": 18,
+      "subjects": [
+        "Core theory",
+        "{field}",
+        "Practical work"
+      ]
+    },
+    {
+      "id": "bachelor-degree",
+      "title": "Bachelor's degree",
+      "institutionType": "University",
+      "level": "bachelor",
+      "minAge": 18,
+      "maxAge": 120,
+      "durationWeeks": 160,
+      "tuition": 980,
+      "fieldOptions": [
+        "Computer science",
+        "Engineering",
+        "Business",
+        "Medicine & health sciences",
+        "Law",
+        "Education",
+        "Natural sciences",
+        "Social sciences",
+        "Arts"
+      ],
+      "minIntelligence": 50,
+      "minFocus": 45,
+      "minDiscipline": 40,
+      "prerequisite": "upper-secondary",
+      "prerequisiteMinAge": 18,
+      "subjects": [
+        "Core theory",
+        "{field}",
+        "Practical work"
+      ]
+    },
+    {
+      "id": "masters-degree",
+      "title": "Master's degree",
+      "institutionType": "University / graduate school",
+      "level": "master",
+      "minAge": 21,
+      "maxAge": 120,
+      "durationWeeks": 80,
+      "tuition": 1250,
+      "fieldOptions": [
+        "Computer science",
+        "Engineering",
+        "Business",
+        "Public health",
+        "Law",
+        "Education",
+        "Research sciences"
+      ],
+      "minIntelligence": 60,
+      "minFocus": 55,
+      "minDiscipline": 55,
+      "prerequisite": "bachelor",
+      "subjects": [
+        "Advanced theory",
+        "{field}",
+        "Research"
+      ]
+    },
+    {
+      "id": "doctoral-degree",
+      "title": "Doctoral / PhD programme",
+      "institutionType": "Graduate research school",
+      "level": "doctorate",
+      "minAge": 24,
+      "maxAge": 120,
+      "durationWeeks": 160,
+      "tuition": 1600,
+      "fieldOptions": [
+        "Computing research",
+        "Engineering research",
+        "Medical research",
+        "Business research",
+        "Natural sciences",
+        "Social sciences"
+      ],
+      "minIntelligence": 70,
+      "minFocus": 65,
+      "minDiscipline": 65,
+      "prerequisite": "master",
+      "subjects": [
+        "Research methods",
+        "{field}",
+        "Dissertation"
+      ]
+    },
+    {
+      "id": "professional-specialist",
+      "title": "Professional specialist programme",
+      "institutionType": "Professional institute",
+      "level": "professional-specialist",
+      "minAge": 21,
+      "maxAge": 120,
+      "durationWeeks": 48,
+      "tuition": 840,
+      "fieldOptions": [
+        "Project management",
+        "Cybersecurity",
+        "Accounting",
+        "Teaching",
+        "Clinical specialization",
+        "Data science"
+      ],
+      "minIntelligence": 55,
+      "minFocus": 50,
+      "minDiscipline": 50,
+      "prerequisite": "bachelor",
+      "subjects": [
+        "Professional theory",
+        "{field}",
+        "Applied practice"
+      ]
+    },
+    {
+      "id": "professional-certificate",
+      "title": "Professional certificate course",
+      "institutionType": "Training provider",
+      "level": "professional-specialist",
+      "minAge": 16,
+      "maxAge": 120,
+      "durationWeeks": 12,
+      "tuition": 240,
+      "fieldOptions": [
+        "Digital skills",
+        "Programming",
+        "First aid",
+        "Workplace safety",
+        "Communication",
+        "Small business"
+      ],
+      "minFocus": 35,
+      "minDiscipline": 35,
+      "subjects": [
+        "Foundations",
+        "{field}",
+        "Practical assessment"
+      ]
+    }
+  ]
+}
