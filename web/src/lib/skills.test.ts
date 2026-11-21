@@ -143,7 +143,7 @@ describe('skill gameplay effects', () => {
 
   it('improves academic task results through the enrolled field skill', () => {
     const enrolled = enrollInEducation({
-      ...createCharacter('Student', 25), intelligence: 85, focus: 85, discipline: 85
+      ...createCharacter('Student', 25), money: 100000, intelligence: 85, focus: 85, discipline: 85
     }, 'bachelor-degree', 'Computer science').character;
     const novice = resolveEducationWeek({ ...enrolled, skills: { programming: 20 } }, ['assignment'], '2026-11-02', 4);
     const skilled = resolveEducationWeek({ ...enrolled, skills: { programming: 90 } }, ['assignment'], '2026-11-02', 4);
