@@ -67,7 +67,7 @@ This is a dated validation baseline, not a guarantee about later commits or depl
 2. **Financial cadence:** move supported recurring obligations and payroll to explicit due dates; add monthly statements; guarantee exactly-once processing across month/year boundaries and define insufficient-funds behavior.
 3. **Integrated scenario testing:** run repeatable multi-week scenarios for school-age, teen, employed, unemployed, independent-household, family-responsibility, and later-life characters.
 4. **Family lifecycle:** partnership, separation, parenthood/adoption, guardianship, dependants, and caregiving—only with complete graph, time, finance, health, persistence, and history contracts.
-5. **Workplace depth:** employer state, persistent vacancies, workplace decisions, job security, role-specific skills, benefits, bonuses, and realistic compensation.
+5. **Workplace depth:** employer state, persistent vacancies, workplace decisions, job security, benefits, bonuses, and realistic compensation. The initial skill catalogue, acquisition rules, role-specific career links and current gameplay effects are implemented in the open skill-system PR.
 6. **Later-life completion:** retirement, mortality, terminal character state, final life summary, estate/legacy, then full birth-to-death balancing.
 7. **Replayability:** varied authored events, meaningful life paths, balance, edge cases, and repeatable full-life playthroughs.
 
