@@ -11,9 +11,7 @@ export function getEducationSubjectSkillId(subject?: string, field?: string): st
   const normalized = (subject ?? '').trim().toLowerCase();
   if (!normalized) return undefined;
   const mapped = SKILL_CONTENT.educationSubjectSkills.get(normalized);
-  if (mapped) return mapped;
-  if (normalized === (field ?? '').trim().toLowerCase()) return undefined;
-  return undefined;
+  return mapped && mapped !== getEducationSkillId(field) ? mapped : undefined;
 }
 
 export function getCareerSkillId(path?: CareerPathId | null, roleId?: string): string {
