@@ -1025,9 +1025,9 @@ function getPlannedActivityReward(character: Character, item: PlannedActivity): 
     study: character.educationEnrollment ? getSkillLabel(getEducationSkillId(character.educationEnrollment.field)) + ' knowledge, intelligence and learning progress' : 'Self-directed learning capability, intelligence and focus',
     exercise: 'Physical fitness skill, health, stamina and lower stress',
     socialize: 'Communication skill, relationship quality and happiness',
-    work: 'Income, role-relevant skill and work experience',
+    work: 'Income, primary and specialty career skills, and work experience',
     'apply-job': 'Employment opportunity',
-    career: getSkillLabel(getCareerSkillId(character.employment?.careerPathId ?? character.careerPathId, character.employment?.roleId)) + ' skill, work performance and promotion readiness'
+    career: getSkillLabel(getCareerSkillId(character.employment?.careerPathId ?? character.careerPathId, character.employment?.roleId)) + (getCareerSpecialtySkillId(character.employment?.roleId) ? ' and ' + getSkillLabel(getCareerSpecialtySkillId(character.employment?.roleId)!) : '') + ' skills, work performance and promotion readiness'
   } as Record<ActivityId, string>)[item.activityId as ActivityId] ?? 'Character progression';
 }
 
