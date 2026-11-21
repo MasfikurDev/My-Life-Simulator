@@ -298,3 +298,12 @@ The Svelte UI uses a small in-repository design system rather than a third-party
 
 
 The legacy UI color migration is complete: all shared app and workspace CSS color declarations consume semantic tokens from `web/src/styles/tokens.scss` and `web/src/styles/themes.scss`. Preserve this contract when adding styles; avoid hard-coded palette colors outside intentional artwork or theme-preview swatches.
+
+
+## Data-driven content
+
+Content catalogues are versioned JSON definitions validated at runtime before use. TypeScript contracts and validators define the accepted shape; pure TypeScript domain modules retain ownership of eligibility, state transitions, outcomes, accounting, and history. Content versions are independent of character save schema versions: changing a catalogue alone does not require rewriting player saves.
+
+The first migrated catalogue is Education. Its programme definitions, entry thresholds, age-based prerequisite alternatives, fields, tuition, duration, and subjects live in `web/src/lib/content/education-programs.json`. `education-content.ts` validates the version, required fields, ranges, duplicate IDs, supported education levels, and prerequisite references. `education.ts` consumes that validated catalogue and continues to own enrollment and academic simulation. Existing programme IDs and character save fields are preserved.
+
+Do not put arbitrary executable scripts in content JSON. Reusable declarative requirements/effects should be introduced only when multiple real domains need a shared typed vocabulary; domain-specific resolution remains in the owning TypeScript module. See [Data-Driven Content Architecture](DATA_DRIVEN_CONTENT.md).
