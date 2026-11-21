@@ -79,6 +79,8 @@ Implemented on the feature branch:
 - Every career role declares its own skill reference in `career-roles.json`. This distinguishes roles such as IT support and software development while preserving the existing career-path mapping as a fallback for legacy employment records.
 - Skill-content validation checks duplicate IDs and aliases, valid baseline attributes, complete education-field coverage, and valid skill references for every career role.
 - Existing skill IDs and `Character.skills` storage remain compatible. No save-schema migration is required.
+- `skill-acquisition.json` defines validated, source-specific rewards for study, exercise, social interaction, family interaction, work, interviews, education tasks, and business ownership/management. Domain APIs apply these rules; unsupported actions do not invent skill gains.
+- Skills now influence relevant outcomes: academic task performance, family relationship interactions, hiring/interview chances, extra-shift pay, career performance growth, business returns, and fitness gains.
 - Skill acquisition coverage, gameplay effects, and the player-facing skill progression experience remain separate follow-up implementation slices; this catalogue migration does not claim those systems are complete.
 
 ## Next migration boundaries
