@@ -1,9 +1,5 @@
 import educationContent from './content/education-programs.json';
-
-export type EducationLevel =
-  | 'early-learning' | 'primary' | 'lower-secondary' | 'upper-secondary'
-  | 'vocational' | 'associate' | 'bachelor' | 'master' | 'doctorate'
-  | 'professional-specialist';
+import type { EducationLevel } from './types';
 
 export interface EducationProgramDefinition {
   id: string;
