@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createCharacter } from './simulation';
 import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation, resolveEducationWeek } from './education';
 import { getCareerRequirements, getCareerRole, isEligibleForRole } from './work';
-import { getSkillLevel } from './skills';
+import { getEducationSubjectSkillId, getSkillLevel } from './skills';
 
 describe('education progression', () => {
   it('offers age-appropriate school, vocational and higher-education routes', () => {
@@ -36,6 +36,15 @@ describe('education progression', () => {
     const result = resolveEducationWeek(student, [], '2026-11-02', 0);
     expect(result.character.educationEnrollment?.grade).toBe(student.educationEnrollment!.grade);
     expect(result.recap.some((item) => item.includes('missed learning'))).toBe(false);
+  });
+
+  it('maps education subjects to distinct skills and develops them through focused tasks', () => {
+    const enrolled = enrollInEducation(createCharacter('Child', 4), 'early-learning', 'Foundations').character;
+    const numeracy = enrolled.educationEnrollment!.subjects.find((subject) => subject.name === 'Numeracy')!;
+    expect(getEducationSubjectSkillId('Numeracy', 'Foundations')).toBe('numeracy');
+    const before = getSkillLevel(enrolled, 'numeracy');
+    const result = resolveEducationWeek(enrolled, [{ taskType: 'assignment', subjectId: numeracy.id }], '2026-11-02', 2);
+    expect(getSkillLevel(result.character, 'numeracy')).toBeGreaterThan(before);
   });
 
   it('develops the enrolled field skill through weekly academic tasks', () => {
