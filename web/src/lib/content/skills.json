@@ -1,60 +1,480 @@
 {
   "contentVersion": 1,
   "skills": [
-    { "id": "technology", "label": "Technology" },
-    { "id": "engineering", "label": "Engineering" },
-    { "id": "business", "label": "Business" },
-    { "id": "healthcare", "label": "Healthcare" },
-    { "id": "practical-trades", "label": "Practical Trades" },
-    { "id": "law", "label": "Law" },
-    { "id": "education", "label": "Education" },
-    { "id": "science", "label": "Science" },
-    { "id": "social-science", "label": "Social Science" },
-    { "id": "creative-arts", "label": "Creative Arts" },
-    { "id": "hospitality", "label": "Hospitality" },
-    { "id": "communication", "label": "Communication" },
-    { "id": "operations", "label": "Operations" },
-    { "id": "customer-service", "label": "Customer Service" },
-    { "id": "sales", "label": "Sales" },
-    { "id": "physical-fitness", "label": "Physical Fitness" },
-    { "id": "general-learning", "label": "General Learning" },
-    { "id": "professional-practice", "label": "Professional Practice" }
+    {
+      "id": "technology",
+      "label": "Technology",
+      "group": "technical",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "engineering",
+      "label": "Engineering",
+      "group": "technical",
+      "startingStats": [
+        "intelligence",
+        "discipline"
+      ]
+    },
+    {
+      "id": "business",
+      "label": "Business",
+      "group": "business",
+      "startingStats": [
+        "intelligence",
+        "confidence"
+      ]
+    },
+    {
+      "id": "healthcare",
+      "label": "Healthcare",
+      "group": "care",
+      "startingStats": [
+        "intelligence",
+        "health"
+      ]
+    },
+    {
+      "id": "practical-trades",
+      "label": "Practical Trades",
+      "group": "practical",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "law",
+      "label": "Law",
+      "group": "academic",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "education",
+      "label": "Education",
+      "group": "academic",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "science",
+      "label": "Science",
+      "group": "academic",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "social-science",
+      "label": "Social Science",
+      "group": "academic",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "creative-arts",
+      "label": "Creative Arts",
+      "group": "creative",
+      "startingStats": [
+        "creativity",
+        "focus"
+      ]
+    },
+    {
+      "id": "hospitality",
+      "label": "Hospitality",
+      "group": "professional",
+      "startingStats": [
+        "socialSkills",
+        "discipline"
+      ]
+    },
+    {
+      "id": "communication",
+      "label": "Communication",
+      "group": "core",
+      "startingStats": [
+        "socialSkills",
+        "confidence"
+      ]
+    },
+    {
+      "id": "operations",
+      "label": "Operations",
+      "group": "professional",
+      "startingStats": [
+        "discipline",
+        "focus"
+      ]
+    },
+    {
+      "id": "customer-service",
+      "label": "Customer Service",
+      "group": "professional",
+      "startingStats": [
+        "socialSkills",
+        "confidence"
+      ]
+    },
+    {
+      "id": "sales",
+      "label": "Sales",
+      "group": "business",
+      "startingStats": [
+        "socialSkills",
+        "confidence"
+      ]
+    },
+    {
+      "id": "physical-fitness",
+      "label": "Physical Fitness",
+      "group": "physical",
+      "startingStats": [
+        "fitness"
+      ]
+    },
+    {
+      "id": "general-learning",
+      "label": "General Learning",
+      "group": "core",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "professional-practice",
+      "label": "Professional Practice",
+      "group": "professional",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "programming",
+      "label": "Programming",
+      "group": "technical",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "digital-literacy",
+      "label": "Digital Literacy",
+      "group": "technical",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "electrical-work",
+      "label": "Electrical Work",
+      "group": "practical",
+      "startingStats": [
+        "intelligence",
+        "discipline"
+      ]
+    },
+    {
+      "id": "construction",
+      "label": "Construction",
+      "group": "practical",
+      "startingStats": [
+        "discipline",
+        "fitness"
+      ]
+    },
+    {
+      "id": "automotive",
+      "label": "Automotive",
+      "group": "practical",
+      "startingStats": [
+        "intelligence",
+        "discipline"
+      ]
+    },
+    {
+      "id": "accounting",
+      "label": "Accounting",
+      "group": "business",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "entrepreneurship",
+      "label": "Entrepreneurship",
+      "group": "business",
+      "startingStats": [
+        "intelligence",
+        "confidence"
+      ]
+    },
+    {
+      "id": "first-aid",
+      "label": "First Aid",
+      "group": "care",
+      "startingStats": [
+        "intelligence",
+        "health"
+      ]
+    },
+    {
+      "id": "clinical-practice",
+      "label": "Clinical Practice",
+      "group": "care",
+      "startingStats": [
+        "intelligence",
+        "health"
+      ]
+    },
+    {
+      "id": "teaching",
+      "label": "Teaching",
+      "group": "professional",
+      "startingStats": [
+        "intelligence",
+        "socialSkills"
+      ]
+    },
+    {
+      "id": "research",
+      "label": "Research",
+      "group": "academic",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "literacy",
+      "label": "Literacy",
+      "group": "academic",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "numeracy",
+      "label": "Numeracy",
+      "group": "academic",
+      "startingStats": [
+        "intelligence",
+        "focus"
+      ]
+    },
+    {
+      "id": "movement-coordination",
+      "label": "Movement & Coordination",
+      "group": "physical",
+      "startingStats": [
+        "fitness",
+        "discipline"
+      ]
+    }
   ],
   "educationFieldMappings": [
-    { "field": "computer science", "skillId": "technology" },
-    { "field": "computing", "skillId": "technology" },
-    { "field": "programming", "skillId": "technology" },
-    { "field": "digital skills", "skillId": "technology" },
-    { "field": "engineering", "skillId": "engineering" },
-    { "field": "electrical trades", "skillId": "engineering" },
-    { "field": "construction", "skillId": "practical-trades" },
-    { "field": "automotive", "skillId": "practical-trades" },
-    { "field": "business", "skillId": "business" },
-    { "field": "business studies", "skillId": "business" },
-    { "field": "accounting", "skillId": "business" },
-    { "field": "small business", "skillId": "business" },
-    { "field": "health sciences", "skillId": "healthcare" },
-    { "field": "medicine", "skillId": "healthcare" },
-    { "field": "medicine & health sciences", "skillId": "healthcare" },
-    { "field": "public health", "skillId": "healthcare" },
-    { "field": "first aid", "skillId": "healthcare" },
-    { "field": "law", "skillId": "law" },
-    { "field": "education", "skillId": "education" },
-    { "field": "teaching", "skillId": "education" },
-    { "field": "natural sciences", "skillId": "science" },
-    { "field": "research sciences", "skillId": "science" },
-    { "field": "social sciences", "skillId": "social-science" },
-    { "field": "arts", "skillId": "creative-arts" },
-    { "field": "creativity", "skillId": "creative-arts" },
-    { "field": "hospitality", "skillId": "hospitality" },
-    { "field": "communication", "skillId": "communication" },
-    { "field": "project management", "skillId": "operations" },
-    { "field": "workplace safety", "skillId": "practical-trades" }
+    {
+      "field": "Play & discovery",
+      "skillId": "creative-arts"
+    },
+    {
+      "field": "Language & stories",
+      "skillId": "literacy"
+    },
+    {
+      "field": "Movement & coordination",
+      "skillId": "movement-coordination"
+    },
+    {
+      "field": "Foundations",
+      "skillId": "general-learning"
+    },
+    {
+      "field": "General studies",
+      "skillId": "general-learning"
+    },
+    {
+      "field": "Science",
+      "skillId": "science"
+    },
+    {
+      "field": "Humanities",
+      "skillId": "social-science"
+    },
+    {
+      "field": "Business studies",
+      "skillId": "business"
+    },
+    {
+      "field": "Arts",
+      "skillId": "creative-arts"
+    },
+    {
+      "field": "Electrical trades",
+      "skillId": "electrical-work"
+    },
+    {
+      "field": "Construction",
+      "skillId": "construction"
+    },
+    {
+      "field": "Hospitality",
+      "skillId": "hospitality"
+    },
+    {
+      "field": "Automotive",
+      "skillId": "automotive"
+    },
+    {
+      "field": "Information technology",
+      "skillId": "digital-literacy"
+    },
+    {
+      "field": "Healthcare support",
+      "skillId": "healthcare"
+    },
+    {
+      "field": "Business",
+      "skillId": "business"
+    },
+    {
+      "field": "Computing",
+      "skillId": "digital-literacy"
+    },
+    {
+      "field": "Engineering",
+      "skillId": "engineering"
+    },
+    {
+      "field": "Health sciences",
+      "skillId": "healthcare"
+    },
+    {
+      "field": "Computer science",
+      "skillId": "programming"
+    },
+    {
+      "field": "Medicine & health sciences",
+      "skillId": "clinical-practice"
+    },
+    {
+      "field": "Law",
+      "skillId": "law"
+    },
+    {
+      "field": "Education",
+      "skillId": "teaching"
+    },
+    {
+      "field": "Natural sciences",
+      "skillId": "science"
+    },
+    {
+      "field": "Social sciences",
+      "skillId": "social-science"
+    },
+    {
+      "field": "Public health",
+      "skillId": "healthcare"
+    },
+    {
+      "field": "Research sciences",
+      "skillId": "research"
+    },
+    {
+      "field": "Computing research",
+      "skillId": "research"
+    },
+    {
+      "field": "Engineering research",
+      "skillId": "research"
+    },
+    {
+      "field": "Medical research",
+      "skillId": "research"
+    },
+    {
+      "field": "Business research",
+      "skillId": "research"
+    },
+    {
+      "field": "Project management",
+      "skillId": "operations"
+    },
+    {
+      "field": "Cybersecurity",
+      "skillId": "digital-literacy"
+    },
+    {
+      "field": "Accounting",
+      "skillId": "accounting"
+    },
+    {
+      "field": "Teaching",
+      "skillId": "teaching"
+    },
+    {
+      "field": "Clinical specialization",
+      "skillId": "clinical-practice"
+    },
+    {
+      "field": "Data science",
+      "skillId": "research"
+    },
+    {
+      "field": "Digital skills",
+      "skillId": "digital-literacy"
+    },
+    {
+      "field": "Programming",
+      "skillId": "programming"
+    },
+    {
+      "field": "First aid",
+      "skillId": "first-aid"
+    },
+    {
+      "field": "Workplace safety",
+      "skillId": "practical-trades"
+    },
+    {
+      "field": "Small business",
+      "skillId": "entrepreneurship"
+    }
   ],
   "careerPathMappings": [
-    { "pathId": "customer-service", "skillId": "customer-service" },
-    { "pathId": "operations", "skillId": "operations" },
-    { "pathId": "technology", "skillId": "technology" },
-    { "pathId": "sales", "skillId": "sales" }
+    {
+      "pathId": "customer-service",
+      "skillId": "customer-service"
+    },
+    {
+      "pathId": "operations",
+      "skillId": "operations"
+    },
+    {
+      "pathId": "technology",
+      "skillId": "technology"
+    },
+    {
+      "pathId": "sales",
+      "skillId": "sales"
+    }
   ]
 }
