@@ -1,33 +1,19 @@
 import type { Character, CareerPathId } from './types';
-
-const FIELD_SKILLS: Record<string, string> = {
-  'computer science': 'technology', computing: 'technology', programming: 'technology', 'digital skills': 'technology',
-  engineering: 'engineering', 'electrical trades': 'engineering', construction: 'practical-trades', automotive: 'practical-trades',
-  business: 'business', 'business studies': 'business', accounting: 'business', 'small business': 'business',
-  'health sciences': 'healthcare', medicine: 'healthcare', 'medicine & health sciences': 'healthcare', 'public health': 'healthcare', 'first aid': 'healthcare',
-  law: 'law', education: 'education', teaching: 'education', 'natural sciences': 'science', 'research sciences': 'science',
-  'social sciences': 'social-science', arts: 'creative-arts', creativity: 'creative-arts', hospitality: 'hospitality',
-  communication: 'communication', 'project management': 'operations', 'workplace safety': 'practical-trades'
-};
-
-const CAREER_SKILLS: Record<CareerPathId, string> = {
-  'customer-service': 'customer-service',
-  operations: 'operations',
-  technology: 'technology',
-  sales: 'sales'
-};
+import { SKILL_CONTENT } from './skill-content';
 
 export function getEducationSkillId(field?: string): string {
   const normalized = (field ?? '').trim().toLowerCase();
-  return FIELD_SKILLS[normalized] ?? (normalized ? normalized.replace(/[^a-z0-9]+/g, '-') : 'general-learning');
+  return SKILL_CONTENT.educationFieldSkills.get(normalized) ??
+    (normalized ? normalized.replace(/[^a-z0-9]+/g, '-') : 'general-learning');
 }
 
 export function getCareerSkillId(path?: CareerPathId | null): string {
-  return path ? CAREER_SKILLS[path] : 'professional-practice';
+  return path ? SKILL_CONTENT.careerPathSkills.get(path) ?? 'professional-practice' : 'professional-practice';
 }
 
 export function getSkillLabel(skillId: string): string {
-  return skillId.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+  return SKILL_CONTENT.skillLabels.get(skillId) ??
+    skillId.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 }
 
 /** Older saves fall back to the closest existing attribute until a skill is first developed. */
