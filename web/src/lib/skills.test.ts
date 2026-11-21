@@ -8,6 +8,11 @@ describe('pursuit-based activity rewards', () => {
     expect(getEducationSkillId('Computer science')).toBe('technology');
     expect(getEducationSkillId('Business')).toBe('business');
     expect(getEducationSkillId('Arts')).toBe('creative-arts');
+    expect(getEducationSkillId('Cybersecurity')).toBe('digital-literacy');
+    expect(getEducationSkillId('Clinical specialization')).toBe('clinical-practice');
+    expect(getEducationSkillId('Artificial Intelligence')).toBe('general-learning');
+    expect(getCareerSkillId('technology', 'software-developer')).toBe('programming');
+    expect(getCareerSkillId('technology', 'it-support')).toBe('digital-literacy');
     expect(getCareerSkillId('technology')).toBe('technology');
     expect(getCareerSkillId()).toBe('professional-practice');
     expect(getEducationSkillId('  Computer Science  ')).toBe('technology');
