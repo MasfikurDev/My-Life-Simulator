@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createCharacter, performActivity, planActivityInNextFreeTime, getWeeklyActivityReview, startBusiness, manageBusiness, getAnnualTaxEstimate } from './simulation';
-import { applySkillAcquisition, awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabel, getSkillLevel } from './skills';
+import { applySkillAcquisition, awardSkillProgress, getCareerSkillId, getCareerSpecialtySkillId, getEducationSkillId, getSkillLabel, getSkillLevel } from './skills';
 import { getCareerRole, getCareerRequirements, isEligibleForRole, resolveJobInterview } from './work';
 import { enrollInEducation, resolveEducationWeek } from './education';
 
@@ -12,8 +12,10 @@ describe('pursuit-based activity rewards', () => {
     expect(getEducationSkillId('Cybersecurity')).toBe('digital-literacy');
     expect(getEducationSkillId('Clinical specialization')).toBe('clinical-practice');
     expect(getEducationSkillId('Artificial Intelligence')).toBe('general-learning');
-    expect(getCareerSkillId('technology', 'software-developer')).toBe('programming');
-    expect(getCareerSkillId('technology', 'it-support')).toBe('digital-literacy');
+    expect(getCareerSkillId('technology', 'software-developer')).toBe('technology');
+    expect(getCareerSpecialtySkillId('software-developer')).toBe('programming');
+    expect(getCareerSkillId('technology', 'it-support')).toBe('technology');
+    expect(getCareerSpecialtySkillId('it-support')).toBe('digital-literacy');
     expect(getCareerSkillId('technology')).toBe('technology');
     expect(getCareerSkillId()).toBe('professional-practice');
     expect(getEducationSkillId('  Computer Science  ')).toBe('programming');
@@ -64,7 +66,7 @@ describe('pursuit-based activity rewards', () => {
       careerExperienceYears: 3,
       educationRecords: [{ id: 'degree', level: 'bachelor' as const, institution: 'University', field: 'Computer science', startedAtAge: 18, completedAtAge: 22, status: 'completed' as const }],
       qualifications: [{ id: 'degree-qualification', name: "Bachelor's degree", category: 'degree' as const, issuer: 'University', field: 'Computer science', awardedAtAge: 22 }],
-      skills: { programming: 49 }
+      skills: { technology: 50, programming: 44 }
     };
     expect(getCareerRequirements(character, role).find((item) => item.label === 'Relevant skill')?.met).toBe(false);
     const improved = awardSkillProgress(character, 'programming', 1);
