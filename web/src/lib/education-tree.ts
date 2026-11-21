@@ -1,4 +1,4 @@
-import type { Character, EducationLevel } from './types';
+import type { Character } from './types';
 import {
   EDUCATION_PROGRAMS,
   getEducationProgramAvailability,
