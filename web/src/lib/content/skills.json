@@ -105,8 +105,7 @@
       "label": "Communication",
       "group": "core",
       "startingStats": [
-        "socialSkills",
-        "confidence"
+        "socialSkills"
       ]
     },
     {
