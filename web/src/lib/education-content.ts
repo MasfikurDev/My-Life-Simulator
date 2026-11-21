@@ -18,6 +18,7 @@ export interface EducationProgramDefinition {
   minIntelligence?: number;
   minFocus?: number;
   minDiscipline?: number;
+  treeConnections?: Array<{ from: string; style: 'alternative' | 'independent' }>;
 }
 
 const LEVELS: readonly EducationLevel[] = [
@@ -72,6 +73,11 @@ function validateProgram(value: unknown, index: number): EducationProgramDefinit
       throw new Error(`${label} has an invalid ${key} threshold.`);
     }
   }
+  if (value.treeConnections !== undefined && (!Array.isArray(value.treeConnections) || !value.treeConnections.every((connection) =>
+    isRecord(connection) && isText(connection.from) && (connection.style === 'alternative' || connection.style === 'independent')
+  ))) {
+    throw new Error(`${label} has invalid treeConnections.`);
+  }
 
   return {
     id: value.id as string,
@@ -89,7 +95,8 @@ function validateProgram(value: unknown, index: number): EducationProgramDefinit
     ...(value.prerequisiteMinAge !== undefined ? { prerequisiteMinAge: value.prerequisiteMinAge as number } : {}),
     ...(value.minIntelligence !== undefined ? { minIntelligence: value.minIntelligence as number } : {}),
     ...(value.minFocus !== undefined ? { minFocus: value.minFocus as number } : {}),
-    ...(value.minDiscipline !== undefined ? { minDiscipline: value.minDiscipline as number } : {})
+    ...(value.minDiscipline !== undefined ? { minDiscipline: value.minDiscipline as number } : {}),
+    ...(value.treeConnections !== undefined ? { treeConnections: (value.treeConnections as Array<{ from: string; style: 'alternative' | 'independent' }>).map((connection) => ({ ...connection })) } : {})
   };
 }
 
@@ -105,6 +112,13 @@ export function validateEducationContent(value: unknown): EducationProgramDefini
     ids.add(program.id);
     if (program.prerequisite && !levels.has(program.prerequisite)) {
       throw new Error(`Education program ${program.id} references missing prerequisite level ${program.prerequisite}.`);
+    }
+  }
+  for (const program of programs) {
+    for (const connection of program.treeConnections ?? []) {
+      if (connection.from === program.id || !ids.has(connection.from)) {
+        throw new Error(`Education program ${program.id} references missing or invalid tree connection ${connection.from}.`);
+      }
     }
   }
   return programs;
