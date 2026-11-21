@@ -19,7 +19,7 @@
     const sources: string[] = [];
     const fields = [...SKILL_CONTENT.educationFieldSkills.entries()].filter(([, id]) => id === skillId).map(([field]) => field);
     const subjects = [...SKILL_CONTENT.educationSubjectSkills.entries()].filter(([, id]) => id === skillId).map(([subject]) => subject);
-    const roles = CAREER_ROLES.filter((role) => role.skillId === skillId).map((role) => role.title);
+    const roles = CAREER_ROLES.filter((role) => role.skillId === skillId || role.specialtySkillId === skillId).map((role) => role.title);
     const careerPaths = [...SKILL_CONTENT.careerPathSkills.entries()].filter(([, id]) => id === skillId).map(([path]) => path.replaceAll('-', ' '));
 
     if (fields.length) sources.push('Education fields: ' + fields.slice(0, 3).join(', ') + (fields.length > 3 ? ' +' + (fields.length - 3) : ''));
