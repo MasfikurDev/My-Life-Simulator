@@ -154,6 +154,33 @@
         "skillId": "communication"
       },
       "amount": 1
+    },
+    {
+      "id": "education-subject-study",
+      "source": "education-subject",
+      "action": "study",
+      "target": {
+        "kind": "education-subject"
+      },
+      "amount": 1
+    },
+    {
+      "id": "education-subject-assignment",
+      "source": "education-subject",
+      "action": "assignment",
+      "target": {
+        "kind": "education-subject"
+      },
+      "amount": 2
+    },
+    {
+      "id": "education-subject-exam",
+      "source": "education-subject",
+      "action": "exam",
+      "target": {
+        "kind": "education-subject"
+      },
+      "amount": 2
     }
   ]
 }
