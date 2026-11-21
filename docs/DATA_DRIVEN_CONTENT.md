@@ -75,7 +75,7 @@ Implemented on the feature branch:
 Implemented on the feature branch:
 
 - `skills.json` defines canonical skill IDs, labels, gameplay groups, and legacy-save starting baselines. Baselines use a finite, validated set of existing Character attributes; saved skill progress remains authoritative.
-- Every education field option in the current education catalogue is explicitly mapped to a defined skill. Unknown future fields use the General Learning fallback rather than generating unregistered skill IDs.
+- Every education field option and every non-field subject in the current education catalogue is explicitly mapped to a defined skill. Field placeholders resolve through the field mapping. Unknown future fields use the General Learning fallback rather than generating unregistered skill IDs.
 - Every career role declares its own skill reference in `career-roles.json`. This distinguishes roles such as IT support and software development while preserving the existing career-path mapping as a fallback for legacy employment records.
 - Skill-content validation checks duplicate IDs and aliases, valid baseline attributes, complete education-field coverage, and valid skill references for every career role.
 - Existing skill IDs and `Character.skills` storage remain compatible. No save-schema migration is required.
