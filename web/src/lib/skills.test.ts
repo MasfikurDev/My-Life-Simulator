@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createCharacter, performActivity, planActivityInNextFreeTime, getWeeklyActivityReview, startBusiness, manageBusiness, getAnnualTaxEstimate } from './simulation';
-import { applySkillAcquisition, awardSkillProgress, getCareerSkillId, getCareerSpecialtySkillId, getEducationSkillId, getSkillLabel, getSkillLevel } from './skills';
+import { applySkillAcquisition, awardSkillProgress, getCareerSkillId, getCareerSpecialtySkillId, getEducationSkillId, getEducationSubjectSkillId, getSkillLabel, getSkillLevel } from './skills';
 import { getCareerRole, getCareerRequirements, isEligibleForRole, resolveJobInterview } from './work';
 import { enrollInEducation, resolveEducationWeek } from './education';
 
