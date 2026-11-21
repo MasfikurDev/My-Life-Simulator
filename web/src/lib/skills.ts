@@ -1,5 +1,6 @@
 import type { Character, CareerPathId } from './types';
 import { SKILL_CONTENT, type SkillDefinition, type SkillStartingStat } from './skill-content';
+import { SKILL_ACQUISITION_CONTENT, type SkillAcquisitionAction, type SkillAcquisitionSource } from './skill-acquisition';
 
 export function getEducationSkillId(field?: string): string {
   const normalized = (field ?? '').trim().toLowerCase();
@@ -17,6 +18,29 @@ export function getCareerSkillId(path?: CareerPathId | null, roleId?: string): s
 export function getSkillLabel(skillId: string): string {
   return SKILL_CONTENT.skillLabels.get(skillId) ??
     skillId.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+}
+
+export interface SkillAcquisitionContext {
+  field?: string;
+  careerPathId?: CareerPathId | null;
+  roleId?: string;
+}
+
+export function applySkillAcquisition(
+  character: Character,
+  source: SkillAcquisitionSource,
+  action: SkillAcquisitionAction,
+  context: SkillAcquisitionContext = {}
+): Character {
+  const rules = SKILL_ACQUISITION_CONTENT.rulesBySourceAction.get(source + ':' + action) ?? [];
+  let next = character;
+  for (const rule of rules) {
+    const skillId = rule.target.kind === 'skill' ? rule.target.skillId
+      : rule.target.kind === 'education-field' ? getEducationSkillId(context.field)
+      : getCareerSkillId(context.careerPathId, context.roleId);
+    next = awardSkillProgress(next, skillId, rule.amount);
+  }
+  return next;
 }
 
 function getSkillDefinition(skillId: string): SkillDefinition {
