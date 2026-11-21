@@ -1016,10 +1016,10 @@ function getPlannedActivityReward(character: Character, item: PlannedActivity): 
   if (item.action?.kind === 'food') return 'Bought meal' + (item.action.staminaRecovery ? ' · stamina +' + item.action.staminaRecovery : '') + (item.action.health ? ' · health +' + item.action.health : '') + (item.action.happiness ? ' · happiness +' + item.action.happiness : '') + (item.action.comfort ? ' · comfort +' + item.action.comfort : '') + (item.action.stress ? ' · stress −' + item.action.stress : '');
   if (item.action?.kind === 'education') return 'Field skill (' + getSkillLabel(getEducationSkillId(character.educationEnrollment?.field)) + '), grades and qualifications';
   if (item.action?.kind === 'care') return ({ rest: 'Stamina, health, happiness and lower stress', mindfulness: 'Focus and lower stress', counselling: 'Mental wellbeing and stress recovery', 'medical-checkup': 'Health assessment and treatment planning' }[item.action.careType]);
-  if (item.action?.kind === 'work') return 'Career opportunity, employment progression and role-relevant skill';
-  if (item.action?.kind === 'family') return 'Relationship closeness, trust and shared history';
+  if (item.action?.kind === 'work') return item.action.workAction === 'interview' ? 'Interview outcome and communication skill' : 'Career opportunity and employment progression';
+  if (item.action?.kind === 'family') return 'Relationship closeness, trust, shared history and communication skill';
   if (item.action?.kind === 'social') return 'Relationship closeness, communication skill and stronger social support';
-  if (item.action?.kind === 'business') return 'Business performance and financial outcomes';
+  if (item.action?.kind === 'business') return 'Business performance, entrepreneurship and operations skills';
   if (item.action?.kind === 'event') return 'The chosen event outcome and its consequences';
   return ({
     study: character.educationEnrollment ? getSkillLabel(getEducationSkillId(character.educationEnrollment.field)) + ' knowledge, intelligence and learning progress' : 'Self-directed learning capability, intelligence and focus',
