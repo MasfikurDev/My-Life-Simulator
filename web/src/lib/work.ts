@@ -1,7 +1,7 @@
 import type { CareerPathId, Character, Employment, EmploymentType, JobApplication, JobOffer, PromotionOffer } from './types';
 import { addCalendarDays } from './calendar';
 import { getClothingPresentationScore } from './lifestyle';
-import { getCareerSkillId, getSkillLevel } from './skills';
+import { getSkillLevel } from './skills';
 import { CAREER_ROLES } from './career-content';
 import { CAREER_EMPLOYERS } from './employer-content';
 
