@@ -1,7 +1,7 @@
 import { MARKET_ASSETS } from './markets';
 import type { ActivityId, PlannedAction, PlannedActivity, OwnedLifestyleItem, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, MarketHistoryPoint, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
 import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
-import { applySkillAcquisition, getCareerSkillId, getEducationSkillId, getSkillLabel } from './skills';
+import { applySkillAcquisition, getCareerSkillId, getEducationSkillId, getSkillLabel, getSkillLevel } from './skills';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
 import { addCalendarDays, createGameCalendar, getAgeAtDate, getBirthdayWeekStart, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
@@ -461,7 +461,9 @@ function getBusinessAnnualResult(character: Character, business: OwnedBusiness):
   const profile = business.type === 'retail' ? { base: 0.045, cashCost: 0.018, volatility: 0.035 } : business.type === 'online' ? { base: 0.065, cashCost: 0.008, volatility: 0.075 } : { base: 0.035, cashCost: 0.025, volatility: 0.065 };
   const marketShock = Math.sin(character.year * 1.83 + business.name.length * 0.17) * profile.volatility;
   const performanceEffect = ((business.performance - 60) / 100) * 0.08;
-  const profitRate = profile.base - profile.cashCost + performanceEffect + economy.growthRate * 0.35 + marketShock;
+  const entrepreneurshipEffect = ((getSkillLevel(character, 'entrepreneurship') - 50) / 50) * 0.01;
+  const operationsEffect = ((getSkillLevel(character, 'operations') - 50) / 50) * 0.008;
+  const profitRate = profile.base - profile.cashCost + performanceEffect + entrepreneurshipEffect + operationsEffect + economy.growthRate * 0.35 + marketShock;
   return { profitRate, profit: Math.round(business.investedCapital * profitRate) };
 }
 
@@ -1638,15 +1640,17 @@ export function performActivity(character: Character, activity: ActivityId, rand
       }
       break;
     }
-    case 'exercise':
+    case 'exercise': {
+      const fitnessSkill = getSkillLevel(next, 'physical-fitness');
       applySkillProgress(next, 'activity', 'exercise');
-      next.fitness = clamp(next.fitness + 6);
+      next.fitness = clamp(next.fitness + 5 + Math.round(fitnessSkill / 50));
       next.health = clamp(next.health + 2);
       next.happiness = clamp(next.happiness + 2);
       next.stamina = clamp((next.stamina ?? 50) + 3);
       next.stress = Math.max(0, (next.stress ?? 30) - 3);
       next.history.unshift(event(next, 'Focused on fitness', 'A good session improved your fitness and lifted your mood.'));
       break;
+    }
     case 'socialize':
       applySkillProgress(next, 'activity', 'socialize');
       next.happiness = clamp(next.happiness + 7);
@@ -1661,7 +1665,9 @@ export function performActivity(character: Character, activity: ActivityId, rand
       const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
       const roleFactor = next.employment ? 0.75 + next.employment.performance / 200 : 1;
       const baseShiftPay = next.employment ? Math.max(180 * scale, next.employment.annualSalary / 52 * 0.5) : 180 * scale;
-      const extraShiftPay = Math.max(1, Math.round(baseShiftPay * roleFactor * workEfficiency));
+      const roleSkill = getSkillLevel(next, getCareerSkillId(next.employment?.careerPathId ?? next.careerPathId, next.employment?.roleId));
+      const skillEfficiency = 0.9 + roleSkill / 500;
+      const extraShiftPay = Math.max(1, Math.round(baseShiftPay * roleFactor * workEfficiency * skillEfficiency));
       next.money += extraShiftPay;
       next.financialTransactions = financeRecord(next, 'income', extraShiftPay, 'Extra earnings from an additional work shift.', next.employment?.employer ?? 'Casual employer', 'Cash');
       next.happiness = clamp(next.happiness - 2);
@@ -1689,7 +1695,9 @@ export function performActivity(character: Character, activity: ActivityId, rand
     case 'career':
       if (!next.employment) return character;
       applySkillProgress(next, 'activity', 'career', { careerPathId: next.employment.careerPathId ?? next.careerPathId, roleId: next.employment.roleId });
-      const careerGain = (next.stress ?? 30) >= 85 ? 3 : (next.stress ?? 30) >= 70 ? 7 : 12;
+      const baseCareerGain = (next.stress ?? 30) >= 85 ? 3 : (next.stress ?? 30) >= 70 ? 7 : 12;
+      const roleSkill = getSkillLevel(next, getCareerSkillId(next.employment.careerPathId ?? next.careerPathId, next.employment.roleId));
+      const careerGain = Math.round(baseCareerGain * (0.85 + roleSkill / 333));
       next.employment = { ...next.employment, performance: clamp(next.employment.performance + careerGain) };
       next.happiness = clamp(next.happiness + 1);
       next.focus = clamp((next.focus ?? 50) + 2);
