@@ -1,4 +1,5 @@
 import type { Character, FamilyBond, FamilyHistoryEntry, FamilyPerson, FamilyRelationship, FamilyState, FamilyRelationshipType, FinancialTransaction, Gender, LifeEvent } from './types';
+import { applySkillAcquisition } from './skills';
 
 export type FamilyInteraction = 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support';
 
@@ -345,7 +346,7 @@ export function interactWithFamily(character: Character, personId: string, inter
     };
     next.financialTransactions = [...transactions, transaction].slice(-300);
   }
-  return next;
+  return applySkillAcquisition(next, 'family', interaction);
 }
 
 export function advanceFamilyYear(character: Character): Character {
