@@ -23,6 +23,24 @@ A content author should be able to add, tune, reorder, disable, or remove a supp
 
 This requirement does not mean arbitrary UI markup or executable code belongs in JSON. Presentation definitions select from a finite set of approved UI components and layout patterns. Conditions and effects use a finite, typed vocabulary. TypeScript owns the renderer, validation, domain-specific resolution, transactions, and genuinely novel mechanics. If a new mechanic cannot be expressed safely with supported effects, implement it once in its owning domain and expose it as a reusable capability.
 
+## Automatic dependency propagation
+
+A content definition is the single source of truth for every dependent experience. Consumers must resolve values from the validated registry by stable ID; they must not copy titles, prices, requirements, prerequisites, rewards, or progression links into a second screen-specific catalogue.
+
+The required flow is:
+
+1. A JSON change is loaded and validated at build/runtime before it is registered.
+2. Stable IDs and every cross-definition reference are checked. Invalid content fails clearly; it is never silently ignored or replaced by stale hardcoded values.
+3. Domain queries expose the authoritative definitions and computed availability/outcomes.
+4. Every dependent screen, tree, listing, action prompt, cost/reward preview, simulation result, and history presentation reads from that same domain API or registry.
+5. A content change is reflected on the next application build/load without a manual synchronization step or a second code edit. If the change requires a capability the engine does not support, validation or implementation review must identify that gap explicitly.
+
+Derived views must be projections, not parallel catalogues. A progression tree derives its nodes, connections, labels, requirements, and status from the validated programme definitions and authoritative character state. Eligibility explanations and enrollment checks must share one domain rule so they cannot disagree.
+
+Historical records and already-agreed transactions retain the snapshots needed to explain what happened. Removing or disabling a definition prevents new use, but does not rewrite a character's past. Existing active commitments must be handled explicitly rather than silently changing their financial or progression terms.
+
+**Acceptance criterion:** changing one supported content definition updates every current dependent gameplay experience automatically. No manual synchronization, duplicate configuration, or silent hardcoded fallback is permitted. A new engine capability is implemented once in TypeScript, then exposed through the validated data vocabulary.
+
 ## Responsibilities
 
 - **JSON content:** configurable definitions across catalogues, player-facing copy, action descriptors, stat metadata, requirements, choices, costs, rewards, consequences, and progression. Definitions use stable IDs and explicit content versions.
@@ -45,9 +63,11 @@ This requirement does not mean arbitrary UI markup or executable code belongs in
 Implemented on the feature branch:
 
 - Education programme definitions are stored in `web/src/lib/content/education-programs.json` under `contentVersion: 1`.
-- `education-content.ts` validates each definition at runtime, including stable unique IDs, age ranges, duration, tuition, education levels, prerequisite metadata, ability thresholds, fields, and subject definitions.
-- `education.ts` consumes the validated catalogue while retaining ownership of eligibility, enrollment, tuition accounting, weekly progress, grade resolution, completion, and qualification awards.
-- Programme enablement, age fallback, entry thresholds, field choices, and subject names are content values. Subject `{field}` is the one supported display substitution.
+- `education-content.ts` validates each definition at runtime, including stable unique IDs, age ranges, duration, tuition, education levels, prerequisite metadata, ability thresholds, fields, subject definitions, and progression-link references.
+- `education.ts` consumes the validated catalogue while retaining ownership of eligibility, enrollment, tuition accounting, weekly progress, grade resolution, completion, and qualification awards. Programme availability and its explanation come from one shared domain query.
+- Programme enablement, age fallback, entry thresholds, field choices, subjects, and optional progression-tree connections are content values. Subject `{field}` is the one supported display substitution.
+- The education tree derives enabled nodes, required prerequisite links, optional links, labels, costs, durations, and eligibility reasons from the same catalogue/domain query. Its layout is generated from catalogue order, so adding a programme does not require a TypeScript coordinate entry.
+- The active Education workspace resolves the current programme title from the catalogue. Persisted enrollment terms and historical records remain snapshots so a later content edit does not retroactively alter an existing commitment.
 - Existing programme IDs and current gameplay behavior are preserved. No character save fields or save schema version were changed.
 
 ## Next migration boundaries
