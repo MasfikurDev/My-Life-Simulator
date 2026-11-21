@@ -208,9 +208,9 @@
       "minDiscipline": 55,
       "prerequisite": "bachelor",
       "subjects": [
-        "Advanced theory",
+        "Core theory",
         "{field}",
-        "Research"
+        "Practical work"
       ]
     },
     {
@@ -235,9 +235,9 @@
       "minDiscipline": 65,
       "prerequisite": "master",
       "subjects": [
-        "Research methods",
+        "Core theory",
         "{field}",
-        "Dissertation"
+        "Practical work"
       ]
     },
     {
@@ -262,9 +262,9 @@
       "minDiscipline": 50,
       "prerequisite": "bachelor",
       "subjects": [
-        "Professional theory",
+        "Core theory",
         "{field}",
-        "Applied practice"
+        "Practical work"
       ]
     },
     {
