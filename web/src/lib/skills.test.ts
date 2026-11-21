@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createCharacter, performActivity, planActivityInNextFreeTime, getWeeklyActivityReview } from './simulation';
-import { awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLevel } from './skills';
+import { awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabel, getSkillLevel } from './skills';
 import { getCareerRole, getCareerRequirements, isEligibleForRole } from './work';
 
 describe('pursuit-based activity rewards', () => {
@@ -9,6 +9,10 @@ describe('pursuit-based activity rewards', () => {
     expect(getEducationSkillId('Business')).toBe('business');
     expect(getEducationSkillId('Arts')).toBe('creative-arts');
     expect(getCareerSkillId('technology')).toBe('technology');
+    expect(getCareerSkillId()).toBe('professional-practice');
+    expect(getEducationSkillId('  Computer Science  ')).toBe('technology');
+    expect(getEducationSkillId('Artificial Intelligence')).toBe('artificial-intelligence');
+    expect(getSkillLabel('technology')).toBe('Technology');
   });
 
   it('rewards exercise with physical capability rather than only generic stats', () => {
