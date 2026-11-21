@@ -4,7 +4,7 @@
   import { SKILL_CONTENT, type SkillGroup } from './lib/skill-content';
   import { SKILL_ACQUISITION_CONTENT } from './lib/skill-acquisition';
   import { CAREER_ROLES } from './lib/career-content';
-  import { getSkillLevel } from './lib/skills';
+  import { getSkillLabel, getSkillLevel } from './lib/skills';
 
   let { character, projectedCharacter = character }: { character: Character; projectedCharacter?: Character } = $props();
   let selectedGroup = $state<SkillGroup | 'all'>('all');
@@ -50,16 +50,30 @@
     return sources.slice(0, 4);
   }
 
-  const allSkillRows = $derived(SKILL_CONTENT.skills
-    .filter((skill) => getSkillSources(skill.id).length > 0 || character.skills?.[skill.id] !== undefined)
-    .map((skill) => ({
-      ...skill,
-      level: getSkillLevel(character, skill.id),
-      projectedLevel: getSkillLevel(projectedCharacter, skill.id),
-      developed: character.skills?.[skill.id] !== undefined,
-      sources: getSkillSources(skill.id).length ? getSkillSources(skill.id) : ['Legacy saved progress']
-    }))
-    .sort((a, b) => groupOrder.indexOf(a.group) - groupOrder.indexOf(b.group) || a.label.localeCompare(b.label)));
+  const allSkillRows = $derived([
+    ...SKILL_CONTENT.skills
+      .filter((skill) => getSkillSources(skill.id).length > 0 || character.skills?.[skill.id] !== undefined)
+      .map((skill) => ({
+        ...skill,
+        level: getSkillLevel(character, skill.id),
+        projectedLevel: getSkillLevel(projectedCharacter, skill.id),
+        developed: character.skills?.[skill.id] !== undefined,
+        sources: getSkillSources(skill.id).length ? getSkillSources(skill.id) : ['Legacy saved progress']
+      })),
+    ...Object.keys(character.skills ?? {})
+      .filter((skillId) => !SKILL_CONTENT.skillById.has(skillId))
+      .map((skillId) => ({
+        id: skillId,
+        label: getSkillLabel(skillId),
+        group: 'core' as SkillGroup,
+        description: 'Saved progress from an earlier field-specific skill mapping.',
+        effect: 'The saved level is preserved; new learning uses the current canonical skill mapping.',
+        level: getSkillLevel(character, skillId),
+        projectedLevel: getSkillLevel(projectedCharacter, skillId),
+        developed: true,
+        sources: ['Legacy saved progress']
+      }))
+  ].sort((a, b) => groupOrder.indexOf(a.group) - groupOrder.indexOf(b.group) || a.label.localeCompare(b.label)));
   const skillRows = $derived(allSkillRows.filter((skill) => selectedGroup === 'all' || skill.group === selectedGroup));
   const availableGroups = $derived(groupOrder.filter((group) => allSkillRows.some((skill) => skill.group === group)));
 </script>
