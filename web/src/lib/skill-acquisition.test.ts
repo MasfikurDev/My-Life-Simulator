@@ -16,6 +16,12 @@ describe('skill acquisition content', () => {
     expect(() => validateSkillAcquisitionContent({ ...content, rules: content.rules.map((rule, index) => index === 0 ? { ...rule, target: { kind: 'skill', skillId: 'missing' } } : rule) })).toThrow(/unknown skill target/);
   });
 
+  it('rejects education-field rewards outside study actions', () => {
+    expect(() => validateSkillAcquisitionContent({ ...content, rules: [...content.rules, {
+      id: 'invalid-education-target', source: 'activity', action: 'exercise', target: { kind: 'education-field' }, amount: 1
+    }] })).toThrow(/invalid or unknown skill target/);
+  });
+
   it('rejects dynamic targets outside their owning gameplay actions', () => {
     expect(() => validateSkillAcquisitionContent({ ...content, rules: [...content.rules, {
       id: 'invalid-role-target', source: 'family', action: 'spend-time', target: { kind: 'career-role' }, amount: 1
