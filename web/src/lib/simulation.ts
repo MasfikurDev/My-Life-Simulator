@@ -372,7 +372,7 @@ export function startBusiness(character: Character, name: string, type: Business
   const next = { ...character, money: character.money - amount, businesses: [...(character.businesses ?? []), business], history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'business-start', amount, 'Started ' + label + '.', 'Cash', label);
   next.history.unshift(event(next, 'Started a business', label + ' opened with ' + formatCharacterMoney(next, amount) + ' in startup capital.', 'milestone'));
-  return next;
+  return applySkillAcquisition(next, 'business', 'start');
 }
 export function manageBusiness(character: Character, businessId: string): Character {
   const business = (character.businesses ?? []).find((item) => item.id === businessId);
@@ -381,7 +381,7 @@ export function manageBusiness(character: Character, businessId: string): Charac
   const next = { ...character, money: character.money - cost, businesses: (character.businesses ?? []).map((item) => item.id === businessId ? { ...item, performance: clamp(item.performance + 8) } : item), history: [...character.history] };
   next.financialTransactions = financeRecord(next, 'business-expense', cost, 'Business development expense for ' + business.name + '.', 'Cash', business.name);
   next.history.unshift(event(next, 'Managed your business', 'You invested time and ' + formatCharacterMoney(next, cost) + ' into improving ' + business.name + '.'));
-  return next;
+  return applySkillAcquisition(next, 'business', 'manage');
 }
 export function closeBusiness(character: Character, businessId: string): Character {
   const business = (character.businesses ?? []).find((item) => item.id === businessId);
