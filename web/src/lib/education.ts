@@ -12,18 +12,24 @@ export { EDUCATION_PROGRAMS } from './education-content';
 function completedLevels(character: Character): Set<EducationLevel> {
   return new Set((character.educationRecords ?? []).filter((record) => record.status === 'completed').map((record) => record.level));
 }
+export interface EducationProgramAvailability { available: boolean; reason: string; }
+
+export function getEducationProgramAvailability(character: Character, program: EducationProgram): EducationProgramAvailability {
+  if (!program.enabled) return { available: false, reason: 'This programme is not currently offered.' };
+  if (character.age < program.minAge) return { available: false, reason: `Available from age ${program.minAge}.` };
+  if (character.age > program.maxAge) return { available: false, reason: 'This programme is no longer age-eligible.' };
+  if (program.minIntelligence !== undefined && character.intelligence < program.minIntelligence) return { available: false, reason: `Intelligence ${program.minIntelligence} required.` };
+  if (program.minFocus !== undefined && (character.focus ?? 50) < program.minFocus) return { available: false, reason: `Focus ${program.minFocus} required.` };
+  if (program.minDiscipline !== undefined && (character.discipline ?? 50) < program.minDiscipline) return { available: false, reason: `Discipline ${program.minDiscipline} required.` };
+  if (program.prerequisite && !completedLevels(character).has(program.prerequisite) &&
+      !(program.prerequisiteMinAge !== undefined && character.age >= program.prerequisiteMinAge)) {
+    return { available: false, reason: `Complete ${program.prerequisite.replaceAll('-', ' ')} first.` };
+  }
+  return { available: true, reason: 'Entry requirements met.' };
+}
+
 export function getAvailableEducationPrograms(character: Character): EducationProgram[] {
-  const completed = completedLevels(character);
-  return educationPrograms.filter((program) => {
-    if (!program.enabled) return false;
-    if (character.age < program.minAge || character.age > program.maxAge) return false;
-    if (program.minIntelligence && character.intelligence < program.minIntelligence) return false;
-    if (program.minFocus && (character.focus ?? 50) < program.minFocus) return false;
-    if (program.minDiscipline && (character.discipline ?? 50) < program.minDiscipline) return false;
-    if (!program.prerequisite) return true;
-    return completed.has(program.prerequisite) ||
-      (program.prerequisiteMinAge !== undefined && character.age >= program.prerequisiteMinAge);
-  });
+  return educationPrograms.filter((program) => getEducationProgramAvailability(character, program).available);
 }
 export function getEducationProgram(programId: string): EducationProgram | undefined {
   return educationPrograms.find((program) => program.id === programId);
