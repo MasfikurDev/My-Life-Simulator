@@ -78,7 +78,8 @@ describe('production skill catalogue coverage', () => {
     expect(SKILL_CONTENT.educationSubjectSkills.size).toBeGreaterThanOrEqual(subjects.length);
     expect(subjects.every((subject) => SKILL_CONTENT.educationSubjectSkills.has(subject.toLowerCase()))).toBe(true);
     expect(SKILL_CONTENT.careerRoleSkills.size).toBe(CAREER_ROLES.length);
-    expect(CAREER_ROLES.every((role) => SKILL_CONTENT.skillById.has(role.skillId))).toBe(true);
+    expect(CAREER_ROLES.every((role) => SKILL_CONTENT.skillById.has(role.skillId) && (!role.specialtySkillId || SKILL_CONTENT.skillById.has(role.specialtySkillId)))).toBe(true);
+    expect(SKILL_CONTENT.careerRoleSpecialtySkills.size).toBe(CAREER_ROLES.filter((role) => role.specialtySkillId).length);
   });
 
   it('gives every skill a valid starting-attribute baseline', () => {
