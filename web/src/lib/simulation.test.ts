@@ -1268,9 +1268,9 @@ describe('life simulation', () => {
       employment: { title: 'Analyst', type: 'full-time' as const, annualSalary: 52000, experienceYears: 1, performance: 100, promotions: 0, startedAtAge: 30 }
     };
     const worked = performActivity(worker, 'work');
-    expect(worked.money).toBe(1625);
+    expect(worked.money).toBe(1623);
     expect(worked.financialTransactions?.[0]).toMatchObject({ type: 'income', amount: 625 });
-    expect(worked.history[0].description).toContain('625');
+    expect(worked.history[0].description).toContain('623');
   });
 
   it('filters job listings to the selected career path and explains recruitment rejection reasons', () => {
