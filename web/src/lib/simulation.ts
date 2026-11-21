@@ -1661,11 +1661,11 @@ export function performActivity(character: Character, activity: ActivityId, rand
       break;
     case 'work':
       if (next.age < 16) return character;
+      const roleSkill = getCareerSkillLevel(next, next.employment?.careerPathId ?? next.careerPathId, next.employment?.roleId);
       applySkillProgress(next, 'activity', 'work', { careerPathId: next.employment?.careerPathId ?? next.careerPathId, roleId: next.employment?.roleId });
       const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
       const roleFactor = next.employment ? 0.75 + next.employment.performance / 200 : 1;
       const baseShiftPay = next.employment ? Math.max(180 * scale, next.employment.annualSalary / 52 * 0.5) : 180 * scale;
-      const roleSkill = getCareerSkillLevel(next, next.employment?.careerPathId ?? next.careerPathId, next.employment?.roleId);
       const skillEfficiency = 0.9 + roleSkill / 500;
       const extraShiftPay = Math.max(1, Math.round(baseShiftPay * roleFactor * workEfficiency * skillEfficiency));
       next.money += extraShiftPay;
@@ -1694,9 +1694,9 @@ export function performActivity(character: Character, activity: ActivityId, rand
     }
     case 'career':
       if (!next.employment) return character;
+      const careerSkillLevel = getCareerSkillLevel(next, next.employment.careerPathId ?? next.careerPathId, next.employment.roleId);
       applySkillProgress(next, 'activity', 'career', { careerPathId: next.employment.careerPathId ?? next.careerPathId, roleId: next.employment.roleId });
       const baseCareerGain = (next.stress ?? 30) >= 85 ? 3 : (next.stress ?? 30) >= 70 ? 7 : 12;
-      const careerSkillLevel = getCareerSkillLevel(next, next.employment.careerPathId ?? next.careerPathId, next.employment.roleId);
       const careerGain = Math.round(baseCareerGain * (0.85 + careerSkillLevel / 333));
       next.employment = { ...next.employment, performance: clamp(next.employment.performance + careerGain) };
       next.happiness = clamp(next.happiness + 1);
