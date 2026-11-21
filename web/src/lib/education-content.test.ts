@@ -37,6 +37,11 @@ describe('versioned education content', () => {
     expect(() => validateEducationContent({ contentVersion: 1, programs: [program, program] })).toThrow(/Duplicate education program id/);
   });
 
+  it('rejects prerequisite levels that no longer exist in the catalogue', () => {
+    const program = { ...EDUCATION_PROGRAMS[0], prerequisite: 'doctorate' as const };
+    expect(() => validateEducationContent({ contentVersion: 1, programs: [program] })).toThrow(/missing prerequisite level/);
+  });
+
   it('rejects invalid ranges, thresholds, and empty fields', () => {
     const program = { ...EDUCATION_PROGRAMS[0], minAge: 8, maxAge: 2 };
     expect(() => validateEducationContent({ contentVersion: 1, programs: [program] })).toThrow(/age range/);
