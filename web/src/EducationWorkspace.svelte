@@ -3,7 +3,7 @@
   import GameChoice from './GameChoice.svelte';
   import ActivityStatusSeal from './components/ActivityStatusSeal.svelte';
   import UiProgress from './components/UiProgress.svelte';
-  import { enrollInEducation, getAvailableEducationPrograms, resumeEducation } from './lib/education';
+  import { enrollInEducation, getAvailableEducationPrograms, getEducationProgram, resumeEducation } from './lib/education';
   import EducationRecordsWorkspace from './EducationRecordsWorkspace.svelte';
   import { formatCharacterMoney, planEducationTaskInNextFreeTime, removePlannedActivity } from './lib/simulation';
   import { getActivityStaminaCost, getValueTone } from './lib/progression';
@@ -71,7 +71,7 @@
 {:else}
 {#if enrollment}
   <section class="education-hero domain-panel">
-    <div class="education-hero-top"><div><div class="eyebrow">CURRENT ENROLLMENT · {enrollment.institution.toUpperCase()}</div><h2>{enrollment.level === 'bachelor' ? "Bachelor's degree" : enrollment.level === 'master' ? "Master's degree" : enrollment.level === 'doctorate' ? 'Doctoral programme' : enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">{enrollment.status === 'paused' ? 'ON HOLD' : 'ENROLLED'}</span></div>
+    <div class="education-hero-top"><div><div class="eyebrow">CURRENT ENROLLMENT · {enrollment.institution.toUpperCase()}</div><h2>{getEducationProgram(enrollment.programId)?.title ?? enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">{enrollment.status === 'paused' ? 'ON HOLD' : 'ENROLLED'}</span></div>
     <div class="education-metrics">
       <div><span>{enrollment.level === 'early-learning' ? 'DEVELOPMENT' : 'OVERALL GRADE'}</span><strong>{Math.round(enrollment.grade)}%{#if projectedEnrollment && projectedEnrollment.grade !== enrollment.grade} → {Math.round(projectedEnrollment.grade)}%{/if}</strong><small>{gradeLabel(enrollment.grade)}</small></div>
       <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%{#if projectedEnrollment && projectedEnrollment.attendance !== enrollment.attendance} → {Math.round(projectedEnrollment.attendance)}%{/if}</strong><small>Present / scheduled</small></div>
