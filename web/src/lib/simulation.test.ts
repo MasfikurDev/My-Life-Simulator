@@ -1269,7 +1269,7 @@ describe('life simulation', () => {
     };
     const worked = performActivity(worker, 'work');
     expect(worked.money).toBe(1633);
-    expect(worked.financialTransactions?.[0]).toMatchObject({ type: 'income', amount: 625 });
+    expect(worked.financialTransactions?.[0]).toMatchObject({ type: 'income', amount: 633 });
     expect(worked.history[0].description).toContain('633');
   });
 
