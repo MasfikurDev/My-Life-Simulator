@@ -584,6 +584,14 @@
     {
       "subject": "Practical work",
       "skillId": "practical-trades"
+    },
+    {
+      "subject": "Foundations",
+      "skillId": "general-learning"
+    },
+    {
+      "subject": "Practical assessment",
+      "skillId": "practical-trades"
     }
   ]
 }
