@@ -2,7 +2,8 @@ import careerContent from './content/career-roles.json';
 import type { CareerRole } from './work';
 import type { CareerPathId } from './types';
 
-const PATHS: readonly CareerPathId[] = ['customer-service', 'operations', 'technology', 'sales'];
+export const CAREER_PATH_IDS: readonly CareerPathId[] = ['customer-service', 'operations', 'technology', 'sales'];
+const PATHS = CAREER_PATH_IDS;
 const QUALIFICATION_CATEGORIES = ['certificate', 'license', 'diploma', 'degree', 'professional'] as const;
 type QualificationCategory = typeof QUALIFICATION_CATEGORIES[number];
 
