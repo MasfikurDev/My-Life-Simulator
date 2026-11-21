@@ -81,7 +81,7 @@ Implemented on the feature branch:
 - Existing skill IDs and `Character.skills` storage remain compatible. No save-schema migration is required.
 - `skill-acquisition.json` defines validated, source-specific rewards for study, exercise, social interaction, family interaction, work, interviews, education tasks, and business ownership/management. Domain APIs apply these rules; unsupported actions do not invent skill gains.
 - Skills now influence relevant outcomes: academic task performance, family relationship interactions, hiring/interview chances, extra-shift pay, career performance growth, business returns, and fitness gains.
-- Skill acquisition coverage, gameplay effects, and the player-facing skill progression experience remain separate follow-up implementation slices; this catalogue migration does not claim those systems are complete.
+- The player-facing skill progression experience remains a separate follow-up slice; the catalogue, acquisition rules, and current gameplay effects are implemented on this branch.
 
 ## Next migration boundaries
 
