@@ -30,7 +30,7 @@ describe('skill content validation', () => {
   });
 
   it('rejects duplicate skill ids and duplicate normalized field mappings', () => {
-    expect(() => validateSkillContent({ ...validContent, skills: [...validContent.skills, { id: 'technology', label: 'Tech', group: 'technical', startingStats: ['intelligence', 'focus'] }] })).toThrow(/Duplicate skill id/);
+    expect(() => validateSkillContent({ ...validContent, skills: [...validContent.skills, { id: 'technology', label: 'Tech', group: 'technical', startingStats: ['intelligence', 'focus'], description: 'Technical capability.', effect: 'Supports technical work.' }] })).toThrow(/Duplicate skill id/);
     expect(() => validateSkillContent({ ...validContent, educationFieldMappings: [
       ...validContent.educationFieldMappings, { field: ' computer science ', skillId: 'technology' }
     ] })).toThrow(/Duplicate education field mapping/);
