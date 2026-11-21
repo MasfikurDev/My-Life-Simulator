@@ -350,6 +350,17 @@
       ],
       "description": "Motor control, balance and coordinated movement.",
       "effect": "Improves results in movement-focused early-learning tasks."
+    },
+    {
+      "id": "project-management",
+      "label": "Project Management",
+      "group": "professional",
+      "startingStats": [
+        "discipline",
+        "focus"
+      ],
+      "description": "Planning, sequencing and coordinating multi-step work.",
+      "effect": "Supports operations coordinator and manager roles and improves business delivery."
     }
   ],
   "educationFieldMappings": [
