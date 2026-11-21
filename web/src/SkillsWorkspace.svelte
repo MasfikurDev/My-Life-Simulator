@@ -28,6 +28,7 @@
     if (careerPaths.length) sources.push('Career path: ' + careerPaths.join(', '));
 
     const hasCareerSource = roles.length > 0 || careerPaths.length > 0 || skillId === 'professional-practice';
+    if (hasCareerSource) sources.push('Work and career development');
     for (const rule of SKILL_ACQUISITION_CONTENT.rules) {
       if (rule.target.kind === 'skill' && rule.target.skillId === skillId) {
         const key = rule.source + ':' + rule.action;
@@ -43,8 +44,6 @@
         sources.push('Study and academic tasks');
       } else if (rule.target.kind === 'education-subject' && subjects.length && !sources.includes('Focused subject practice')) {
         sources.push('Focused subject practice');
-      } else if (rule.target.kind === 'career-role' && hasCareerSource && !sources.includes('Work and career development')) {
-        sources.push('Work and career development');
       }
     }
     return sources.slice(0, 4);
