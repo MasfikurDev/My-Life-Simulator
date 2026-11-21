@@ -1,5 +1,6 @@
 import skillContent from './content/skills.json';
 import type { CareerPathId } from './types';
+import { CAREER_PATH_IDS } from './career-content';
 
 export interface SkillDefinition {
   id: string;
@@ -12,8 +13,6 @@ export interface ValidatedSkillContent {
   educationFieldSkills: ReadonlyMap<string, string>;
   careerPathSkills: ReadonlyMap<CareerPathId, string>;
 }
-
-const CAREER_PATHS: readonly CareerPathId[] = ['customer-service', 'operations', 'technology', 'sales'];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -54,7 +53,7 @@ export function validateSkillContent(value: unknown): ValidatedSkillContent {
 
   const careerPathSkills = new Map<CareerPathId, string>();
   for (const [index, item] of value.careerPathMappings.entries()) {
-    if (!isRecord(item) || !isText(item.pathId) || !CAREER_PATHS.includes(item.pathId as CareerPathId) || !isText(item.skillId)) {
+    if (!isRecord(item) || !isText(item.pathId) || !CAREER_PATH_IDS.includes(item.pathId as CareerPathId) || !isText(item.skillId)) {
       throw new Error(`Career skill mapping at index ${index} is invalid.`);
     }
     const pathId = item.pathId as CareerPathId;
@@ -62,7 +61,7 @@ export function validateSkillContent(value: unknown): ValidatedSkillContent {
     if (!skillLabels.has(item.skillId)) throw new Error(`Career path ${pathId} references unknown skill ${item.skillId}.`);
     careerPathSkills.set(pathId, item.skillId);
   }
-  if (careerPathSkills.size !== CAREER_PATHS.length || CAREER_PATHS.some((pathId) => !careerPathSkills.has(pathId))) {
+  if (careerPathSkills.size !== CAREER_PATH_IDS.length || CAREER_PATH_IDS.some((pathId) => !careerPathSkills.has(pathId))) {
     throw new Error('Skill content must define every supported career path exactly once.');
   }
 
