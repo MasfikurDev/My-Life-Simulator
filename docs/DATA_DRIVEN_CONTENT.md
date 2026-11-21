@@ -74,10 +74,12 @@ Implemented on the feature branch:
 
 Implemented on the feature branch:
 
-- Canonical skill IDs and player-facing labels are defined in the versioned `web/src/lib/content/skills.json` catalogue.
-- Education-field aliases and career-path-to-skill relationships are defined in that same catalogue and validated by `skill-content.ts`. Every mapped skill reference must resolve, field aliases must be unique after normalization, and every supported career path must be mapped exactly once.
-- `skills.ts` consumes the validated mappings for education rewards, career development, and career eligibility. Unknown education fields retain the existing deterministic slug fallback and generated label behavior.
-- Skill level fallback formulas for existing saves, stress/stamina-adjusted skill gains, and skill mutation remain TypeScript mechanics. No Character fields, save schema, skill progression formulas, or existing skill IDs were changed.
+- `skills.json` defines canonical skill IDs, labels, gameplay groups, and legacy-save starting baselines. Baselines use a finite, validated set of existing Character attributes; saved skill progress remains authoritative.
+- Every education field option in the current education catalogue is explicitly mapped to a defined skill. Unknown future fields use the General Learning fallback rather than generating unregistered skill IDs.
+- Every career role declares its own skill reference in `career-roles.json`. This distinguishes roles such as IT support and software development while preserving the existing career-path mapping as a fallback for legacy employment records.
+- Skill-content validation checks duplicate IDs and aliases, valid baseline attributes, complete education-field coverage, and valid skill references for every career role.
+- Existing skill IDs and `Character.skills` storage remain compatible. No save-schema migration is required.
+- Skill acquisition coverage, gameplay effects, and the player-facing skill progression experience remain separate follow-up implementation slices; this catalogue migration does not claim those systems are complete.
 
 ## Next migration boundaries
 
