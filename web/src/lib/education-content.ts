@@ -7,6 +7,7 @@ export type EducationLevel =
 
 export interface EducationProgramDefinition {
   id: string;
+  enabled: boolean;
   title: string;
   institutionType: string;
   level: EducationLevel;
@@ -49,6 +50,7 @@ function validateProgram(value: unknown, index: number): EducationProgramDefinit
   for (const key of requiredText) {
     if (!isText(value[key])) throw new Error(`${label} has an invalid ${key}.`);
   }
+  if (value.enabled !== undefined && typeof value.enabled !== 'boolean') throw new Error(`${label} has an invalid enabled flag.`);
   if (!LEVELS.includes(value.level as EducationLevel)) throw new Error(`${label} has an unsupported education level.`);
   if (!isBoundedInteger(value.minAge, 0, 120) || !isBoundedInteger(value.maxAge, 0, 120) || value.minAge > value.maxAge) {
     throw new Error(`${label} has an invalid age range.`);
@@ -77,6 +79,7 @@ function validateProgram(value: unknown, index: number): EducationProgramDefinit
 
   return {
     id: value.id as string,
+    enabled: value.enabled !== false,
     title: value.title as string,
     institutionType: value.institutionType as string,
     level: value.level as EducationLevel,
