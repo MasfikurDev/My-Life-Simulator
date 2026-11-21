@@ -51,9 +51,9 @@ function hasCompletedProgram(character: Character, program: EducationProgram): b
 }
 
 export function getEducationTree(character: Character): EducationTree {
-  const programs = EDUCATION_PROGRAMS.filter((program) => program.enabled);
-  const available = new Set(getAvailableEducationPrograms(character).map((program) => program.id));
   const enrollment = character.educationEnrollment;
+  const programs = EDUCATION_PROGRAMS.filter((program) => program.enabled || enrollment?.programId === program.id);
+  const available = new Set(getAvailableEducationPrograms(character).map((program) => program.id));
   const nodes: EducationTreeNode[] = programs.map((program, index) => {
     const completed = hasCompletedProgram(character, program);
     const currentEnrollment = enrollment?.programId === program.id ? enrollment : null;
