@@ -15,6 +15,7 @@ function completedLevels(character: Character): Set<EducationLevel> {
 export function getAvailableEducationPrograms(character: Character): EducationProgram[] {
   const completed = completedLevels(character);
   return educationPrograms.filter((program) => {
+    if (!program.enabled) return false;
     if (character.age < program.minAge || character.age > program.maxAge) return false;
     if (program.minIntelligence && character.intelligence < program.minIntelligence) return false;
     if (program.minFocus && (character.focus ?? 50) < program.minFocus) return false;
