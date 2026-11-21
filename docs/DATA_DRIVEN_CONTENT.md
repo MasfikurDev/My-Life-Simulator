@@ -8,22 +8,37 @@ Game content should be straightforward to add, adjust, disable, and remove witho
 
 This is an incremental architecture, not a request to move every existing game system into JSON at once. Migrate a domain when its catalogue and rules are understood and the change can preserve existing gameplay and saves.
 
+## Full gameplay data-control requirement
+
+The target is maximum practical data control across the authored game experience. This is broader than catalogues. Definitions should control, wherever the existing runtime supports them:
+
+- **Player-facing presentation:** names, titles, descriptions, explanatory text, button labels, action labels, result messages, icons, ordering, grouping, visibility, contextual prompts, and age/stage-specific copy.
+- **Available interactions:** action IDs, owning domain/location, availability, eligibility, prerequisites, costs, confirmation text, choices, cooldowns, and the outcomes shown to the player.
+- **Stats and resources:** stat definitions, stable IDs, labels, descriptions, value ranges, initial values where applicable, display metadata, and supported relationships between stats. Domain-specific state remains owned by its domain.
+- **Costs and rewards:** cash and account movements, items, assets, skills, attributes, health/wellbeing, education, career progress, relationships, reputation, and other explicitly supported resource/stat changes.
+- **Consequences and timing:** immediate and delayed effects, recurring obligations, upkeep, risks, follow-up events, history entries, and cross-domain consequences.
+- **Progression and availability:** unlocks, age/life-stage gates, requirements, opportunities, branches, and content activation/deactivation.
+
+A content author should be able to add, tune, reorder, disable, or remove a supported action or opportunity—including its presentation, conditions, costs, choices, and rewards—by changing validated content definitions rather than writing a one-off screen or hardcoding another button. Domain screens should render available actions from domain-provided, data-backed descriptors; they should not maintain a second hardcoded action catalogue.
+
+This requirement does not mean arbitrary UI markup or executable code belongs in JSON. Presentation definitions select from a finite set of approved UI components and layout patterns. Conditions and effects use a finite, typed vocabulary. TypeScript owns the renderer, validation, domain-specific resolution, transactions, and genuinely novel mechanics. If a new mechanic cannot be expressed safely with supported effects, implement it once in its owning domain and expose it as a reusable capability.
+
 ## Responsibilities
 
-- **JSON content:** configurable definitions such as education programmes, career roles, products, institutions, events, opportunities, and progression options. Definitions use stable IDs and explicit content versions.
-- **TypeScript contracts and validation:** define allowed shapes, ranges, enum values, references, supported conditions/effects, and content compatibility. Validate content before it can affect gameplay.
-- **TypeScript domain systems:** own eligibility, state transitions, simulation outcomes, financial accounting, history, and cross-domain consequences. UI reads domain results and does not implement game rules.
+- **JSON content:** configurable definitions across catalogues, player-facing copy, action descriptors, stat metadata, requirements, choices, costs, rewards, consequences, and progression. Definitions use stable IDs and explicit content versions.
+- **TypeScript contracts and validation:** define allowed shapes, ranges, stat/resource identifiers, UI component kinds, action types, condition/effect vocabularies, references, and content compatibility. Validate content before it can affect gameplay or appear in the UI.
+- **TypeScript domain systems:** expose available actions and supported state/stat queries, and own eligibility, state transitions, simulation outcomes, atomic financial accounting, history, and cross-domain consequences. UI renders descriptors and dispatches stable action IDs; it does not reimplement game rules.
 - **Character saves:** store a character's actual history and current state, not copies of every catalogue definition or a second progression tree. Existing records retain stable content IDs and meaningful historical snapshots where required.
 
 ## Content safety and compatibility
 
-1. IDs are stable identifiers, not display labels. Do not reuse an ID for a different meaning.
+1. IDs are stable identifiers, not display labels. Do not reuse an ID for a different meaning. Stat, resource, action, effect, content, and UI-definition IDs must have explicit ownership and validated references.
 2. Validate content version, required fields, ranges, enum values, duplicate IDs, and references before registering a catalogue.
 3. Unknown or malformed content must fail clearly; do not silently skip invalid definitions or invent defaults.
 4. Removing a definition must not corrupt an existing save. Domain code must handle an unavailable historical reference explicitly: preserve the record, show an unavailable/legacy state where needed, and prevent new enrollment/purchases/actions that require the removed definition.
 5. Content format versions and save schema versions are separate. Editing catalogue content does not automatically require a save migration. Persisted character shape changes still require a deliberate save-schema change and tests.
 6. Do not embed arbitrary executable scripts in JSON. Declarative conditions and effects must use a finite, typed, validated vocabulary with explicit domain ownership.
-7. New mechanics that cannot be expressed by an existing supported rule require a TypeScript implementation and tests. Data-driven does not mean logic-free.
+7. New mechanics that cannot be expressed by an existing supported rule require a TypeScript implementation and tests. Data-driven does not mean logic-free. Implement the capability once in its owning domain, then make it available to content definitions where safe.
 
 ## Current pilot: Education
 
@@ -37,7 +52,7 @@ Implemented on the feature branch:
 
 ## Next migration boundaries
 
-- Add a shared typed vocabulary for reusable requirements and effects only when multiple real domains need the same semantics. Keep domain-specific validation and resolution in the owning domain.
+- Establish shared typed registries/contracts for stats and resources, UI/action descriptors, requirements, choices, costs, rewards, and effects. Keep domain-specific validation and resolution in the owning domain; build shared vocabulary from real cross-domain use cases rather than speculative abstractions.
 - Migrate career-role definitions after reviewing their current eligibility, promotion, salary, and save-reference behavior.
 - Then consider products, events, and other catalogues individually. Do not mass-convert domain logic or make a generic rules engine before concrete repeated use cases justify it.
 - Progression trees remain read-only projections of authoritative domain state; they must not create a parallel progression database.
