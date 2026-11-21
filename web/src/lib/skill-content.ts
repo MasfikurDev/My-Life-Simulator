@@ -2,7 +2,7 @@ import skillContent from './content/skills.json';
 import { EDUCATION_PROGRAMS } from './education-content';
 import { CAREER_ROLES } from './career-content';
 import type { CareerRole } from './work';
-import type { CareerPathId, Character } from './types';
+import type { CareerPathId } from './types';
 
 export type SkillGroup = 'academic' | 'business' | 'care' | 'core' | 'creative' | 'physical' | 'practical' | 'professional' | 'technical';
 export type SkillStartingStat = 'intelligence' | 'fitness' | 'health' | 'focus' | 'confidence' | 'discipline' | 'creativity' | 'socialSkills';
