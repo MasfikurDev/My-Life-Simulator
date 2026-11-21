@@ -10,7 +10,7 @@ The Work workspace now has a functional first recruitment and career loop. Its 1
 
 The Work workspace includes:
 
-- A deterministic weekly job board generates a small set of fictional openings across Customer service, Operations, Technology, and Sales. Listings refresh with the game week; employer names and salary values are generated game data, not real companies or real-world market claims.
+- A deterministic weekly job board generates a small set of fictional openings across Customer service, Operations, Technology, and Sales. Listings refresh with the game week; employer names and salary values are generated game data, not real companies or real-world market claims. The eight fictional employer names and sector labels are supplied by the validated `career-employers.json` catalogue; they are content definitions, not persistent employer entities or real vacancies.
 - Each listing has an employment type, annual base-pay amount, role description, and visible age, education, knowledge, and experience requirements. Ineligible jobs remain inspectable so players can understand future opportunities.
 - A job application is a stamina-costing weekly activity. It resolves during weekly advancement into either an interview invitation or an unsuccessful application.
 - An interview is a stamina-costing weekly activity. A successful interview creates an offer; the player explicitly accepts or declines it. Offers expire after 14 calendar days.
