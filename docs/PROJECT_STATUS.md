@@ -1,7 +1,7 @@
 # Project Status & Development Priorities
 
 **Repository:** [MasfikurDev/My-Life-Simulator](https://github.com/MasfikurDev/My-Life-Simulator)  
-**Reviewed:** 2026-11-09 (after Banking and credit-score PR #97)  
+**Reviewed:** 2026-11-09 (after Banking and credit-score PR #97); skill-system status updated 2026-11-22  
 **Purpose:** A concise, evidence-based snapshot of what is implemented, what is only a foundation, and what remains planned. This document summarizes the canonical specifications; it does not replace them.
 
 ## Product direction
