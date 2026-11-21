@@ -6,6 +6,7 @@ describe('versioned education content', () => {
     expect(EDUCATION_PROGRAMS.length).toBeGreaterThan(0);
     expect(new Set(EDUCATION_PROGRAMS.map((program) => program.id)).size).toBe(EDUCATION_PROGRAMS.length);
     expect(EDUCATION_PROGRAMS.every((program) => program.subjects.length > 0)).toBe(true);
+    expect(EDUCATION_PROGRAMS.every((program) => program.treePosition !== undefined)).toBe(true);
   });
 
   it('accepts new programme definitions without changing the TypeScript catalogue code', () => {
@@ -56,6 +57,13 @@ describe('versioned education content', () => {
   it('rejects prerequisite levels that no longer exist in the catalogue', () => {
     const program = { ...EDUCATION_PROGRAMS[0], prerequisite: 'doctorate' as const };
     expect(() => validateEducationContent({ contentVersion: 1, programs: [program] })).toThrow(/missing prerequisite level/);
+  });
+
+  it('rejects invalid progression-tree coordinates', () => {
+    expect(() => validateEducationContent({
+      contentVersion: 1,
+      programs: [{ ...EDUCATION_PROGRAMS[0], treePosition: { x: -1, y: 100 } }]
+    })).toThrow(/treePosition/);
   });
 
   it('rejects progression links that reference missing programme IDs', () => {
