@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { advanceYear, createCharacter, generateRandomCharacter } from './simulation';
 import { createFamilyState, getFamilyConnections, interactWithFamily, validateFamilyState } from './family';
 import { prepareGameEvent, resolveGameEvent } from './events';
+import { getSkillLevel } from './skills';
 
 describe('persistent family simulation', () => {
   it('generates a validated family-of-origin graph for a new child', () => {
@@ -33,12 +34,14 @@ describe('persistent family simulation', () => {
     const character = generateRandomCharacter(25, () => 0.5);
     const connection = getFamilyConnections(character).find((item) => item.living)!;
     const before = character.family!.bonds.find((bond) => bond.personId === connection.person.id)!;
+    const communicationBefore = getSkillLevel(character, 'communication');
     const next = interactWithFamily(character, connection.person.id, 'spend-time');
     const after = next.family!.bonds.find((bond) => bond.personId === connection.person.id)!;
     expect(after.closeness).toBe(Math.min(100, before.closeness + 8));
     expect(after.trust).toBe(Math.min(100, before.trust + 3));
     expect(next.history[0].title).toContain(connection.person.name);
     expect(next.family!.history).toHaveLength(character.family!.history.length + 1);
+    expect(getSkillLevel(next, 'communication')).toBeGreaterThan(communicationBefore);
   });
 
   it('records affordable adult family support as a real financial outflow', () => {
