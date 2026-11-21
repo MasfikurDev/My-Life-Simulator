@@ -1,8 +1,8 @@
 # Roadmap
 
-**Working sequence, not date promises · Reviewed 2026-11-09**
+**Working sequence, not date promises · Reviewed 2026-11-09; skill-system status updated 2026-11-22**
 
-## Project status snapshot · 2026-11-09
+## Project status snapshot · 2026-11-09 (skill-system update 2026-11-22)
 
 This is a repository-backed progress snapshot, not a claim that every visible workspace is a complete simulation system. The detailed system specifications below remain authoritative for behavior and acceptance criteria.
 
