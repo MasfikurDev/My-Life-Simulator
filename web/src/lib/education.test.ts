@@ -54,9 +54,9 @@ describe('education progression', () => {
 
   it('develops the enrolled field skill through weekly academic tasks', () => {
     const enrolled = enrollInEducation({ ...createCharacter('Student', 25), money: 100000, intelligence: 85, focus: 85, discipline: 85 }, 'bachelor-degree', 'Computer science').character;
-    const before = getSkillLevel(enrolled, 'programming');
+    const before = getSkillLevel(enrolled, 'technology');
     const result = resolveEducationWeek(enrolled, ['study', 'assignment'], '2026-11-02', 6);
-    expect(getSkillLevel(result.character, 'programming')).toBeGreaterThan(before);
+    expect(getSkillLevel(result.character, 'technology')).toBeGreaterThan(before);
   });
 
   it('improves grades when study and assignment work is completed', () => {
