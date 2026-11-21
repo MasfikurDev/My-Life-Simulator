@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { createCharacter, performActivity, planActivityInNextFreeTime, getWeeklyActivityReview, startBusiness, manageBusiness } from './simulation';
+import { createCharacter, performActivity, planActivityInNextFreeTime, getWeeklyActivityReview, startBusiness, manageBusiness, getAnnualTaxEstimate } from './simulation';
 import { applySkillAcquisition, awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabel, getSkillLevel } from './skills';
 import { getCareerRole, getCareerRequirements, isEligibleForRole, resolveJobInterview } from './work';
+import { enrollInEducation, resolveEducationWeek } from './education';
 
 describe('pursuit-based activity rewards', () => {
   it('maps education fields to reusable capability tracks', () => {
@@ -109,5 +110,51 @@ describe('skill acquisition across life systems', () => {
     };
     const result = resolveJobInterview(applicant, 'application-1', () => 0);
     expect(getSkillLevel(result, 'communication')).toBeGreaterThan(getSkillLevel(applicant, 'communication'));
+  });
+});
+
+describe('skill gameplay effects', () => {
+  it('improves extra-work pay and career performance through the active role skill', () => {
+    const base = {
+      ...createCharacter('Worker', 30),
+      employment: {
+        title: 'Software developer', type: 'full-time' as const, annualSalary: 50000,
+        experienceYears: 3, performance: 60, promotions: 0, startedAtAge: 25,
+        roleId: 'software-developer', careerPathId: 'technology' as const
+      }
+    };
+    const novice = { ...base, skills: { programming: 0 } };
+    const skilled = { ...base, skills: { programming: 100 } };
+    const noviceShift = performActivity(novice, 'work');
+    const skilledShift = performActivity(skilled, 'work');
+    expect(skilledShift.money - skilled.money).toBeGreaterThan(noviceShift.money - novice.money);
+    const noviceDevelopment = performActivity(novice, 'career');
+    const skilledDevelopment = performActivity(skilled, 'career');
+    expect(skilledDevelopment.employment!.performance - skilled.employment!.performance)
+      .toBeGreaterThan(noviceDevelopment.employment!.performance - novice.employment!.performance);
+  });
+
+  it('improves fitness gains through physical-fitness skill', () => {
+    const base = createCharacter('Athlete', 25);
+    const novice = performActivity({ ...base, skills: { 'physical-fitness': 0 } }, 'exercise');
+    const skilled = performActivity({ ...base, skills: { 'physical-fitness': 100 } }, 'exercise');
+    expect(skilled.fitness - base.fitness).toBeGreaterThan(novice.fitness - base.fitness);
+  });
+
+  it('improves academic task results through the enrolled field skill', () => {
+    const enrolled = enrollInEducation({
+      ...createCharacter('Student', 25), intelligence: 85, focus: 85, discipline: 85
+    }, 'bachelor-degree', 'Computer science').character;
+    const novice = resolveEducationWeek({ ...enrolled, skills: { programming: 20 } }, ['assignment'], '2026-11-02', 4);
+    const skilled = resolveEducationWeek({ ...enrolled, skills: { programming: 90 } }, ['assignment'], '2026-11-02', 4);
+    expect(skilled.character.educationEnrollment!.grade).toBeGreaterThan(novice.character.educationEnrollment!.grade);
+  });
+
+  it('improves business returns through entrepreneurship and operations skills', () => {
+    const business = { id: 'business-1', name: 'Stable Retail', type: 'retail' as const, investedCapital: 100000, valuation: 100000, performance: 100 };
+    const base = { ...createCharacter('Owner', 35), businesses: [business] };
+    const novice = { ...base, skills: { entrepreneurship: 0, operations: 0 } };
+    const skilled = { ...base, skills: { entrepreneurship: 100, operations: 100 } };
+    expect(getAnnualTaxEstimate(skilled).assetIncomeTax).toBeGreaterThan(getAnnualTaxEstimate(novice).assetIncomeTax);
   });
 });
