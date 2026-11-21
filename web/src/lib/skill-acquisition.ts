@@ -49,7 +49,7 @@ export function validateSkillAcquisitionContent(value: unknown): ValidatedSkillA
   const ids = new Set<string>();
   const rulesBySourceAction = new Map<string, SkillAcquisitionRule[]>();
   for (const [index, item] of value.rules.entries()) {
-    if (!isRecord(item) || !isText(item.id) || ids.has(item.id) ||
+    if (!isRecord(item) || !isText(item.id) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(item.id) || ids.has(item.id) ||
       !isText(item.source) || !Object.hasOwn(ACTIONS, item.source) ||
       !isText(item.action) || !ACTIONS[item.source as SkillAcquisitionSource].includes(item.action as SkillAcquisitionAction) ||
       typeof item.amount !== 'number' || !Number.isInteger(item.amount) || item.amount < 1 || item.amount > 20 ||
@@ -60,7 +60,7 @@ export function validateSkillAcquisitionContent(value: unknown): ValidatedSkillA
     let validatedTarget: SkillAcquisitionTarget;
     if (target.kind === 'skill' && isText(target.skillId) && SKILL_CONTENT.skillById.has(target.skillId)) {
       validatedTarget = { kind: 'skill', skillId: target.skillId };
-    } else if (target.kind === 'education-field' && (item.source === 'activity' || item.source === 'education-task')) {
+    } else if (target.kind === 'education-field' && ((item.source === 'activity' && item.action === 'study') || item.source === 'education-task')) {
       validatedTarget = { kind: 'education-field' };
     } else if (target.kind === 'career-role' && item.source === 'activity' &&
       (item.action === 'work' || item.action === 'career')) {
