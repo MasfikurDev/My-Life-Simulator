@@ -70,11 +70,22 @@ Implemented on the feature branch:
 - The active Education workspace resolves the current programme title from the catalogue. Persisted enrollment terms and historical records remain snapshots so a later content edit does not retroactively alter an existing commitment.
 - Existing programme IDs and current gameplay behavior are preserved. No character save fields or save schema version were changed.
 
+## Current pilot: Skills
+
+Implemented on the feature branch:
+
+- Canonical skill IDs and player-facing labels are defined in the versioned `web/src/lib/content/skills.json` catalogue.
+- Education-field aliases and career-path-to-skill relationships are defined in that same catalogue and validated by `skill-content.ts`. Every mapped skill reference must resolve, field aliases must be unique after normalization, and every supported career path must be mapped exactly once.
+- `skills.ts` consumes the validated mappings for education rewards, career development, and career eligibility. Unknown education fields retain the existing deterministic slug fallback and generated label behavior.
+- Skill level fallback formulas for existing saves, stress/stamina-adjusted skill gains, and skill mutation remain TypeScript mechanics. No Character fields, save schema, skill progression formulas, or existing skill IDs were changed.
+
 ## Next migration boundaries
 
 - Establish shared typed registries/contracts for stats and resources, UI/action descriptors, requirements, choices, costs, rewards, and effects. Keep domain-specific validation and resolution in the owning domain; build shared vocabulary from real cross-domain use cases rather than speculative abstractions.
 - **Career pilot implemented:** the 12 existing role definitions now live in `web/src/lib/content/career-roles.json` and are loaded through `career-content.ts`, which validates role IDs, path IDs, age/attribute/qualification requirements, salary ranges, and next-role links. Work still owns eligibility, listings, applications, interviews, offers, employment and promotion resolution. Existing role IDs and Character save shapes are unchanged.
 - **Employer catalogue pilot:** the eight existing fictional employer/sector pairs live in a versioned, validated `career-employers.json` catalogue. Work continues to generate deterministic weekly listings and assign employers; no persistent company state or vacancy simulation is introduced by this slice.
+- **Skills pilot implemented:** canonical skill labels, education-field aliases, and career-path mappings now live in a versioned, validated `skills.json` catalogue. Skill fallback formulas and progress resolution remain in TypeScript.
+- Next, establish only the shared typed contracts that recur across the migrated domains (for example, stable stat/resource references and common validation primitives). Keep action, condition, cost, reward, and effect resolution in their owning domains until concrete cross-domain use cases justify shared vocabulary.
 - Then consider products, events, and other catalogues individually. Do not mass-convert domain logic or make a generic rules engine before concrete repeated use cases justify it.
 - Progression trees remain read-only projections of authoritative domain state; they must not create a parallel progression database.
 
