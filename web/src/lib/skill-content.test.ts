@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { validateSkillContent } from './skill-content';
+import { validateSkillContent, validateSkillCoverage } from './skill-content';
 
 const validContent = {
   contentVersion: 1,
-  skills: [{ id: 'technology', label: 'Technology' }, { id: 'operations', label: 'Operations' }],
+  skills: [{ id: 'technology', label: 'Technology', group: 'technical', startingStats: ['intelligence', 'focus'] }, { id: 'operations', label: 'Operations', group: 'professional', startingStats: ['discipline', 'focus'] }],
   educationFieldMappings: [{ field: 'Computer science', skillId: 'technology' }],
   careerPathMappings: [
     { pathId: 'customer-service', skillId: 'operations' },
@@ -45,5 +45,23 @@ describe('skill content validation', () => {
     expect(() => validateSkillContent({ ...validContent, careerPathMappings: [
       ...validContent.careerPathMappings, { pathId: 'sales', skillId: 'operations' }
     ] })).toThrow(/Duplicate career path mapping/);
+  });
+});
+
+describe('skill source coverage', () => {
+  it('rejects education fields without an explicit mapping', () => {
+    const content = validateSkillContent(validContent);
+    expect(() => validateSkillCoverage(content, ['Computer science', 'Cybersecurity'], [])).toThrow(/Cybersecurity.*no skill mapping/);
+  });
+
+  it('rejects career roles that reference an undefined skill', () => {
+    const content = validateSkillContent(validContent);
+    expect(() => validateSkillCoverage(content, [], [{ id: 'developer', skillId: 'programming' }])).toThrow(/unknown skill programming/);
+  });
+
+  it('accepts complete source coverage and exposes role-specific skills', () => {
+    const content = validateSkillContent(validContent);
+    const covered = validateSkillCoverage(content, ['Computer science'], [{ id: 'developer', skillId: 'technology' }]);
+    expect(covered.careerRoleSkills.get('developer')).toBe('technology');
   });
 });
