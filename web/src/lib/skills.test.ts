@@ -8,6 +8,7 @@ describe('pursuit-based activity rewards', () => {
   it('maps education fields to reusable capability tracks', () => {
     expect(getEducationSkillId('Computer science')).toBe('technology');
     expect(getEducationSubjectSkillId('Computer science', 'Computer science')).toBe('programming');
+    expect(getEducationSubjectSkillId('Cybersecurity', 'Cybersecurity')).toBeUndefined();
     expect(getEducationSkillId('Business')).toBe('business');
     expect(getEducationSkillId('Arts')).toBe('creative-arts');
     expect(getEducationSkillId('Cybersecurity')).toBe('digital-literacy');
