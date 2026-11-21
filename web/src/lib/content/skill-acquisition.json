@@ -181,6 +181,24 @@
         "kind": "education-subject"
       },
       "amount": 2
+    },
+    {
+      "id": "activity-extra-work-specialty",
+      "source": "activity",
+      "action": "work",
+      "target": {
+        "kind": "career-role-specialty"
+      },
+      "amount": 1
+    },
+    {
+      "id": "activity-career-development-specialty",
+      "source": "activity",
+      "action": "career",
+      "target": {
+        "kind": "career-role-specialty"
+      },
+      "amount": 4
     }
   ]
 }
