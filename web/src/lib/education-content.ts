@@ -19,6 +19,7 @@ export interface EducationProgramDefinition {
   minFocus?: number;
   minDiscipline?: number;
   treeConnections?: Array<{ from: string; style: 'alternative' | 'independent' }>;
+  treePosition?: { x: number; y: number };
 }
 
 const LEVELS: readonly EducationLevel[] = [
@@ -78,6 +79,12 @@ function validateProgram(value: unknown, index: number): EducationProgramDefinit
   ))) {
     throw new Error(`${label} has invalid treeConnections.`);
   }
+  if (value.treePosition !== undefined && (!isRecord(value.treePosition) ||
+    typeof value.treePosition.x !== 'number' || !Number.isFinite(value.treePosition.x) || value.treePosition.x < 0 || value.treePosition.x > 5000 ||
+    typeof value.treePosition.y !== 'number' || !Number.isFinite(value.treePosition.y) || value.treePosition.y < 0 || value.treePosition.y > 5000
+  )) {
+    throw new Error(`${label} has invalid treePosition.`);
+  }
 
   return {
     id: value.id as string,
@@ -96,7 +103,8 @@ function validateProgram(value: unknown, index: number): EducationProgramDefinit
     ...(value.minIntelligence !== undefined ? { minIntelligence: value.minIntelligence as number } : {}),
     ...(value.minFocus !== undefined ? { minFocus: value.minFocus as number } : {}),
     ...(value.minDiscipline !== undefined ? { minDiscipline: value.minDiscipline as number } : {}),
-    ...(value.treeConnections !== undefined ? { treeConnections: (value.treeConnections as Array<{ from: string; style: 'alternative' | 'independent' }>).map((connection) => ({ ...connection })) } : {})
+    ...(value.treeConnections !== undefined ? { treeConnections: (value.treeConnections as Array<{ from: string; style: 'alternative' | 'independent' }>).map((connection) => ({ ...connection })) } : {}),
+    ...(value.treePosition !== undefined ? { treePosition: { ...(value.treePosition as { x: number; y: number }) } } : {})
   };
 }
 
