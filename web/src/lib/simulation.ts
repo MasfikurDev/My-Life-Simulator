@@ -1,7 +1,7 @@
 import { MARKET_ASSETS } from './markets';
 import type { ActivityId, PlannedAction, PlannedActivity, OwnedLifestyleItem, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, MarketHistoryPoint, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
 import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
-import { applySkillAcquisition, getCareerSkillId, getEducationSkillId, getSkillLabel, getSkillLevel } from './skills';
+import { applySkillAcquisition, getCareerSkillId, getCareerSkillLevel, getCareerSpecialtySkillId, getEducationSkillId, getSkillLabel, getSkillLevel } from './skills';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
 import { addCalendarDays, createGameCalendar, getAgeAtDate, getBirthdayWeekStart, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
@@ -1665,7 +1665,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
       const roleFactor = next.employment ? 0.75 + next.employment.performance / 200 : 1;
       const baseShiftPay = next.employment ? Math.max(180 * scale, next.employment.annualSalary / 52 * 0.5) : 180 * scale;
-      const roleSkill = getSkillLevel(next, getCareerSkillId(next.employment?.careerPathId ?? next.careerPathId, next.employment?.roleId));
+      const roleSkill = getCareerSkillLevel(next, next.employment?.careerPathId ?? next.careerPathId, next.employment?.roleId);
       const skillEfficiency = 0.9 + roleSkill / 500;
       const extraShiftPay = Math.max(1, Math.round(baseShiftPay * roleFactor * workEfficiency * skillEfficiency));
       next.money += extraShiftPay;
@@ -1696,7 +1696,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       if (!next.employment) return character;
       applySkillProgress(next, 'activity', 'career', { careerPathId: next.employment.careerPathId ?? next.careerPathId, roleId: next.employment.roleId });
       const baseCareerGain = (next.stress ?? 30) >= 85 ? 3 : (next.stress ?? 30) >= 70 ? 7 : 12;
-      const careerSkillLevel = getSkillLevel(next, getCareerSkillId(next.employment.careerPathId ?? next.careerPathId, next.employment.roleId));
+      const careerSkillLevel = getCareerSkillLevel(next, next.employment.careerPathId ?? next.careerPathId, next.employment.roleId);
       const careerGain = Math.round(baseCareerGain * (0.85 + careerSkillLevel / 333));
       next.employment = { ...next.employment, performance: clamp(next.employment.performance + careerGain) };
       next.happiness = clamp(next.happiness + 1);
