@@ -28,6 +28,22 @@ describe('versioned education content', () => {
     expect(programs[0].subjects).toContain('{field}');
   });
 
+  it('supports disabling a definition without deleting its stable id', () => {
+    const [program] = validateEducationContent({
+      contentVersion: 1,
+      programs: [{ ...EDUCATION_PROGRAMS[0], enabled: false }]
+    });
+    expect(program.enabled).toBe(false);
+    expect(program.id).toBe(EDUCATION_PROGRAMS[0].id);
+  });
+
+  it('rejects invalid enabled flags', () => {
+    expect(() => validateEducationContent({
+      contentVersion: 1,
+      programs: [{ ...EDUCATION_PROGRAMS[0], enabled: 'no' }]
+    })).toThrow(/enabled flag/);
+  });
+
   it('rejects unsupported content versions', () => {
     expect(() => validateEducationContent({ contentVersion: 2, programs: [] })).toThrow(/contentVersion/);
   });
