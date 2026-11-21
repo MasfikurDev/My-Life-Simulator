@@ -37,6 +37,12 @@
         "Literacy",
         "Numeracy",
         "Discovery"
+      ],
+      "treeConnections": [
+        {
+          "from": "early-development",
+          "style": "alternative"
+        }
       ]
     },
     {
@@ -55,6 +61,12 @@
         "Literacy",
         "Numeracy",
         "Discovery"
+      ],
+      "treeConnections": [
+        {
+          "from": "early-learning",
+          "style": "alternative"
+        }
       ]
     },
     {
@@ -126,6 +138,12 @@
         "Core theory",
         "{field}",
         "Practical work"
+      ],
+      "treeConnections": [
+        {
+          "from": "upper-secondary",
+          "style": "alternative"
+        }
       ]
     },
     {
@@ -290,6 +308,12 @@
         "Foundations",
         "{field}",
         "Practical assessment"
+      ],
+      "treeConnections": [
+        {
+          "from": "upper-secondary",
+          "style": "alternative"
+        }
       ]
     }
   ]
