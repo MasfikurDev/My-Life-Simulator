@@ -48,6 +48,7 @@ export function applySkillAcquisition(
     const skillId = rule.target.kind === 'skill' ? rule.target.skillId
       : rule.target.kind === 'education-field' ? getEducationSkillId(context.field)
       : rule.target.kind === 'education-subject' ? getEducationSubjectSkillId(context.subject, context.field)
+      : rule.target.kind === 'career-role-specialty' ? getCareerSpecialtySkillId(context.roleId)
       : getCareerSkillId(context.careerPathId, context.roleId);
     if (skillId) next = awardSkillProgress(next, skillId, rule.amount);
   }
@@ -59,6 +60,16 @@ function getSkillDefinition(skillId: string): SkillDefinition {
 }
 
 /** Untrained skills inherit a baseline from relevant character attributes; stored progress remains authoritative. */
+export function getCareerSpecialtySkillId(roleId?: string): string | undefined {
+  return roleId ? SKILL_CONTENT.careerRoleSpecialtySkills.get(roleId) : undefined;
+}
+
+export function getCareerSkillLevel(character: Character, path?: CareerPathId | null, roleId?: string): number {
+  const primary = getSkillLevel(character, getCareerSkillId(path, roleId));
+  const specialtyId = getCareerSpecialtySkillId(roleId);
+  return specialtyId ? Math.round((primary + getSkillLevel(character, specialtyId)) / 2) : primary;
+}
+
 export function getSkillLevel(character: Character, skillId: string): number {
   const saved = character.skills?.[skillId];
   if (Number.isFinite(saved)) return Math.max(0, Math.min(100, Math.round(saved!)));
