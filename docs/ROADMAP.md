@@ -140,10 +140,10 @@ Selectable starting ages are an entry point, not a claim that full childhood, ed
 ## Milestone 5 — Deepen School and Work into playable systems
 - [x] Add education progression choices, enrollment, automatic attendance/progression, weekly assignments/exams, grades, tuition and academic history in the Education workspace.
 - [x] Add recruitment stages with applications, interviews, offers, acceptance/decline, generated employer identity, and job-change/resignation flow in Work.
-- [ ] Add persistent employer operations, workplace decisions, layoffs/job security, and role-specific skill development.
+- [ ] Add persistent employer operations, workplace decisions, and layoffs/job security; the current skill catalogue and role-specific skill progression are implemented separately.
 - [ ] Clarify the current-job card and add a read-only career-path preview with estimated salary/bonus ranges; see [CAREER_PROGRESSION.md](CAREER_PROGRESSION.md).
 - [x] Connect general education, knowledge, career experience, performance, and role requirements to transparent readiness checks and player-controlled promotion offers without a universal fixed-week grind.
-- [ ] Add role-specific skills, persistent vacancies, employer decisions, and promotion outcomes tied to workplace conditions.
+- [ ] Add persistent vacancies, employer decisions, and promotion outcomes tied to workplace conditions.
 - [x] Add job changes and voluntary resignation through the shared employment record. Employment type informs automatic background workload; job changes do not create calendar reservations.
 - [ ] Add conditional bonuses/benefits, monthly payroll, career stability, layoffs, and deeper workplace progression only with complete finance and employer loops.
 
