@@ -117,7 +117,7 @@
 <style lang="scss">
   .skills-heading{align-items:flex-end;gap:14px}
   .skills-filter-label{display:grid;gap:5px;min-width:116px;color:var(--subtle);font-size:10px;font-weight:750}
-  .skills-filter-label select{min-height:36px;padding:0 28px 0 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font:inherit;font-size:12px}
+  .skills-filter-label select{min-height:44px;padding:0 28px 0 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font:inherit;font-size:12px}
   .skills-guidance{display:grid;gap:4px;padding:12px 14px}
   .skills-guidance strong{font-size:12px}
   .skills-guidance span{color:var(--muted);font-size:11px;line-height:1.45}
@@ -137,6 +137,6 @@
   .skill-sources{display:grid;gap:4px;padding-top:7px;border-top:1px solid var(--line)}
   .skill-sources>span{font-size:9px;color:var(--subtle);font-weight:800;text-transform:uppercase;letter-spacing:.6px}
   .skill-sources>div{display:flex;flex-wrap:wrap;gap:4px}
-  .skill-sources small{padding:3px 6px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:9px;line-height:1.2}
+  .skill-sources small{padding:3px 6px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:10px;line-height:1.25}
   @media(max-width:620px){.skills-heading{align-items:flex-start}.skills-filter-label{min-width:104px}.skills-grid{grid-template-columns:1fr}}
 </style>
