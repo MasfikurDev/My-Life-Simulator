@@ -457,6 +457,10 @@
     {
       "field": "Small business",
       "skillId": "entrepreneurship"
+    },
+    {
+      "field": "Communication",
+      "skillId": "communication"
     }
   ],
   "careerPathMappings": [
