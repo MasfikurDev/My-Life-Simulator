@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createCharacter } from './simulation';
 import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation, resolveEducationWeek } from './education';
 import { getCareerRequirements, getCareerRole, isEligibleForRole } from './work';
+import { getSkillLevel } from './skills';
 
 describe('education progression', () => {
   it('offers age-appropriate school, vocational and higher-education routes', () => {
@@ -35,6 +36,13 @@ describe('education progression', () => {
     const result = resolveEducationWeek(student, [], '2026-11-02', 0);
     expect(result.character.educationEnrollment?.grade).toBe(student.educationEnrollment!.grade);
     expect(result.recap.some((item) => item.includes('missed learning'))).toBe(false);
+  });
+
+  it('develops the enrolled field skill through weekly academic tasks', () => {
+    const enrolled = enrollInEducation({ ...createCharacter('Student', 25), intelligence: 85, focus: 85, discipline: 85 }, 'bachelor-degree', 'Computer science').character;
+    const before = getSkillLevel(enrolled, 'programming');
+    const result = resolveEducationWeek(enrolled, ['study', 'assignment'], '2026-11-02', 6);
+    expect(getSkillLevel(result.character, 'programming')).toBeGreaterThan(before);
   });
 
   it('improves grades when study and assignment work is completed', () => {
