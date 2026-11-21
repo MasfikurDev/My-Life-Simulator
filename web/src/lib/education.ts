@@ -95,7 +95,11 @@ export function resolveEducationWeek(character: Character, tasks: Array<Educatio
   if (!enrollment || enrollment.status !== 'enrolled') return { character, recap: [] };
   const selections = tasks.map((task) => typeof task === 'string' ? { taskType: task } : task);
   let skilledCharacter = character;
-  for (const selection of selections) skilledCharacter = applySkillAcquisition(skilledCharacter, 'education-task', selection.taskType, { field: enrollment.field });
+  for (const selection of selections) {
+    skilledCharacter = applySkillAcquisition(skilledCharacter, 'education-task', selection.taskType, { field: enrollment.field });
+    const subjectName = enrollment.subjects.find((subject) => subject.id === selection.subjectId)?.name;
+    if (subjectName) skilledCharacter = applySkillAcquisition(skilledCharacter, 'education-subject', selection.taskType, { subject: subjectName, field: enrollment.field });
+  }
   const stress = character.stress ?? 30;
   const fatiguePenalty = Math.max(0, Math.floor((stress - 55) / 12)) + ((character.stamina ?? 50) < 25 ? 2 : 0);
   const attendance = character.health < 25 || stress > 90 ? 65 : character.health < 45 || stress > 78 ? 82 : 100;
