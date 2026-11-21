@@ -19,7 +19,7 @@ function isInteger(value: unknown, min: number, max: number): value is number {
 function validateRole(value: unknown, index: number): CareerRole {
   const label = `Career role at index ${index}`;
   if (!isRecord(value)) throw new Error(`${label} must be an object.`);
-  for (const key of ['id', 'pathName', 'title', 'description'] as const) {
+  for (const key of ['id', 'title', 'description'] as const) {
     if (!isText(value[key])) throw new Error(`${label} has an invalid ${key}.`);
   }
   if (!PATHS.includes(value.pathId as CareerPathId)) throw new Error(`${label} has an unsupported career path.`);
@@ -48,7 +48,7 @@ function validateRole(value: unknown, index: number): CareerRole {
   }
   if (value.nextRoleId !== undefined && !isText(value.nextRoleId)) throw new Error(`${label} has an invalid nextRoleId.`);
   return {
-    id: value.id as string, pathId: value.pathId as CareerPathId, pathName: value.pathName as string,
+    id: value.id as string, pathId: value.pathId as CareerPathId, pathName: '',
     title: value.title as string, level: value.level as number, description: value.description as string,
     minAge: value.minAge as number, maxAge: value.maxAge as number,
     minIntelligence: value.minIntelligence as number, minExperienceYears: value.minExperienceYears as number,
@@ -68,10 +68,26 @@ function validateRole(value: unknown, index: number): CareerRole {
 }
 
 export function validateCareerContent(value: unknown): CareerRole[] {
-  if (!isRecord(value) || value.contentVersion !== 1 || !Array.isArray(value.roles) || value.roles.length === 0) {
-    throw new Error('Career content must use supported contentVersion 1 and contain roles.');
+  if (!isRecord(value) || value.contentVersion !== 1 || !Array.isArray(value.paths) || !Array.isArray(value.roles) || value.roles.length === 0) {
+    throw new Error('Career content must use supported contentVersion 1 and contain paths and roles.');
   }
-  const roles = value.roles.map(validateRole);
+  const paths = new Map<string, string>();
+  for (const [index, item] of value.paths.entries()) {
+    if (!isRecord(item) || !isText(item.id) || !PATHS.includes(item.id as CareerPathId) || !isText(item.name)) {
+      throw new Error(`Career path at index ${index} is invalid.`);
+    }
+    if (paths.has(item.id)) throw new Error(`Duplicate career path id: ${item.id}.`);
+    paths.set(item.id, item.name);
+  }
+  if (paths.size !== PATHS.length || PATHS.some((id) => !paths.has(id))) {
+    throw new Error('Career content must define every supported career path exactly once.');
+  }
+  const roles = value.roles.map((role, index) => {
+    const validated = validateRole(role, index);
+    const pathName = paths.get(validated.pathId);
+    if (!pathName) throw new Error(`Career role ${validated.id} references missing career path ${validated.pathId}.`);
+    return { ...validated, pathName };
+  });
   const byId = new Map<string, CareerRole>();
   for (const role of roles) {
     if (byId.has(role.id)) throw new Error(`Duplicate career role id: ${role.id}.`);
