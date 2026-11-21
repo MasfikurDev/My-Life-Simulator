@@ -1,7 +1,7 @@
 import type { CareerPathId, Character, Employment, EmploymentType, JobApplication, JobOffer, PromotionOffer } from './types';
 import { addCalendarDays } from './calendar';
 import { getClothingPresentationScore } from './lifestyle';
-import { getSkillLabel, getSkillLevel } from './skills';
+import { applySkillAcquisition, getSkillLabel, getSkillLevel } from './skills';
 import { CAREER_ROLES } from './career-content';
 import { CAREER_EMPLOYERS } from './employer-content';
 
@@ -325,7 +325,7 @@ export function resolveJobInterview(character: Character, applicationId: string,
     description: passed ? application.employer + ' offered you the ' + application.title + ' role at ' + formatSalary(character, application.annualSalary) + ' per year.' : 'The interview with ' + application.employer + ' was unsuccessful. ' + (role ? getInterviewRejectionReason(character, role) : 'Another candidate was selected.'),
     kind: passed ? 'milestone' : 'activity'
   });
-  return next;
+  return applySkillAcquisition(next, 'work', 'interview');
 }
 
 function formatSalary(character: Character, amount: number): string {
