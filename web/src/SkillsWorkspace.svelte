@@ -50,7 +50,7 @@
     return sources.slice(0, 4);
   }
 
-  const skillRows = $derived(SKILL_CONTENT.skills
+  const allSkillRows = $derived(SKILL_CONTENT.skills
     .filter((skill) => getSkillSources(skill.id).length > 0)
     .map((skill) => ({
       ...skill,
@@ -59,9 +59,9 @@
       developed: character.skills?.[skill.id] !== undefined,
       sources: getSkillSources(skill.id)
     }))
-    .filter((skill) => selectedGroup === 'all' || skill.group === selectedGroup)
     .sort((a, b) => groupOrder.indexOf(a.group) - groupOrder.indexOf(b.group) || a.label.localeCompare(b.label)));
-  const availableGroups = $derived(groupOrder.filter((group) => skillRows.some((skill) => skill.group === group)));
+  const skillRows = $derived(allSkillRows.filter((skill) => selectedGroup === 'all' || skill.group === selectedGroup));
+  const availableGroups = $derived(groupOrder.filter((group) => allSkillRows.some((skill) => skill.group === group)));
 </script>
 
 <div class="page-heading skills-heading">
