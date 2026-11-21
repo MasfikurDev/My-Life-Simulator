@@ -1,7 +1,7 @@
 import { MARKET_ASSETS } from './markets';
 import type { ActivityId, PlannedAction, PlannedActivity, OwnedLifestyleItem, BankAccount, BankAccountType, Character, FinancialTransaction, LifeEvent, Gender, Employment, HouseholdArrangement, SavingsGoalMonths, BankCard, CardType, Loan, LoanType, PaymentSourceType, RecurringPayment, PropertyType, PropertyAsset, InvestmentType, MarketHistoryPoint, OwnedBusiness, BusinessType, EducationTaskType, CareActionType } from './types';
 import { getActivityDefinition, getEducationStage, isActivityAvailable } from './progression';
-import { awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabel } from './skills';
+import { applySkillAcquisition, getCareerSkillId, getEducationSkillId, getSkillLabel } from './skills';
 import { expirePendingGameEvent, prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
 import { advanceFamilyYear, createFamilyState, interactWithFamily } from './family';
 import { addCalendarDays, createGameCalendar, getAgeAtDate, getBirthdayWeekStart, getFirstWeekStartOfYear, getNextWeekDate, getWeekStart } from './calendar';
@@ -13,8 +13,8 @@ import { acceptJobOffer as acceptJobOfferState, acceptPromotionOffer as acceptPr
 
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
 
-function applySkillProgress(character: Character, skillId: string, amount: number): void {
-  const updated = awardSkillProgress(character, skillId, amount);
+function applySkillProgress(character: Character, source: 'activity', action: 'study' | 'exercise' | 'socialize' | 'work' | 'career', context: { field?: string; careerPathId?: Character['careerPathId']; roleId?: string } = {}): void {
+  const updated = applySkillAcquisition(character, source, action, context);
   if (updated.skills) character.skills = updated.skills;
 }
 
@@ -1387,8 +1387,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
       const educationAction = item.action as Extract<PlannedAction, { kind: 'education' }>;
       result = performActivity(next, 'study', weekRandom);
       if (result !== next) {
-        const fieldSkill = getEducationSkillId(next.educationEnrollment?.field);
-        result = awardSkillProgress(result, fieldSkill, educationAction.taskType === 'assignment' ? 4 : educationAction.taskType === 'exam' ? 3 : 1);
+        result = applySkillAcquisition(result, 'education-task', educationAction.taskType, { field: next.educationEnrollment?.field });
         educationTasks.push({ taskType: educationAction.taskType, subjectId: educationAction.subjectId });
         const subjectName = next.educationEnrollment?.subjects.find((subject) => subject.id === educationAction.subjectId)?.name;
         recap.push((subjectName ? subjectName + ': ' : '') + (educationAction.taskType === 'assignment' ? 'completed an education assignment.' : educationAction.taskType === 'exam' ? 'completed an academic assessment.' : 'completed a focused study session.'));
@@ -1412,7 +1411,7 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
     } else if (item.action?.kind === 'social') {
       const connectionId = item.action.connectionId;
       result = interactWithSocialConnection(next, connectionId);
-      if (result !== next) { result = awardSkillProgress(result, 'communication', 2); recap.push('Social connection: spent time with ' + ((next.socialConnections ?? []).find((entry) => entry.id === connectionId)?.name ?? 'a friend') + '.'); }
+      if (result !== next) { result = applySkillAcquisition(result, 'social', 'spend-time'); recap.push('Social connection: spent time with ' + ((next.socialConnections ?? []).find((entry) => entry.id === connectionId)?.name ?? 'a friend') + '.'); }
     } else if (item.action?.kind === 'business') {
       result = manageBusiness(next, item.action.businessId);
       if (result !== next) recap.push('Business management session completed.');
@@ -1625,7 +1624,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       const energy = next.stamina ?? 50;
       const studyGain = pressure >= 85 || energy < 20 ? 1 : pressure >= 70 || energy < 35 ? 3 : 5;
       next.intelligence = clamp(next.intelligence + studyGain);
-      applySkillProgress(next, getEducationSkillId(next.educationEnrollment?.field), 2);
+      applySkillProgress(next, 'activity', 'study', { field: next.educationEnrollment?.field });
       next.happiness = clamp(next.happiness - 1);
       next.focus = clamp((next.focus ?? 50) + 3);
       next.discipline = clamp((next.discipline ?? 50) + 1);
@@ -1640,7 +1639,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       break;
     }
     case 'exercise':
-      applySkillProgress(next, 'physical-fitness', 3);
+      applySkillProgress(next, 'activity', 'exercise');
       next.fitness = clamp(next.fitness + 6);
       next.health = clamp(next.health + 2);
       next.happiness = clamp(next.happiness + 2);
@@ -1649,7 +1648,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       next.history.unshift(event(next, 'Focused on fitness', 'A good session improved your fitness and lifted your mood.'));
       break;
     case 'socialize':
-      applySkillProgress(next, 'communication', 2);
+      applySkillProgress(next, 'activity', 'socialize');
       next.happiness = clamp(next.happiness + 7);
       next.socialSkills = clamp((next.socialSkills ?? 50) + 2);
       next.stress = Math.max(0, (next.stress ?? 30) - 2);
@@ -1658,7 +1657,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       break;
     case 'work':
       if (next.age < 16) return character;
-      applySkillProgress(next, getCareerSkillId(next.employment?.careerPathId ?? next.careerPathId, next.employment?.roleId), 1);
+      applySkillProgress(next, 'activity', 'work', { careerPathId: next.employment?.careerPathId ?? next.careerPathId, roleId: next.employment?.roleId });
       const workEfficiency = (next.stress ?? 30) >= 85 ? 0.6 : (next.stress ?? 30) >= 70 ? 0.8 : 1;
       const roleFactor = next.employment ? 0.75 + next.employment.performance / 200 : 1;
       const baseShiftPay = next.employment ? Math.max(180 * scale, next.employment.annualSalary / 52 * 0.5) : 180 * scale;
@@ -1689,7 +1688,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
     }
     case 'career':
       if (!next.employment) return character;
-      applySkillProgress(next, getCareerSkillId(next.employment.careerPathId ?? next.careerPathId, next.employment.roleId), 4);
+      applySkillProgress(next, 'activity', 'career', { careerPathId: next.employment.careerPathId ?? next.careerPathId, roleId: next.employment.roleId });
       const careerGain = (next.stress ?? 30) >= 85 ? 3 : (next.stress ?? 30) >= 70 ? 7 : 12;
       next.employment = { ...next.employment, performance: clamp(next.employment.performance + careerGain) };
       next.happiness = clamp(next.happiness + 1);
