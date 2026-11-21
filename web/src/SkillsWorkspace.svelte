@@ -103,7 +103,7 @@
           {/if}
         </div>
       </div>
-      <UiProgress label={skill.label} value={skill.level} previewValue={skill.projectedLevel} tone="neutral" previewTone={skill.projectedLevel >= skill.level ? 'success' : 'danger'} size="small" showLabel={false} />
+      <UiProgress label={skill.label} value={skill.level} previewValue={skill.projectedLevel} tone="accent" previewTone={skill.projectedLevel >= skill.level ? 'success' : 'danger'} size="small" showLabel={false} />
       <p class="skill-description">{skill.description}</p>
       <p class="skill-effect"><strong>Gameplay effect:</strong> {skill.effect}</p>
       <div class="skill-sources">
