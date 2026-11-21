@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { validateSkillContent, validateSkillCoverage } from './skill-content';
+import { SKILL_CONTENT, validateSkillContent, validateSkillCoverage } from './skill-content';
+import { EDUCATION_PROGRAMS } from './education-content';
+import { CAREER_ROLES } from './career-content';
 
 const validContent = {
   contentVersion: 1,
@@ -27,7 +29,7 @@ describe('skill content validation', () => {
   });
 
   it('rejects duplicate skill ids and duplicate normalized field mappings', () => {
-    expect(() => validateSkillContent({ ...validContent, skills: [...validContent.skills, { id: 'technology', label: 'Tech' }] })).toThrow(/Duplicate skill id/);
+    expect(() => validateSkillContent({ ...validContent, skills: [...validContent.skills, { id: 'technology', label: 'Tech', group: 'technical', startingStats: ['intelligence', 'focus'] }] })).toThrow(/Duplicate skill id/);
     expect(() => validateSkillContent({ ...validContent, educationFieldMappings: [
       ...validContent.educationFieldMappings, { field: ' computer science ', skillId: 'technology' }
     ] })).toThrow(/Duplicate education field mapping/);
@@ -63,5 +65,20 @@ describe('skill source coverage', () => {
     const content = validateSkillContent(validContent);
     const covered = validateSkillCoverage(content, ['Computer science'], [{ id: 'developer', skillId: 'technology' }]);
     expect(covered.careerRoleSkills.get('developer')).toBe('technology');
+  });
+});
+
+describe('production skill catalogue coverage', () => {
+  it('maps every education field and every career role to a defined skill', () => {
+    const fields = [...new Set(EDUCATION_PROGRAMS.flatMap((program) => program.fieldOptions))];
+    expect(fields).toHaveLength(43);
+    expect(SKILL_CONTENT.educationFieldSkills.size).toBeGreaterThanOrEqual(fields.length);
+    expect(SKILL_CONTENT.careerRoleSkills.size).toBe(CAREER_ROLES.length);
+    expect(CAREER_ROLES.every((role) => SKILL_CONTENT.skillById.has(role.skillId))).toBe(true);
+  });
+
+  it('gives every skill a valid starting-attribute baseline', () => {
+    expect(SKILL_CONTENT.skills.length).toBeGreaterThan(18);
+    expect(SKILL_CONTENT.skills.every((skill) => skill.startingStats.length > 0)).toBe(true);
   });
 });
