@@ -6,7 +6,8 @@ import { enrollInEducation, resolveEducationWeek } from './education';
 
 describe('pursuit-based activity rewards', () => {
   it('maps education fields to reusable capability tracks', () => {
-    expect(getEducationSkillId('Computer science')).toBe('programming');
+    expect(getEducationSkillId('Computer science')).toBe('technology');
+    expect(getEducationSubjectSkillId('Computer science', 'Computer science')).toBe('programming');
     expect(getEducationSkillId('Business')).toBe('business');
     expect(getEducationSkillId('Arts')).toBe('creative-arts');
     expect(getEducationSkillId('Cybersecurity')).toBe('digital-literacy');
@@ -18,7 +19,7 @@ describe('pursuit-based activity rewards', () => {
     expect(getCareerSpecialtySkillId('it-support')).toBe('digital-literacy');
     expect(getCareerSkillId('technology')).toBe('technology');
     expect(getCareerSkillId()).toBe('professional-practice');
-    expect(getEducationSkillId('  Computer Science  ')).toBe('programming');
+    expect(getEducationSkillId('  Computer Science  ')).toBe('technology');
     expect(getSkillLabel('technology')).toBe('Technology');
   });
 
@@ -41,7 +42,7 @@ describe('pursuit-based activity rewards', () => {
       }
     };
     const result = performActivity(character, 'study');
-    expect(result.skills?.programming).toBeGreaterThan(character.skills?.programming ?? getSkillLevel(character, 'programming'));
+    expect(result.skills?.technology).toBeGreaterThan(character.skills?.technology ?? getSkillLevel(character, 'technology'));
   });
 
   it('rewards career development in the character current career path', () => {
@@ -54,7 +55,7 @@ describe('pursuit-based activity rewards', () => {
       }
     };
     const result = performActivity(character, 'career');
-    expect(result.skills?.programming).toBeGreaterThan(getSkillLevel(character, 'programming'));
+    expect(result.skills?.technology).toBeGreaterThan(getSkillLevel(character, 'technology'));
     expect(result.employment?.performance).toBeGreaterThan(character.employment!.performance);
   });
 
@@ -86,8 +87,9 @@ describe('skill acquisition across life systems', () => {
   it('resolves education and career skill rewards through typed source rules', () => {
     const character = createCharacter('Learner', 25);
     const studied = applySkillAcquisition(character, 'activity', 'study', { field: 'Computer science' });
-    expect(getSkillLevel(studied, 'programming')).toBeGreaterThan(getSkillLevel(character, 'programming'));
+    expect(getSkillLevel(studied, 'technology')).toBeGreaterThan(getSkillLevel(character, 'technology'));
     const worked = applySkillAcquisition(character, 'activity', 'work', { careerPathId: 'technology', roleId: 'software-developer' });
+    expect(getSkillLevel(worked, 'technology')).toBeGreaterThan(getSkillLevel(character, 'technology'));
     expect(getSkillLevel(worked, 'programming')).toBeGreaterThan(getSkillLevel(character, 'programming'));
   });
 
