@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Game content should be straightforward to add, adjust, disable, and remove without rewriting reusable simulation mechanics. Content definitions are data; rules that interpret and resolve them remain TypeScript.
+Game content should be straightforward to add, adjust, disable, and remove without rewriting reusable simulation mechanics. A definition can be temporarily disabled with its optional enabled flag or permanently removed from the catalogue. Content definitions are data; rules that interpret and resolve them remain TypeScript.
 
 This is an incremental architecture, not a request to move every existing game system into JSON at once. Migrate a domain when its catalogue and rules are understood and the change can preserve existing gameplay and saves.
 
@@ -32,7 +32,7 @@ Implemented on the feature branch:
 - Education programme definitions are stored in `web/src/lib/content/education-programs.json` under `contentVersion: 1`.
 - `education-content.ts` validates each definition at runtime, including stable unique IDs, age ranges, duration, tuition, education levels, prerequisite metadata, ability thresholds, fields, and subject definitions.
 - `education.ts` consumes the validated catalogue while retaining ownership of eligibility, enrollment, tuition accounting, weekly progress, grade resolution, completion, and qualification awards.
-- Programme age fallback, entry thresholds, field choices, and subject names are content values. Subject `{field}` is the one supported display substitution.
+- Programme enablement, age fallback, entry thresholds, field choices, and subject names are content values. Subject `{field}` is the one supported display substitution.
 - Existing programme IDs and current gameplay behavior are preserved. No character save fields or save schema version were changed.
 
 ## Next migration boundaries
