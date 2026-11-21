@@ -10,6 +10,7 @@ export interface CareerRole {
   pathId: CareerPathId;
   pathName: string;
   skillId: string;
+  specialtySkillId?: string;
   title: string;
   level: number;
   description: string;
@@ -24,6 +25,7 @@ export interface CareerRole {
   minSocialSkills?: number;
   minConfidence?: number;
   minSkill?: number;
+  minSpecialtySkill?: number;
   requiredQualificationIds?: string[];
   requiredQualificationFields?: string[];
   requiredQualificationCategory?: 'certificate' | 'license' | 'diploma' | 'degree' | 'professional';
@@ -107,7 +109,8 @@ export function getCareerRequirements(character: Character, role: CareerRole): C
     ...(role.minConfidence ? [{ label: 'Confidence', met: (character.confidence ?? 50) >= role.minConfidence, detail: 'Confidence ' + role.minConfidence + '+' }] : []),
     ...(role.minDiscipline ? [{ label: 'Discipline', met: (character.discipline ?? 50) >= role.minDiscipline, detail: 'Discipline ' + role.minDiscipline + '+' }] : []),
     ...(role.minCreativity ? [{ label: 'Creativity', met: (character.creativity ?? 50) >= role.minCreativity, detail: 'Creativity ' + role.minCreativity + '+' }] : []),
-    ...(role.minSkill ? [{ label: 'Relevant skill', met: getSkillLevel(character, role.skillId) >= role.minSkill, detail: getSkillLabel(role.skillId) + ' ' + role.minSkill + '+ (current ' + getSkillLevel(character, role.skillId) + ')' }] : []),
+    ...(role.minSkill !== undefined ? [{ label: 'Relevant skill', met: getSkillLevel(character, role.skillId) >= role.minSkill, detail: getSkillLabel(role.skillId) + ' ' + role.minSkill + '+ (current ' + getSkillLevel(character, role.skillId) + ')' }] : []),
+    ...(role.minSpecialtySkill !== undefined && role.specialtySkillId ? [{ label: 'Specialty skill', met: getSkillLevel(character, role.specialtySkillId) >= role.minSpecialtySkill, detail: getSkillLabel(role.specialtySkillId) + ' ' + role.minSpecialtySkill + '+ (current ' + getSkillLevel(character, role.specialtySkillId) + ')' }] : []),
     ...(role.requiredQualificationIds ?? []).map((id) => {
       const qualification = (character.qualifications ?? []).find((item) => (item.id === id || item.programId === id) && (item.expiresAtAge === undefined || character.age <= item.expiresAtAge));
       return { label: 'Qualification', met: Boolean(qualification), detail: qualification?.name ?? id };
