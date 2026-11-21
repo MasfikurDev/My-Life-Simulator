@@ -30,6 +30,18 @@ describe('persistent family simulation', () => {
     expect(interactWithFamily(legacy, 'missing', 'spend-time')).toBe(legacy);
   });
 
+  it('higher communication skill improves family interaction outcomes', () => {
+    const base = generateRandomCharacter(25, () => 0.5);
+    const relative = getFamilyConnections(base).find((item) => item.living)!;
+    const low = { ...base, skills: { communication: 0 } };
+    const high = { ...base, skills: { communication: 100 } };
+    const lowResult = interactWithFamily(low, relative.person.id, 'spend-time');
+    const highResult = interactWithFamily(high, relative.person.id, 'spend-time');
+    const lowGain = lowResult.family!.bonds.find((bond) => bond.personId === relative.person.id)!.closeness - low.family!.bonds.find((bond) => bond.personId === relative.person.id)!.closeness;
+    const highGain = highResult.family!.bonds.find((bond) => bond.personId === relative.person.id)!.closeness - high.family!.bonds.find((bond) => bond.personId === relative.person.id)!.closeness;
+    expect(highGain).toBeGreaterThan(lowGain);
+  });
+
   it('spending time strengthens only the selected relationship without an annual action quota', () => {
     const character = generateRandomCharacter(25, () => 0.5);
     const connection = getFamilyConnections(character).find((item) => item.living)!;
