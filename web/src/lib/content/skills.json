@@ -391,11 +391,11 @@
     },
     {
       "field": "Electrical trades",
-      "skillId": "electrical-work"
+      "skillId": "engineering"
     },
     {
       "field": "Construction",
-      "skillId": "construction"
+      "skillId": "practical-trades"
     },
     {
       "field": "Hospitality",
@@ -403,7 +403,7 @@
     },
     {
       "field": "Automotive",
-      "skillId": "automotive"
+      "skillId": "practical-trades"
     },
     {
       "field": "Information technology",
@@ -419,7 +419,7 @@
     },
     {
       "field": "Computing",
-      "skillId": "digital-literacy"
+      "skillId": "technology"
     },
     {
       "field": "Engineering",
@@ -431,11 +431,11 @@
     },
     {
       "field": "Computer science",
-      "skillId": "programming"
+      "skillId": "technology"
     },
     {
       "field": "Medicine & health sciences",
-      "skillId": "clinical-practice"
+      "skillId": "healthcare"
     },
     {
       "field": "Law",
@@ -443,7 +443,7 @@
     },
     {
       "field": "Education",
-      "skillId": "teaching"
+      "skillId": "education"
     },
     {
       "field": "Natural sciences",
@@ -459,7 +459,7 @@
     },
     {
       "field": "Research sciences",
-      "skillId": "research"
+      "skillId": "science"
     },
     {
       "field": "Computing research",
@@ -487,11 +487,11 @@
     },
     {
       "field": "Accounting",
-      "skillId": "accounting"
+      "skillId": "business"
     },
     {
       "field": "Teaching",
-      "skillId": "teaching"
+      "skillId": "education"
     },
     {
       "field": "Clinical specialization",
@@ -503,15 +503,15 @@
     },
     {
       "field": "Digital skills",
-      "skillId": "digital-literacy"
+      "skillId": "technology"
     },
     {
       "field": "Programming",
-      "skillId": "programming"
+      "skillId": "technology"
     },
     {
       "field": "First aid",
-      "skillId": "first-aid"
+      "skillId": "healthcare"
     },
     {
       "field": "Workplace safety",
@@ -519,7 +519,7 @@
     },
     {
       "field": "Small business",
-      "skillId": "entrepreneurship"
+      "skillId": "business"
     },
     {
       "field": "Communication",
@@ -592,6 +592,86 @@
     {
       "subject": "Practical assessment",
       "skillId": "practical-trades"
+    },
+    {
+      "subject": "Computer science",
+      "skillId": "programming"
+    },
+    {
+      "subject": "Computing",
+      "skillId": "digital-literacy"
+    },
+    {
+      "subject": "Information technology",
+      "skillId": "digital-literacy"
+    },
+    {
+      "subject": "Programming",
+      "skillId": "programming"
+    },
+    {
+      "subject": "Digital skills",
+      "skillId": "digital-literacy"
+    },
+    {
+      "subject": "Cybersecurity",
+      "skillId": "digital-literacy"
+    },
+    {
+      "subject": "Electrical trades",
+      "skillId": "electrical-work"
+    },
+    {
+      "subject": "Automotive",
+      "skillId": "automotive"
+    },
+    {
+      "subject": "Accounting",
+      "skillId": "accounting"
+    },
+    {
+      "subject": "Small business",
+      "skillId": "entrepreneurship"
+    },
+    {
+      "subject": "First aid",
+      "skillId": "first-aid"
+    },
+    {
+      "subject": "Medicine & health sciences",
+      "skillId": "clinical-practice"
+    },
+    {
+      "subject": "Clinical specialization",
+      "skillId": "clinical-practice"
+    },
+    {
+      "subject": "Teaching",
+      "skillId": "teaching"
+    },
+    {
+      "subject": "Project management",
+      "skillId": "project-management"
+    },
+    {
+      "subject": "Data science",
+      "skillId": "research"
+    },
+    {
+      "subject": "Computing research",
+      "skillId": "research"
+    },
+    {
+      "subject": "Engineering research",
+      "skillId": "research"
+    },
+    {
+      "subject": "Medical research",
+      "skillId": "research"
+    },
+    {
+      "subject": "Business research",
+      "skillId": "research"
     }
   ]
 }
