@@ -7,6 +7,12 @@ export function getEducationSkillId(field?: string): string {
   return SKILL_CONTENT.educationFieldSkills.get(normalized) ?? 'general-learning';
 }
 
+export function getEducationSubjectSkillId(subject?: string, field?: string): string | undefined {
+  const normalized = (subject ?? '').trim().toLowerCase();
+  if (!normalized || normalized === (field ?? '').trim().toLowerCase()) return undefined;
+  return SKILL_CONTENT.educationSubjectSkills.get(normalized);
+}
+
 export function getCareerSkillId(path?: CareerPathId | null, roleId?: string): string {
   if (roleId) {
     const roleSkill = SKILL_CONTENT.careerRoleSkills.get(roleId);
@@ -22,6 +28,7 @@ export function getSkillLabel(skillId: string): string {
 
 export interface SkillAcquisitionContext {
   field?: string;
+  subject?: string;
   careerPathId?: CareerPathId | null;
   roleId?: string;
 }
@@ -37,8 +44,9 @@ export function applySkillAcquisition(
   for (const rule of rules) {
     const skillId = rule.target.kind === 'skill' ? rule.target.skillId
       : rule.target.kind === 'education-field' ? getEducationSkillId(context.field)
+      : rule.target.kind === 'education-subject' ? getEducationSubjectSkillId(context.subject, context.field)
       : getCareerSkillId(context.careerPathId, context.roleId);
-    next = awardSkillProgress(next, skillId, rule.amount);
+    if (skillId) next = awardSkillProgress(next, skillId, rule.amount);
   }
   return next;
 }
