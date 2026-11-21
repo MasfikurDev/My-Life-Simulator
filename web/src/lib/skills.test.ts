@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { createCharacter, performActivity, planActivityInNextFreeTime, getWeeklyActivityReview } from './simulation';
-import { awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabel, getSkillLevel } from './skills';
-import { getCareerRole, getCareerRequirements, isEligibleForRole } from './work';
+import { createCharacter, performActivity, planActivityInNextFreeTime, getWeeklyActivityReview, startBusiness, manageBusiness } from './simulation';
+import { applySkillAcquisition, awardSkillProgress, getCareerSkillId, getEducationSkillId, getSkillLabel, getSkillLevel } from './skills';
+import { getCareerRole, getCareerRequirements, isEligibleForRole, resolveJobInterview } from './work';
 
 describe('pursuit-based activity rewards', () => {
   it('maps education fields to reusable capability tracks', () => {
@@ -76,5 +76,38 @@ describe('pursuit-based activity rewards', () => {
     expect(planned.issue).toBeNull();
     const review = getWeeklyActivityReview(planned.character);
     expect(review.changes.some((change) => change.key === 'skill-physical-fitness' && change.delta > 0)).toBe(true);
+  });
+});
+
+describe('skill acquisition across life systems', () => {
+  it('resolves education and career skill rewards through typed source rules', () => {
+    const character = createCharacter('Learner', 25);
+    const studied = applySkillAcquisition(character, 'activity', 'study', { field: 'Computer science' });
+    expect(getSkillLevel(studied, 'programming')).toBeGreaterThan(getSkillLevel(character, 'programming'));
+    const worked = applySkillAcquisition(character, 'activity', 'work', { careerPathId: 'technology', roleId: 'software-developer' });
+    expect(getSkillLevel(worked, 'programming')).toBeGreaterThan(getSkillLevel(character, 'programming'));
+  });
+
+  it('develops entrepreneurship and operations through actual business actions', () => {
+    const founder = { ...createCharacter('Founder', 30), money: 100000, intelligence: 80, focus: 80, confidence: 80, discipline: 80 };
+    const started = startBusiness(founder, 'Northstar Shop', 'retail', 5000);
+    expect(getSkillLevel(started, 'entrepreneurship')).toBeGreaterThan(getSkillLevel(founder, 'entrepreneurship'));
+    const managed = manageBusiness(started, started.businesses![0].id);
+    expect(getSkillLevel(managed, 'entrepreneurship')).toBeGreaterThan(getSkillLevel(started, 'entrepreneurship'));
+    expect(getSkillLevel(managed, 'operations')).toBeGreaterThan(getSkillLevel(started, 'operations'));
+  });
+
+  it('develops communication through job interviews whether or not an offer is received', () => {
+    const applicant = {
+      ...createCharacter('Applicant', 28),
+      intelligence: 80, socialSkills: 80, confidence: 80, focus: 80,
+      jobApplications: [{
+        id: 'application-1', listingId: 'service-assistant-2026-11-02', roleId: 'service-assistant',
+        title: 'Service assistant', employer: 'Local employer', type: 'full-time' as const,
+        annualSalary: 20000, appliedAt: '2026-11-02', status: 'interview' as const
+      }]
+    };
+    const result = resolveJobInterview(applicant, 'application-1', () => 0);
+    expect(getSkillLevel(result, 'communication')).toBeGreaterThan(getSkillLevel(applicant, 'communication'));
   });
 });
