@@ -1689,7 +1689,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
     }
     case 'career':
       if (!next.employment) return character;
-      applySkillProgress(next, getCareerSkillId(next.employment.careerPathId ?? next.careerPathId), 4);
+      applySkillProgress(next, getCareerSkillId(next.employment.careerPathId ?? next.careerPathId, next.employment.roleId), 4);
       const careerGain = (next.stress ?? 30) >= 85 ? 3 : (next.stress ?? 30) >= 70 ? 7 : 12;
       next.employment = { ...next.employment, performance: clamp(next.employment.performance + careerGain) };
       next.happiness = clamp(next.happiness + 1);
