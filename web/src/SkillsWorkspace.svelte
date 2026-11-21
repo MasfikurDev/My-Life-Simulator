@@ -51,13 +51,13 @@
   }
 
   const allSkillRows = $derived(SKILL_CONTENT.skills
-    .filter((skill) => getSkillSources(skill.id).length > 0)
+    .filter((skill) => getSkillSources(skill.id).length > 0 || character.skills?.[skill.id] !== undefined)
     .map((skill) => ({
       ...skill,
       level: getSkillLevel(character, skill.id),
       projectedLevel: getSkillLevel(projectedCharacter, skill.id),
       developed: character.skills?.[skill.id] !== undefined,
-      sources: getSkillSources(skill.id)
+      sources: getSkillSources(skill.id).length ? getSkillSources(skill.id) : ['Legacy saved progress']
     }))
     .sort((a, b) => groupOrder.indexOf(a.group) - groupOrder.indexOf(b.group) || a.label.localeCompare(b.label)));
   const skillRows = $derived(allSkillRows.filter((skill) => selectedGroup === 'all' || skill.group === selectedGroup));
