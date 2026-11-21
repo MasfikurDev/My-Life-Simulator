@@ -19,7 +19,11 @@
         "Language & stories",
         "Movement",
         "Play & discovery"
-      ]
+      ],
+      "treePosition": {
+        "x": 180,
+        "y": 100
+      }
     },
     {
       "id": "early-learning",
@@ -43,7 +47,11 @@
           "from": "early-development",
           "style": "alternative"
         }
-      ]
+      ],
+      "treePosition": {
+        "x": 180,
+        "y": 215
+      }
     },
     {
       "id": "primary-school",
@@ -67,7 +75,11 @@
           "from": "early-learning",
           "style": "alternative"
         }
-      ]
+      ],
+      "treePosition": {
+        "x": 180,
+        "y": 330
+      }
     },
     {
       "id": "lower-secondary",
@@ -90,7 +102,11 @@
         "Core studies",
         "{field}",
         "Communication"
-      ]
+      ],
+      "treePosition": {
+        "x": 180,
+        "y": 445
+      }
     },
     {
       "id": "upper-secondary",
@@ -113,7 +129,11 @@
         "Core studies",
         "{field}",
         "Communication"
-      ]
+      ],
+      "treePosition": {
+        "x": 180,
+        "y": 560
+      }
     },
     {
       "id": "vocational-diploma",
@@ -144,7 +164,11 @@
           "from": "upper-secondary",
           "style": "alternative"
         }
-      ]
+      ],
+      "treePosition": {
+        "x": 65,
+        "y": 685
+      }
     },
     {
       "id": "college-associate",
@@ -170,7 +194,11 @@
         "Core theory",
         "{field}",
         "Practical work"
-      ]
+      ],
+      "treePosition": {
+        "x": 180,
+        "y": 685
+      }
     },
     {
       "id": "bachelor-degree",
@@ -201,7 +229,11 @@
         "Core theory",
         "{field}",
         "Practical work"
-      ]
+      ],
+      "treePosition": {
+        "x": 295,
+        "y": 685
+      }
     },
     {
       "id": "masters-degree",
@@ -229,7 +261,11 @@
         "Core theory",
         "{field}",
         "Practical work"
-      ]
+      ],
+      "treePosition": {
+        "x": 295,
+        "y": 810
+      }
     },
     {
       "id": "doctoral-degree",
@@ -256,7 +292,11 @@
         "Core theory",
         "{field}",
         "Practical work"
-      ]
+      ],
+      "treePosition": {
+        "x": 295,
+        "y": 925
+      }
     },
     {
       "id": "professional-specialist",
@@ -283,7 +323,11 @@
         "Core theory",
         "{field}",
         "Practical work"
-      ]
+      ],
+      "treePosition": {
+        "x": 180,
+        "y": 810
+      }
     },
     {
       "id": "professional-certificate",
@@ -314,7 +358,11 @@
           "from": "upper-secondary",
           "style": "alternative"
         }
-      ]
+      ],
+      "treePosition": {
+        "x": 65,
+        "y": 925
+      }
     }
   ]
 }
