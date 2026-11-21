@@ -85,8 +85,8 @@ export function getEducationTree(character: Character): EducationTree {
       durationWeeks: program.durationWeeks,
       tuition: program.tuition,
       ageRange: program.maxAge < 120 ? `${program.minAge}–${program.maxAge}` : `${program.minAge}+`,
-      x: 65 + column * 115,
-      y: 100 + row * 115
+      x: program.treePosition?.x ?? 65 + column * 115,
+      y: program.treePosition?.y ?? 100 + row * 115
     };
   });
 
