@@ -1,0 +1,204 @@
+{
+  "contentVersion": 1,
+  "rules": [
+    {
+      "id": "activity-study",
+      "source": "activity",
+      "action": "study",
+      "target": {
+        "kind": "education-field"
+      },
+      "amount": 2
+    },
+    {
+      "id": "activity-exercise",
+      "source": "activity",
+      "action": "exercise",
+      "target": {
+        "kind": "skill",
+        "skillId": "physical-fitness"
+      },
+      "amount": 3
+    },
+    {
+      "id": "activity-socialize",
+      "source": "activity",
+      "action": "socialize",
+      "target": {
+        "kind": "skill",
+        "skillId": "communication"
+      },
+      "amount": 2
+    },
+    {
+      "id": "activity-extra-work",
+      "source": "activity",
+      "action": "work",
+      "target": {
+        "kind": "career-role"
+      },
+      "amount": 1
+    },
+    {
+      "id": "activity-career-development",
+      "source": "activity",
+      "action": "career",
+      "target": {
+        "kind": "career-role"
+      },
+      "amount": 4
+    },
+    {
+      "id": "education-study",
+      "source": "education-task",
+      "action": "study",
+      "target": {
+        "kind": "education-field"
+      },
+      "amount": 1
+    },
+    {
+      "id": "education-assignment",
+      "source": "education-task",
+      "action": "assignment",
+      "target": {
+        "kind": "education-field"
+      },
+      "amount": 4
+    },
+    {
+      "id": "education-exam",
+      "source": "education-task",
+      "action": "exam",
+      "target": {
+        "kind": "education-field"
+      },
+      "amount": 3
+    },
+    {
+      "id": "social-connection",
+      "source": "social",
+      "action": "spend-time",
+      "target": {
+        "kind": "skill",
+        "skillId": "communication"
+      },
+      "amount": 2
+    },
+    {
+      "id": "family-spend-time",
+      "source": "family",
+      "action": "spend-time",
+      "target": {
+        "kind": "skill",
+        "skillId": "communication"
+      },
+      "amount": 1
+    },
+    {
+      "id": "family-reach-out",
+      "source": "family",
+      "action": "reach-out",
+      "target": {
+        "kind": "skill",
+        "skillId": "communication"
+      },
+      "amount": 1
+    },
+    {
+      "id": "family-reconcile",
+      "source": "family",
+      "action": "reconcile",
+      "target": {
+        "kind": "skill",
+        "skillId": "communication"
+      },
+      "amount": 2
+    },
+    {
+      "id": "business-start",
+      "source": "business",
+      "action": "start",
+      "target": {
+        "kind": "skill",
+        "skillId": "entrepreneurship"
+      },
+      "amount": 1
+    },
+    {
+      "id": "business-manage",
+      "source": "business",
+      "action": "manage",
+      "target": {
+        "kind": "skill",
+        "skillId": "entrepreneurship"
+      },
+      "amount": 2
+    },
+    {
+      "id": "business-operations",
+      "source": "business",
+      "action": "manage",
+      "target": {
+        "kind": "skill",
+        "skillId": "operations"
+      },
+      "amount": 1
+    },
+    {
+      "id": "work-interview",
+      "source": "work",
+      "action": "interview",
+      "target": {
+        "kind": "skill",
+        "skillId": "communication"
+      },
+      "amount": 1
+    },
+    {
+      "id": "education-subject-study",
+      "source": "education-subject",
+      "action": "study",
+      "target": {
+        "kind": "education-subject"
+      },
+      "amount": 1
+    },
+    {
+      "id": "education-subject-assignment",
+      "source": "education-subject",
+      "action": "assignment",
+      "target": {
+        "kind": "education-subject"
+      },
+      "amount": 2
+    },
+    {
+      "id": "education-subject-exam",
+      "source": "education-subject",
+      "action": "exam",
+      "target": {
+        "kind": "education-subject"
+      },
+      "amount": 2
+    },
+    {
+      "id": "activity-extra-work-specialty",
+      "source": "activity",
+      "action": "work",
+      "target": {
+        "kind": "career-role-specialty"
+      },
+      "amount": 1
+    },
+    {
+      "id": "activity-career-development-specialty",
+      "source": "activity",
+      "action": "career",
+      "target": {
+        "kind": "career-role-specialty"
+      },
+      "amount": 4
+    }
+  ]
+}

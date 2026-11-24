@@ -33,7 +33,8 @@
       "minSocialSkills": 35,
       "annualSalaryMin": 6000,
       "annualSalaryMax": 12000,
-      "nextRoleId": "service-specialist"
+      "nextRoleId": "service-specialist",
+      "skillId": "customer-service"
     },
     {
       "id": "service-specialist",
@@ -50,7 +51,8 @@
       "minSkill": 35,
       "annualSalaryMin": 14000,
       "annualSalaryMax": 24000,
-      "nextRoleId": "service-supervisor"
+      "nextRoleId": "service-supervisor",
+      "skillId": "customer-service"
     },
     {
       "id": "service-supervisor",
@@ -67,7 +69,8 @@
       "minConfidence": 55,
       "minSkill": 55,
       "annualSalaryMin": 24000,
-      "annualSalaryMax": 38000
+      "annualSalaryMax": 38000,
+      "skillId": "customer-service"
     },
     {
       "id": "operations-assistant",
@@ -82,7 +85,8 @@
       "requiresHigherEducation": false,
       "annualSalaryMin": 14000,
       "annualSalaryMax": 22000,
-      "nextRoleId": "operations-coordinator"
+      "nextRoleId": "operations-coordinator",
+      "skillId": "operations"
     },
     {
       "id": "operations-coordinator",
@@ -99,7 +103,10 @@
       "minSkill": 35,
       "annualSalaryMin": 22000,
       "annualSalaryMax": 35000,
-      "nextRoleId": "operations-manager"
+      "nextRoleId": "operations-manager",
+      "skillId": "operations",
+      "specialtySkillId": "project-management",
+      "minSpecialtySkill": 35
     },
     {
       "id": "operations-manager",
@@ -116,7 +123,10 @@
       "minDiscipline": 60,
       "minSkill": 55,
       "annualSalaryMin": 30000,
-      "annualSalaryMax": 50000
+      "annualSalaryMax": 50000,
+      "skillId": "operations",
+      "specialtySkillId": "project-management",
+      "minSpecialtySkill": 50
     },
     {
       "id": "it-support",
@@ -137,7 +147,10 @@
       "requiredQualificationCategory": "certificate",
       "annualSalaryMin": 18000,
       "annualSalaryMax": 30000,
-      "nextRoleId": "software-developer"
+      "nextRoleId": "software-developer",
+      "skillId": "technology",
+      "specialtySkillId": "digital-literacy",
+      "minSpecialtySkill": 30
     },
     {
       "id": "software-developer",
@@ -160,7 +173,10 @@
       "requiredQualificationCategory": "degree",
       "annualSalaryMin": 32000,
       "annualSalaryMax": 56000,
-      "nextRoleId": "senior-developer"
+      "nextRoleId": "senior-developer",
+      "skillId": "technology",
+      "specialtySkillId": "programming",
+      "minSpecialtySkill": 45
     },
     {
       "id": "senior-developer",
@@ -177,7 +193,10 @@
       "minCreativity": 60,
       "minSkill": 70,
       "annualSalaryMin": 55000,
-      "annualSalaryMax": 85000
+      "annualSalaryMax": 85000,
+      "skillId": "technology",
+      "specialtySkillId": "programming",
+      "minSpecialtySkill": 65
     },
     {
       "id": "sales-associate",
@@ -193,7 +212,8 @@
       "minSocialSkills": 40,
       "annualSalaryMin": 6500,
       "annualSalaryMax": 13000,
-      "nextRoleId": "account-executive"
+      "nextRoleId": "account-executive",
+      "skillId": "sales"
     },
     {
       "id": "account-executive",
@@ -210,7 +230,8 @@
       "minSkill": 35,
       "annualSalaryMin": 18000,
       "annualSalaryMax": 32000,
-      "nextRoleId": "sales-manager"
+      "nextRoleId": "sales-manager",
+      "skillId": "sales"
     },
     {
       "id": "sales-manager",
@@ -225,7 +246,8 @@
       "requiresHigherEducation": false,
       "minSkill": 55,
       "annualSalaryMin": 32000,
-      "annualSalaryMax": 54000
+      "annualSalaryMax": 54000,
+      "skillId": "sales"
     }
   ]
 }

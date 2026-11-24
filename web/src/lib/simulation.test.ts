@@ -1265,6 +1265,8 @@ describe('life simulation', () => {
       currencyScale: 1,
       money: 1000,
       stress: 30,
+      intelligence: 50,
+      focus: 50,
       employment: { title: 'Analyst', type: 'full-time' as const, annualSalary: 52000, experienceYears: 1, performance: 100, promotions: 0, startedAtAge: 30 }
     };
     const worked = performActivity(worker, 'work');

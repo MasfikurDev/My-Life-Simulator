@@ -24,7 +24,8 @@ The supplied debug snapshot uses `formatVersion: 2`. That is the debug-export en
 
 | Domain | Owns | Reads from / connects to |
 |---|---|---|
-| Character | Player identity, attributes, personality, appearance, country/currency, birth date | Calendar, progression, every domain |
+| Character | Player identity, attributes, personality, appearance, country/currency, birth date, and authoritative persisted skill levels | Calendar, progression, every domain |
+| Skills | Canonical skill definitions, starting baselines, acquisition rules, level calculation, and skill-derived effects | Character attributes; Education, Work, Family, Business and personal activities; other domains consume skill queries and acquisition results through the Skills API |
 | Calendar and progression | Current date, age derivation, life-stage and age eligibility, due boundaries | Character, education, work, family, finance, events |
 | Education | Programmes, enrollment, attendance, subjects, tasks, grades, academic results, qualifications | Character, calendar, health/workload, finance for fees, Work for qualification eligibility |
 | Work | Job listings, applications, interviews, offers, employment, performance, experience, promotions | Character, education qualifications, health/workload, calendar, Finance for actual payroll |
@@ -40,7 +41,7 @@ The supplied debug snapshot uses `formatVersion: 2`. That is the debug-export en
 
 ## Required integration contracts
 
-1. **One owner per fact.** Character owns player identity and core attributes; Education owns qualifications; Work owns employment; Family owns the relationship graph; Finance owns balances and liabilities; Lifestyle owns household choices and service configuration.
+1. **One owner per fact.** Character owns player identity, core attributes and persisted skill levels; Skills owns skill definitions, progression rules and skill-derived effects; Education owns qualifications; Work owns employment; Family owns the relationship graph; Finance owns balances and liabilities; Lifestyle owns household choices and service configuration.
 2. **Cross-domain effects use explicit commands or results.** A UI component must not independently mutate a second domain's state. The simulation coordinator composes domain operations and returns one resulting character.
 3. **Financial changes are atomic.** Every money movement updates the relevant balance/asset/liability and appends one auditable ledger record. Rejected operations leave the complete input state unchanged.
 4. **Ledger and narrative history are distinct.** Life history explains what happened; the financial ledger records exact money movement. A money-related event may create both records, but neither replaces the other.
@@ -78,7 +79,9 @@ These event-cost and delayed-reward ledger entries, non-negative-cash protection
 ## Cross-domain dependency paths to test
 
 - Character birth date → current age/life stage → age-gated education, work, banking, household, and event eligibility.
-- Education attendance/tasks/grades → qualifications → Work role eligibility and career options.
+- Education attendance/tasks/grades → field and subject skills → academic results and qualifications → Work role eligibility and career options.
+- Family/social interactions and business ownership/management → communication, entrepreneurship and operations skills → relationship quality, career and business outcomes.
+- Work and career-development actions → role-specific skills → eligibility, hiring/interview outcomes, compensation efficiency and career performance.
 - Education + employment workload + selected activities → stamina/stress/health/focus → learning and work outcomes.
 - Work offer acceptance/resignation/promotion → employment state → workload and actual Finance payroll; previews must never create ledger income.
 - Family interaction/support → relationship bonds and family history; financial support must also atomically debit/credit the correct accounts and write Finance ledger records.

@@ -1,56 +1,84 @@
 import type { Character, CareerPathId } from './types';
-
-const FIELD_SKILLS: Record<string, string> = {
-  'computer science': 'technology', computing: 'technology', programming: 'technology', 'digital skills': 'technology',
-  engineering: 'engineering', 'electrical trades': 'engineering', construction: 'practical-trades', automotive: 'practical-trades',
-  business: 'business', 'business studies': 'business', accounting: 'business', 'small business': 'business',
-  'health sciences': 'healthcare', medicine: 'healthcare', 'medicine & health sciences': 'healthcare', 'public health': 'healthcare', 'first aid': 'healthcare',
-  law: 'law', education: 'education', teaching: 'education', 'natural sciences': 'science', 'research sciences': 'science',
-  'social sciences': 'social-science', arts: 'creative-arts', creativity: 'creative-arts', hospitality: 'hospitality',
-  communication: 'communication', 'project management': 'operations', 'workplace safety': 'practical-trades'
-};
-
-const CAREER_SKILLS: Record<CareerPathId, string> = {
-  'customer-service': 'customer-service',
-  operations: 'operations',
-  technology: 'technology',
-  sales: 'sales'
-};
+import { SKILL_CONTENT, type SkillDefinition, type SkillStartingStat } from './skill-content';
+import { SKILL_ACQUISITION_CONTENT, type SkillAcquisitionAction, type SkillAcquisitionSource } from './skill-acquisition';
 
 export function getEducationSkillId(field?: string): string {
   const normalized = (field ?? '').trim().toLowerCase();
-  return FIELD_SKILLS[normalized] ?? (normalized ? normalized.replace(/[^a-z0-9]+/g, '-') : 'general-learning');
+  return SKILL_CONTENT.educationFieldSkills.get(normalized) ?? 'general-learning';
 }
 
-export function getCareerSkillId(path?: CareerPathId | null): string {
-  return path ? CAREER_SKILLS[path] : 'professional-practice';
+export function getEducationSubjectSkillId(subject?: string, field?: string): string | undefined {
+  const normalized = (subject ?? '').trim().toLowerCase();
+  if (!normalized) return undefined;
+  const mapped = SKILL_CONTENT.educationSubjectSkills.get(normalized);
+  return mapped && mapped !== getEducationSkillId(field) ? mapped : undefined;
+}
+
+export function getCareerSkillId(path?: CareerPathId | null, roleId?: string): string {
+  if (roleId) {
+    const roleSkill = SKILL_CONTENT.careerRoleSkills.get(roleId);
+    if (roleSkill) return roleSkill;
+  }
+  return path ? SKILL_CONTENT.careerPathSkills.get(path) ?? 'professional-practice' : 'professional-practice';
 }
 
 export function getSkillLabel(skillId: string): string {
-  return skillId.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+  return SKILL_CONTENT.skillLabels.get(skillId) ??
+    skillId.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 }
 
-/** Older saves fall back to the closest existing attribute until a skill is first developed. */
+export interface SkillAcquisitionContext {
+  field?: string;
+  subject?: string;
+  careerPathId?: CareerPathId | null;
+  roleId?: string;
+}
+
+export function applySkillAcquisition(
+  character: Character,
+  source: SkillAcquisitionSource,
+  action: SkillAcquisitionAction,
+  context: SkillAcquisitionContext = {}
+): Character {
+  const rules = SKILL_ACQUISITION_CONTENT.rulesBySourceAction.get(source + ':' + action) ?? [];
+  let next = character;
+  for (const rule of rules) {
+    const skillId = rule.target.kind === 'skill' ? rule.target.skillId
+      : rule.target.kind === 'education-field' ? getEducationSkillId(context.field)
+      : rule.target.kind === 'education-subject' ? getEducationSubjectSkillId(context.subject, context.field)
+      : rule.target.kind === 'career-role-specialty' ? getCareerSpecialtySkillId(context.roleId)
+      : getCareerSkillId(context.careerPathId, context.roleId);
+    if (skillId) next = awardSkillProgress(next, skillId, rule.amount);
+  }
+  return next;
+}
+
+function getSkillDefinition(skillId: string): SkillDefinition {
+  return SKILL_CONTENT.skillById.get(skillId) ?? SKILL_CONTENT.skillById.get('general-learning')!;
+}
+
+/** Untrained skills inherit a baseline from relevant character attributes; stored progress remains authoritative. */
+export function getCareerSpecialtySkillId(roleId?: string): string | undefined {
+  return roleId ? SKILL_CONTENT.careerRoleSpecialtySkills.get(roleId) : undefined;
+}
+
+export function getCareerSkillLevel(character: Character, path?: CareerPathId | null, roleId?: string): number {
+  const primary = getSkillLevel(character, getCareerSkillId(path, roleId));
+  const specialtyId = getCareerSpecialtySkillId(roleId);
+  return specialtyId ? Math.round((primary + getSkillLevel(character, specialtyId)) / 2) : primary;
+}
+
 export function getSkillLevel(character: Character, skillId: string): number {
   const saved = character.skills?.[skillId];
   if (Number.isFinite(saved)) return Math.max(0, Math.min(100, Math.round(saved!)));
-  const fallback: Record<string, number> = {
-    technology: Math.round((character.intelligence + (character.focus ?? 50)) / 2),
-    engineering: Math.round((character.intelligence + (character.discipline ?? 50)) / 2),
-    business: Math.round((character.intelligence + (character.confidence ?? 50)) / 2),
-    healthcare: Math.round((character.intelligence + character.health) / 2),
-    communication: character.socialSkills ?? 50,
-    'customer-service': Math.round(((character.socialSkills ?? 50) + (character.confidence ?? 50)) / 2),
-    operations: Math.round(((character.discipline ?? 50) + (character.focus ?? 50)) / 2),
-    sales: Math.round(((character.socialSkills ?? 50) + (character.confidence ?? 50)) / 2),
-    'physical-fitness': character.fitness,
-    'general-learning': Math.round((character.intelligence + (character.focus ?? 50)) / 2)
-  };
-  return Math.max(0, Math.min(100, fallback[skillId] ?? fallback['general-learning']));
+  const definition = getSkillDefinition(skillId);
+  const values = definition.startingStats.map((stat: SkillStartingStat) => character[stat] ?? 50);
+  const baseline = values.reduce((total, value) => total + value, 0) / values.length;
+  return Math.max(0, Math.min(100, Math.round(baseline)));
 }
 
 export function awardSkillProgress(character: Character, skillId: string, amount: number): Character {
-  if (!Number.isFinite(amount) || amount <= 0) return character;
+  if (!SKILL_CONTENT.skillById.has(skillId) || !Number.isFinite(amount) || amount <= 0) return character;
   const current = getSkillLevel(character, skillId);
   const pressure = character.stress ?? 30;
   const energy = character.stamina ?? 50;

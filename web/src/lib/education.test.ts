@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createCharacter } from './simulation';
 import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation, resolveEducationWeek } from './education';
 import { getCareerRequirements, getCareerRole, isEligibleForRole } from './work';
+import { getEducationSubjectSkillId, getSkillLevel } from './skills';
 
 describe('education progression', () => {
   it('offers age-appropriate school, vocational and higher-education routes', () => {
@@ -35,6 +36,30 @@ describe('education progression', () => {
     const result = resolveEducationWeek(student, [], '2026-11-02', 0);
     expect(result.character.educationEnrollment?.grade).toBe(student.educationEnrollment!.grade);
     expect(result.recap.some((item) => item.includes('missed learning'))).toBe(false);
+  });
+
+  it('maps education subjects to distinct skills and develops them through focused tasks', () => {
+    const enrolled = enrollInEducation(createCharacter('Child', 4), 'early-learning', 'Foundations').character;
+    const numeracy = enrolled.educationEnrollment!.subjects.find((subject) => subject.name === 'Numeracy')!;
+    expect(getEducationSubjectSkillId('Numeracy', 'Foundations')).toBe('numeracy');
+    const before = getSkillLevel(enrolled, 'numeracy');
+    const task = [{ taskType: 'assignment' as const, subjectId: numeracy.id }];
+    const result = resolveEducationWeek(enrolled, task, '2026-11-02', 2);
+    expect(getSkillLevel(result.character, 'numeracy')).toBeGreaterThan(before);
+    const novice = resolveEducationWeek({ ...enrolled, skills: { numeracy: 20 } }, task, '2026-11-02', 2);
+    const skilled = resolveEducationWeek({ ...enrolled, skills: { numeracy: 90 } }, task, '2026-11-02', 2);
+    expect(skilled.character.educationEnrollment!.subjects.find((subject) => subject.id === numeracy.id)!.grade)
+      .toBeGreaterThan(novice.character.educationEnrollment!.subjects.find((subject) => subject.id === numeracy.id)!.grade);
+  });
+
+  it('develops the enrolled field skill through weekly academic tasks', () => {
+    const enrolled = enrollInEducation({
+      ...createCharacter('Student', 25), money: 100000, intelligence: 50, focus: 50, discipline: 85,
+      health: 90, stress: 20, stamina: 80, skills: { technology: 40 }
+    }, 'bachelor-degree', 'Computer science').character;
+    const before = getSkillLevel(enrolled, 'technology');
+    const result = resolveEducationWeek(enrolled, ['study', 'assignment'], '2026-11-02', 6);
+    expect(getSkillLevel(result.character, 'technology')).toBeGreaterThan(before);
   });
 
   it('improves grades when study and assignment work is completed', () => {

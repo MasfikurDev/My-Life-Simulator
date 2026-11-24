@@ -90,7 +90,7 @@ Record important family milestones and decisions with year/date, involved person
 
 Interactions are targeted at a specific person and should communicate expected time, cost, prerequisites, and likely effects. Initial interaction types may include spending meaningful time together, reaching out/maintaining contact, working through a conflict, and providing financial support (adult-only, affordable, and posted through Finance's ledger).
 
-Interaction outcomes update the relevant bond and record a history entry. Do not allow repeated actions to max relationships instantly; interactions are selected in the Family workspace as stamina-backed weekly activities. Use context and cooldown rules where needed, not an arbitrary action quota or player-managed calendar.
+Interaction outcomes update the relevant bond and record a history entry. Communication is a learned capability: spending time, reaching out and reconciling develop it, while higher communication modestly improves the relationship gains from those interactions. Skill progression is owned by the Skills domain; Family consumes its query/acquisition API and remains authoritative for bond changes. Do not allow repeated actions to max relationships instantly; interactions are selected in the Family workspace as stamina-backed weekly activities. Use context and cooldown rules where needed, not an arbitrary action quota or player-managed calendar.
 
 Family actions must be validated in the simulation. UI disabling is convenience only. Failed actions leave all state unchanged.
 

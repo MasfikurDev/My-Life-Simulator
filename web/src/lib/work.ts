@@ -1,7 +1,7 @@
 import type { CareerPathId, Character, Employment, EmploymentType, JobApplication, JobOffer, PromotionOffer } from './types';
 import { addCalendarDays } from './calendar';
 import { getClothingPresentationScore } from './lifestyle';
-import { getCareerSkillId, getSkillLevel } from './skills';
+import { applySkillAcquisition, getSkillLabel, getSkillLevel } from './skills';
 import { CAREER_ROLES } from './career-content';
 import { CAREER_EMPLOYERS } from './employer-content';
 
@@ -9,6 +9,8 @@ export interface CareerRole {
   id: string;
   pathId: CareerPathId;
   pathName: string;
+  skillId: string;
+  specialtySkillId?: string;
   title: string;
   level: number;
   description: string;
@@ -23,6 +25,7 @@ export interface CareerRole {
   minSocialSkills?: number;
   minConfidence?: number;
   minSkill?: number;
+  minSpecialtySkill?: number;
   requiredQualificationIds?: string[];
   requiredQualificationFields?: string[];
   requiredQualificationCategory?: 'certificate' | 'license' | 'diploma' | 'degree' | 'professional';
@@ -106,7 +109,8 @@ export function getCareerRequirements(character: Character, role: CareerRole): C
     ...(role.minConfidence ? [{ label: 'Confidence', met: (character.confidence ?? 50) >= role.minConfidence, detail: 'Confidence ' + role.minConfidence + '+' }] : []),
     ...(role.minDiscipline ? [{ label: 'Discipline', met: (character.discipline ?? 50) >= role.minDiscipline, detail: 'Discipline ' + role.minDiscipline + '+' }] : []),
     ...(role.minCreativity ? [{ label: 'Creativity', met: (character.creativity ?? 50) >= role.minCreativity, detail: 'Creativity ' + role.minCreativity + '+' }] : []),
-    ...(role.minSkill ? [{ label: 'Relevant skill', met: getSkillLevel(character, getCareerSkillId(role.pathId)) >= role.minSkill, detail: getCareerSkillId(role.pathId).replace(/-/g, ' ') + ' ' + role.minSkill + '+ (current ' + getSkillLevel(character, getCareerSkillId(role.pathId)) + ')' }] : []),
+    ...(role.minSkill !== undefined ? [{ label: 'Relevant skill', met: getSkillLevel(character, role.skillId) >= role.minSkill, detail: getSkillLabel(role.skillId) + ' ' + role.minSkill + '+ (current ' + getSkillLevel(character, role.skillId) + ')' }] : []),
+    ...(role.minSpecialtySkill !== undefined && role.specialtySkillId ? [{ label: 'Specialty skill', met: getSkillLevel(character, role.specialtySkillId) >= role.minSpecialtySkill, detail: getSkillLabel(role.specialtySkillId) + ' ' + role.minSpecialtySkill + '+ (current ' + getSkillLevel(character, role.specialtySkillId) + ')' }] : []),
     ...(role.requiredQualificationIds ?? []).map((id) => {
       const qualification = (character.qualifications ?? []).find((item) => (item.id === id || item.programId === id) && (item.expiresAtAge === undefined || character.age <= item.expiresAtAge));
       return { label: 'Qualification', met: Boolean(qualification), detail: qualification?.name ?? id };
@@ -252,7 +256,7 @@ export function resolveJobApplication(character: Character, listingId: string, r
   const fit = requirements.length ? requirements.filter((item) => item.met).length / requirements.length : 0;
   const performance = character.employment?.performance ?? 55;
   const experienceAdvantage = Math.min(0.12, Math.max(0, getCareerExperience(character) - role.minExperienceYears) * 0.015);
-  const roleSkillAdvantage = ((character.intelligence - role.minIntelligence) / 500) + (role.minSocialSkills ? ((character.socialSkills ?? 50) - role.minSocialSkills) / 650 : 0) + (role.minFocus ? ((character.focus ?? 50) - role.minFocus) / 700 : 0) + (role.minConfidence ? ((character.confidence ?? 50) - role.minConfidence) / 750 : 0);
+  const roleSkillAdvantage = ((getSkillLevel(character, role.skillId) - 50) / 1000) + (role.specialtySkillId ? (getSkillLevel(character, role.specialtySkillId) - 50) / 1200 : 0) + ((character.intelligence - role.minIntelligence) / 500) + (role.minSocialSkills ? ((character.socialSkills ?? 50) - role.minSocialSkills) / 650 : 0) + (role.minFocus ? ((character.focus ?? 50) - role.minFocus) / 700 : 0) + (role.minConfidence ? ((character.confidence ?? 50) - role.minConfidence) / 750 : 0);
   const workloadPenalty = Math.max(0, (character.stress ?? 30) - 60) / 400;
   const chance = Math.max(0.15, Math.min(0.92, 0.35 + fit * 0.25 + (performance - 50) / 500 + experienceAdvantage + roleSkillAdvantage - workloadPenalty));
   const invited = random() < chance;
@@ -289,10 +293,11 @@ export function resolveJobInterview(character: Character, applicationId: string,
   const performance = character.employment?.performance ?? 55;
   const qualification = character.education === 'Higher education' ? 0.12 : 0;
   const personality = (character.personality ?? []).some((trait) => trait === 'Ambitious' || trait === 'Disciplined') ? 0.06 : 0;
-  const communication = ((character.socialSkills ?? 50) - 50) / 500 + ((character.confidence ?? 50) - 50) / 600;
+  const communication = ((character.socialSkills ?? 50) - 50) / 500 + ((character.confidence ?? 50) - 50) / 600 + (getSkillLevel(character, 'communication') - 50) / 1000;
+  const roleSkillAdvantage = (getSkillLevel(character, role.skillId) - 50) / 1200 + (role.specialtySkillId ? (getSkillLevel(character, role.specialtySkillId) - 50) / 1500 : 0);
   const readiness = ((character.focus ?? 50) - 50) / 700 - Math.max(0, (character.stress ?? 30) - 60) / 500;
   const presentation = Math.max(-0.02, Math.min(0.02, (getClothingPresentationScore(character, 90) - 50) / 2500));
-  const chance = Math.max(0.15, Math.min(0.92, 0.48 + (character.intelligence - 50) / 300 + (performance - 50) / 500 + qualification + personality + communication + readiness + presentation));
+  const chance = Math.max(0.15, Math.min(0.92, 0.48 + (character.intelligence - 50) / 300 + (performance - 50) / 500 + qualification + personality + communication + readiness + presentation + roleSkillAdvantage));
   const passed = random() < chance;
   const issuedAt = character.calendar?.currentDate ?? character.year + '-01-01';
   const offer: JobOffer | null = passed ? {
@@ -324,7 +329,7 @@ export function resolveJobInterview(character: Character, applicationId: string,
     description: passed ? application.employer + ' offered you the ' + application.title + ' role at ' + formatSalary(character, application.annualSalary) + ' per year.' : 'The interview with ' + application.employer + ' was unsuccessful. ' + (role ? getInterviewRejectionReason(character, role) : 'Another candidate was selected.'),
     kind: passed ? 'milestone' : 'activity'
   });
-  return next;
+  return applySkillAcquisition(next, 'work', 'interview');
 }
 
 function formatSalary(character: Character, amount: number): string {

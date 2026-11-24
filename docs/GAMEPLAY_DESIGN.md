@@ -84,7 +84,23 @@ Character values are gameplay inputs, not decorative scores. Keep enduring abili
 - **Physical condition:** health, fitness and stamina.
 - **Wellbeing:** happiness and stress (stress is inverse: lower is better).
 
-These values change through relevant weekly activities, life events, work demands, education and recovery. They should have clear, bounded effects. Health, happiness, fitness and intelligence already exist; stamina, focus, confidence, discipline, creativity, social skills and stress are now generated and receive initial weekly activity effects. **Implemented wellbeing loop:** workload is measured from automatic education/work responsibilities and selected activity effort. Heavy weeks raise stress and reduce stamina;  sustained high stress can create burnout/anxiety conditions and reduce study/work efficiency. Rest and mindfulness recover condition; counselling treats persistent mental pressure; medical check-ups diagnose conditions and may initiate a short treatment course. Active conditions and medication progress through weekly resolution. Deeper condition variety, long-term chronic care, injuries, insurance and localized healthcare systems remain future expansions.
+These values change through relevant weekly activities, life events, work demands, education and recovery. They should have clear, bounded effects. Health, happiness, fitness and intelligence already exist; stamina, focus, confidence, discipline, creativity, social skills and stress are now generated and receive initial weekly activity effects.
+
+### Skills and learned capabilities
+
+Skills represent learned capabilities, not another set of character attributes or a universal points currency.
+
+- Skills use a bounded 0–100 level. Before a skill is developed, its starting level is derived from relevant existing character attributes; once progress is stored, that saved skill level is authoritative.
+- Education develops both field knowledge and focused subject skills. Study, assignments and exams award the relevant skills; higher subject skill improves academic task results.
+- Exercise develops physical fitness and movement coordination. Social and family interactions develop communication; communication also modestly improves relationship interaction outcomes and interview chances.
+- Work and career-development activities develop the active role's skill. Role-specific skills influence eligibility where a threshold exists, hiring/interview outcomes, extra-shift pay and career-performance growth.
+- Starting and managing a business develops entrepreneurship and operations; those capabilities contribute modestly to modeled business returns.
+- Stress and low stamina reduce skill-growth efficiency. Skills must improve only through relevant actions or experiences, and each visible skill must have a real acquisition source and gameplay effect.
+- Keep skills distinct from intelligence, focus, confidence, discipline, creativity, social skills, fitness, health and stamina. Do not create a skill for every attribute or display unsupported placeholder skills.
+
+**Implemented initial skill system:** the validated catalogue covers current education fields and subjects and all current career roles. The Life > Skills workspace shows levels, development sources, gameplay effects and projected weekly changes. This is a complete first pass over current content and mechanics, not a claim that every real-world occupation or capability is modeled.
+
+**Implemented wellbeing loop:** workload is measured from automatic education/work responsibilities and selected activity effort. Heavy weeks raise stress and reduce stamina;  sustained high stress can create burnout/anxiety conditions and reduce study/work efficiency. Rest and mindfulness recover condition; counselling treats persistent mental pressure; medical check-ups diagnose conditions and may initiate a short treatment course. Active conditions and medication progress through weekly resolution. Deeper condition variety, long-term chronic care, injuries, insurance and localized healthcare systems remain future expansions.
 
 ### Employment, careers and qualifications
 

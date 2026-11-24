@@ -6,13 +6,15 @@
   import FamilyWorkspace from './FamilyWorkspace.svelte';
   import LifeTreeWorkspace from './LifeTreeWorkspace.svelte';
   import HealthWorkspace from './HealthWorkspace.svelte';
+  import SkillsWorkspace from './SkillsWorkspace.svelte';
   import LifeOverview from './LifeOverview.svelte';
-  type LifeView = 'overview' | 'health' | 'supermarket' | 'subscriptions' | 'owned' | 'family' | 'tree' | 'history';
+  type LifeView = 'overview' | 'health' | 'skills' | 'supermarket' | 'subscriptions' | 'owned' | 'family' | 'tree' | 'history';
   let { character, projectedCharacter = character, onChange, onNotify, initialView = 'overview' }: { character: Character; projectedCharacter?: Character; onChange: (next: Character) => void; onNotify: (message: string) => void; initialView?: LifeView } = $props();
   let activeView = $state<LifeView>(initialView);
   const views: { id: LifeView; label: string }[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'health', label: 'Health' },
+    { id: 'skills', label: 'Skills' },
     { id: 'owned', label: 'Inventory' },
     { id: 'supermarket', label: 'Supermarket' },
     { id: 'subscriptions', label: 'Subscriptions' },
@@ -56,6 +58,8 @@
     <LifeOverview {character} {projectedCharacter} />
   {:else if activeView === 'health'}
     <HealthWorkspace {character} {projectedCharacter} {onChange} {onNotify} />
+  {:else if activeView === 'skills'}
+    <SkillsWorkspace {character} {projectedCharacter} />
   {:else if activeView === 'family'}
     <FamilyWorkspace {character} {projectedCharacter} {onChange} />
   {:else if activeView === 'tree'}

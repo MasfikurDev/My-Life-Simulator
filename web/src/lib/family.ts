@@ -1,4 +1,5 @@
 import type { Character, FamilyBond, FamilyHistoryEntry, FamilyPerson, FamilyRelationship, FamilyState, FamilyRelationshipType, FinancialTransaction, Gender, LifeEvent } from './types';
+import { applySkillAcquisition, getSkillLevel } from './skills';
 
 export type FamilyInteraction = 'spend-time' | 'reach-out' | 'reconcile' | 'provide-support';
 
@@ -298,11 +299,12 @@ export function interactWithFamily(character: Character, personId: string, inter
   if (interaction === 'reconcile' && (character.age < 13 || family.bonds[bondIndex].tension < 15)) return character;
   if (interaction === 'provide-support' && (character.age < 18 || !Number.isSafeInteger(supportAmount) || supportAmount <= 0 || supportAmount > character.money)) return character;
 
+  const communicationFactor = 0.85 + getSkillLevel(character, 'communication') / 400;
   const bonds = family.bonds.map((bond, index) => {
     if (index !== bondIndex) return bond;
-    if (interaction === 'spend-time') return { ...bond, closeness: clamp(bond.closeness + 8), trust: clamp(bond.trust + 3), tension: clamp(bond.tension - 2), lastInteractionYear: character.year };
-    if (interaction === 'reach-out') return { ...bond, closeness: clamp(bond.closeness + 4), trust: clamp(bond.trust + 2), lastInteractionYear: character.year };
-    if (interaction === 'reconcile') return { ...bond, closeness: clamp(bond.closeness + 2), trust: clamp(bond.trust + 2), tension: clamp(bond.tension - 12), lastInteractionYear: character.year };
+    if (interaction === 'spend-time') return { ...bond, closeness: clamp(bond.closeness + Math.round(8 * communicationFactor)), trust: clamp(bond.trust + Math.round(3 * communicationFactor)), tension: clamp(bond.tension - Math.round(2 * communicationFactor)), lastInteractionYear: character.year };
+    if (interaction === 'reach-out') return { ...bond, closeness: clamp(bond.closeness + Math.round(4 * communicationFactor)), trust: clamp(bond.trust + Math.round(2 * communicationFactor)), lastInteractionYear: character.year };
+    if (interaction === 'reconcile') return { ...bond, closeness: clamp(bond.closeness + Math.round(2 * communicationFactor)), trust: clamp(bond.trust + Math.round(2 * communicationFactor)), tension: clamp(bond.tension - Math.round(12 * communicationFactor)), lastInteractionYear: character.year };
     return { ...bond, closeness: clamp(bond.closeness + 2), trust: clamp(bond.trust + 5), supportProvidedTotal: bond.supportProvidedTotal + supportAmount, lastInteractionYear: character.year };
   });
   const nextFamily: FamilyState = {
@@ -345,7 +347,7 @@ export function interactWithFamily(character: Character, personId: string, inter
     };
     next.financialTransactions = [...transactions, transaction].slice(-300);
   }
-  return next;
+  return applySkillAcquisition(next, 'family', interaction);
 }
 
 export function advanceFamilyYear(character: Character): Character {
