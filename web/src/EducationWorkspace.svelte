@@ -96,6 +96,7 @@
         <label class="study-focus-select"><span>Default subject for new activities</span><select value={selectedSubject?.id ?? ''} onchange={(event) => selectedSubjectId = event.currentTarget.value}>
           {#each enrollment.subjects as subject}<option value={subject.id}>{subject.name} · {Math.round(subject.grade)}%</option>{/each}
         </select></label>
+        <small class="study-focus-hint">This is only the default for activities you add next. Existing planned activities keep their selected subject.</small>
       </div>
       <div class="education-task-grid">
         {#each taskTypes as task}
