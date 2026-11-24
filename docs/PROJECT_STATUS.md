@@ -1,7 +1,7 @@
 # Project Status & Development Priorities
 
 **Repository:** [MasfikurDev/My-Life-Simulator](https://github.com/MasfikurDev/My-Life-Simulator)  
-**Reviewed:** 2026-11-09 (after Banking and credit-score PR #97); skill-system status updated 2026-11-22  
+**Reviewed:** 2026-11-24 (skill-system implementation and validation); the engineering baseline below remains historical from 2026-11-09  
 **Purpose:** A concise, evidence-based snapshot of what is implemented, what is only a foundation, and what remains planned. This document summarizes the canonical specifications; it does not replace them.
 
 ## Product direction
@@ -32,6 +32,7 @@ Do not reintroduce a universal three-actions-per-week quota. Personal activities
 | Character creation and saves | Implemented foundation | Randomized character profiles, age-scaled child attributes, age-aware natural development, three save slots, strict current-schema validation | Broader scenario validation and deeper life-stage content |
 | Weekly simulation | Core implemented | Calendar, date/week calendar, automatic education/work obligations, stamina-based personal activities, deterministic resolution, passive household/lifestyle effects, history and recap; direct year advancement resolves the current passive household/lifestyle state | Date-based deadlines, richer delayed consequences, multi-week advancement |
 | Education | Playable foundation | Enrollment, programmes, classes, weekly tasks, grades, tuition, history, qualifications | Localization, scholarships, retakes, licensing, apprenticeships |
+| Skills | Initial system | 33 validated canonical skills; mappings for all current education fields and subjects; role-specific skills for all 12 career roles; validated acquisition rules, gameplay effects, and Life workspace | Broader occupation coverage, balance tuning, additional supported learning sources, and mobile UI review |
 | Work | Playable foundation | Job board, applications, interviews, offers, employment, job changes, resignation, career previews and promotion offers | Persistent employers/vacancies, workplace decisions, layoffs, benefits, bonuses, monthly payroll |
 | Finance | Broad foundation | Accounts, cards, savings, loans, recurring payments, property, multi-asset investments, business, taxes, credit score, loan eligibility/rejection scoring, and economic indicators | Monthly payroll/bills/business cash flow, richer statements/reporting, deeper product variety, and variable-rate debt |
 | Family | Foundation + initial interactions | Persistent people and relationship graph, bonds, history, targeted interactions, ledger-backed adult support | Partnership, separation, parenthood, adoption, dependants, caregiving, family events, mortality and legacy |
@@ -67,7 +68,7 @@ This is a dated validation baseline, not a guarantee about later commits or depl
 2. **Financial cadence:** move supported recurring obligations and payroll to explicit due dates; add monthly statements; guarantee exactly-once processing across month/year boundaries and define insufficient-funds behavior.
 3. **Integrated scenario testing:** run repeatable multi-week scenarios for school-age, teen, employed, unemployed, independent-household, family-responsibility, and later-life characters.
 4. **Family lifecycle:** partnership, separation, parenthood/adoption, guardianship, dependants, and caregiving—only with complete graph, time, finance, health, persistence, and history contracts.
-5. **Workplace depth:** employer state, persistent vacancies, workplace decisions, job security, benefits, bonuses, and realistic compensation. The initial skill catalogue, acquisition rules, role-specific career links and current gameplay effects are implemented in the open skill-system PR.
+5. **Workplace depth:** employer state, persistent vacancies, workplace decisions, job security, benefits, bonuses, and realistic compensation. The initial skill catalogue, acquisition rules, role-specific career links, and current gameplay effects are implemented; broader occupation coverage and balance remain future work.
 6. **Later-life completion:** retirement, mortality, terminal character state, final life summary, estate/legacy, then full birth-to-death balancing.
 7. **Replayability:** varied authored events, meaningful life paths, balance, edge cases, and repeatable full-life playthroughs.
 
