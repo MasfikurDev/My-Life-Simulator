@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createCharacter } from './simulation';
+import { advanceWeek, createCharacter, planEducationTaskInNextFreeTime } from './simulation';
 import { enrollInEducation, getAvailableEducationPrograms, pauseEducation, resumeEducation, resolveEducationWeek } from './education';
 import { getCareerRequirements, getCareerRole, isEligibleForRole } from './work';
 import { getEducationSubjectSkillId, getSkillLevel } from './skills';
@@ -60,6 +60,20 @@ describe('education progression', () => {
     const before = getSkillLevel(enrolled, 'technology');
     const result = resolveEducationWeek(enrolled, ['study', 'assignment'], '2026-11-02', 6);
     expect(getSkillLevel(result.character, 'technology')).toBeGreaterThan(before);
+  });
+
+  it('awards one task-specific field skill gain for planned academic work', () => {
+    const base = {
+      ...createCharacter('Student', 25), money: 100000, intelligence: 50, focus: 50, discipline: 85,
+      health: 90, stress: 20, stamina: 100, skills: { technology: 40 },
+      calendar: { currentDate: '2026-11-02', birthDate: '2001-11-02' }
+    };
+    const enrolled = enrollInEducation(base, 'bachelor-degree', 'Computer science').character;
+    const planned = planEducationTaskInNextFreeTime(enrolled, 'assignment');
+    expect(planned.issue).toBeNull;
+    const result = advanceWeek(planned.character);
+    expect(result.issue).toBeNull;
+    expect(getSkillLevel(result.character, 'technology')).toBe(44);
   });
 
   it('improves grades when study and assignment work is completed', () => {

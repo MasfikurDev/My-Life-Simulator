@@ -1387,9 +1387,8 @@ export function advanceWeek(character: Character, random?: () => number): Weekly
       recap.push('Food: ate ' + foodAction.name + (foodAction.quantity > 1 ? ' × ' + foodAction.quantity : '') + '.');
     } else if (item.action?.kind === 'education') {
       const educationAction = item.action as Extract<PlannedAction, { kind: 'education' }>;
-      result = performActivity(next, 'study', weekRandom);
+      result = performActivity(next, 'study', weekRandom, { skillProgress: false });
       if (result !== next) {
-        result = applySkillAcquisition(result, 'education-task', educationAction.taskType, { field: next.educationEnrollment?.field });
         educationTasks.push({ taskType: educationAction.taskType, subjectId: educationAction.subjectId });
         const subjectName = next.educationEnrollment?.subjects.find((subject) => subject.id === educationAction.subjectId)?.name;
         recap.push((subjectName ? subjectName + ': ' : '') + (educationAction.taskType === 'assignment' ? 'completed an education assignment.' : educationAction.taskType === 'exam' ? 'completed an academic assessment.' : 'completed a focused study session.'));
@@ -1615,7 +1614,7 @@ export function getWeeklyActivityReview(character: Character): WeeklyActivityRev
   };
 }
 
-export function performActivity(character: Character, activity: ActivityId, random: () => number = Math.random): Character {
+export function performActivity(character: Character, activity: ActivityId, random: () => number = Math.random, options: { skillProgress?: boolean } = {}): Character {
   const earlyDevelopmentStudy = activity === 'study' && character.age < 3 && character.educationEnrollment?.programId === 'early-development';
   if ((!earlyDevelopmentStudy && !isActivityAvailable(character.age, activity, character.employment)) || !canAffordActivity(character, activity)) return character;
   const next = { ...character, history: [...character.history] };
@@ -1626,7 +1625,7 @@ export function performActivity(character: Character, activity: ActivityId, rand
       const energy = next.stamina ?? 50;
       const studyGain = pressure >= 85 || energy < 20 ? 1 : pressure >= 70 || energy < 35 ? 3 : 5;
       next.intelligence = clamp(next.intelligence + studyGain);
-      applySkillProgress(next, 'activity', 'study', { field: next.educationEnrollment?.field });
+      if (options.skillProgress !== false) applySkillProgress(next, 'activity', 'study', { field: next.educationEnrollment?.field });
       next.happiness = clamp(next.happiness - 1);
       next.focus = clamp((next.focus ?? 50) + 3);
       next.discipline = clamp((next.discipline ?? 50) + 1);
