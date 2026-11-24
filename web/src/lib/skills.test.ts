@@ -159,9 +159,10 @@ describe('skill gameplay effects', () => {
 
   it('improves academic task results through the enrolled field skill', () => {
     const enrolled = enrollInEducation({
-      ...createCharacter('Student', 25), money: 100000, intelligence: 85, focus: 85, discipline: 85,
+      ...createCharacter('Student', 25), money: 100000, currency: 'USD', currencyScale: 1, intelligence: 85, focus: 85, discipline: 85,
       educationRecords: [{ id: 'secondary-school', level: 'upper-secondary', institution: 'Secondary school', field: 'Science', startedAtAge: 15, completedAtAge: 19, status: 'completed' }]
     }, 'bachelor-degree', 'Computer science').character;
+    expect(enrolled.educationEnrollment).not.toBeNull();
     const fieldSubject = enrolled.educationEnrollment!.subjects.find((subject) => subject.name === 'Computer science')!;
     const task = [{ taskType: 'assignment' as const, subjectId: fieldSubject.id }];
     const novice = resolveEducationWeek({ ...enrolled, skills: { programming: 20 } }, task, '2026-11-02', 4);
