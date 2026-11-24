@@ -5,9 +5,10 @@
   const results = $derived([...(character.academicHistory ?? [])].reverse());
   const qualifications = $derived([...(character.qualifications ?? [])].reverse());
   const activeRecords = $derived([...(character.educationRecords ?? [])].filter((record) => record.status === 'enrolled' || record.status === 'paused').reverse());
-  const completedCount = $derived(results.filter((result) => result.outcome === 'completed').length + qualifications.length);
+  const priorRecords = $derived([...(character.educationRecords ?? [])].filter((record) => record.status === 'completed' && !results.some((result) => record.id === result.programId || record.id.startsWith(result.programId + '-'))).reverse());
+  const completedCount = $derived(results.filter((result) => result.outcome === 'completed').length + (character.educationRecords ?? []).filter((record) => record.status === 'completed' && !results.some((result) => record.id === result.programId || record.id.startsWith(result.programId + '-'))).length);
   const certificateCount = $derived(qualifications.filter((item) => item.category === 'certificate').length);
-  function levelName(level: string) { return level.replaceAll('-', ' ').replace(/\\b\\w/g, (letter) => letter.toUpperCase()); }
+  function levelName(level: string) { return level.replaceAll('-', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()); }
 </script>
 
 <section class="records-page">
@@ -39,11 +40,14 @@
     <p class="records-empty">No {filter === 'certificates' ? 'certificates' : 'qualifications'} recorded yet. Completed programmes will appear here.</p>
   {/if}
 
-  {#if (filter === 'all' || filter === 'history') && (results.length || activeRecords.length)}
+  {#if (filter === 'all' || filter === 'history') && (results.length || activeRecords.length || priorRecords.length)}
     <section class="record-group">
-      <div class="record-group-heading"><h3>Academic history</h3><span>{results.length + activeRecords.length}</span></div>
+      <div class="record-group-heading"><h3>Academic history</h3><span>{results.length + activeRecords.length + priorRecords.length}</span></div>
       {#each activeRecords as record}
         <article class="history-card"><div><strong>{levelName(record.level)}</strong><small>{record.institution} · {record.field} · started age {record.startedAtAge}</small></div><span class:record-paused={record.status === 'paused'}>{record.status === 'paused' ? 'On hold' : 'In progress'}</span></article>
+      {/each}
+      {#each priorRecords as record}
+        <article class="history-card"><div><strong>{levelName(record.level)}</strong><small>{record.institution} · {record.field} · completed age {record.completedAtAge ?? record.startedAtAge}</small></div><span class="record-passed">Completed</span></article>
       {/each}
       {#each results as result}
         <article class="history-card"><div><strong>{levelName(result.level)} · {result.field}</strong><small>{result.institution} · completed age {result.completedAtAge}</small></div><span class:record-passed={result.outcome === 'completed'} class:record-failed={result.outcome !== 'completed'}>{result.outcome === 'completed' ? 'Passed' : 'Not completed'} · {Math.round(result.grade)}%</span></article>
@@ -53,7 +57,7 @@
     <p class="records-empty">Your academic history will appear here as programmes are started and completed.</p>
   {/if}
 
-  {#if filter === 'all' && !qualifications.length && !results.length && !activeRecords.length}
+  {#if filter === 'all' && !qualifications.length && !results.length && !activeRecords.length && !priorRecords.length}
     <p class="records-empty">There are no educational records yet. Enrol in a programme to begin building your academic history.</p>
   {/if}
 </section>
