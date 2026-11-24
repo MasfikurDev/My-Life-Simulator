@@ -71,7 +71,7 @@
 {:else}
 {#if enrollment}
   <section class="education-hero domain-panel">
-    <div class="education-hero-top"><div><div class="eyebrow">CURRENT ENROLLMENT · {enrollment.institution.toUpperCase()}</div><h2>{getEducationProgram(enrollment.programId)?.title ?? enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">{enrollment.status === 'paused' ? 'ON HOLD' : 'ENROLLED'}</span></div>
+    <div class="education-hero-top"><div><div class="eyebrow">YOUR CURRENT PROGRAMME · {enrollment.institution.toUpperCase()}</div><h2>{getEducationProgram(enrollment.programId)?.title ?? enrollment.level.replaceAll('-', ' ')}</h2><p>{enrollment.field} · {enrollment.institution}</p></div><span class="domain-status">{enrollment.status === 'paused' ? 'ON HOLD' : 'ENROLLED'}</span></div>
     <div class="education-metrics">
       <div><span>{enrollment.level === 'early-learning' ? 'DEVELOPMENT' : 'OVERALL GRADE'}</span><strong>{Math.round(enrollment.grade)}%{#if projectedEnrollment && projectedEnrollment.grade !== enrollment.grade} → {Math.round(projectedEnrollment.grade)}%{/if}</strong><small>{gradeLabel(enrollment.grade)}</small></div>
       <div><span>ATTENDANCE</span><strong>{Math.round(enrollment.attendance)}%{#if projectedEnrollment && projectedEnrollment.attendance !== enrollment.attendance} → {Math.round(projectedEnrollment.attendance)}%{/if}</strong><small>Present / scheduled</small></div>
@@ -93,7 +93,7 @@
 
         <div class="education-study-planner">
       <div class="study-focus-row">
-        <label class="study-focus-select"><span>Study focus</span><select value={selectedSubject?.id ?? ''} onchange={(event) => selectedSubjectId = event.currentTarget.value}>
+        <label class="study-focus-select"><span>Default subject for new activities</span><select value={selectedSubject?.id ?? ''} onchange={(event) => selectedSubjectId = event.currentTarget.value}>
           {#each enrollment.subjects as subject}<option value={subject.id}>{subject.name} · {Math.round(subject.grade)}%</option>{/each}
         </select></label>
       </div>
@@ -116,7 +116,7 @@
   {/if}
 {:else}
   <section class="education-intro domain-panel">
-    <h2>Available Programmes</h2>
+    <h2>Explore programmes</h2>
     {#if programs.length}
       <div class="education-program-list">
         {#each programs as program}
