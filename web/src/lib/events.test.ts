@@ -3,50 +3,51 @@ import { createCharacter } from './simulation';
 import { prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from './events';
 
 describe('game event decisions and delayed consequences', () => {
-  it('persists the selected choice in decision-tree history and schedules its follow-up once', () => {
+  it('records an employed adult extra shift as an immediate career and financial outcome', () => {
     const base = createCharacter('Event Tester', 18);
     const character = prepareGameEvent({
       ...base, eventPreparedYear: undefined, pendingGameEvent: null,
       employment: { title: 'Worker', type: 'full-time', annualSalary: 52000, experienceYears: 1, performance: 60, promotions: 0, startedAtAge: 18 }
     });
-    const pending = character.pendingGameEvent;
-    expect(pending?.id).toBe('adult-side-project');
-    const choice = pending!.choices.find((item) => item.id === 'take-part')!;
-
+    const pending = character.pendingGameEvent!;
+    const choice = pending.choices.find((item) => item.id === 'take-part')!;
     const resolved = resolveGameEvent(character, choice.id);
 
     expect(resolved.pendingGameEvent).toBeNull();
-    expect(resolved.resolvedGameEventIds).toContain(pending!.id);
-    expect(resolved.decisionTreeHistory).toHaveLength(1);
+    expect(resolved.resolvedGameEventIds).toContain(pending.id);
     expect(resolved.decisionTreeHistory?.[0]).toMatchObject({
-      eventId: pending!.id,
-      chosenChoiceId: choice.id,
-      chosenLabel: choice.label,
-      treeId: 'life'
+      eventId: pending.id, chosenChoiceId: choice.id, chosenLabel: choice.label, treeId: 'career'
     });
+    expect(resolved.money).toBe(character.money + choice.effects.money!);
     expect(resolved.financialTransactions?.some((transaction) =>
-      transaction.id === 'event:' + pending!.id + ':' + choice.id + ':cost' &&
-      transaction.type === 'expense' && transaction.amount === choice.moneyCost
+      transaction.type === 'income' && transaction.amount === choice.effects.money
     )).toBe(true);
+    expect(resolved.scheduledGameConsequences).toHaveLength(0);
+  });
+
+  it('persists a study choice follow-up and resolves it once in the following year', () => {
+    const base = createCharacter('Student Tester', 12);
+    const character = prepareGameEvent({
+      ...base, eventPreparedYear: undefined, pendingGameEvent: null,
+      educationEnrollment: {
+        recordId: 'school-1', status: 'enrolled', programId: 'primary', institution: 'Local School',
+        level: 'primary', field: 'Science', startedAtAge: 6, tuitionPaid: 0,
+        weeksCompleted: 4, totalWeeks: 100, grade: 70, attendance: 95, subjects: []
+      }
+    });
+    const pending = character.pendingGameEvent!;
+    const choice = pending.choices.find((item) => item.id === 'join')!;
+    const resolved = resolveGameEvent(character, choice.id);
     expect(resolved.scheduledGameConsequences).toHaveLength(1);
     expect(resolved.scheduledGameConsequences?.[0]).toMatchObject({
-      id: pending!.id + ':' + choice.id,
-      dueYear: character.year + 1,
-      title: choice.followUp?.title
+      id: pending.id + ':' + choice.id, dueYear: character.year + 1, title: choice.followUp?.title
     });
 
-    const due = {
-      ...resolved,
-      year: resolved.scheduledGameConsequences![0].dueYear
-    };
+    const due = { ...resolved, year: resolved.scheduledGameConsequences![0].dueYear };
     const rewarded = resolveDueGameConsequences(due);
-    expect(rewarded.money).toBe(resolved.money + (choice.followUp?.effects.money ?? 0));
+    expect(rewarded.intelligence).toBe(resolved.intelligence + (choice.followUp?.effects.intelligence ?? 0));
     expect(rewarded.scheduledGameConsequences).toEqual([]);
     expect(rewarded.history[0].title).toBe(choice.followUp?.title);
-    expect(rewarded.financialTransactions?.some((transaction) =>
-      transaction.id === 'consequence:' + pending!.id + ':' + choice.id + ':money' &&
-      transaction.type === 'income' && transaction.amount === (choice.followUp?.effects.money ?? 0)
-    )).toBe(true);
     expect(resolveDueGameConsequences(rewarded)).toBe(rewarded);
   });
 
@@ -58,7 +59,6 @@ describe('game event decisions and delayed consequences', () => {
     });
     const pending = character.pendingGameEvent!;
     expect(resolveGameEvent(character, 'not-a-choice')).toBe(character);
-
     const resolved = resolveGameEvent(character, pending.choices[0].id);
     expect(resolveGameEvent(resolved, pending.choices[0].id)).toBe(resolved);
     expect(resolved.decisionTreeHistory).toHaveLength(1);
