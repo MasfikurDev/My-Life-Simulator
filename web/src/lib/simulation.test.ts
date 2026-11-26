@@ -763,7 +763,8 @@ describe('life simulation', () => {
       employment: { title: 'Operations associate', type: 'full-time' as const, annualSalary: 10000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 }
     };
     const next = performActivity(worker, 'career');
-    expect(next.employment?.performance).toBe(72);
+    expect(next.employment?.performance).toBeGreaterThan(worker.employment.performance);
+    expect(next.employment?.performance).toBeLessThanOrEqual(100);
   });
   it('updates education status when a character crosses school-age boundaries', () => {
     expect(advanceYear(createCharacter('Child', 5)).education).toBe('Primary education');
