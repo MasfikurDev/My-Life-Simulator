@@ -60,31 +60,32 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
   const scale = character.currencyScale ?? 1;
   const events: PendingGameEvent[] = [];
 
-  if (character.age >= 6 && character.age <= 17 && !resolved.includes('school-reading-circle')) {
+  const enrollment = character.educationEnrollment;
+  if (character.age >= 6 && character.age <= 17 && enrollment?.status === 'enrolled' && !resolved.includes('school-reading-circle')) {
     events.push({
       id: 'school-reading-circle',
-      title: 'An invitation to the reading circle',
-      description: 'A classmate is starting a small after-school reading group. It could help you learn and meet people, but it will take some energy this week.',
+      title: 'Your instructor recommends a study group',
+      description: 'At ' + enrollment.institution + ', your ' + enrollment.field + ' instructor is organizing an optional study group for students who want to strengthen their understanding before the next assessment. It takes time that could go toward rest or another activity.',
       category: 'opportunity',
       choices: [
         {
           id: 'join',
-          label: 'Join the group',
-          detail: 'Spend time learning together. Your knowledge and confidence may grow.',
+          label: 'Attend the study group',
+          detail: 'Use part of this week to work through the subject with other students.',
           staminaCost: 5,
           moneyCost: 0,
-          effects: { intelligence: 3, happiness: 2 },
+          effects: { intelligence: 3, happiness: 1 },
           followUp: {
             delayYears: 1,
-            title: 'Your reading paid off',
-            description: 'The reading group helped you build a stronger learning habit. You carry that progress into this year.',
+            title: 'The study habit stuck',
+            description: 'The group helped you build a more consistent study routine. That habit continues to support your learning.',
             effects: { intelligence: 2 }
           }
         },
         {
           id: 'pass',
-          label: 'Keep your free time',
-          detail: 'Leave the invitation unanswered and spend your time elsewhere.',
+          label: 'Keep your time free',
+          detail: 'Skip the optional session and preserve your time for other priorities.',
           staminaCost: 0,
           moneyCost: 0,
           effects: {}
@@ -93,58 +94,26 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
     });
   }
 
-  if (character.age >= 18 && character.age < 65 && !resolved.includes('adult-side-project')) {
+  if (character.age >= 18 && character.age < 65 && character.employment && !resolved.includes('adult-side-project')) {
+    const extraShiftPay = Math.max(1, Math.round(character.employment.annualSalary / 260 * 1.5));
     events.push({
       id: 'adult-side-project',
-      title: 'A chance to try something new',
-      description: 'Someone you know is putting together a small weekend project and asks you to help. It is a modest commitment, but it could build useful experience.',
+      title: 'Your employer offers an extra shift',
+      description: character.employment.employer + ' needs cover for an additional shift in your ' + character.employment.title + ' role. The shift would bring extra pay, but it will use time and energy you could otherwise spend recovering or on personal priorities.',
       category: 'opportunity',
       choices: [
         {
           id: 'take-part',
-          label: 'Take part',
-          detail: 'Commit some energy and spend ' + Math.round(50 * scale).toLocaleString('en-US') + ' on supplies. If you follow through, the experience may lead to a small payment next year.',
-          staminaCost: 5,
-          moneyCost: Math.round(50 * scale),
-          effects: { intelligence: 2, happiness: 1 },
-          followUp: {
-            delayYears: 1,
-            title: 'The project paid off',
-            description: 'Your contribution to the weekend project was appreciated, and you received a modest payment.',
-            effects: { money: Math.round(100 * scale), happiness: 1 }
-          }
+          label: 'Accept the extra shift',
+          detail: 'Work the additional shift and receive ' + extraShiftPay.toLocaleString('en-US') + ' in extra pay.',
+          staminaCost: 8,
+          moneyCost: 0,
+          effects: { money: extraShiftPay }
         },
         {
           id: 'pass',
-          label: 'Decline for now',
-          detail: 'Keep your time and money available for other priorities.',
-          staminaCost: 0,
-          moneyCost: 0,
-          effects: {}
-        }
-      ]
-    });
-  }
-
-  if (character.age >= 35 && character.health <= 60 && !resolved.includes('wellbeing-check-in')) {
-    events.push({
-      id: 'wellbeing-check-in',
-      title: 'A reason to slow down',
-      description: 'You have been feeling run down lately. A little time for recovery could help before you take on more responsibilities.',
-      category: 'personal',
-      choices: [
-        {
-          id: 'make-time',
-          label: 'Make time to recover',
-          detail: 'Reserve time to rest and rebuild some health.',
-          staminaCost: 5,
-          moneyCost: 0,
-          effects: { health: 6, happiness: 1 }
-        },
-        {
-          id: 'carry-on',
-          label: 'Carry on as planned',
-          detail: 'Keep your available time for other priorities.',
+          label: 'Decline the shift',
+          detail: 'Keep your existing commitments and recovery time unchanged.',
           staminaCost: 0,
           moneyCost: 0,
           effects: {}
@@ -205,7 +174,7 @@ function getDecisionTreeId(eventId: string): DecisionTreeId {
   if (eventId.startsWith('family-check-in-')) return 'relationships';
   if (eventId.includes('wellbeing')) return 'health';
   if (eventId.includes('school') || eventId.includes('reading')) return 'education';
-  if (eventId.includes('career') || eventId.includes('job') || eventId.includes('work')) return 'career';
+  if (eventId.includes('career') || eventId.includes('job') || eventId.includes('work') || eventId === 'adult-side-project') return 'career';
   if (eventId.includes('finance') || eventId.includes('money') || eventId.includes('business')) return 'finance';
   return 'life';
 }
