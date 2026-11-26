@@ -4,7 +4,11 @@ import { prepareGameEvent, resolveDueGameConsequences, resolveGameEvent } from '
 
 describe('game event decisions and delayed consequences', () => {
   it('persists the selected choice in decision-tree history and schedules its follow-up once', () => {
-    const character = createCharacter('Event Tester', 18);
+    const base = createCharacter('Event Tester', 18);
+    const character = prepareGameEvent({
+      ...base, eventPreparedYear: undefined, pendingGameEvent: null,
+      employment: { title: 'Worker', type: 'full-time', annualSalary: 52000, experienceYears: 1, performance: 60, promotions: 0, startedAtAge: 18 }
+    });
     const pending = character.pendingGameEvent;
     expect(pending?.id).toBe('adult-side-project');
     const choice = pending!.choices.find((item) => item.id === 'take-part')!;
@@ -47,7 +51,11 @@ describe('game event decisions and delayed consequences', () => {
   });
 
   it('does not resolve an event twice or record an invalid choice', () => {
-    const character = createCharacter('Event Tester', 18);
+    const base = createCharacter('Event Tester', 18);
+    const character = prepareGameEvent({
+      ...base, eventPreparedYear: undefined, pendingGameEvent: null,
+      employment: { title: 'Worker', type: 'full-time', annualSalary: 52000, experienceYears: 1, performance: 60, promotions: 0, startedAtAge: 18 }
+    });
     const pending = character.pendingGameEvent!;
     expect(resolveGameEvent(character, 'not-a-choice')).toBe(character);
 
