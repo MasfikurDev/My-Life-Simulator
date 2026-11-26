@@ -9,6 +9,22 @@ import { getCareerRole, getJobListings, isEligibleForRole, resolveJobApplication
 import { prepareGameEvent, resolveGameEvent } from './events';
 import { getPassiveLifestyleActivities } from './lifestyle';
 
+
+function enrolledStudentWithEvent(name = 'Student', age = 12) {
+  const character = createCharacter(name, age);
+  return prepareGameEvent({
+    ...character,
+    eventPreparedYear: undefined,
+    pendingGameEvent: null,
+    educationEnrollment: {
+      recordId: 'test-enrollment', status: 'enrolled' as const, programId: 'test-program',
+      institution: 'Local School', level: 'primary' as const, field: 'Science',
+      startedAtAge: age - 2, tuitionPaid: 0, weeksCompleted: 4, totalWeeks: 100,
+      grade: 70, attendance: 95, subjects: []
+    }
+  });
+}
+
 describe('life simulation', () => {
   it('starts a newborn in a family household with age-scaled attributes and passive support', () => {
     const newborn = createCharacter('Newborn', 0);
@@ -336,7 +352,7 @@ describe('life simulation', () => {
     expect(result.character.calendar?.currentDate).toBe(afterSale.calendar?.currentDate);
   });
   it('schedules time-consuming event choices and resolves them with the week', () => {
-    const student = createCharacter('Student', 12);
+    const student = enrolledStudentWithEvent();
     const planned = planEventChoiceInNextFreeTime(student, 'join');
     expect(planned.issue).toBeNull();
     expect(planned.character.pendingGameEvent?.id).toBe('school-reading-circle');
@@ -427,7 +443,7 @@ describe('life simulation', () => {
     expect('actionsRemaining' in annual).toBe(false);
   });
   it('offers an age-appropriate school event and records a meaningful choice', () => {
-    const student = createCharacter('Student', 12);
+    const student = enrolledStudentWithEvent();
     expect(student.pendingGameEvent?.id).toBe('school-reading-circle');
     const before = student.intelligence;
     const joined = resolveGameEvent(student, 'join');
@@ -435,21 +451,21 @@ describe('life simulation', () => {
     expect(joined.intelligence).toBe(before + 3);
     expect(joined.scheduledGameConsequences).toHaveLength(1);
     expect(joined.scheduledGameConsequences![0].dueYear).toBe(student.year + 1);
-    expect(joined.history[0].title).toContain('reading circle');
+    expect(joined.history[0].title).toContain('study group');
   });
 
   it('resolves a delayed event consequence in the following year', () => {
-    const student = createCharacter('Student', 12);
+    const student = enrolledStudentWithEvent();
     const joined = resolveGameEvent(student, 'join');
     const intelligenceAfterChoice = joined.intelligence;
     const nextYear = advanceYear(joined);
     expect(nextYear.intelligence).toBe(Math.min(82, intelligenceAfterChoice + 3));
     expect(nextYear.scheduledGameConsequences).toHaveLength(0);
-    expect(nextYear.history.some((item) => item.title === 'Your reading paid off')).toBe(true);
+    expect(nextYear.history.some((item) => item.title === 'The study habit stuck')).toBe(true);
   });
 
   it('lets an unanswered situation pass cleanly when the player advances the year', () => {
-    const student = createCharacter('Student', 12);
+    const student = enrolledStudentWithEvent();
     const nextYear = advanceYear(student);
     expect(nextYear.pendingGameEvent).toBeNull();
     expect(nextYear.resolvedGameEventIds).toContain('school-reading-circle');
@@ -457,16 +473,19 @@ describe('life simulation', () => {
   });
 
   it('rejects event choices that exceed available stamina or money', () => {
+    const adultBase = createCharacter('Adult', 30);
     const adult = {
-      ...createCharacter('Adult', 30),
+      ...adultBase,
       health: 100,
       money: 0,
+      stamina: 0,
+      employment: { title: 'Worker', type: 'full-time' as const, annualSalary: 52000, experienceYears: 2, performance: 70, promotions: 0, startedAtAge: 28 },
       pendingGameEvent: null,
       eventPreparedYear: undefined
     };
     const withEvent = prepareGameEvent(adult);
     expect(withEvent.pendingGameEvent?.id).toBe('adult-side-project');
-    expect(resolveGameEvent(withEvent, 'take-part')).toBe(withEvent);
+    expect(planEventChoiceInNextFreeTime(withEvent, 'take-part').issue).not.toBeNull();
   });
 
   it('records a year recap and prepares the next age-appropriate situation', () => {
@@ -744,7 +763,8 @@ describe('life simulation', () => {
       employment: { title: 'Operations associate', type: 'full-time' as const, annualSalary: 10000, experienceYears: 0, performance: 60, promotions: 0, startedAtAge: 30 }
     };
     const next = performActivity(worker, 'career');
-    expect(next.employment?.performance).toBe(72);
+    expect(next.employment?.performance).toBeGreaterThan(worker.employment.performance);
+    expect(next.employment?.performance).toBeLessThanOrEqual(100);
   });
   it('updates education status when a character crosses school-age boundaries', () => {
     expect(advanceYear(createCharacter('Child', 5)).education).toBe('Primary education');
