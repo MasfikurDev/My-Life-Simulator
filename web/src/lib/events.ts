@@ -57,7 +57,6 @@ function stableHash(value: string): number {
 
 function eligibleEvents(character: Character): PendingGameEvent[] {
   const resolved = character.resolvedGameEventIds ?? [];
-  const scale = character.currencyScale ?? 1;
   const events: PendingGameEvent[] = [];
 
   const enrollment = character.educationEnrollment;
@@ -99,7 +98,7 @@ function eligibleEvents(character: Character): PendingGameEvent[] {
     events.push({
       id: 'adult-side-project',
       title: 'Your employer offers an extra shift',
-      description: character.employment.employer + ' needs cover for an additional shift in your ' + character.employment.title + ' role. The shift would bring extra pay, but it will use time and energy you could otherwise spend recovering or on personal priorities.',
+      description: (character.employment.employer ?? 'Your workplace') + ' needs cover for an additional shift in your ' + character.employment.title + ' role. The shift would bring extra pay, but it will use time and energy you could otherwise spend recovering or on personal priorities.',
       category: 'opportunity',
       choices: [
         {
